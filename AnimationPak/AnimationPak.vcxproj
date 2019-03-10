@@ -81,6 +81,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
+    <OutDir>$(SolutionDir)\$(Configuration)\</OutDir>
+    <IntDir>$(Configuration)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -120,6 +122,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>C:\Users\azer\workspace\ogre-sdk-1.11.5\include\OGRE;C:\Users\azer\workspace\ogre_imgui;C:\Users\azer\workspace\ogre_imgui\imgui;C:\Users\azer\workspace\ogre-sdk-1.11.5\include\OGRE\Bites;C:\Users\azer\workspace\ogre-sdk-1.11.5\include\OGRE\Overlay;C:\Users\azer\workspace\ogre-sdk-1.11.5\include\OGRE\RTShaderSystem;C:\Users\azer\workspace\ogre-sdk-1.11.5\include\OGRE\HLMS;C:\Users\azer\workspace\ogre-sdk-1.11.5\include\OGRE\MeshLodGenerator;C:\Users\azer\workspace\ogre-sdk-1.11.5\include\OGRE\Paging;C:\Users\azer\workspace\ogre-sdk-1.11.5\include\OGRE\Property;C:\Users\azer\workspace\ogre-sdk-1.11.5\include\OGRE\Terrain;C:\Users\azer\workspace\ogre-sdk-1.11.5\include\OGRE\Volume;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -130,7 +133,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -138,12 +141,15 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>C:\Users\azer\workspace\ogre-sdk-1.11.5\include\OGRE;C:\Users\azer\workspace\ogre_imgui;C:\Users\azer\workspace\ogre_imgui\imgui;C:\Users\azer\workspace\ogre-sdk-1.11.5\include\OGRE\Bites;C:\Users\azer\workspace\ogre-sdk-1.11.5\include\OGRE\Overlay;C:\Users\azer\workspace\ogre-sdk-1.11.5\include\OGRE\RTShaderSystem;C:\Users\azer\workspace\ogre-sdk-1.11.5\include\OGRE\HLMS;C:\Users\azer\workspace\ogre-sdk-1.11.5\include\OGRE\MeshLodGenerator;C:\Users\azer\workspace\ogre-sdk-1.11.5\include\OGRE\Paging;C:\Users\azer\workspace\ogre-sdk-1.11.5\include\OGRE\Property;C:\Users\azer\workspace\ogre-sdk-1.11.5\include\OGRE\Terrain;C:\Users\azer\workspace\ogre-sdk-1.11.5\include\OGRE\Volume;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>C:/Users/azer/workspace/ogre-sdk-1.11.5/lib;C:/Users/azer/workspace/ogre-sdk-1.11.5/lib/$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>C:\Users\azer\workspace\AnimationPak\Release\OgreImgui.lib;C:\Users\azer\workspace\ogre-sdk-1.11.5\lib\OgreBites.lib;C:\Users\azer\workspace\ogre-sdk-1.11.5\lib\OgreHLMS.lib;C:\Users\azer\workspace\ogre-sdk-1.11.5\lib\OgreMeshLodGenerator.lib;C:\Users\azer\workspace\ogre-sdk-1.11.5\lib\OgreOverlay.lib;C:\Users\azer\workspace\ogre-sdk-1.11.5\lib\OgreProperty.lib;C:\Users\azer\workspace\ogre-sdk-1.11.5\lib\OgreRTShaderSystem.lib;C:\Users\azer\workspace\ogre-sdk-1.11.5\lib\OgreTerrain.lib;C:\Users\azer\workspace\ogre-sdk-1.11.5\lib\OgrePaging.lib;C:\Users\azer\workspace\ogre-sdk-1.11.5\lib\OgreVolume.lib;C:\Users\azer\workspace\ogre-sdk-1.11.5\lib\OgreMain.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -151,7 +157,7 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="AnimationPak.cpp" />
+    <ClCompile Include="main.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>

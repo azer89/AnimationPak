@@ -1,6 +1,8 @@
 
 #include "Display.h"
 
+#include "DynamicLines.h"
+
 #include <iostream>
 
 //#define IM_ARRAYSIZE(_ARR)  ((int)(sizeof(_ARR)/sizeof(*_ARR)))
@@ -79,13 +81,13 @@ void Display::setup()
 
 	Ogre::Light* light = scnMgr->createLight("MainLight");
 	Ogre::SceneNode* lightNode = scnMgr->getRootSceneNode()->createChildSceneNode();
-	lightNode->setPosition(0, 10, 15);
+	lightNode->setPosition(250, 250, -250);
 	lightNode->attachObject(light);
 
 
 	Ogre::SceneNode* camNode = scnMgr->getRootSceneNode()->createChildSceneNode();
-	camNode->setPosition(0, 0, 15);
-	camNode->lookAt(Ogre::Vector3(0, 0, -1), Ogre::Node::TS_PARENT);
+	camNode->setPosition(250, 250, 1000);
+	camNode->lookAt(Ogre::Vector3(250, 250, 0), Ogre::Node::TS_PARENT);
 
 	Ogre::Camera* cam = scnMgr->createCamera("myCam");
 	cam->setNearClipDistance(5); // specific to this sample
@@ -95,11 +97,13 @@ void Display::setup()
 	
 	// background color
 	vp->setBackgroundColour(Ogre::ColourValue(1, 1, 1));
+	//vp->setBackgroundColour(Ogre::ColourValue(0, 0, 0));
 
 	Ogre::Entity* ent = scnMgr->createEntity("Sinbad.mesh");
-	ent->setMaterialName("Examples/TransparentTest2");
+	ent->setMaterialName("Examples/RedMat");
 	Ogre::SceneNode* node = scnMgr->getRootSceneNode()->createChildSceneNode();
 	node->attachObject(ent);
+	node->setScale(10, 10, 10);
 
 	Ogre::RenderSystemList::const_iterator renderers = mRoot->getAvailableRenderers().begin();
 
@@ -115,6 +119,60 @@ void Display::setup()
 		renderers++;
 	}
 	*/
+
+	std::deque<Ogre::Vector3> somePoints;
+	// add points
+	//somePoints.push_back(Ogre::Vector3(0.0f, 0.0f, 0.0f));
+	//somePoints.push_back(Ogre::Vector3(452.0f, 2345.0f, 453.0f));
+	// front
+	somePoints.push_back(Ogre::Vector3(0.0f, 0.0f, 0.0f));
+	somePoints.push_back(Ogre::Vector3(500.0f, 0.0f, 0.0f));
+
+	somePoints.push_back(Ogre::Vector3(500.0f, 0.0f, 0.0f));
+	somePoints.push_back(Ogre::Vector3(500.0f, 500.0f, 0.0f));
+
+	somePoints.push_back(Ogre::Vector3(500.0f, 500.0f, 0.0f));
+	somePoints.push_back(Ogre::Vector3(0.0f, 500.0f, 0.0f));
+
+	somePoints.push_back(Ogre::Vector3(0.0f, 500.0f, 0.0f));
+	somePoints.push_back(Ogre::Vector3(0.0f, 0.0f, 0.0f));
+
+	// back
+	somePoints.push_back(Ogre::Vector3(0.0f, 0.0f, -500.0f));
+	somePoints.push_back(Ogre::Vector3(500.0f, 0.0f, -500.0f));
+
+	somePoints.push_back(Ogre::Vector3(500.0f, 0.0f, -500.0f));
+	somePoints.push_back(Ogre::Vector3(500.0f, 500.0f, -500.0f));
+
+	somePoints.push_back(Ogre::Vector3(500.0f, 500.0f, -500.0f));
+	somePoints.push_back(Ogre::Vector3(0.0f, 500.0f, -500.0f));
+
+	somePoints.push_back(Ogre::Vector3(0.0f, 500.0f, -500.0f));
+	somePoints.push_back(Ogre::Vector3(0.0f, 0.0f, -500.0f));
+
+	// left
+	somePoints.push_back(Ogre::Vector3(0.0f, 500.0f, 0.0f));
+	somePoints.push_back(Ogre::Vector3(0.0f, 500.0f, -500.0f));
+
+	somePoints.push_back(Ogre::Vector3(0.0f, 0.0f, 0.0f));
+	somePoints.push_back(Ogre::Vector3(0.0f, 0.0f, -500.0f));
+
+	// right
+	somePoints.push_back(Ogre::Vector3(500.0f, 500.0f, 0.0f));
+	somePoints.push_back(Ogre::Vector3(500.0f, 500.0f, -500.0f));
+
+	somePoints.push_back(Ogre::Vector3(500.0f, 0.0f, 0.0f));
+	somePoints.push_back(Ogre::Vector3(500.0f, 0.0f, -500.0f));
+
+
+	//In the initialization somewhere, create the initial lines object :
+	DynamicLines * lines = new DynamicLines(Ogre::RenderOperation::OT_LINE_LIST);
+	for (int i = 0; i<somePoints.size(); i++) {
+		lines->addPoint(somePoints[i]);
+	}
+	lines->update();
+	Ogre::SceneNode *linesNode = scnMgr->getRootSceneNode()->createChildSceneNode("lines");
+	linesNode->attachObject(lines);
 }
 
 bool Display::keyPressed(const OgreBites::KeyboardEvent& evt)

@@ -2,6 +2,7 @@
 #include "Display.h"
 
 #include "DynamicLines.h"
+#include "Tubes.h"
 
 #include <iostream>
 
@@ -81,7 +82,7 @@ void Display::setup()
 
 	Ogre::Light* light = scnMgr->createLight("MainLight");
 	Ogre::SceneNode* lightNode = scnMgr->getRootSceneNode()->createChildSceneNode();
-	lightNode->setPosition(250, 250, -250);
+	lightNode->setPosition(250, 250, 100);
 	lightNode->attachObject(light);
 
 
@@ -100,7 +101,7 @@ void Display::setup()
 	//vp->setBackgroundColour(Ogre::ColourValue(0, 0, 0));
 
 	Ogre::Entity* ent = scnMgr->createEntity("Sinbad.mesh");
-	ent->setMaterialName("Examples/RedMat");
+	ent->setMaterialName("Examples/TransparentTest2");
 	Ogre::SceneNode* node = scnMgr->getRootSceneNode()->createChildSceneNode();
 	node->attachObject(ent);
 	node->setScale(10, 10, 10);
@@ -163,6 +164,23 @@ void Display::setup()
 
 	somePoints.push_back(Ogre::Vector3(500.0f, 0.0f, 0.0f));
 	somePoints.push_back(Ogre::Vector3(500.0f, 0.0f, -500.0f));
+
+	// tubes
+	Ogre::SceneNode* pNode = scnMgr->getRootSceneNode()->createChildSceneNode();
+
+	SeriesOfTubes* mTubes = new SeriesOfTubes(scnMgr, 16, 10.0, 12, 12, 12.0);
+
+	mTubes->addPoint(Ogre::Vector3(0, 0, 0));
+	mTubes->addPoint(Ogre::Vector3(100, 0, 0));
+	mTubes->addPoint(Ogre::Vector3(0, 200, 200));
+	mTubes->addPoint(Ogre::Vector3(50, 340, 100));
+	mTubes->addPoint(Ogre::Vector3(500, 340, 000));
+	mTubes->addPoint(Ogre::Vector3(400, 100, -100));
+	mTubes->addPoint(Ogre::Vector3(50, -20, -190));
+	mTubes->addPoint(Ogre::Vector3(0, -100, -500));
+
+	mTubes->setSceneNode(pNode);
+	mTubes->createTubes("MyTubes", "Examples/TransparentTest2");
 
 
 	//In the initialization somewhere, create the initial lines object :

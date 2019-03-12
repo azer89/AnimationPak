@@ -170,7 +170,7 @@ void Display::setup()
 
 	SeriesOfTubes* mTubes = new SeriesOfTubes(scnMgr, 16, 10.0, 12, 12, 12.0);
 
-	mTubes->addPoint(Ogre::Vector3(0, 0, 0));
+	/*mTubes->addPoint(Ogre::Vector3(0, 0, 0));
 	mTubes->addPoint(Ogre::Vector3(100, 0, 0));
 	mTubes->addPoint(Ogre::Vector3(0, 200, 200));
 	mTubes->addPoint(Ogre::Vector3(50, 340, 100));
@@ -178,6 +178,13 @@ void Display::setup()
 	mTubes->addPoint(Ogre::Vector3(400, 100, -100));
 	mTubes->addPoint(Ogre::Vector3(50, -20, -190));
 	mTubes->addPoint(Ogre::Vector3(0, -100, -500));
+	*/
+	mTubes->addPoint(Ogre::Vector3(400, 10, 0));
+	mTubes->addPoint(Ogre::Vector3(300, 20, -100));
+	mTubes->addPoint(Ogre::Vector3(100, 50, -200));
+	mTubes->addPoint(Ogre::Vector3(100, 100, -300));
+	mTubes->addPoint(Ogre::Vector3(30, 250, -400));
+	mTubes->addPoint(Ogre::Vector3(0, 350, -500));
 
 	mTubes->setSceneNode(pNode);
 	mTubes->createTubes("MyTubes", "Examples/TransparentTest2");

@@ -46,7 +46,8 @@ public:
 	//bool MouseEvent(int button, int state, int x, int y);
 
 public:
-	OgreBites::CameraMan* mCameraMan;
+	bool _cameraActivated;            // activate or deactivate a camera
+	OgreBites::CameraMan* _cameraMan; // 1st person shooter camera
 
 	//static std::shared_ptr<Display> GetInstance();
 

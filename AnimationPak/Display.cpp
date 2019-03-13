@@ -12,7 +12,7 @@
 
 
 // rename title for opening setup
-Display::Display()  : OgreBites::ApplicationContext("AnimationPak"), mCameraMan(0)
+Display::Display()  : OgreBites::ApplicationContext("AnimationPak"), _cameraMan(0), _cameraActivated(false)
 {
 }
 
@@ -20,7 +20,7 @@ Display::Display()  : OgreBites::ApplicationContext("AnimationPak"), mCameraMan(
 
 Display::~Display()
 {
-	if (mCameraMan) { delete mCameraMan; }
+	if (_cameraMan) { delete _cameraMan; }
 }
 
 bool Display::frameStarted(const Ogre::FrameEvent& evt)
@@ -32,7 +32,10 @@ bool Display::frameStarted(const Ogre::FrameEvent& evt)
 		Ogre::Rect(0, 0, getRenderWindow()->getWidth(), getRenderWindow()->getHeight()));
 
 
-	mCameraMan->frameRendered(evt);
+	if(_cameraActivated)
+	{
+		_cameraMan->frameRendered(evt);
+	}
 
 	//ImGui::ShowDemoWindow();
 	//ImGui::ShowDemoWindow();
@@ -109,8 +112,10 @@ void Display::setup()
 	Ogre::RenderSystemList::const_iterator renderers = mRoot->getAvailableRenderers().begin();
 
 
-	mCameraMan = new OgreBites::CameraMan(camNode);
-	mCameraMan->setStyle(OgreBites::CameraStyle::CS_FREELOOK);
+	_cameraMan = new OgreBites::CameraMan(camNode);
+	_cameraMan->setStyle(OgreBites::CameraStyle::CS_MANUAL);
+	
+	//mCameraMan->manualStop();
 	/*
 	std::cout << "\n\n renderers \n\n";
 	while (renderers != mRoot->getAvailableRenderers().end())
@@ -206,37 +211,49 @@ bool Display::keyPressed(const OgreBites::KeyboardEvent& evt)
 	{
 		getRoot()->queueEndRendering();
 	}
-	mCameraMan->keyPressed(evt);
+	_cameraMan->keyPressed(evt);
 	return true;
 }
 
 bool Display::keyReleased(const OgreBites::KeyboardEvent &evt)
 {
-	mCameraMan->keyReleased(evt);
+	_cameraMan->keyReleased(evt);
 	return true;
 }
 
 bool Display::mouseMoved(const OgreBites::MouseMotionEvent &evt)
 {
-	mCameraMan->mouseMoved(evt);
+	_cameraMan->mouseMoved(evt);
 	return true;
 }
 
 bool Display::mousePressed(const OgreBites::MouseButtonEvent &evt)
-{
-	mCameraMan->mousePressed(evt);
+{	
+	_cameraActivated = !_cameraActivated;
+	if (!_cameraActivated)
+	{
+		std::cout << "stop camera\n";
+		_cameraMan->manualStop();
+		_cameraMan->setStyle(OgreBites::CameraStyle::CS_MANUAL);
+	}
+	else
+	{
+		_cameraMan->setStyle(OgreBites::CameraStyle::CS_FREELOOK);
+	}
+	
+	_cameraMan->mousePressed(evt);
 	return true;
 }
 
 bool Display::mouseReleased(const OgreBites::MouseButtonEvent &evt)
 {
-	mCameraMan->mouseReleased(evt);
+	_cameraMan->mouseReleased(evt);
 	return true;
 }
 
 bool Display::mouseWheelRolled(const OgreBites::MouseWheelEvent &evt)
 {
-	mCameraMan->mouseWheelRolled(evt);
+	_cameraMan->mouseWheelRolled(evt);
 	return true;
 }
 

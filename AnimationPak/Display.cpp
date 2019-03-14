@@ -170,20 +170,65 @@ void Display::setup()
 	somePoints.push_back(Ogre::Vector3(500.0f, 0.0f, 0.0f));
 	somePoints.push_back(Ogre::Vector3(500.0f, 0.0f, -500.0f));
 
+	// star
+	/*
+	62.718 	12.174 
+	78.168 	45.092 
+	112.718 50.371 
+	87.718 	75.994 
+	93.619 	112.174 
+	62.718 	95.092 
+	31.816 	112.174 
+	37.718 	75.994 
+	12.718 	50.371 
+	47.267 	45.092 
+	*/
+	//somePoints.push_back(Ogre::Vector3(0.0f, 0.0f, 0.0f));
+	somePoints.push_back(Ogre::Vector3(62.718, 	12.174, 0.0f));	
+	somePoints.push_back(Ogre::Vector3(78.168, 	45.092, 0.0f));
+
+	somePoints.push_back(Ogre::Vector3(78.168, 45.092, 0.0f));
+	somePoints.push_back(Ogre::Vector3(112.718, 50.371, 0.0f));
+	
+	somePoints.push_back(Ogre::Vector3(112.718, 50.371, 0.0f));	
+	somePoints.push_back(Ogre::Vector3(87.718, 	75.994, 0.0f));
+
+	somePoints.push_back(Ogre::Vector3(87.718, 75.994, 0.0f));	
+	somePoints.push_back(Ogre::Vector3(93.619, 	112.174, 0.0f));
+
+	somePoints.push_back(Ogre::Vector3(93.619, 112.174, 0.0f));	
+	somePoints.push_back(Ogre::Vector3(62.718, 	95.092, 0.0f));
+
+	somePoints.push_back(Ogre::Vector3(62.718, 95.092, 0.0f));	
+	somePoints.push_back(Ogre::Vector3(31.816, 	112.174, 0.0f));
+
+	somePoints.push_back(Ogre::Vector3(31.816, 112.174, 0.0f));	
+	somePoints.push_back(Ogre::Vector3(37.718, 	75.994, 0.0f));
+
+	somePoints.push_back(Ogre::Vector3(37.718, 75.994, 0.0f));	
+	somePoints.push_back(Ogre::Vector3(12.718, 	50.371, 0.0f));
+
+	somePoints.push_back(Ogre::Vector3(12.718, 50.371, 0.0f));	
+	somePoints.push_back(Ogre::Vector3(47.267, 	45.092, 0.0f));
+
+	somePoints.push_back(Ogre::Vector3(47.267, 45.092, 0.0f));
+	somePoints.push_back(Ogre::Vector3(62.718, 12.174, 0.0f));
+
+	//In the initialization somewhere, create the initial lines object :
+	DynamicLines * lines = new DynamicLines(Ogre::RenderOperation::OT_LINE_LIST);
+	for (int i = 0; i<somePoints.size(); i++) {
+		lines->addPoint(somePoints[i]);
+	}
+
+	lines->update();
+	Ogre::SceneNode *linesNode = scnMgr->getRootSceneNode()->createChildSceneNode("lines");
+	linesNode->attachObject(lines);
+
 	// tubes
-	Ogre::SceneNode* pNode = scnMgr->getRootSceneNode()->createChildSceneNode();
+	/*Ogre::SceneNode* pNode = scnMgr->getRootSceneNode()->createChildSceneNode();
 
 	SeriesOfTubes* mTubes = new SeriesOfTubes(scnMgr, 16, 10.0, 12, 12, 12.0);
 
-	/*mTubes->addPoint(Ogre::Vector3(0, 0, 0));
-	mTubes->addPoint(Ogre::Vector3(100, 0, 0));
-	mTubes->addPoint(Ogre::Vector3(0, 200, 200));
-	mTubes->addPoint(Ogre::Vector3(50, 340, 100));
-	mTubes->addPoint(Ogre::Vector3(500, 340, 000));
-	mTubes->addPoint(Ogre::Vector3(400, 100, -100));
-	mTubes->addPoint(Ogre::Vector3(50, -20, -190));
-	mTubes->addPoint(Ogre::Vector3(0, -100, -500));
-	*/
 	mTubes->addPoint(Ogre::Vector3(400, 10, 0));
 	mTubes->addPoint(Ogre::Vector3(300, 20, -100));
 	mTubes->addPoint(Ogre::Vector3(100, 50, -200));
@@ -192,17 +237,11 @@ void Display::setup()
 	mTubes->addPoint(Ogre::Vector3(0, 350, -500));
 
 	mTubes->setSceneNode(pNode);
-	mTubes->createTubes("MyTubes", "Examples/TransparentTest2");
+	mTubes->createTubes("MyTubes", "Examples/TransparentTest2");*/
 
 
-	//In the initialization somewhere, create the initial lines object :
-	DynamicLines * lines = new DynamicLines(Ogre::RenderOperation::OT_LINE_LIST);
-	for (int i = 0; i<somePoints.size(); i++) {
-		lines->addPoint(somePoints[i]);
-	}
-	lines->update();
-	Ogre::SceneNode *linesNode = scnMgr->getRootSceneNode()->createChildSceneNode("lines");
-	linesNode->attachObject(lines);
+	
+	
 }
 
 bool Display::keyPressed(const OgreBites::KeyboardEvent& evt)

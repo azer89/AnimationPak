@@ -33,6 +33,15 @@
     <ClInclude Include="Tubes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="A3DVector.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="AnElement.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="StuffWorker.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -51,6 +60,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Tubes.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="AnElement.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="StuffWorker.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

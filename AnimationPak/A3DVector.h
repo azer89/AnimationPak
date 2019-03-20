@@ -1,5 +1,5 @@
 
-/* ---------- ShapeRadiusMatching V2  ---------- */
+/* ---------- AnimationPak  ---------- */
 
 /*
 ================================================================================
@@ -22,7 +22,7 @@ radhitya@uwaterloo.ca
 /**
 * Reza Adhitya Saputra
 * radhitya@uwaterloo.ca
-* February 2016
+* March 2019
 */
 
 
@@ -85,8 +85,9 @@ public:
 	bool IsBad()
 	{
 		//if (Length() > 1000000) { std::cout << "huh?\n"; return true; }
-
-		return std::isinf(_x) || std::isnan(_x) || std::isinf(_y) || std::isnan(_y) || std::isinf(_z) || std::isnan(_z);
+		return std::isinf(_x) || std::isnan(_x) || 
+			   std::isinf(_y) || std::isnan(_y) || 
+			   std::isinf(_z) || std::isnan(_z);
 	}
 
 	// if a point is (-1, -1)
@@ -107,7 +108,9 @@ public:
 		//if (vlength == 0) { std::cout << "div by zero duh\n"; }
 		if (vlength == 0) { return A3DVector(0, 0, 0); }
 
-		return A3DVector(this->_x / vlength, this->_y / vlength, this->_z / vlength);
+		return A3DVector(this->_x / vlength, 
+			             this->_y / vlength, 
+			             this->_z / vlength);
 	}
 
 	// Euclidean distance
@@ -116,117 +119,144 @@ public:
 		float xDist = _x - other._x;
 		float yDist = _y - other._y;
 		float zDist = _z - other._z;
-		return std::sqrt(xDist * xDist + yDist * yDist + zDist * zDist);
+		return std::sqrt(xDist * xDist + 
+			             yDist * yDist + 
+			             zDist * zDist);
 	}
 
 	// Euclidean distance
-	float Distance(float otherX, float otherY, , float otherZ)
+	float Distance(float otherX, float otherY, float otherZ)
 	{
 		float xDist = _x - otherX;
 		float yDist = _y - otherY;
-		float yDist = _z - otherZ;
-		return std::sqrt(xDist * xDist + yDist * yDist + zDist * zDist);
+		float zDist = _z - otherZ;
+		return std::sqrt(xDist * xDist + 
+			             yDist * yDist + 
+			             zDist * zDist);
 	}
 
 	// squared euclidean distance
-	float DistanceSquared(const AVector& other)
+	float DistanceSquared(const A3DVector& other)
 	{
-		float xDist = x - other.x;
-		float yDist = y - other.y;
-		return (xDist * xDist + yDist * yDist);
+		float xDist = _x - other._x;
+		float yDist = _y - other._y;
+		float zDist = _z - other._z;
+		return (xDist * xDist + 
+			    yDist * yDist + 
+			    zDist * zDist);
 	}
 
 	// squared euclidean distance
-	float DistanceSquared(float otherX, float otherY)
+	float DistanceSquared(float otherX, float otherY, float otherZ)
 	{
-		float xDist = x - otherX;
-		float yDist = y - otherY;
-		return (xDist * xDist + yDist * yDist);
+		float xDist = _x - otherX;
+		float yDist = _y - otherY;
+		float zDist = _z - otherZ;
+		return (xDist * xDist + yDist * yDist + zDist * zDist);
 	}
 
 	// operator overloading
-	AVector operator+ (const AVector& other) { return AVector(x + other.x, y + other.y); }
+	A3DVector operator+ (const A3DVector& other) { return A3DVector(_x + other._x, _y + other._y, _z + other._z); }
 
 	// operator overloading
-	AVector operator- (const AVector& other) { return AVector(x - other.x, y - other.y); }
-	bool operator== (const AVector& other)
+	A3DVector operator- (const A3DVector& other) { return A3DVector(_x - other._x, _y - other._y, _z - other._z); }
+	bool operator== (const A3DVector& other)
 	{
-		return (abs(this->x - other.x) < std::numeric_limits<float>::epsilon() && abs(this->y - other.y) < std::numeric_limits<float>::epsilon());
+		return (abs(this->_x - other._x) < std::numeric_limits<float>::epsilon() && 
+			    abs(this->_y - other._y) < std::numeric_limits<float>::epsilon() && 
+			    abs(this->_z - other._z) < std::numeric_limits<float>::epsilon());
 	}
 
 	// operator overloading
-	bool operator!= (const AVector& other)
+	bool operator!= (const A3DVector& other)
 	{
-		return (abs(this->x - other.x) > std::numeric_limits<float>::epsilon() || abs(this->y - other.y) > std::numeric_limits<float>::epsilon());
+		return (abs(this->_x - other._x) > std::numeric_limits<float>::epsilon() || 
+			    abs(this->_y - other._y) > std::numeric_limits<float>::epsilon() || 
+			    abs(this->_z - other._z) > std::numeric_limits<float>::epsilon());
 	}
 
 	// operator overloading
-	AVector operator+= (const AVector& other)
+	A3DVector operator+= (const A3DVector& other)
 	{
-		x += other.x;
-		y += other.y;
+		_x += other._x;
+		_y += other._y;
+		_z += other._z;
 		return *this;
 	}
 
 	// operator overloading
-	AVector operator-= (const AVector& other)
+	A3DVector operator-= (const A3DVector& other)
 	{
-		x -= other.x;
-		y -= other.y;
+		_x -= other._x;
+		_y -= other._y;
+		_z -= other._z;
 		return *this;
 	}
 
 	// operator overloading
-	AVector operator/ (const float& val) { return AVector(x / val, y / val); }
+	A3DVector operator/ (const float& val) { return A3DVector(_x / val, _y / val, _z / val); }
 
 	// operator overloading
-	AVector operator* (const float& val) { return AVector(x * val, y * val); }
+	A3DVector operator* (const float& val) { return A3DVector(_x * val, _y * val, _z * val); }
 
 	// operator overloading
-	AVector operator*= (const float& val)
+	A3DVector operator*= (const float& val)
 	{
-		x *= val;
-		y *= val;
+		_x *= val;
+		_y *= val;
+		_z *= val;
 		return *this;
 	}
 
 	// operator overloading
-	AVector operator/= (const float& val)
+	A3DVector operator/= (const float& val)
 	{
-		x /= val;
-		y /= val;
+		_x /= val;
+		_y /= val;
+		_z /= val;
 		return *this;
 	}
 
 	// length of a vector
-	float Length() { return sqrt(x * x + y * y); }
+	float Length() { return sqrt(_x * _x + 
+		                         _y * _y + 
+		                         _z * _z); }
 
 	// squared length of a vector
-	float LengthSquared() { return x * x + y * y; }
+	float LengthSquared() { return _x * _x + 
+		                           _y * _y + 
+		                           _z * _z; }
 
 	// dot product
-	float Dot(const AVector& otherVector) { return x * otherVector.x + y * otherVector.y; }
+	float Dot(const A3DVector& otherVector) { return _x * otherVector._x + 
+		                                             _y * otherVector._y + 
+		                                             _z * otherVector._z; }
 
+	// TODO: reimplement this
 	// cross product
-	AVector Cross(const AVector& otherVector)
+	/*AVector Cross(const AVector& otherVector)
 	{
 		//u x v = u.x * v.y - u.y * v.x
 		return AVector(x * otherVector.y, y * otherVector.x);
-	}
+	}*/
 
+	// TODO: reimplement this
 	// linear dependency test
-	bool IsLinearDependent(const AVector& otherVector)
+	/*
+	bool IsLinearDependent(const A3DVector& otherVector)
 	{
 		float det = (this->x * otherVector.y) - (this->y * otherVector.x);
 		if (det > -std::numeric_limits<float>::epsilon() && det < std::numeric_limits<float>::epsilon()) { return true; }
 		return false;
-	}
+	}*/
 
 	// angle direction
 	// not normalized
 	A3DVector DirectionTo(const A3DVector& otherVector)
 	{
-		return A3DVector(otherVector._x - this->_x, otherVector._y - this->_y, otherVector._z - this->_z);
+		return A3DVector(otherVector._x - this->_x, 
+			             otherVector._y - this->_y, 
+			             otherVector._z - this->_z);
 	}
 
 	// TODO: reimplement this

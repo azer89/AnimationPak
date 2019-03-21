@@ -141,7 +141,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Users\azer\workspace\ogre-sdk-1.11.5\include\OGRE;C:\Users\azer\workspace\ogre_imgui;C:\Users\azer\workspace\ogre_imgui\imgui;C:\Users\azer\workspace\ogre-sdk-1.11.5\include\OGRE\Bites;C:\Users\azer\workspace\ogre-sdk-1.11.5\include\OGRE\Overlay;C:\Users\azer\workspace\ogre-sdk-1.11.5\include\OGRE\RTShaderSystem;C:\Users\azer\workspace\ogre-sdk-1.11.5\include\OGRE\HLMS;C:\Users\azer\workspace\ogre-sdk-1.11.5\include\OGRE\MeshLodGenerator;C:\Users\azer\workspace\ogre-sdk-1.11.5\include\OGRE\Paging;C:\Users\azer\workspace\ogre-sdk-1.11.5\include\OGRE\Property;C:\Users\azer\workspace\ogre-sdk-1.11.5\include\OGRE\Terrain;C:\Users\azer\workspace\ogre-sdk-1.11.5\include\OGRE\Volume;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\azer\workspace\ogre-sdk-1.11.5\include\OGRE;C:\Users\azer\workspace\ogre_imgui;C:\Users\azer\workspace\ogre_imgui\imgui;C:\Users\azer\workspace\ogre-sdk-1.11.5\include\OGRE\Bites;C:\Users\azer\workspace\ogre-sdk-1.11.5\include\OGRE\Overlay;C:\Users\azer\workspace\ogre-sdk-1.11.5\include\OGRE\RTShaderSystem;C:\Users\azer\workspace\ogre-sdk-1.11.5\include\OGRE\HLMS;C:\Users\azer\workspace\ogre-sdk-1.11.5\include\OGRE\MeshLodGenerator;C:\Users\azer\workspace\ogre-sdk-1.11.5\include\OGRE\Paging;C:\Users\azer\workspace\ogre-sdk-1.11.5\include\OGRE\Property;C:\Users\azer\workspace\ogre-sdk-1.11.5\include\OGRE\Terrain;C:\Users\azer\workspace\ogre-sdk-1.11.5\include\OGRE\Volume;C:\Users\azer\workspace\Lua533\Lua533;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -149,25 +149,30 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>C:/Users/azer/workspace/ogre-sdk-1.11.5/lib;C:/Users/azer/workspace/ogre-sdk-1.11.5/lib/$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>C:\Users\azer\workspace\AnimationPak\Release\OgreImgui.lib;C:\Users\azer\workspace\ogre-sdk-1.11.5\lib\OgreBites.lib;C:\Users\azer\workspace\ogre-sdk-1.11.5\lib\OgreHLMS.lib;C:\Users\azer\workspace\ogre-sdk-1.11.5\lib\OgreMeshLodGenerator.lib;C:\Users\azer\workspace\ogre-sdk-1.11.5\lib\OgreOverlay.lib;C:\Users\azer\workspace\ogre-sdk-1.11.5\lib\OgreProperty.lib;C:\Users\azer\workspace\ogre-sdk-1.11.5\lib\OgreRTShaderSystem.lib;C:\Users\azer\workspace\ogre-sdk-1.11.5\lib\OgreTerrain.lib;C:\Users\azer\workspace\ogre-sdk-1.11.5\lib\OgrePaging.lib;C:\Users\azer\workspace\ogre-sdk-1.11.5\lib\OgreVolume.lib;C:\Users\azer\workspace\ogre-sdk-1.11.5\lib\OgreMain.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalDependencies>C:\Users\azer\workspace\AnimationPak\Release\OgreImgui.lib;C:\Users\azer\workspace\ogre-sdk-1.11.5\lib\OgreBites.lib;C:\Users\azer\workspace\ogre-sdk-1.11.5\lib\OgreHLMS.lib;C:\Users\azer\workspace\ogre-sdk-1.11.5\lib\OgreMeshLodGenerator.lib;C:\Users\azer\workspace\ogre-sdk-1.11.5\lib\OgreOverlay.lib;C:\Users\azer\workspace\ogre-sdk-1.11.5\lib\OgreProperty.lib;C:\Users\azer\workspace\ogre-sdk-1.11.5\lib\OgreRTShaderSystem.lib;C:\Users\azer\workspace\ogre-sdk-1.11.5\lib\OgreTerrain.lib;C:\Users\azer\workspace\ogre-sdk-1.11.5\lib\OgrePaging.lib;C:\Users\azer\workspace\ogre-sdk-1.11.5\lib\OgreVolume.lib;C:\Users\azer\workspace\ogre-sdk-1.11.5\lib\OgreMain.lib;C:\Users\azer\workspace\Lua533_vs2017\x64\Release\Lua533.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="A3DVector.h" />
+    <ClInclude Include="AMass.h" />
     <ClInclude Include="AnElement.h" />
     <ClInclude Include="Display.h" />
     <ClInclude Include="DynamicLines.h" />
     <ClInclude Include="DynamicRenderable.h" />
+    <ClInclude Include="LuaScript.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="StuffWorker.h" />
+    <ClInclude Include="SystemParams.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="Tubes.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="AMass.cpp" />
     <ClCompile Include="AnElement.cpp" />
     <ClCompile Include="Display.cpp" />
     <ClCompile Include="DynamicLines.cpp" />
     <ClCompile Include="DynamicRenderable.cpp" />
+    <ClCompile Include="LuaScript.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -176,6 +181,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="StuffWorker.cpp" />
+    <ClCompile Include="SystemParams.cpp" />
     <ClCompile Include="Tubes.cpp" />
   </ItemGroup>
   <ItemGroup>

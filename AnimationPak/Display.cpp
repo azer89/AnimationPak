@@ -16,8 +16,6 @@ Display::Display()  : OgreBites::ApplicationContext("AnimationPak"), _cameraMan(
 {
 }
 
-
-
 Display::~Display()
 {
 	if (_cameraMan) { delete _cameraMan; }
@@ -30,8 +28,7 @@ bool Display::frameStarted(const Ogre::FrameEvent& evt)
 	Ogre::ImguiManager::getSingleton().newFrame(
 		evt.timeSinceLastFrame,
 		Ogre::Rect(0, 0, getRenderWindow()->getWidth(), getRenderWindow()->getHeight()));
-
-
+	
 	if(_cameraActivated)
 	{
 		_cameraMan->frameRendered(evt);
@@ -55,6 +52,8 @@ bool Display::frameStarted(const Ogre::FrameEvent& evt)
 	if (ImGui::Button("Button")) {}
 
 	if (ImGui::Button("Button")) {}
+
+	ImGui::Text("Press C to activate or deactivate camera");
 
 	ImGui::End();
 	//ImGui::Render();
@@ -250,6 +249,22 @@ bool Display::keyPressed(const OgreBites::KeyboardEvent& evt)
 	{
 		getRoot()->queueEndRendering();
 	}
+	if (evt.keysym.sym == 'c' || evt.keysym.sym == 'C')
+	{
+		// Activate or deactivate camera
+		_cameraActivated = !_cameraActivated;
+		if (!_cameraActivated)
+		{
+			std::cout << "stop camera\n";
+			_cameraMan->manualStop();
+			_cameraMan->setStyle(OgreBites::CameraStyle::CS_MANUAL);
+		}
+		else
+		{
+			_cameraMan->setStyle(OgreBites::CameraStyle::CS_FREELOOK);
+		}
+	}
+
 	_cameraMan->keyPressed(evt);
 	return true;
 }
@@ -268,17 +283,7 @@ bool Display::mouseMoved(const OgreBites::MouseMotionEvent &evt)
 
 bool Display::mousePressed(const OgreBites::MouseButtonEvent &evt)
 {	
-	_cameraActivated = !_cameraActivated;
-	if (!_cameraActivated)
-	{
-		std::cout << "stop camera\n";
-		_cameraMan->manualStop();
-		_cameraMan->setStyle(OgreBites::CameraStyle::CS_MANUAL);
-	}
-	else
-	{
-		_cameraMan->setStyle(OgreBites::CameraStyle::CS_FREELOOK);
-	}
+	
 	
 	_cameraMan->mousePressed(evt);
 	return true;

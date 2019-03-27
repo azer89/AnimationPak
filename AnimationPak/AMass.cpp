@@ -1,6 +1,8 @@
 
 #include "AMass.h"
 
+#include "SystemParams.h"
+
 AMass::AMass()
 {
 	//this->_m     = 0;             // mass is always one
@@ -35,7 +37,7 @@ AMass::~AMass()
 
 void AMass::CallMeFromConstructor()
 {
-
+	Init();
 }
 
 void AMass::Init()
@@ -50,6 +52,22 @@ void AMass::Init()
 
 void AMass::Simulate(float dt)
 {
+	// oiler
+	_velocity += ((/*_attractionForce + */ _edgeForce +
+		_repulsionForce +
+		_boundaryForce +
+		_overlapForce +
+		_rotationForce) * dt);
+	float len = _velocity.Length();
+
+	float capVal = SystemParams::_velocity_cap * dt;
+
+	if (len > capVal)
+	{
+		_velocity = _velocity.Norm() * capVal;
+	}
+
+	_pos = _pos + _velocity * dt;
 }
 
 void AMass::Solve(/*Need more parameters*/)

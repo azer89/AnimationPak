@@ -43,6 +43,11 @@ void SystemParams::LoadParameters()
 	SystemParams::_k_dock = script.get<float>("_k_dock");
 
 	SystemParams::_velocity_cap = script.get<float>("_velocity_cap");
+
+	std::cout << SystemParams::_upscaleFactor << "\n";
+	std::cout << SystemParams::_downscaleFactor << "\n";
+	std::cout << SystemParams::_seed << "\n";
+
 }
 
 float SystemParams::_upscaleFactor = 0.0f;

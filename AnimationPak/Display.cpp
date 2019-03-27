@@ -1,8 +1,12 @@
 
 #include "Display.h"
 
-#include "DynamicLines.h"
-#include "Tubes.h"
+#include "StuffWorker.h"
+
+#include "DynamicLines.h" // Ogre tutorial
+#include "Tubes.h"		  // Ogre tutorial
+
+#include "AnElement.h" // delete this!
 
 #include <iostream>
 
@@ -12,12 +16,13 @@
 
 
 // rename title for opening setup
-Display::Display()  : OgreBites::ApplicationContext("AnimationPak"), _cameraMan(0), _cameraActivated(false)
+Display::Display()  : OgreBites::ApplicationContext("AnimationPak"), _cameraMan(0), _cameraNode(0), _cameraActivated(false)
 {
 }
 
 Display::~Display()
 {
+	//if (_debug_elem) { delete _debug_elem; } // still can't create proper destructor ???
 	if (_cameraMan) { delete _cameraMan; }
 }
 
@@ -47,13 +52,24 @@ bool Display::frameStarted(const Ogre::FrameEvent& evt)
 	ImGuiWindowFlags window_flags = 0;
 	ImGui::Begin("AnimationPak", p_open, window_flags);
 
-	if (ImGui::Button("Button")) {  }
+	if (ImGui::Button("Button A")) {  }
 
-	if (ImGui::Button("Button")) {}
+	if (ImGui::Button("Button B")) {}
 
-	if (ImGui::Button("Button")) {}
+	if (ImGui::Button("Button C")) {}
 
 	ImGui::Text("Press C to activate or deactivate camera");
+
+	Ogre::Vector3 camPos = _cameraNode->getPosition();
+	ImGui::Text("Camera position = ");
+	ImGui::Text( (std::to_string(camPos.x)).c_str());
+	ImGui::Text((std::to_string(camPos.y)).c_str());
+	ImGui::Text((std::to_string(camPos.z)).c_str());
+	//ImGui::Text( ("Camera position = " + std::to_string(camPos.x) + ", " + std::to_string(camPos.y) + ", " + std::to_string(camPos.z)).c_str()  );
+
+	// //Ogre::Vector3 camPos = _cameraNode->getPosition();
+
+
 
 	ImGui::End();
 	//ImGui::Render();
@@ -81,38 +97,49 @@ void Display::setup()
 	Ogre::RTShader::ShaderGenerator* shadergen = Ogre::RTShader::ShaderGenerator::getSingletonPtr();
 	shadergen->addSceneManager(scnMgr);
 
+	{
+		Ogre::Light* light = scnMgr->createLight("Light1");
+		Ogre::SceneNode* lightNode = scnMgr->getRootSceneNode()->createChildSceneNode();
+		lightNode->setPosition(0, 0, 0);
+		lightNode->attachObject(light);
+	}
 
-	Ogre::Light* light = scnMgr->createLight("MainLight");
-	Ogre::SceneNode* lightNode = scnMgr->getRootSceneNode()->createChildSceneNode();
-	lightNode->setPosition(250, 250, 100);
-	lightNode->attachObject(light);
+	{
+		Ogre::Light* light = scnMgr->createLight("Light2");
+		Ogre::SceneNode* lightNode = scnMgr->getRootSceneNode()->createChildSceneNode();
+		lightNode->setPosition(500, 500, 500);
+		lightNode->attachObject(light);
+	}
 
-
-	Ogre::SceneNode* camNode = scnMgr->getRootSceneNode()->createChildSceneNode();
-	camNode->setPosition(250, 250, 1000);
-	camNode->lookAt(Ogre::Vector3(250, 250, 0), Ogre::Node::TS_PARENT);
+	_cameraNode = scnMgr->getRootSceneNode()->createChildSceneNode();
+	_cameraNode->setPosition(250, 250, 1000);
+	_cameraNode->roll(Ogre::Degree(0));
+	_cameraNode->lookAt(Ogre::Vector3(250, 250, 0), Ogre::Node::TS_PARENT);
 
 	Ogre::Camera* cam = scnMgr->createCamera("myCam");
 	cam->setNearClipDistance(5); // specific to this sample
 	cam->setAutoAspectRatio(true);
-	camNode->attachObject(cam);
+	_cameraNode->attachObject(cam);
 	Ogre::Viewport* vp = getRenderWindow()->addViewport(cam);
+	_cameraMan = new OgreBites::CameraMan(_cameraNode);
+	_cameraMan->setStyle(OgreBites::CameraStyle::CS_MANUAL);
 	
 	// background color
 	vp->setBackgroundColour(Ogre::ColourValue(1, 1, 1));
 	//vp->setBackgroundColour(Ogre::ColourValue(0, 0, 0));
+	//vp->setBackgroundColour(Ogre::ColourValue(0.5, 0.5, 0.5));
 
-	Ogre::Entity* ent = scnMgr->createEntity("Sinbad.mesh");
+	/*Ogre::Entity* ent = scnMgr->createEntity("Sinbad.mesh");
 	ent->setMaterialName("Examples/TransparentTest2");
 	Ogre::SceneNode* node = scnMgr->getRootSceneNode()->createChildSceneNode();
 	node->attachObject(ent);
-	node->setScale(10, 10, 10);
+	node->setScale(10, 10, 10);*/
 
-	Ogre::RenderSystemList::const_iterator renderers = mRoot->getAvailableRenderers().begin();
+	// what is this???
+	//Ogre::RenderSystemList::const_iterator renderers = mRoot->getAvailableRenderers().begin();
 
 
-	_cameraMan = new OgreBites::CameraMan(camNode);
-	_cameraMan->setStyle(OgreBites::CameraStyle::CS_MANUAL);
+
 	
 	//mCameraMan->manualStop();
 	/*
@@ -181,37 +208,63 @@ void Display::setup()
 	37.718 	75.994 
 	12.718 	50.371 
 	47.267 	45.092 
-	*/
-	//somePoints.push_back(Ogre::Vector3(0.0f, 0.0f, 0.0f));
-	somePoints.push_back(Ogre::Vector3(62.718, 	12.174, 0.0f));	
-	somePoints.push_back(Ogre::Vector3(78.168, 	45.092, 0.0f));
-
-	somePoints.push_back(Ogre::Vector3(78.168, 45.092, 0.0f));
-	somePoints.push_back(Ogre::Vector3(112.718, 50.371, 0.0f));
+		
+	center = 250, 250
+	0, 193
+	172, 168
+	250, 12
+	327, 168
+	500, 193
+	375, 315
+	404, 487
+	250, 406
+	95, 487
+	125, 315
 	
-	somePoints.push_back(Ogre::Vector3(112.718, 50.371, 0.0f));	
-	somePoints.push_back(Ogre::Vector3(87.718, 	75.994, 0.0f));
+	*/
 
-	somePoints.push_back(Ogre::Vector3(87.718, 75.994, 0.0f));	
-	somePoints.push_back(Ogre::Vector3(93.619, 	112.174, 0.0f));
+	/*
+	somePoints.push_back(Ogre::Vector3(0, 193, 0.0f));
+	somePoints.push_back(Ogre::Vector3(172, 168, 0.0f));
 
-	somePoints.push_back(Ogre::Vector3(93.619, 112.174, 0.0f));	
-	somePoints.push_back(Ogre::Vector3(62.718, 	95.092, 0.0f));
+	somePoints.push_back(Ogre::Vector3(172, 168, 0.0f));
+	somePoints.push_back(Ogre::Vector3(250, 12, 0.0f));
+	
+	somePoints.push_back(Ogre::Vector3(250, 12, 0.0f));
+	somePoints.push_back(Ogre::Vector3(327, 168, 0.0f));
 
-	somePoints.push_back(Ogre::Vector3(62.718, 95.092, 0.0f));	
-	somePoints.push_back(Ogre::Vector3(31.816, 	112.174, 0.0f));
+	somePoints.push_back(Ogre::Vector3(327, 168, 0.0f));
+	somePoints.push_back(Ogre::Vector3(500, 193, 0.0f));
 
-	somePoints.push_back(Ogre::Vector3(31.816, 112.174, 0.0f));	
-	somePoints.push_back(Ogre::Vector3(37.718, 	75.994, 0.0f));
+	somePoints.push_back(Ogre::Vector3(500, 193, 0.0f));
+	somePoints.push_back(Ogre::Vector3(375, 315, 0.0f));
 
-	somePoints.push_back(Ogre::Vector3(37.718, 75.994, 0.0f));	
-	somePoints.push_back(Ogre::Vector3(12.718, 	50.371, 0.0f));
+	somePoints.push_back(Ogre::Vector3(375, 315, 0.0f));
+	somePoints.push_back(Ogre::Vector3(404, 487, 0.0f));
 
-	somePoints.push_back(Ogre::Vector3(12.718, 50.371, 0.0f));	
-	somePoints.push_back(Ogre::Vector3(47.267, 	45.092, 0.0f));
+	somePoints.push_back(Ogre::Vector3(404, 487, 0.0f));
+	somePoints.push_back(Ogre::Vector3(250, 406, 0.0f));
 
-	somePoints.push_back(Ogre::Vector3(47.267, 45.092, 0.0f));
-	somePoints.push_back(Ogre::Vector3(62.718, 12.174, 0.0f));
+	somePoints.push_back(Ogre::Vector3(250, 406, 0.0f));
+	somePoints.push_back(Ogre::Vector3(95, 487, 0.0f));
+
+	somePoints.push_back(Ogre::Vector3(95, 487, 0.0f));
+	somePoints.push_back(Ogre::Vector3(125, 315, 0.0f));
+
+	somePoints.push_back(Ogre::Vector3(125, 315, 0.0f));
+	somePoints.push_back(Ogre::Vector3(0, 193, 0.0f));
+	*/
+
+	/*AnElement elem;
+	elem.CreateStarTube();
+	for (int a = 0; a < elem._triEdges.size(); a++)
+	{
+		AnIndexedLine ln = elem._triEdges[a];
+		A3DVector pt1 = elem._massList[ln._index0]._pos;
+		A3DVector pt2 = elem._massList[ln._index1]._pos;
+		somePoints.push_back(Ogre::Vector3(pt1._x, pt1._y, pt1._z));
+		somePoints.push_back(Ogre::Vector3(pt2._x, pt2._y, pt2._z));
+	}*/
 
 	//In the initialization somewhere, create the initial lines object :
 	DynamicLines * lines = new DynamicLines(Ogre::RenderOperation::OT_LINE_LIST);
@@ -236,11 +289,63 @@ void Display::setup()
 	mTubes->addPoint(Ogre::Vector3(0, 350, -500));
 
 	mTubes->setSceneNode(pNode);
-	mTubes->createTubes("MyTubes", "Examples/TransparentTest2");*/
+	mTubes->createTubes("MyTubes", "Examples/TransparentTest2");
 
+	delete mTubes;
+	*/
 
+	{
+		AnElement* elem = new AnElement;
+		elem->CreateStarTube();
+		elem->ScaleXY(0.1);
+		Ogre::SceneNode* pNode = scnMgr->getRootSceneNode()->createChildSceneNode();
+		elem->InitMesh(scnMgr, pNode, "StarTube1", "Examples/TransparentTest2");
+	}
 	
-	
+	{
+		AnElement* elem = new AnElement;
+		elem->CreateStarTube();
+		elem->ScaleXY(0.1);
+		elem->TranslateXY(250, 200);
+		Ogre::SceneNode* pNode = scnMgr->getRootSceneNode()->createChildSceneNode();
+		elem->InitMesh(scnMgr, pNode, "StarTube2", "Examples/TransparentTest2");
+	}
+
+	{
+		AnElement* elem = new AnElement;
+		elem->CreateStarTube();
+		elem->ScaleXY(0.1);
+		elem->TranslateXY(250, 0);
+		Ogre::SceneNode* pNode = scnMgr->getRootSceneNode()->createChildSceneNode();
+		elem->InitMesh(scnMgr, pNode, "StarTube3", "Examples/TransparentTest2");
+	}
+
+	{
+		AnElement* elem = new AnElement;
+		elem->CreateStarTube();
+		elem->ScaleXY(0.1);
+		elem->TranslateXY(0, 350);
+		Ogre::SceneNode* pNode = scnMgr->getRootSceneNode()->createChildSceneNode();
+		elem->InitMesh(scnMgr, pNode, "StarTube4", "Examples/TransparentTest2");
+	}
+
+	{
+		AnElement* elem = new AnElement;
+		elem->CreateStarTube();
+		elem->ScaleXY(0.1);
+		elem->TranslateXY(400, 400);
+		Ogre::SceneNode* pNode = scnMgr->getRootSceneNode()->createChildSceneNode();
+		elem->InitMesh(scnMgr, pNode, "StarTube5", "Examples/TransparentTest2");
+	}
+
+	{
+		AnElement* elem = new AnElement;
+		elem->CreateStarTube();
+		elem->ScaleXY(0.1);
+		elem->TranslateXY(400, 0);
+		Ogre::SceneNode* pNode = scnMgr->getRootSceneNode()->createChildSceneNode();
+		elem->InitMesh(scnMgr, pNode, "StarTube6", "Examples/TransparentTest2");
+	}
 }
 
 bool Display::keyPressed(const OgreBites::KeyboardEvent& evt)
@@ -251,6 +356,8 @@ bool Display::keyPressed(const OgreBites::KeyboardEvent& evt)
 	}
 	if (evt.keysym.sym == 'c' || evt.keysym.sym == 'C')
 	{
+		
+
 		// Activate or deactivate camera
 		_cameraActivated = !_cameraActivated;
 		if (!_cameraActivated)

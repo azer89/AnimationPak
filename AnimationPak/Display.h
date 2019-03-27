@@ -20,6 +20,8 @@ radhitya@uwaterloo.ca
 #include "ImguiManager.h"
 #include "OgreCameraMan.h"
 
+#include "AnElement.h"
+
 class Display : public OgreBites::ApplicationContext, public OgreBites::InputListener
 {
 public:
@@ -48,7 +50,9 @@ public:
 public:
 	bool _cameraActivated;            // activate or deactivate a camera
 	OgreBites::CameraMan* _cameraMan; // 1st person shooter camera
+	Ogre::SceneNode* _cameraNode;
 
+	//AnElement* _debug_elem;
 	//static std::shared_ptr<Display> GetInstance();
 
 	//static void ShowGL(int argc, char **argv);

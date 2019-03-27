@@ -20,6 +20,8 @@ radhitya@uwaterloo.ca
 #include "ImguiManager.h"
 #include "OgreCameraMan.h"
 
+#include "StuffWorker.h"
+
 #include "AnElement.h"
 
 class Display : public OgreBites::ApplicationContext, public OgreBites::InputListener
@@ -41,6 +43,7 @@ public:
 	bool 	mouseWheelRolled(const OgreBites::MouseWheelEvent &evt);
 
 	//void DoStuff();
+	void shutdown();
 
 	//void Draw();
 	//void Update(int nScreenWidth = 0, int nScreenHeight = 0);
@@ -52,6 +55,7 @@ public:
 	OgreBites::CameraMan* _cameraMan; // 1st person shooter camera
 	Ogre::SceneNode* _cameraNode;
 
+	StuffWorker* _sWorker;
 	//AnElement* _debug_elem;
 	//static std::shared_ptr<Display> GetInstance();
 
@@ -88,9 +92,7 @@ public:
 	void DeleteFolders();
 	void DeleteFiles();
 	*/
-
-
-public:
+	
 	//static std::shared_ptr<Display> _static_instance;
 
 

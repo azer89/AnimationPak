@@ -21,9 +21,14 @@ AnElement::AnElement()
 
 AnElement::~AnElement()
 {
+	//_tubeObject = 0;
+	//_sceneNode = 0;
+	//_sceneMgr = 0;
+	//_material.reset();
+
 	// still can't create proper destructor ???
 	// maybe they're automatically deleted???
-	/*
+	
 	if (_tubeObject)
 	{
 		if (_tubeObject->getParentSceneNode())
@@ -40,7 +45,7 @@ AnElement::~AnElement()
 		_sceneNode->getParentSceneNode()->removeAndDestroyChild(_sceneNode->getName());
 		_sceneNode = 0;
 	}
-	*/
+	
 }
 
 void AnElement::ScaleXY(float scVal)

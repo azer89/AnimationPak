@@ -16,7 +16,11 @@
 
 
 // rename title for opening setup
-Display::Display()  : OgreBites::ApplicationContext("AnimationPak"), _cameraMan(0), _cameraNode(0), _cameraActivated(false)
+Display::Display()  : OgreBites::ApplicationContext("AnimationPak"), 
+	_cameraMan(0), 
+	_cameraNode(0), 
+	_cameraActivated(false), 
+	_sWorker(0)
 {
 }
 
@@ -24,6 +28,16 @@ Display::~Display()
 {
 	//if (_debug_elem) { delete _debug_elem; } // still can't create proper destructor ???
 	if (_cameraMan) { delete _cameraMan; }
+	
+}
+
+// called first before destructor
+void Display::shutdown()
+{
+	//std::cout << "shutdownshutdownshutdownshutdownshutdownshutdownshutdownshutdownshutdownshutdownshutdownshutdown";
+	if (_sWorker) { delete _sWorker; }
+
+	OgreBites::ApplicationContext::shutdown();
 }
 
 bool Display::frameStarted(const Ogre::FrameEvent& evt)
@@ -112,9 +126,8 @@ void Display::setup()
 	}
 
 	_cameraNode = scnMgr->getRootSceneNode()->createChildSceneNode();
-	_cameraNode->setPosition(250, 250, 1000);
-	_cameraNode->roll(Ogre::Degree(0));
-	_cameraNode->lookAt(Ogre::Vector3(250, 250, 0), Ogre::Node::TS_PARENT);
+	_cameraNode->setPosition(250, 700, 700);
+	_cameraNode->lookAt(Ogre::Vector3(250, 250, -250), Ogre::Node::TS_PARENT);
 
 	Ogre::Camera* cam = scnMgr->createCamera("myCam");
 	cam->setNearClipDistance(5); // specific to this sample
@@ -294,58 +307,9 @@ void Display::setup()
 	delete mTubes;
 	*/
 
-	{
-		AnElement* elem = new AnElement;
-		elem->CreateStarTube();
-		elem->ScaleXY(0.1);
-		Ogre::SceneNode* pNode = scnMgr->getRootSceneNode()->createChildSceneNode();
-		elem->InitMesh(scnMgr, pNode, "StarTube1", "Examples/TransparentTest2");
-	}
+	_sWorker = new StuffWorker;
+	_sWorker->InitElements(scnMgr);
 	
-	{
-		AnElement* elem = new AnElement;
-		elem->CreateStarTube();
-		elem->ScaleXY(0.1);
-		elem->TranslateXY(250, 200);
-		Ogre::SceneNode* pNode = scnMgr->getRootSceneNode()->createChildSceneNode();
-		elem->InitMesh(scnMgr, pNode, "StarTube2", "Examples/TransparentTest2");
-	}
-
-	{
-		AnElement* elem = new AnElement;
-		elem->CreateStarTube();
-		elem->ScaleXY(0.1);
-		elem->TranslateXY(250, 0);
-		Ogre::SceneNode* pNode = scnMgr->getRootSceneNode()->createChildSceneNode();
-		elem->InitMesh(scnMgr, pNode, "StarTube3", "Examples/TransparentTest2");
-	}
-
-	{
-		AnElement* elem = new AnElement;
-		elem->CreateStarTube();
-		elem->ScaleXY(0.1);
-		elem->TranslateXY(0, 350);
-		Ogre::SceneNode* pNode = scnMgr->getRootSceneNode()->createChildSceneNode();
-		elem->InitMesh(scnMgr, pNode, "StarTube4", "Examples/TransparentTest2");
-	}
-
-	{
-		AnElement* elem = new AnElement;
-		elem->CreateStarTube();
-		elem->ScaleXY(0.1);
-		elem->TranslateXY(400, 400);
-		Ogre::SceneNode* pNode = scnMgr->getRootSceneNode()->createChildSceneNode();
-		elem->InitMesh(scnMgr, pNode, "StarTube5", "Examples/TransparentTest2");
-	}
-
-	{
-		AnElement* elem = new AnElement;
-		elem->CreateStarTube();
-		elem->ScaleXY(0.1);
-		elem->TranslateXY(400, 0);
-		Ogre::SceneNode* pNode = scnMgr->getRootSceneNode()->createChildSceneNode();
-		elem->InitMesh(scnMgr, pNode, "StarTube6", "Examples/TransparentTest2");
-	}
 }
 
 bool Display::keyPressed(const OgreBites::KeyboardEvent& evt)

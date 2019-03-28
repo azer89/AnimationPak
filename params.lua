@@ -29,3 +29,11 @@ _k_dock                = 100;
 
 --- capping the velocity
 _velocity_cap   = 5; -- [Do not edit]
+
+--- Grid for collision detection
+--- size of a cell
+_bin_square_size         = 50.0;
+--- cell gap for detection, 
+--- 1 means considering all cells that are 1 block away from the query (3x3)
+--- 2 means considering all cells that are 2 block away from the query (5x5)
+_collission_block_radius = 1;  

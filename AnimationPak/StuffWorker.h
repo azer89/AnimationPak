@@ -2,6 +2,7 @@
 #define _STUFF_WORKER_H_
 
 #include "AnElement.h"
+#include "CollisionGrid2D.h"
 
 #include <vector>
 
@@ -15,8 +16,11 @@ public:
 	void InitElements(Ogre::SceneManager* scnMgr);
 public:
 
-	AnElement* _elem;
-	std::vector<AnElement> _element_list;
+	//AnElement* _elem;
+	static std::vector<AnElement> _element_list;
+
+	// collission grid
+	static std::vector<CollisionGrid2D*> _c_grid_list;
 };
 
 #endif

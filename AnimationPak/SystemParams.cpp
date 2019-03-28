@@ -42,11 +42,19 @@ void SystemParams::LoadParameters()
 	SystemParams::_k_rotate = script.get<float>("_k_rotate");
 	SystemParams::_k_dock = script.get<float>("_k_dock");
 
+	SystemParams::_bin_square_size = script.get<float>("_bin_square_size");
+	SystemParams::_collission_block_radius = script.get<int>("_collission_block_radius");
+
 	SystemParams::_velocity_cap = script.get<float>("_velocity_cap");
 
-	std::cout << SystemParams::_upscaleFactor << "\n";
-	std::cout << SystemParams::_downscaleFactor << "\n";
-	std::cout << SystemParams::_seed << "\n";
+	// temp
+	//SystemParams::_cube_length = 500.0f;
+	SystemParams::_num_layer = 6; // plus one
+
+
+	//std::cout << SystemParams::_upscaleFactor << "\n";
+	//std::cout << SystemParams::_downscaleFactor << "\n";
+	//std::cout << SystemParams::_seed << "\n";
 
 }
 
@@ -68,3 +76,9 @@ float SystemParams::_k_rotate = 0.0f;
 float SystemParams::_k_dock = 0.0f;
 
 float SystemParams::_velocity_cap = 0.0f;
+
+float SystemParams::_bin_square_size = 0.0f;
+int   SystemParams::_collission_block_radius = 0;
+
+// temp
+int SystemParams::_num_layer = 0.0f; // plus one

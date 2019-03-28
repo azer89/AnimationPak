@@ -36,7 +36,6 @@ void Display::shutdown()
 {
 	//std::cout << "shutdownshutdownshutdownshutdownshutdownshutdownshutdownshutdownshutdownshutdownshutdownshutdown";
 	if (_sWorker) { delete _sWorker; }
-
 	OgreBites::ApplicationContext::shutdown();
 }
 
@@ -165,6 +164,9 @@ void Display::setup()
 	}
 	*/
 
+	_sWorker = new StuffWorker;
+	_sWorker->InitElements(scnMgr);
+
 	std::deque<Ogre::Vector3> somePoints;
 	// add points
 	//somePoints.push_back(Ogre::Vector3(0.0f, 0.0f, 0.0f));
@@ -209,32 +211,6 @@ void Display::setup()
 	somePoints.push_back(Ogre::Vector3(500.0f, 0.0f, 0.0f));
 	somePoints.push_back(Ogre::Vector3(500.0f, 0.0f, -500.0f));
 
-	// star
-	/*
-	62.718 	12.174 
-	78.168 	45.092 
-	112.718 50.371 
-	87.718 	75.994 
-	93.619 	112.174 
-	62.718 	95.092 
-	31.816 	112.174 
-	37.718 	75.994 
-	12.718 	50.371 
-	47.267 	45.092 
-		
-	center = 250, 250
-	0, 193
-	172, 168
-	250, 12
-	327, 168
-	500, 193
-	375, 315
-	404, 487
-	250, 406
-	95, 487
-	125, 315
-	
-	*/
 
 	/*
 	somePoints.push_back(Ogre::Vector3(0, 193, 0.0f));
@@ -268,16 +244,18 @@ void Display::setup()
 	somePoints.push_back(Ogre::Vector3(0, 193, 0.0f));
 	*/
 
-	/*AnElement elem;
-	elem.CreateStarTube();
-	for (int a = 0; a < elem._triEdges.size(); a++)
+	for (int i = 0; i < _sWorker->_element_list.size(); i++)
 	{
-		AnIndexedLine ln = elem._triEdges[a];
-		A3DVector pt1 = elem._massList[ln._index0]._pos;
-		A3DVector pt2 = elem._massList[ln._index1]._pos;
-		somePoints.push_back(Ogre::Vector3(pt1._x, pt1._y, pt1._z));
-		somePoints.push_back(Ogre::Vector3(pt2._x, pt2._y, pt2._z));
-	}*/
+		AnElement elem = _sWorker->_element_list[i];
+		for (int a = 0; a < elem._triEdges.size(); a++)
+		{
+			AnIndexedLine ln = elem._triEdges[a];
+			A3DVector pt1 = elem._massList[ln._index0]._pos;
+			A3DVector pt2 = elem._massList[ln._index1]._pos;
+			somePoints.push_back(Ogre::Vector3(pt1._x, pt1._y, pt1._z));
+			somePoints.push_back(Ogre::Vector3(pt2._x, pt2._y, pt2._z));
+		}
+	}
 
 	//In the initialization somewhere, create the initial lines object :
 	DynamicLines * lines = new DynamicLines(Ogre::RenderOperation::OT_LINE_LIST);
@@ -307,8 +285,7 @@ void Display::setup()
 	delete mTubes;
 	*/
 
-	_sWorker = new StuffWorker;
-	_sWorker->InitElements(scnMgr);
+	
 	
 }
 

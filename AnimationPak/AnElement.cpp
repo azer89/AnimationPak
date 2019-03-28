@@ -1,5 +1,6 @@
 
 #include "AnElement.h"
+#include "SystemParams.h"
 
 #include <OgreManualObject.h>
 #include <OgreMaterialManager.h>
@@ -21,15 +22,17 @@ AnElement::AnElement()
 
 AnElement::~AnElement()
 {
-	//_tubeObject = 0;
-	//_sceneNode = 0;
-	//_sceneMgr = 0;
-	//_material.reset();
-
 	// still can't create proper destructor ???
 	// maybe they're automatically deleted???
+
+	_tubeObject = 0;
+	_sceneNode  = 0;
+	_sceneMgr   = 0;
+	_material.reset();
+
 	
-	if (_tubeObject)
+	
+	/*if (_tubeObject)
 	{
 		if (_tubeObject->getParentSceneNode())
 			_tubeObject->getParentSceneNode()->detachObject(_tubeObject);
@@ -44,7 +47,7 @@ AnElement::~AnElement()
 		_sceneNode->removeAndDestroyAllChildren();
 		_sceneNode->getParentSceneNode()->removeAndDestroyChild(_sceneNode->getName());
 		_sceneNode = 0;
-	}
+	}*/
 	
 }
 
@@ -70,6 +73,7 @@ void AnElement::TranslateXY(float x, float y)
 	}
 }
 
+// visualization
 void AnElement::InitMesh(Ogre::SceneManager* sceneMgr,
 	Ogre::SceneNode* sceneNode,
 	const Ogre::String& name,
@@ -93,6 +97,7 @@ void AnElement::InitMesh(Ogre::SceneManager* sceneMgr,
 		std::cout << "_sceneNode is null\n";
 }
 
+// visualization
 void AnElement::UpdateMesh2()
 {
 	if (_tubeObject->getDynamic() == true && _tubeObject->getNumSections() > 0)
@@ -107,8 +112,8 @@ void AnElement::UpdateMesh2()
 		A3DVector pos = _massList[a]._pos;
 		_tubeObject->position(pos._x, pos._y, pos._z);
 
-		// normal
-		//A3DVector normVec = A3DVector(250, 250, pos._z).DirectionTo(pos);
+		// normal doesn't work???
+		//A3DVector normVec = A3DVector(250, 250, pos._z).DirectionTo(pos).Norm();
 		//_tubeObject->normal(normVec._x, normVec._y, normVec._z);
 		
 		// uv
@@ -222,167 +227,7 @@ void AnElement::UpdateMesh2()
 
 }
 
-void AnElement::UpdateMesh()
-{
-	std::cout << "_massList.size = " << _massList.size() << "\n";
-
-	if (_tubeObject->getDynamic() == true && _tubeObject->getNumSections() > 0)
-		_tubeObject->beginUpdate(0);
-	else
-		_tubeObject->begin(_material->getName());
-		
-	
-	// hollow tube
-
-	// take all point but the center
-	//std::vector<A3DVector> surfacePts;
-	/*int numVertex = 0;
-	for (int a = 0; a < _massList.size(); a++)
-	{
-		if (a % 11 == 0) continue;
-		numVertex++;
-	}
-
-	std::cout << "numVertex = " << numVertex << "\n";
-
-	int numLayer = numVertex / 10;
-	*/
-
-	for (int a = 0; a < _massList.size(); a++)
-	{
-		//if (a % 11 == 0) continue;
-
-		A3DVector pos = _massList[a]._pos;
-		
-		// pos
-		_tubeObject->position(pos._x, pos._y, pos._z);
-
-		/*
-		// normal
-		A3DVector normVec = A3DVector(250, 250, pos._z).DirectionTo(pos);
-		_tubeObject->normal(normVec._x, normVec._y, normVec._z);
-
-		// uv
-		int curLayer = a / 10;
-		int idx = a % 10;
-		float u = (float)idx / 10.0;
-		float v = (float)curLayer / (float)(numLayer - 1);
-		_tubeObject->textureCoord(u, v);
-		*/
-	}
-
-
-	// triangle list
-	
-	int elev = 11;
-	int A, B, C, D;
-	for (int i = 0; i < 5; i++)
-	{
-		int startIdx = i * elev;
-		// 1
-		{
-			A = startIdx + 1;
-			B = A + 1;
-			C = A + elev;
-			D = B + elev;
-			_tubeObject->triangle(C, B, A);
-			_tubeObject->triangle(C, D, B);
-		}
-
-		// 2
-		/*{
-			A = startIdx + 2;
-			B = A + 1;
-			C = A + 11;
-			D = B + 11;
-			_tubeObject->triangle(C, B, A);
-			_tubeObject->triangle(C, D, B);
-		}
-
-		// 3
-		{
-			A = startIdx + 3;
-			B = A + 1;
-			C = A + 11;
-			D = B + 11;
-			_tubeObject->triangle(C, B, A);
-			_tubeObject->triangle(C, D, B);
-		}
-		
-		// 4
-		{
-			A = startIdx + 4;
-			B = A + 1;
-			C = A + 11;
-			D = B + 11;
-			_tubeObject->triangle(C, B, A);
-			_tubeObject->triangle(C, D, B);
-		}
-
-		// 5
-		{
-			A = startIdx + 5;
-			B = A + 1;
-			C = A + 11;
-			D = B + 11;
-			_tubeObject->triangle(C, B, A);
-			_tubeObject->triangle(C, D, B);
-		}
-
-		// 6
-		{
-			A = startIdx + 6;
-			B = A + 1;
-			C = A + 11;
-			D = B + 11;
-			_tubeObject->triangle(C, B, A);
-			_tubeObject->triangle(C, D, B);
-		}
-
-		// 7
-		{
-			A = startIdx + 7;
-			B = A + 1;
-			C = A + 11;
-			D = B + 11;
-			_tubeObject->triangle(C, B, A);
-			_tubeObject->triangle(C, D, B);
-		}
-
-		// 8
-		{
-			A = startIdx + 8;
-			B = A + 1;
-			C = A + 11;
-			D = B + 11;
-			_tubeObject->triangle(C, B, A);
-			_tubeObject->triangle(C, D, B);
-		}
-
-		// 9
-		{
-			A = startIdx + 9;
-			B = A + 1;
-			C = A + 11;
-			D = B + 11;
-			_tubeObject->triangle(C, B, A);
-			_tubeObject->triangle(C, D, B);
-		}
-
-		// 10
-		{
-			A = startIdx + 10;
-			B = startIdx;
-			C = A + 11;
-			D = B + 11;
-			_tubeObject->triangle(C, B, A);
-			_tubeObject->triangle(C, D, B);
-		}*/
-	}
-
-	_tubeObject->end();
-}
-
+// back end
 void AnElement::CreateStarTube()
 {
 	/*
@@ -401,8 +246,8 @@ void AnElement::CreateStarTube()
 
 	//_massList.push_back(AMass());
 	float zPos = 0;
-	float zOffset = -100;
-	for(int a = 0; a <= 5; a++)
+	float zOffset = -(SystemParams::_upscaleFactor / (SystemParams::_num_layer - 1) );
+	for(int a = 0; a < SystemParams::_num_layer; a++)
 	{
 		_massList.push_back(AMass(250, 250, zPos)); // 0 center
 		_massList.push_back(AMass(0,   193, zPos)); // 1

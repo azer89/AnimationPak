@@ -158,11 +158,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="A2DSquare.h" />
     <ClInclude Include="A2DVector.h" />
     <ClInclude Include="A3DVector.h" />
     <ClInclude Include="AMass.h" />
     <ClInclude Include="AnElement.h" />
     <ClInclude Include="AnIndexedLine.h" />
+    <ClInclude Include="A2DObject.h" />
+    <ClInclude Include="CollisionGrid2D.h" />
     <ClInclude Include="Display.h" />
     <ClInclude Include="DynamicLines.h" />
     <ClInclude Include="DynamicRenderable.h" />
@@ -174,10 +177,12 @@
     <ClInclude Include="SystemParams.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="Tubes.h" />
+    <ClInclude Include="UtilityFunctions.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AMass.cpp" />
     <ClCompile Include="AnElement.cpp" />
+    <ClCompile Include="CollisionGrid2D.cpp" />
     <ClCompile Include="Display.cpp" />
     <ClCompile Include="DynamicLines.cpp" />
     <ClCompile Include="DynamicRenderable.cpp" />
@@ -193,6 +198,7 @@
     <ClCompile Include="StuffWorker.cpp" />
     <ClCompile Include="SystemParams.cpp" />
     <ClCompile Include="Tubes.cpp" />
+    <ClCompile Include="UtilityFunctions.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\params.lua" />

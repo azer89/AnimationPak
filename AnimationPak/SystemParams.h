@@ -36,6 +36,12 @@ public:
 	static float _k_dock;
 
 	static float _velocity_cap;
+
+	static float _bin_square_size;
+	static int   _collission_block_radius;
+
+	// temp
+	static int _num_layer; // plus one
 };
 
 #endif

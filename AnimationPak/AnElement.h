@@ -29,7 +29,7 @@ public:
 		const Ogre::String& materialName);
 
 	void UpdateMesh2();
-	void UpdateMesh();
+	//void UpdateMesh();
 
 	void ScaleXY(float scVal);
 	void TranslateXY(float x, float y);

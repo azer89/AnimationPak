@@ -13,7 +13,8 @@ public:
 	A3DVector _pos;	  // current
 	A3DVector _velocity;
 
-	int   _idx;
+	int   _idx; // what is this ???
+	int _ debug_which_layer; // 0 1 2 3 4 5
 
 
 public:

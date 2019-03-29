@@ -51,6 +51,9 @@ public:
 
 	void GetClosestPoint();
 
+	// simulation
+	void Solve();
+
 private:
 	A3DVector _edgeForce;
 	A3DVector _repulsionForce;

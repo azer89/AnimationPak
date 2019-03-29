@@ -39,6 +39,7 @@ void Display::shutdown()
 	OgreBites::ApplicationContext::shutdown();
 }
 
+// loop
 bool Display::frameStarted(const Ogre::FrameEvent& evt)
 {
 	OgreBites::ApplicationContext::frameStarted(evt);
@@ -52,7 +53,8 @@ bool Display::frameStarted(const Ogre::FrameEvent& evt)
 		_cameraMan->frameRendered(evt);
 	}
 
-	std::cout << "update\n";
+	///// UPDATE
+	_sWorker->UpdateElements();
 
 	//ImGui::ShowDemoWindow();
 	//ImGui::ShowDemoWindow();
@@ -173,80 +175,53 @@ void Display::setup()
 	// add points
 	//somePoints.push_back(Ogre::Vector3(0.0f, 0.0f, 0.0f));
 	//somePoints.push_back(Ogre::Vector3(452.0f, 2345.0f, 453.0f));
-	// front
-	somePoints.push_back(Ogre::Vector3(0.0f, 0.0f, 0.0f));
-	somePoints.push_back(Ogre::Vector3(500.0f, 0.0f, 0.0f));
 
-	somePoints.push_back(Ogre::Vector3(500.0f, 0.0f, 0.0f));
-	somePoints.push_back(Ogre::Vector3(500.0f, 500.0f, 0.0f));
+	// cube
+	{
+		// front
+		somePoints.push_back(Ogre::Vector3(0.0f, 0.0f, 0.0f));
+		somePoints.push_back(Ogre::Vector3(500.0f, 0.0f, 0.0f));
 
-	somePoints.push_back(Ogre::Vector3(500.0f, 500.0f, 0.0f));
-	somePoints.push_back(Ogre::Vector3(0.0f, 500.0f, 0.0f));
+		somePoints.push_back(Ogre::Vector3(500.0f, 0.0f, 0.0f));
+		somePoints.push_back(Ogre::Vector3(500.0f, 500.0f, 0.0f));
 
-	somePoints.push_back(Ogre::Vector3(0.0f, 500.0f, 0.0f));
-	somePoints.push_back(Ogre::Vector3(0.0f, 0.0f, 0.0f));
+		somePoints.push_back(Ogre::Vector3(500.0f, 500.0f, 0.0f));
+		somePoints.push_back(Ogre::Vector3(0.0f, 500.0f, 0.0f));
 
-	// back
-	somePoints.push_back(Ogre::Vector3(0.0f, 0.0f, -500.0f));
-	somePoints.push_back(Ogre::Vector3(500.0f, 0.0f, -500.0f));
+		somePoints.push_back(Ogre::Vector3(0.0f, 500.0f, 0.0f));
+		somePoints.push_back(Ogre::Vector3(0.0f, 0.0f, 0.0f));
 
-	somePoints.push_back(Ogre::Vector3(500.0f, 0.0f, -500.0f));
-	somePoints.push_back(Ogre::Vector3(500.0f, 500.0f, -500.0f));
+		// back
+		somePoints.push_back(Ogre::Vector3(0.0f, 0.0f, -500.0f));
+		somePoints.push_back(Ogre::Vector3(500.0f, 0.0f, -500.0f));
 
-	somePoints.push_back(Ogre::Vector3(500.0f, 500.0f, -500.0f));
-	somePoints.push_back(Ogre::Vector3(0.0f, 500.0f, -500.0f));
+		somePoints.push_back(Ogre::Vector3(500.0f, 0.0f, -500.0f));
+		somePoints.push_back(Ogre::Vector3(500.0f, 500.0f, -500.0f));
 
-	somePoints.push_back(Ogre::Vector3(0.0f, 500.0f, -500.0f));
-	somePoints.push_back(Ogre::Vector3(0.0f, 0.0f, -500.0f));
+		somePoints.push_back(Ogre::Vector3(500.0f, 500.0f, -500.0f));
+		somePoints.push_back(Ogre::Vector3(0.0f, 500.0f, -500.0f));
 
-	// left
-	somePoints.push_back(Ogre::Vector3(0.0f, 500.0f, 0.0f));
-	somePoints.push_back(Ogre::Vector3(0.0f, 500.0f, -500.0f));
+		somePoints.push_back(Ogre::Vector3(0.0f, 500.0f, -500.0f));
+		somePoints.push_back(Ogre::Vector3(0.0f, 0.0f, -500.0f));
 
-	somePoints.push_back(Ogre::Vector3(0.0f, 0.0f, 0.0f));
-	somePoints.push_back(Ogre::Vector3(0.0f, 0.0f, -500.0f));
+		// left
+		somePoints.push_back(Ogre::Vector3(0.0f, 500.0f, 0.0f));
+		somePoints.push_back(Ogre::Vector3(0.0f, 500.0f, -500.0f));
 
-	// right
-	somePoints.push_back(Ogre::Vector3(500.0f, 500.0f, 0.0f));
-	somePoints.push_back(Ogre::Vector3(500.0f, 500.0f, -500.0f));
+		somePoints.push_back(Ogre::Vector3(0.0f, 0.0f, 0.0f));
+		somePoints.push_back(Ogre::Vector3(0.0f, 0.0f, -500.0f));
 
-	somePoints.push_back(Ogre::Vector3(500.0f, 0.0f, 0.0f));
-	somePoints.push_back(Ogre::Vector3(500.0f, 0.0f, -500.0f));
+		// right
+		somePoints.push_back(Ogre::Vector3(500.0f, 500.0f, 0.0f));
+		somePoints.push_back(Ogre::Vector3(500.0f, 500.0f, -500.0f));
+
+		somePoints.push_back(Ogre::Vector3(500.0f, 0.0f, 0.0f));
+		somePoints.push_back(Ogre::Vector3(500.0f, 0.0f, -500.0f));
+	}
 
 
-	/*
-	somePoints.push_back(Ogre::Vector3(0, 193, 0.0f));
-	somePoints.push_back(Ogre::Vector3(172, 168, 0.0f));
 
-	somePoints.push_back(Ogre::Vector3(172, 168, 0.0f));
-	somePoints.push_back(Ogre::Vector3(250, 12, 0.0f));
-	
-	somePoints.push_back(Ogre::Vector3(250, 12, 0.0f));
-	somePoints.push_back(Ogre::Vector3(327, 168, 0.0f));
-
-	somePoints.push_back(Ogre::Vector3(327, 168, 0.0f));
-	somePoints.push_back(Ogre::Vector3(500, 193, 0.0f));
-
-	somePoints.push_back(Ogre::Vector3(500, 193, 0.0f));
-	somePoints.push_back(Ogre::Vector3(375, 315, 0.0f));
-
-	somePoints.push_back(Ogre::Vector3(375, 315, 0.0f));
-	somePoints.push_back(Ogre::Vector3(404, 487, 0.0f));
-
-	somePoints.push_back(Ogre::Vector3(404, 487, 0.0f));
-	somePoints.push_back(Ogre::Vector3(250, 406, 0.0f));
-
-	somePoints.push_back(Ogre::Vector3(250, 406, 0.0f));
-	somePoints.push_back(Ogre::Vector3(95, 487, 0.0f));
-
-	somePoints.push_back(Ogre::Vector3(95, 487, 0.0f));
-	somePoints.push_back(Ogre::Vector3(125, 315, 0.0f));
-
-	somePoints.push_back(Ogre::Vector3(125, 315, 0.0f));
-	somePoints.push_back(Ogre::Vector3(0, 193, 0.0f));
-	*/
-
-	for (int i = 0; i < _sWorker->_element_list.size(); i++)
+	/*for (int i = 0; i < _sWorker->_element_list.size(); i++)
 	{
 		AnElement elem = _sWorker->_element_list[i];
 		for (int a = 0; a < elem._triEdges.size(); a++)
@@ -257,7 +232,7 @@ void Display::setup()
 			somePoints.push_back(Ogre::Vector3(pt1._x, pt1._y, pt1._z));
 			somePoints.push_back(Ogre::Vector3(pt2._x, pt2._y, pt2._z));
 		}
-	}
+	}*/
 
 	//In the initialization somewhere, create the initial lines object :
 	DynamicLines * lines = new DynamicLines(Ogre::RenderOperation::OT_LINE_LIST);

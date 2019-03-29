@@ -28,8 +28,8 @@ public:
 
 private:
 	//float _scale;
-	//float _dist;
-	//float _oriDist;
+	float _dist;
+	float _oriDist;
 
 public:
 	//void SetDist(float d) { _dist = d; _oriDist = _dist; }
@@ -45,7 +45,8 @@ public:
 
 		this->_index0 = index0;
 		this->_index1 = index1;
-		//this->_dist = 0.0f;
+		this->_dist = 0.0f;
+		this->_oriDist = 0.0f;
 		//this->_angle = 0.0f;
 
 		//this->_canGrow = true;

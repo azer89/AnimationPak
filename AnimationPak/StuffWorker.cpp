@@ -122,3 +122,11 @@ void StuffWorker::InitElements(Ogre::SceneManager* scnMgr)
 	}
 }
 
+void StuffWorker::UpdateElements()
+{
+	for (int a = 0; a < _element_list.size(); a++)
+	{
+		_element_list[a].UpdateBackend();
+	}
+}
+

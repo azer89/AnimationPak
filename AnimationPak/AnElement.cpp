@@ -227,6 +227,26 @@ void AnElement::UpdateMesh2()
 
 }
 
+void AnElement::UpdateSpringLengths()
+{
+
+}
+
+void AnElement::UpdateBackend()
+{
+	//
+	UpdateSpringLengths();
+
+	//
+	for (int a = 0; a < _massList.size(); a++)
+	{
+		A2DVector pt(_massList[a]._pos._x, _massList[a]._pos._y);
+		int layer_idx = _massList[a]._debug_which_layer;
+		int mass_idx = _massList[a]._self_idx;
+		_per_layer_points[layer_idx][mass_idx] = pt;
+	}
+}
+
 // back end
 void AnElement::CreateStarTube(int self_idx)
 {
@@ -312,4 +332,34 @@ void AnElement::CreateStarTube(int self_idx)
 
 		idxOffset += offsetGap;
 	}
+
+	// _per_layer_points
+	for (int a = 0; a < SystemParams::_num_layer; a++)
+	{
+		_per_layer_points.push_back(std::vector<A2DVector>());
+	}
+	for (int a = 0; a < _massList.size(); a++)
+	{
+		A2DVector pt(_massList[a]._pos._x, _massList[a]._pos._y);
+		int layer_idx = _massList[a]._debug_which_layer;
+		_per_layer_points[layer_idx].push_back(pt);
+	}
+}
+
+A2DVector AnElement::ClosestPtOnALayer(A2DVector pt, int layer_idx)
+{
+	float dist = 10000000000000;
+	A2DVector closetPt;
+
+	for(int a = 0; a < _per_layer_points[layer_idx].size(); a++)
+	{
+		float d = _per_layer_points[layer_idx][a].Distance(pt);
+		if (d < dist)
+		{
+			dist = d;
+			closetPt = _per_layer_points[layer_idx][a];
+		}
+	}
+
+	return closetPt;
 }

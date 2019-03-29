@@ -14,6 +14,8 @@ public:
 	~StuffWorker();
 
 	void InitElements(Ogre::SceneManager* scnMgr);
+
+	void UpdateElements();
 public:
 
 	//AnElement* _elem;

@@ -28,14 +28,22 @@ public:
 		const Ogre::String& name,
 		const Ogre::String& materialName);
 
+	void UpdateBackend();
+	void UpdateSpringLengths();
+
 	void UpdateMesh2();
 	//void UpdateMesh();
 
 	void ScaleXY(float scVal);
 	void TranslateXY(float x, float y);
 
+	A2DVector ClosestPtOnALayer(A2DVector pt, int layer_idx);
+
+
 public:
 	int _self_idx; // for identification
+
+	std::vector<std::vector<A2DVector>> _per_layer_points;
 
 public:
 	std::vector<AMass>   _massList;       // list of the masses

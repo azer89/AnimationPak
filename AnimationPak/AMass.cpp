@@ -100,65 +100,84 @@ void AMass::Solve(/*Need more parameters*/)
 {
 }
 
-//void AMass::GetClosestPoint()
-//{
-//	if (_parent_idx < 0 || _parent_idx >= StuffWorker::_element_list.size()) { return; }
-//	//if (this->_idx >= StuffWorker::_graphs[parentGraphIndex]._skinPointNum) { return; } // uncomment me
-//
-//	this->_closestGraphIndices.clear();
-//	//this->_closestPoints.clear();
-//	this->_closestPt_fill_sz = 0;
-//	this->_is_inside = false;           // "inside" flag
-//
-//	_c_grid->GetGraphIndices2B(_pos._x, _pos._y, _parent_idx, _closestGraphIndices);
-//
-//	if (_closestGraphIndices.size() > 0)
-//	{
-//		std::vector<bool> insideGraphFlags;
-//		int sz = _closestGraphIndices.size();
-//		for (unsigned int a = 0; a < sz; a++)
-//		{
-//			// uncomment me
-//			if (_closestGraphIndices[a] == _parent_idx) { insideGraphFlags.push_back(true); continue; }
-//
-//			/*if (UtilityFunctions::InsidePolygon(StuffWorker::_graphs[_closestGraphIndices[a]]._skin, _pos.x, _pos.y))
-//			{
-//				insideGraphFlags.push_back(true);
-//				_isInside = true;
-//				continue; // can be more than one
-//			}
-//			else*/
-//			{
-//				insideGraphFlags.push_back(false);
-//			}
-//		}
-//
-//		// closest pts
-//		int sz2 = sz;
-//		if (sz2 > _closestPt_actual_sz) { sz2 = _closestPt_actual_sz; }
-//		for (unsigned int a = 0; a < sz2; a++)
-//		{
-//			if (insideGraphFlags[a]) { continue; }
-//
-//			A2DVector pt = UtilityFunctions::GetClosestPtOnClosedCurve(StuffWorker::_element_list[_closestGraphIndices[a]]._skin, _pos);
-//			_closestPoints[_closestPt_fill_sz] = pt;
-//			_closestPt_fill_sz++;
-//		}
-//	}
-//
-//	// this is used in AGraph
-//	_closestDist = std::numeric_limits<float>::max();
-//	for (unsigned int a = 0; a < _closestPt_fill_sz; a++)
-//	{
-//		float d = _closestPoints[a].DistanceSquared(_pos); // SQUARED!!!
-//		if (d < _closestDist)
-//		{
-//			_closestDist = d;
-//		}
-//	}
-//	_closestDist = std::sqrt(_closestDist); // SQRT
-//}
+void AMass::GetClosestPoint()
+{
+	if (_parent_idx < 0 || _parent_idx >= StuffWorker::_element_list.size()) { return; }
+	//if (this->_idx >= StuffWorker::_graphs[parentGraphIndex]._skinPointNum) { return; } // uncomment me
 
+	this->_closestGraphIndices.clear();
+	//this->_closestPoints.clear();
+	this->_closestPt_fill_sz = 0;
+	this->_is_inside = false;           // "inside" flag
+
+	_c_grid->GetGraphIndices2B(_pos._x, _pos._y, _parent_idx, _closestGraphIndices);
+
+	if (_closestGraphIndices.size() > 0)
+	{
+		std::vector<bool> insideGraphFlags;
+		int sz = _closestGraphIndices.size();
+		for (unsigned int a = 0; a < sz; a++)
+		{
+			// uncomment me
+			if (_closestGraphIndices[a] == _parent_idx) { insideGraphFlags.push_back(true); continue; }
+
+			/*if (UtilityFunctions::InsidePolygon(StuffWorker::_graphs[_closestGraphIndices[a]]._skin, _pos.x, _pos.y))
+			{
+				insideGraphFlags.push_back(true);
+				_isInside = true;
+				continue; // can be more than one
+			}
+			else*/
+			{
+				insideGraphFlags.push_back(false);
+			}
+		}
+
+		// closest pts
+		int sz2 = sz;
+		if (sz2 > _closestPt_actual_sz) { sz2 = _closestPt_actual_sz; }
+		for (unsigned int a = 0; a < sz2; a++)
+		{
+			if (insideGraphFlags[a]) { continue; }
+
+			//A2DVector pt = UtilityFunctions::GetClosestPtOnClosedCurve(StuffWorker::_element_list[_closestGraphIndices[a]]._skin, _pos);
+			A2DVector pt = StuffWorker::_element_list[_closestGraphIndices[a]].ClosestPtOnALayer(A2DVector(_pos._x, _pos._y), _debug_which_layer);
+			_closestPoints[_closestPt_fill_sz] = pt;
+			_closestPt_fill_sz++;
+		}
+	}
+
+	// this is used in AGraph
+	_closestDist = std::numeric_limits<float>::max();
+	for (unsigned int a = 0; a < _closestPt_fill_sz; a++)
+	{
+		float d = _closestPoints[a].DistanceSquared(A2DVector(_pos._x, _pos._y));  // 2D!!!! // SQUARED!!!
+		if (d < _closestDist)
+		{
+			_closestDist = d;
+		}
+	}
+	_closestDist = std::sqrt(_closestDist); // SQRT
+}
+
+
+void AMass::Solve()
+{
+	// ---------- REPULSION FORCE ----------
+	A2DVector sumR(0, 0);
+	A2DVector dir;
+	for (int a = 0; a < _closestPt_fill_sz; a++)
+	{
+		dir = _closestPoints[a].DirectionTo(A2DVector(_pos._x, _pos._y)); // direction, normalized
+		float dist = dir.Length(); // distance
+		sumR += (dir.Norm() / (SystemParams::_repulsion_soft_factor + std::pow(dist, 2)));
+	}
+	sumR *= SystemParams::_k_repulsion;
+	if (!sumR.IsBad()) 
+	{ 
+		this->_repulsionForce += A3DVector(sumR.x, sumR.y, 0); 
+	}
+}
 
 /*void AMass::GetClosestPoint()
 {

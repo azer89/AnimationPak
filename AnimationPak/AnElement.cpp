@@ -228,8 +228,11 @@ void AnElement::UpdateMesh2()
 }
 
 // back end
-void AnElement::CreateStarTube()
+void AnElement::CreateStarTube(int self_idx)
 {
+	// for identification
+	_self_idx = self_idx;
+
 	/*
 	center = 250, 250, 0
 	0, 193, 0
@@ -249,17 +252,18 @@ void AnElement::CreateStarTube()
 	float zOffset = -(SystemParams::_upscaleFactor / (SystemParams::_num_layer - 1) );
 	for(int a = 0; a < SystemParams::_num_layer; a++)
 	{
-		_massList.push_back(AMass(250, 250, zPos)); // 0 center
-		_massList.push_back(AMass(0,   193, zPos)); // 1
-		_massList.push_back(AMass(172, 168, zPos)); // 2
-		_massList.push_back(AMass(250, 12,  zPos)); // 3
-		_massList.push_back(AMass(327, 168, zPos)); // 4
-		_massList.push_back(AMass(500, 193, zPos)); // 5
-		_massList.push_back(AMass(375, 315, zPos)); // 6
-		_massList.push_back(AMass(404, 487, zPos)); // 7
-		_massList.push_back(AMass(250, 406, zPos)); // 8
-		_massList.push_back(AMass(95,  487, zPos)); // 9
-		_massList.push_back(AMass(125, 315, zPos)); // 10
+		// x y z mass_idx element_idx layer_idx
+		_massList.push_back(AMass(250, 250, zPos, 0, _self_idx, a)); // 0 center
+		_massList.push_back(AMass(0,   193, zPos, 1, _self_idx, a)); // 1
+		_massList.push_back(AMass(172, 168, zPos, 2, _self_idx, a)); // 2
+		_massList.push_back(AMass(250, 12,  zPos, 3, _self_idx, a)); // 3
+		_massList.push_back(AMass(327, 168, zPos, 4, _self_idx, a)); // 4
+		_massList.push_back(AMass(500, 193, zPos, 5, _self_idx, a)); // 5
+		_massList.push_back(AMass(375, 315, zPos, 6, _self_idx, a)); // 6
+		_massList.push_back(AMass(404, 487, zPos, 7, _self_idx, a)); // 7
+		_massList.push_back(AMass(250, 406, zPos, 8, _self_idx, a)); // 8
+		_massList.push_back(AMass(95,  487, zPos, 9, _self_idx, a)); // 9
+		_massList.push_back(AMass(125, 315, zPos, 10, _self_idx, a)); // 10
 
 		zPos += zOffset;
 	}

@@ -52,6 +52,8 @@ bool Display::frameStarted(const Ogre::FrameEvent& evt)
 		_cameraMan->frameRendered(evt);
 	}
 
+	std::cout << "update\n";
+
 	//ImGui::ShowDemoWindow();
 	//ImGui::ShowDemoWindow();
 	// Draw imgui

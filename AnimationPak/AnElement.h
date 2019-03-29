@@ -21,7 +21,7 @@ public:
 	AnElement();
 	~AnElement();
 
-	void CreateStarTube();
+	void CreateStarTube(int self_idx);
 
 	void InitMesh(Ogre::SceneManager* sceneMgr, 
 		Ogre::SceneNode* sceneNode,
@@ -33,6 +33,9 @@ public:
 
 	void ScaleXY(float scVal);
 	void TranslateXY(float x, float y);
+
+public:
+	int _self_idx; // for identification
 
 public:
 	std::vector<AMass>   _massList;       // list of the masses

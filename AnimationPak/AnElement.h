@@ -43,7 +43,7 @@ public:
 public:
 	int _self_idx; // for identification
 
-	std::vector<std::vector<A2DVector>> _per_layer_points;
+	std::vector<std::vector<A2DVector>> _per_layer_points; // check function ClosestPtOnALayer()
 
 public:
 	std::vector<AMass>   _massList;       // list of the masses

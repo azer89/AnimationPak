@@ -59,8 +59,17 @@ void AnElement::ScaleXY(float scVal)
 		_massList[a]._pos = A3DVector(pos._x * scVal, pos._y * scVal, pos._z);
 	}
 
+
 	// TODO
 	// need to update edges
+	for (int a = 0; a < _triEdges.size(); a++)
+	{
+		if (!_triEdges[a]._isLayer2Layer)
+		{
+			_triEdges[a]._oriDist *= scVal;
+			_triEdges[a]._dist *= scVal;
+		}
+	}
 }
 
 void AnElement::TranslateXY(float x, float y)
@@ -229,7 +238,13 @@ void AnElement::UpdateMesh2()
 
 void AnElement::UpdateSpringLengths()
 {
-
+	for (int a = 0; a < _triEdges.size(); a++)
+	{
+		A3DVector pt1 = _massList[_triEdges[a]._index0]._pos;
+		A3DVector pt2 = _massList[_triEdges[a]._index1]._pos;
+		float d = pt1.Distance(pt2);
+		_triEdges[a]._dist = d;
+	}
 }
 
 void AnElement::UpdateBackend()
@@ -237,7 +252,7 @@ void AnElement::UpdateBackend()
 	//
 	UpdateSpringLengths();
 
-	//
+	// for closest point
 	for (int a = 0; a < _massList.size(); a++)
 	{
 		A2DVector pt(_massList[a]._pos._x, _massList[a]._pos._y);
@@ -288,46 +303,55 @@ void AnElement::CreateStarTube(int self_idx)
 		zPos += zOffset;
 	}
 
+	// dist
+	float c2s_dist = A2DVector(250, 250).Distance(A2DVector(0, 193)); // center to side
+	float s2s_dist = A2DVector(172, 168).Distance(A2DVector(0, 193)); // side to side
+	float l2l_dist = SystemParams::_upscaleFactor / (float)(SystemParams::_num_layer - 1);
+
 	int idxOffset = 0;
 	int offsetGap = 11;
 	for (int a = 0; a <= 5; a++)
 	{
-		_triEdges.push_back(AnIndexedLine(idxOffset, idxOffset + 1));
-		_triEdges.push_back(AnIndexedLine(idxOffset, idxOffset + 2));
-		_triEdges.push_back(AnIndexedLine(idxOffset, idxOffset + 3));
-		_triEdges.push_back(AnIndexedLine(idxOffset, idxOffset + 4));
-		_triEdges.push_back(AnIndexedLine(idxOffset, idxOffset + 5));
-		_triEdges.push_back(AnIndexedLine(idxOffset, idxOffset + 6));
-		_triEdges.push_back(AnIndexedLine(idxOffset, idxOffset + 7));
-		_triEdges.push_back(AnIndexedLine(idxOffset, idxOffset + 8));
-		_triEdges.push_back(AnIndexedLine(idxOffset, idxOffset + 9));
-		_triEdges.push_back(AnIndexedLine(idxOffset, idxOffset + 10));
+		// center to side
+		_triEdges.push_back(AnIndexedLine(idxOffset, idxOffset + 1, c2s_dist, c2s_dist));
+		_triEdges.push_back(AnIndexedLine(idxOffset, idxOffset + 2, c2s_dist, c2s_dist));
+		_triEdges.push_back(AnIndexedLine(idxOffset, idxOffset + 3, c2s_dist, c2s_dist));
+		_triEdges.push_back(AnIndexedLine(idxOffset, idxOffset + 4, c2s_dist, c2s_dist));
+		_triEdges.push_back(AnIndexedLine(idxOffset, idxOffset + 5, c2s_dist, c2s_dist));
+		_triEdges.push_back(AnIndexedLine(idxOffset, idxOffset + 6, c2s_dist, c2s_dist));
+		_triEdges.push_back(AnIndexedLine(idxOffset, idxOffset + 7, c2s_dist, c2s_dist));
+		_triEdges.push_back(AnIndexedLine(idxOffset, idxOffset + 8, c2s_dist, c2s_dist));
+		_triEdges.push_back(AnIndexedLine(idxOffset, idxOffset + 9, c2s_dist, c2s_dist));
+		_triEdges.push_back(AnIndexedLine(idxOffset, idxOffset + 10, c2s_dist, c2s_dist));
 
-		_triEdges.push_back(AnIndexedLine(idxOffset + 1, idxOffset + 2));
-		_triEdges.push_back(AnIndexedLine(idxOffset + 2, idxOffset + 3));
-		_triEdges.push_back(AnIndexedLine(idxOffset + 3, idxOffset + 4));
-		_triEdges.push_back(AnIndexedLine(idxOffset + 4, idxOffset + 5));
-		_triEdges.push_back(AnIndexedLine(idxOffset + 5, idxOffset + 6));
-		_triEdges.push_back(AnIndexedLine(idxOffset + 6, idxOffset + 7));
-		_triEdges.push_back(AnIndexedLine(idxOffset + 7, idxOffset + 8));
-		_triEdges.push_back(AnIndexedLine(idxOffset + 8, idxOffset + 9));
-		_triEdges.push_back(AnIndexedLine(idxOffset + 9, idxOffset + 10));
-		_triEdges.push_back(AnIndexedLine(idxOffset + 10, idxOffset + 1));
+		// side to side
+		_triEdges.push_back(AnIndexedLine(idxOffset + 1, idxOffset + 2, s2s_dist, s2s_dist));
+		_triEdges.push_back(AnIndexedLine(idxOffset + 2, idxOffset + 3, s2s_dist, s2s_dist));
+		_triEdges.push_back(AnIndexedLine(idxOffset + 3, idxOffset + 4, s2s_dist, s2s_dist));
+		_triEdges.push_back(AnIndexedLine(idxOffset + 4, idxOffset + 5, s2s_dist, s2s_dist));
+		_triEdges.push_back(AnIndexedLine(idxOffset + 5, idxOffset + 6, s2s_dist, s2s_dist));
+		_triEdges.push_back(AnIndexedLine(idxOffset + 6, idxOffset + 7, s2s_dist, s2s_dist));
+		_triEdges.push_back(AnIndexedLine(idxOffset + 7, idxOffset + 8, s2s_dist, s2s_dist));
+		_triEdges.push_back(AnIndexedLine(idxOffset + 8, idxOffset + 9, s2s_dist, s2s_dist));
+		_triEdges.push_back(AnIndexedLine(idxOffset + 9, idxOffset + 10, s2s_dist, s2s_dist));
+		_triEdges.push_back(AnIndexedLine(idxOffset + 10, idxOffset + 1, s2s_dist, s2s_dist));
 
 		if (idxOffset > 0)
 		{
 			int prevOffset = idxOffset - offsetGap;
-			_triEdges.push_back(AnIndexedLine(prevOffset,      idxOffset)); // 0
-			_triEdges.push_back(AnIndexedLine(prevOffset + 1,  idxOffset + 1)); // 1
-			_triEdges.push_back(AnIndexedLine(prevOffset + 2,  idxOffset + 2)); // 2
-			_triEdges.push_back(AnIndexedLine(prevOffset + 3,  idxOffset + 3)); // 3
-			_triEdges.push_back(AnIndexedLine(prevOffset + 4,  idxOffset + 4)); // 4
-			_triEdges.push_back(AnIndexedLine(prevOffset + 5,  idxOffset + 5)); // 5
-			_triEdges.push_back(AnIndexedLine(prevOffset + 6,  idxOffset + 6)); // 6
-			_triEdges.push_back(AnIndexedLine(prevOffset + 7,  idxOffset + 7)); // 7
-			_triEdges.push_back(AnIndexedLine(prevOffset + 8,  idxOffset + 8)); // 8
-			_triEdges.push_back(AnIndexedLine(prevOffset + 9,  idxOffset + 9)); // 9
-			_triEdges.push_back(AnIndexedLine(prevOffset + 10, idxOffset + 10)); // 10
+			
+			// layer to layer
+			_triEdges.push_back(AnIndexedLine(prevOffset,      idxOffset, l2l_dist, l2l_dist, true)); // 0
+			_triEdges.push_back(AnIndexedLine(prevOffset + 1,  idxOffset + 1, l2l_dist, l2l_dist, true)); // 1
+			_triEdges.push_back(AnIndexedLine(prevOffset + 2,  idxOffset + 2, l2l_dist, l2l_dist, true)); // 2
+			_triEdges.push_back(AnIndexedLine(prevOffset + 3,  idxOffset + 3, l2l_dist, l2l_dist, true)); // 3
+			_triEdges.push_back(AnIndexedLine(prevOffset + 4,  idxOffset + 4, l2l_dist, l2l_dist, true)); // 4
+			_triEdges.push_back(AnIndexedLine(prevOffset + 5,  idxOffset + 5, l2l_dist, l2l_dist, true)); // 5
+			_triEdges.push_back(AnIndexedLine(prevOffset + 6,  idxOffset + 6, l2l_dist, l2l_dist, true)); // 6
+			_triEdges.push_back(AnIndexedLine(prevOffset + 7,  idxOffset + 7, l2l_dist, l2l_dist, true)); // 7
+			_triEdges.push_back(AnIndexedLine(prevOffset + 8,  idxOffset + 8, l2l_dist, l2l_dist, true)); // 8
+			_triEdges.push_back(AnIndexedLine(prevOffset + 9,  idxOffset + 9, l2l_dist, l2l_dist, true)); // 9
+			_triEdges.push_back(AnIndexedLine(prevOffset + 10, idxOffset + 10, l2l_dist, l2l_dist, true)); // 10
 		}
 
 		idxOffset += offsetGap;

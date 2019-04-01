@@ -16,7 +16,7 @@ StuffWorker::~StuffWorker()
 	_element_list.clear();
 	if (_c_grid_list.size() > 0)
 	{
-		for (int a = _c_grid_list.size(); a >= 0; a--)
+		for (int a = _c_grid_list.size() - 1; a >= 0; a--)
 		{
 			delete _c_grid_list[a];
 		}
@@ -122,11 +122,50 @@ void StuffWorker::InitElements(Ogre::SceneManager* scnMgr)
 	}
 }
 
-void StuffWorker::UpdateElements()
+void StuffWorker::Update()
 {
+	// ???
 	for (int a = 0; a < _element_list.size(); a++)
 	{
 		_element_list[a].UpdateBackend();
 	}
+
+	// update collision grid
+	std::vector<int> iters;
+	for (int a = 0; a < _c_grid_list.size(); a++) { iters.push_back(0); }
+
+	for (int a = 0; a < _element_list.size(); a++)
+	{
+		for (int b = 0; b < _element_list[a]._massList.size(); b++)
+		{
+			
+			int c_grid_idx = _element_list[a]._massList[b]._debug_which_layer;
+			int layer_iter = iters[c_grid_idx];
+			A3DVector p1 = _element_list[a]._massList[b]._pos;
+
+			// update pt
+			//_c_grid_list[c_grid_idx]->InsertAPoint(p1._x, p1._y, a, b);
+			_c_grid_list[c_grid_idx]->_objects[layer_iter]->_x = p1._x;
+			_c_grid_list[c_grid_idx]->_objects[layer_iter]->_y = p1._y;
+
+			iters[c_grid_idx] += 1; // increment
+		}
+	}
+	for (int a = 0; a < _c_grid_list.size(); a++) 
+	{ 
+		_c_grid_list[a]->MovePoints(); 
+		_c_grid_list[a]->PrecomputeGraphIndices();
+	}
+
+	// update closest points
+	for (int a = 0; a < _element_list.size(); a++)
+	{
+		for (int b = 0; b < _element_list[a]._massList.size(); b++)
+		{
+			_element_list[a]._massList[b].GetClosestPoint();
+		}
+
+	}
+
 }
 

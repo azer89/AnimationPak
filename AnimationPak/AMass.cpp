@@ -96,9 +96,7 @@ void AMass::Simulate(float dt)
 	_pos = _pos + _velocity * dt;
 }
 
-void AMass::Solve(/*Need more parameters*/)
-{
-}
+
 
 void AMass::GetClosestPoint()
 {

@@ -17,8 +17,9 @@ radhitya@uwaterloo.ca
 #include <Ogre.h>
 #include <OgreApplicationContext.h>
 
-#include "ImguiManager.h"
-#include "OgreCameraMan.h"
+#include "ImguiManager.h" // ogre
+#include "OgreCameraMan.h" // ogre
+#include "DynamicLines.h"  // ogre
 
 #include "StuffWorker.h"
 
@@ -45,6 +46,9 @@ public:
 	//void DoStuff();
 	void shutdown();
 
+	void CreateCubeFromLines();
+	void UpdateClosestPtsDisplay();
+
 	//void Draw();
 	//void Update(int nScreenWidth = 0, int nScreenHeight = 0);
 	//bool KeyboardEvent(unsigned char nChar, int x, int y);
@@ -56,6 +60,16 @@ public:
 	Ogre::SceneNode* _cameraNode;
 
 	StuffWorker* _sWorker;
+
+	Ogre::Root* _root;
+	Ogre::SceneManager* _scnMgr;
+
+	//cube
+	std::deque<Ogre::Vector3> _debug_points;
+	DynamicLines* _debug_lines;
+	Ogre::SceneNode* _debugNode;
+
+
 	//AnElement* _debug_elem;
 	//static std::shared_ptr<Display> GetInstance();
 

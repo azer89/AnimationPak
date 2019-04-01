@@ -20,14 +20,26 @@ Display::Display()  : OgreBites::ApplicationContext("AnimationPak"),
 	_cameraMan(0), 
 	_cameraNode(0), 
 	_cameraActivated(false), 
-	_sWorker(0)
+	_sWorker(0),
+	_root(0),
+    _scnMgr(0),
+	_debug_lines(0),
+	_debugNode(0)
 {
+	_debug_points.clear();
 }
 
 Display::~Display()
 {
+	// TODO
 	//if (_debug_elem) { delete _debug_elem; } // still can't create proper destructor ???
 	if (_cameraMan) { delete _cameraMan; }
+	if (_root) { _root = 0; }
+	if (_scnMgr) { _scnMgr = 0; }
+
+	// TODO
+	//if (_debug_lines) {}
+	//if (_debugNode) {}
 	
 }
 
@@ -54,7 +66,8 @@ bool Display::frameStarted(const Ogre::FrameEvent& evt)
 	}
 
 	///// UPDATE
-	_sWorker->UpdateElements();
+	_sWorker->Update();
+	UpdateClosestPtsDisplay();
 
 	//ImGui::ShowDemoWindow();
 	//ImGui::ShowDemoWindow();
@@ -94,87 +107,9 @@ bool Display::frameStarted(const Ogre::FrameEvent& evt)
 	return true;
 }
 
-// setup OGRE
-void Display::setup()
+void Display::CreateCubeFromLines()
 {
-	OgreBites::ApplicationContext::setup();
-	this->getRenderWindow()->resize(1400, 840); // window size
-	this->getRenderWindow()->reposition(5, 5);
-	addInputListener(this);
-
-	Ogre::ImguiManager::createSingleton();
-	addInputListener(Ogre::ImguiManager::getSingletonPtr());
-
-	// get a pointer to the already created root
-	Ogre::Root* root = getRoot();
-	Ogre::SceneManager* scnMgr = root->createSceneManager();
-	Ogre::ImguiManager::getSingleton().init(scnMgr);
-
-	// register our scene with the RTSS
-	Ogre::RTShader::ShaderGenerator* shadergen = Ogre::RTShader::ShaderGenerator::getSingletonPtr();
-	shadergen->addSceneManager(scnMgr);
-
-	{
-		Ogre::Light* light = scnMgr->createLight("Light1");
-		Ogre::SceneNode* lightNode = scnMgr->getRootSceneNode()->createChildSceneNode();
-		lightNode->setPosition(0, 0, 0);
-		lightNode->attachObject(light);
-	}
-
-	{
-		Ogre::Light* light = scnMgr->createLight("Light2");
-		Ogre::SceneNode* lightNode = scnMgr->getRootSceneNode()->createChildSceneNode();
-		lightNode->setPosition(500, 500, 500);
-		lightNode->attachObject(light);
-	}
-
-	_cameraNode = scnMgr->getRootSceneNode()->createChildSceneNode();
-	_cameraNode->setPosition(250, 700, 700);
-	_cameraNode->lookAt(Ogre::Vector3(250, 250, -250), Ogre::Node::TS_PARENT);
-
-	Ogre::Camera* cam = scnMgr->createCamera("myCam");
-	cam->setNearClipDistance(5); // specific to this sample
-	cam->setAutoAspectRatio(true);
-	_cameraNode->attachObject(cam);
-	Ogre::Viewport* vp = getRenderWindow()->addViewport(cam);
-	_cameraMan = new OgreBites::CameraMan(_cameraNode);
-	_cameraMan->setStyle(OgreBites::CameraStyle::CS_MANUAL);
-	
-	// background color
-	vp->setBackgroundColour(Ogre::ColourValue(1, 1, 1));
-	//vp->setBackgroundColour(Ogre::ColourValue(0, 0, 0));
-	//vp->setBackgroundColour(Ogre::ColourValue(0.5, 0.5, 0.5));
-
-	/*Ogre::Entity* ent = scnMgr->createEntity("Sinbad.mesh");
-	ent->setMaterialName("Examples/TransparentTest2");
-	Ogre::SceneNode* node = scnMgr->getRootSceneNode()->createChildSceneNode();
-	node->attachObject(ent);
-	node->setScale(10, 10, 10);*/
-
-	// what is this???
-	//Ogre::RenderSystemList::const_iterator renderers = mRoot->getAvailableRenderers().begin();
-
-
-
-	
-	//mCameraMan->manualStop();
-	/*
-	std::cout << "\n\n renderers \n\n";
-	while (renderers != mRoot->getAvailableRenderers().end())
-	{
-		Ogre::String rName = (*renderers)->getName();
-		std::cout << rName << "\n";
-		renderers++;
-	}
-	*/
-
-	_sWorker = new StuffWorker;
-	_sWorker->InitElements(scnMgr);
-
 	std::deque<Ogre::Vector3> somePoints;
-	// add points
-	//somePoints.push_back(Ogre::Vector3(0.0f, 0.0f, 0.0f));
-	//somePoints.push_back(Ogre::Vector3(452.0f, 2345.0f, 453.0f));
 
 	// cube
 	{
@@ -219,6 +154,118 @@ void Display::setup()
 		somePoints.push_back(Ogre::Vector3(500.0f, 0.0f, -500.0f));
 	}
 
+	//In the initialization somewhere, create the initial lines object :
+	DynamicLines * cube_lines = new DynamicLines(Ogre::RenderOperation::OT_LINE_LIST);
+	for (int i = 0; i<somePoints.size(); i++) {
+		cube_lines->addPoint(somePoints[i]);
+	}
+
+	cube_lines->update();
+	Ogre::SceneNode *linesNode = _scnMgr->getRootSceneNode()->createChildSceneNode("lines");
+	linesNode->attachObject(cube_lines);
+}
+
+void Display::UpdateClosestPtsDisplay()
+{
+	_debug_lines->update();
+}
+
+
+// setup OGRE
+void Display::setup()
+{
+	OgreBites::ApplicationContext::setup();
+	this->getRenderWindow()->resize(1400, 840); // window size
+	this->getRenderWindow()->reposition(5, 5);
+	addInputListener(this);
+
+	Ogre::ImguiManager::createSingleton();
+	addInputListener(Ogre::ImguiManager::getSingletonPtr());
+
+	// get a pointer to the already created root
+	_root = getRoot();
+	_scnMgr = _root->createSceneManager();
+	Ogre::ImguiManager::getSingleton().init(_scnMgr);
+
+	// register our scene with the RTSS
+	Ogre::RTShader::ShaderGenerator* shadergen = Ogre::RTShader::ShaderGenerator::getSingletonPtr();
+	shadergen->addSceneManager(_scnMgr);
+
+	{
+		Ogre::Light* light = _scnMgr->createLight("Light1");
+		Ogre::SceneNode* lightNode = _scnMgr->getRootSceneNode()->createChildSceneNode();
+		lightNode->setPosition(0, 0, 0);
+		lightNode->attachObject(light);
+	}
+
+	{
+		Ogre::Light* light = _scnMgr->createLight("Light2");
+		Ogre::SceneNode* lightNode = _scnMgr->getRootSceneNode()->createChildSceneNode();
+		lightNode->setPosition(500, 500, 500);
+		lightNode->attachObject(light);
+	}
+
+	_cameraNode = _scnMgr->getRootSceneNode()->createChildSceneNode();
+	_cameraNode->setPosition(250, 700, 700);
+	_cameraNode->lookAt(Ogre::Vector3(250, 250, -250), Ogre::Node::TS_PARENT);
+
+	Ogre::Camera* cam = _scnMgr->createCamera("myCam");
+	cam->setNearClipDistance(5); // specific to this sample
+	cam->setAutoAspectRatio(true);
+	_cameraNode->attachObject(cam);
+	Ogre::Viewport* vp = getRenderWindow()->addViewport(cam);
+	_cameraMan = new OgreBites::CameraMan(_cameraNode);
+	_cameraMan->setStyle(OgreBites::CameraStyle::CS_MANUAL);
+	
+	// background color
+	vp->setBackgroundColour(Ogre::ColourValue(1, 1, 1));
+	//vp->setBackgroundColour(Ogre::ColourValue(0, 0, 0));
+	//vp->setBackgroundColour(Ogre::ColourValue(0.5, 0.5, 0.5));
+
+	/*Ogre::Entity* ent = scnMgr->createEntity("Sinbad.mesh");
+	ent->setMaterialName("Examples/TransparentTest2");
+	Ogre::SceneNode* node = scnMgr->getRootSceneNode()->createChildSceneNode();
+	node->attachObject(ent);
+	node->setScale(10, 10, 10);*/
+
+	// what is this???
+	//Ogre::RenderSystemList::const_iterator renderers = mRoot->getAvailableRenderers().begin();
+
+	CreateCubeFromLines();
+
+
+	// debug ==================
+
+	//In the initialization somewhere, create the initial lines object :
+	_debug_lines = new DynamicLines(Ogre::RenderOperation::OT_LINE_LIST);
+	_debug_lines->update();
+	_debugNode = _scnMgr->getRootSceneNode()->createChildSceneNode("debug_lines");
+	_debugNode->attachObject(_debug_lines);
+
+	// debug ==================
+	
+	//mCameraMan->manualStop();
+	/*
+	std::cout << "\n\n renderers \n\n";
+	while (renderers != mRoot->getAvailableRenderers().end())
+	{
+		Ogre::String rName = (*renderers)->getName();
+		std::cout << rName << "\n";
+		renderers++;
+	}
+	*/
+
+	_sWorker = new StuffWorker;
+	_sWorker->InitElements(_scnMgr);
+
+	
+	// add points
+	//somePoints.push_back(Ogre::Vector3(0.0f, 0.0f, 0.0f));
+	//somePoints.push_back(Ogre::Vector3(452.0f, 2345.0f, 453.0f));
+
+	
+
+
 
 
 	/*for (int i = 0; i < _sWorker->_element_list.size(); i++)
@@ -234,16 +281,7 @@ void Display::setup()
 		}
 	}*/
 
-	//In the initialization somewhere, create the initial lines object :
-	DynamicLines * lines = new DynamicLines(Ogre::RenderOperation::OT_LINE_LIST);
-	for (int i = 0; i<somePoints.size(); i++) {
-		lines->addPoint(somePoints[i]);
-	}
-
-	lines->update();
-	Ogre::SceneNode *linesNode = scnMgr->getRootSceneNode()->createChildSceneNode("lines");
-	linesNode->attachObject(lines);
-
+	
 	// tubes
 	/*Ogre::SceneNode* pNode = scnMgr->getRootSceneNode()->createChildSceneNode();
 
@@ -265,6 +303,7 @@ void Display::setup()
 	
 	
 }
+
 
 bool Display::keyPressed(const OgreBites::KeyboardEvent& evt)
 {

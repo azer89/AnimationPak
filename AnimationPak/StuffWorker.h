@@ -15,7 +15,9 @@ public:
 
 	void InitElements(Ogre::SceneManager* scnMgr);
 
-	void UpdateElements();
+	void Update();
+
+
 public:
 
 	//AnElement* _elem;

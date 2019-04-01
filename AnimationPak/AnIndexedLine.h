@@ -26,10 +26,10 @@ public:
 
 	//float _angle;
 
-private:
 	//float _scale;
 	float _dist;
 	float _oriDist;
+	bool _isLayer2Layer; // is this an inter-layer edge
 
 public:
 	//void SetDist(float d) { _dist = d; _oriDist = _dist; }
@@ -47,6 +47,21 @@ public:
 		this->_index1 = index1;
 		this->_dist = 0.0f;
 		this->_oriDist = 0.0f;
+		//this->_angle = 0.0f;
+		this->_isLayer2Layer = false;
+
+		//this->_canGrow = true;
+	}
+
+	AnIndexedLine(int index0, int index1, float dist, float oriDist, bool isLayer2Layer = false)
+	{
+		//this->_scale = 1.0f;
+
+		this->_index0 = index0;
+		this->_index1 = index1;
+		this->_dist = dist;
+		this->_oriDist = oriDist;
+		this->_isLayer2Layer = isLayer2Layer;
 		//this->_angle = 0.0f;
 
 		//this->_canGrow = true;

@@ -24,9 +24,13 @@ Display::Display()  : OgreBites::ApplicationContext("AnimationPak"),
 	_root(0),
     _scnMgr(0),
 	_debug_lines(0),
-	_debugNode(0)
+	_debugNode(0),
+	_spring_lines(0),
+	_springNode(0)
+
 {
 	_debug_points.clear();
+	_spring_points.clear();
 }
 
 Display::~Display()
@@ -40,6 +44,11 @@ Display::~Display()
 	// TODO
 	//if (_debug_lines) {}
 	//if (_debugNode) {}
+
+
+	// TODO
+	//if (_spring_lines) {}
+	//if (_springNode) {}
 	
 }
 
@@ -67,7 +76,12 @@ bool Display::frameStarted(const Ogre::FrameEvent& evt)
 
 	///// UPDATE
 	_sWorker->Update();
-	UpdateClosestPtsDisplay();
+	_sWorker->Reset();
+	_sWorker->Solve();
+	_sWorker->Simulate();
+	_sWorker->UpdateViz();
+	UpdateSpringDisplay();
+	//UpdateClosestPtsDisplay();
 
 	//ImGui::ShowDemoWindow();
 	//ImGui::ShowDemoWindow();
@@ -167,6 +181,43 @@ void Display::CreateCubeFromLines()
 
 void Display::UpdateClosestPtsDisplay()
 {
+	_debug_points.clear();
+
+	// here
+	for (int a = 0; a < _sWorker->_element_list.size(); a++)
+	{
+		/*for (int b = 0; b < _sWorker->_element_list[a]._triEdges.size(); b++)
+		{
+			int idx1 = _sWorker->_element_list[a]._triEdges[b]._index0;
+			int idx2 = _sWorker->_element_list[a]._triEdges[b]._index1;
+
+			A3DVector pt1 = _sWorker->_element_list[a]._massList[idx1]._pos;
+			A3DVector pt2 = _sWorker->_element_list[a]._massList[idx2]._pos;
+
+			_debug_points.push_back(Ogre::Vector3(pt1._x, pt1._y, pt1._z) );
+			_debug_points.push_back(Ogre::Vector3(pt2._x, pt2._y, pt2._z));
+		}*/
+
+		for (int b = 0; b < _sWorker->_element_list[a]._massList.size(); b++)
+		{
+			for (int c = 0; c < _sWorker->_element_list[a]._massList[b]._closestPt_fill_sz; c++)
+			{
+				A3DVector pt1 = _sWorker->_element_list[a]._massList[b]._pos;
+				A2DVector pt22D = _sWorker->_element_list[a]._massList[b]._closestPoints[c];
+				A3DVector pt2(pt22D.x, pt22D.y, pt1._z);
+
+				_debug_points.push_back(Ogre::Vector3(pt1._x, pt1._y, pt1._z));
+				_debug_points.push_back(Ogre::Vector3(pt2._x, pt2._y, pt2._z));
+			}
+		}
+	}
+
+
+	for (int i = 0; i < _debug_points.size(); i++) 
+	{
+		_debug_lines->addPoint(_debug_points[i]);
+	}
+
 	_debug_lines->update();
 }
 
@@ -206,8 +257,8 @@ void Display::setup()
 	}
 
 	_cameraNode = _scnMgr->getRootSceneNode()->createChildSceneNode();
-	_cameraNode->setPosition(250, 700, 700);
-	_cameraNode->lookAt(Ogre::Vector3(250, 250, -250), Ogre::Node::TS_PARENT);
+	_cameraNode->setPosition(250, 250, 700);
+	_cameraNode->lookAt(Ogre::Vector3(250, 250, 0), Ogre::Node::TS_PARENT);
 
 	Ogre::Camera* cam = _scnMgr->createCamera("myCam");
 	cam->setNearClipDistance(5); // specific to this sample
@@ -231,7 +282,7 @@ void Display::setup()
 	// what is this???
 	//Ogre::RenderSystemList::const_iterator renderers = mRoot->getAvailableRenderers().begin();
 
-	CreateCubeFromLines();
+	
 
 
 	// debug ==================
@@ -258,7 +309,8 @@ void Display::setup()
 	_sWorker = new StuffWorker;
 	_sWorker->InitElements(_scnMgr);
 
-	
+	CreateCubeFromLines();
+	CreateSpringLines();
 	// add points
 	//somePoints.push_back(Ogre::Vector3(0.0f, 0.0f, 0.0f));
 	//somePoints.push_back(Ogre::Vector3(452.0f, 2345.0f, 453.0f));
@@ -302,6 +354,60 @@ void Display::setup()
 
 	
 	
+}
+
+void Display::CreateSpringLines()
+{
+
+	// springs
+	{
+		for (int i = 0; i < _sWorker->_element_list.size(); i++)
+		{
+			AnElement elem = _sWorker->_element_list[i];
+			for (int a = 0; a < elem._triEdges.size(); a++)
+			{
+				AnIndexedLine ln = elem._triEdges[a];
+				A3DVector pt1 = elem._massList[ln._index0]._pos;
+				A3DVector pt2 = elem._massList[ln._index1]._pos;
+				_spring_points.push_back(Ogre::Vector3(pt1._x, pt1._y, pt1._z));
+				_spring_points.push_back(Ogre::Vector3(pt2._x, pt2._y, pt2._z));
+			}
+		}
+	}
+
+	//In the initialization somewhere, create the initial lines object :
+	_spring_lines = new DynamicLines(Ogre::RenderOperation::OT_LINE_LIST);
+	for (int i = 0; i < _spring_points.size(); i++) {
+		_spring_lines->addPoint(_spring_points[i]);
+	}
+
+	_spring_lines->update();
+	_springNode = _scnMgr->getRootSceneNode()->createChildSceneNode("SpringNode");
+	_springNode->attachObject(_spring_lines);
+}
+
+void Display::UpdateSpringDisplay()
+{
+	/*for (int i = 0; i < _spring_points.size(); i++) {
+		_spring_lines->addPoint(_spring_points[i]);
+	}*/
+	int idx = 0;
+	for (int i = 0; i < _sWorker->_element_list.size(); i++)
+	{
+		AnElement elem = _sWorker->_element_list[i];
+		for (int a = 0; a < elem._triEdges.size(); a++)
+		{
+			AnIndexedLine ln = elem._triEdges[a];
+			A3DVector pt1 = elem._massList[ln._index0]._pos;
+			A3DVector pt2 = elem._massList[ln._index1]._pos;
+			_spring_lines->setPoint(idx++, Ogre::Vector3(pt1._x, pt1._y, pt1._z));
+			_spring_lines->setPoint(idx++, Ogre::Vector3(pt2._x, pt2._y, pt2._z));
+			//_spring_points.push_back(Ogre::Vector3(pt1._x, pt1._y, pt1._z));
+			//_spring_points.push_back(Ogre::Vector3(pt2._x, pt2._y, pt2._z));
+		}
+	}
+
+	_spring_lines->update();
 }
 
 

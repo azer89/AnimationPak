@@ -49,6 +49,9 @@ public:
 	void CreateCubeFromLines();
 	void UpdateClosestPtsDisplay();
 
+	void CreateSpringLines();
+	void UpdateSpringDisplay();
+
 	//void Draw();
 	//void Update(int nScreenWidth = 0, int nScreenHeight = 0);
 	//bool KeyboardEvent(unsigned char nChar, int x, int y);
@@ -69,6 +72,10 @@ public:
 	DynamicLines* _debug_lines;
 	Ogre::SceneNode* _debugNode;
 
+	// element springs
+	std::deque<Ogre::Vector3> _spring_points;
+	DynamicLines* _spring_lines;
+	Ogre::SceneNode* _springNode;
 
 	//AnElement* _debug_elem;
 	//static std::shared_ptr<Display> GetInstance();

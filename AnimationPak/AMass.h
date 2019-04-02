@@ -51,14 +51,14 @@ public:
 
 	void GetClosestPoint();
 
-private:
+public:
 	A3DVector _edgeForce;
 	A3DVector _repulsionForce;
 	A3DVector _boundaryForce;
 	A3DVector _overlapForce;
 	A3DVector _rotationForce;
 
-private:
+
 	float                _closestDist;
 	std::vector<int>     _closestGraphIndices;
 	

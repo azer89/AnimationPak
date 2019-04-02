@@ -15,7 +15,7 @@ DynamicLines::DynamicLines(OperationType opType)
 	initialize(opType, false);
 
 	//setMaterial("BaseWhiteNoLighting");
-	Ogre::MaterialPtr material = Ogre::MaterialManager::getSingleton().getByName("Examples/RedMat");
+	Ogre::MaterialPtr material = Ogre::MaterialManager::getSingleton().getByName("Examples/BlueMat");
 	setMaterial(material);
 
 	mDirty = true;

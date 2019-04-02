@@ -53,7 +53,7 @@ void StuffWorker::InitElements(Ogre::SceneManager* scnMgr)
 		AnElement elem;
 		elem.CreateStarTube(1);
 		elem.ScaleXY(0.2);
-		elem.TranslateXY(250, 200);
+		elem.TranslateXY(250, 400);
 		Ogre::SceneNode* pNode = scnMgr->getRootSceneNode()->createChildSceneNode("TubeNode1");
 		elem.InitMesh(scnMgr, pNode, "StarTube1", "Examples/TransparentTest2");
 		_element_list.push_back(elem);
@@ -96,6 +96,26 @@ void StuffWorker::InitElements(Ogre::SceneManager* scnMgr)
 		elem.TranslateXY(400, 0);
 		Ogre::SceneNode* pNode = scnMgr->getRootSceneNode()->createChildSceneNode("TubeNode5");
 		elem.InitMesh(scnMgr, pNode, "StarTube5", "Examples/TransparentTest2");
+		_element_list.push_back(elem);
+	}
+
+	{
+		AnElement elem;
+		elem.CreateStarTube(6);
+		elem.ScaleXY(0.2);
+		elem.TranslateXY(240, 240);
+		Ogre::SceneNode* pNode = scnMgr->getRootSceneNode()->createChildSceneNode("TubeNode6");
+		elem.InitMesh(scnMgr, pNode, "StarTube6", "Examples/TransparentTest2");
+		_element_list.push_back(elem);
+	}
+
+	{
+		AnElement elem;
+		elem.CreateStarTube(7);
+		elem.ScaleXY(0.2);
+		elem.TranslateXY(130, 140);
+		Ogre::SceneNode* pNode = scnMgr->getRootSceneNode()->createChildSceneNode("TubeNode7");
+		elem.InitMesh(scnMgr, pNode, "StarTube7", "Examples/TransparentTest2");
 		_element_list.push_back(elem);
 	}
 
@@ -167,5 +187,50 @@ void StuffWorker::Update()
 
 	}
 
+}
+
+void StuffWorker::Reset()
+{
+	// update closest points
+	for (int a = 0; a < _element_list.size(); a++)
+	{
+		for (int b = 0; b < _element_list[a]._massList.size(); b++)
+		{
+			_element_list[a]._massList[b].Init();
+		}
+
+	}
+}
+
+void StuffWorker::Solve()
+{
+	for (int a = 0; a < _element_list.size(); a++)
+	{
+		_element_list[a].SolveForSprings();
+
+		for (int b = 0; b < _element_list[a]._massList.size(); b++)
+		{
+			_element_list[a]._massList[b].Solve();
+		}
+	}
+}
+
+void StuffWorker::Simulate()
+{
+	for (int a = 0; a < _element_list.size(); a++)
+	{
+		for (int b = 0; b < _element_list[a]._massList.size(); b++)
+		{
+			_element_list[a]._massList[b].Simulate(SystemParams::_dt);
+		}
+	}
+}
+
+void StuffWorker::UpdateViz()
+{
+	for (int a = 0; a < _element_list.size(); a++)
+	{
+		_element_list[a].UpdateMesh2();
+	}
 }
 

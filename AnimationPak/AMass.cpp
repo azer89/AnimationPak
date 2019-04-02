@@ -173,7 +173,7 @@ void AMass::Solve()
 	sumR *= SystemParams::_k_repulsion;
 	if (!sumR.IsBad()) 
 	{ 
-		this->_repulsionForce += A3DVector(sumR.x, sumR.y, 0); 
+		this->_repulsionForce += A3DVector(sumR.x, sumR.y, 0); // z is always 0 !!!
 	}
 }
 

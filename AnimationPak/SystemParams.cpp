@@ -30,6 +30,7 @@ void SystemParams::LoadParameters()
 	//std::cout << "upscale factor = " << SystemParams::_upscaleFactor << "\n";
 	//std::cout << "downscale factor = " << SystemParams::_downscaleFactor << "\n";
 
+	SystemParams::_dt = script.get<float>("_dt");
 	SystemParams::_seed = script.get<int>("_seed");
 
 	SystemParams::_k_edge = script.get<float>("_k_edge");

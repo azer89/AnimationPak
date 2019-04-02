@@ -31,6 +31,9 @@ public:
 	void UpdateBackend();
 	void UpdateSpringLengths();
 
+
+	void SolveForSprings();
+
 	void UpdateMesh2();
 	//void UpdateMesh();
 

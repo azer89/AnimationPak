@@ -22,6 +22,7 @@ public:
 	~AnElement();
 
 	void CreateStarTube(int self_idx);
+	void InitSpringLengths();
 
 	void InitMesh(Ogre::SceneManager* sceneMgr, 
 		Ogre::SceneNode* sceneNode,

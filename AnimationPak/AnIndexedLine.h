@@ -13,6 +13,7 @@
 
 #include "SystemParams.h"
 
+
 //namespace CVSystem
 //{
 struct AnIndexedLine
@@ -39,7 +40,7 @@ public:
 public:
 
 	// Constructor
-	AnIndexedLine(int index0, int index1)
+	AnIndexedLine(int index0, int index1, bool isLayer2Layer = false)
 	{
 		//this->_scale = 1.0f;
 
@@ -66,6 +67,27 @@ public:
 
 		//this->_canGrow = true;
 	}
+
+
+
+	void SetActualOriDistance(float d)
+	{
+		this->_dist = d;
+		this->_oriDist = d;
+	}
+
+	/*AnIndexedLine(const AMass& m1, const AMass& m2, bool isLayer2Layer = false)
+	{
+		this->_index0 = m1._self_idx;
+		this->_index1 = m2._self_idx;
+		
+		A3DVector pt1 = m1._pos;
+		A3DVector pt2 = m2._pos;
+
+		this->_dist = pt1.Distance(pt2);
+		this->_oriDist = this->_dist;
+		this->_isLayer2Layer = isLayer2Layer;
+	}*/
 
 
 	// Constructor

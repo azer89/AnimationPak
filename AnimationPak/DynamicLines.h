@@ -14,7 +14,7 @@ class DynamicLines : public DynamicRenderable
 
 public:
 	/// Constructor - see setOperationType() for description of argument.
-	DynamicLines(OperationType opType = Ogre::RenderOperation::OT_LINE_STRIP);
+	DynamicLines(OperationType opType = Ogre::RenderOperation::OT_LINE_STRIP, std::string matName = "Examples/BlueMat");
 	virtual ~DynamicLines();
 
 	/// Add a point to the point list

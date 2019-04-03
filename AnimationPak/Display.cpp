@@ -23,6 +23,7 @@ Display::Display()  : OgreBites::ApplicationContext("AnimationPak"),
 	_sWorker(0),
 	_root(0),
     _scnMgr(0),
+	_maxDebugLines(500),  // TODO
 	_debug_lines(0),
 	_debugNode(0),
 	_spring_lines(0),
@@ -80,8 +81,11 @@ bool Display::frameStarted(const Ogre::FrameEvent& evt)
 	_sWorker->Solve();
 	_sWorker->Simulate();
 	_sWorker->UpdateViz();
+	_sWorker->ImposeConstraints();
 	UpdateSpringDisplay();
 	//UpdateClosestPtsDisplay();
+
+
 
 	//ImGui::ShowDemoWindow();
 	//ImGui::ShowDemoWindow();
@@ -182,6 +186,7 @@ void Display::CreateCubeFromLines()
 void Display::UpdateClosestPtsDisplay()
 {
 	_debug_points.clear();
+	_debug_lines->clear();
 
 	// here
 	for (int a = 0; a < _sWorker->_element_list.size(); a++)
@@ -288,7 +293,7 @@ void Display::setup()
 	// debug ==================
 
 	//In the initialization somewhere, create the initial lines object :
-	_debug_lines = new DynamicLines(Ogre::RenderOperation::OT_LINE_LIST);
+	_debug_lines = new DynamicLines(Ogre::RenderOperation::OT_LINE_LIST, "Examples/RedMat");
 	_debug_lines->update();
 	_debugNode = _scnMgr->getRootSceneNode()->createChildSceneNode("debug_lines");
 	_debugNode->attachObject(_debug_lines);

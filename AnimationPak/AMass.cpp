@@ -56,6 +56,8 @@ AMass::~AMass()
 
 void AMass::CallMeFromConstructor()
 {
+	_velocity = A3DVector(0, 0, 0);
+
 	// hard parameter for closest pt search
 	_closestPt_fill_sz = 0;
 	_closestPt_actual_sz = 50;
@@ -94,6 +96,24 @@ void AMass::Simulate(float dt)
 	}
 
 	_pos = _pos + _velocity * dt;
+}
+
+void AMass::ImposeConstraints()
+{
+	if (_debug_which_layer == 0)
+	{
+		_pos._z = 0;
+	}
+	else if (_debug_which_layer == SystemParams::_num_layer)
+	{
+		_pos._z = SystemParams::_upscaleFactor;
+	}
+
+	if (_pos._x < 0) { _pos._x = 0; }
+	if (_pos._x >= SystemParams::_upscaleFactor) { _pos._x = SystemParams::_upscaleFactor - 1; }
+	
+	if (_pos._y < 0) { _pos._y = 0; }
+	if (_pos._y >= SystemParams::_upscaleFactor) { _pos._y = SystemParams::_upscaleFactor - 1; }
 }
 
 
@@ -176,6 +196,8 @@ void AMass::Solve()
 		this->_repulsionForce += A3DVector(sumR.x, sumR.y, 0); // z is always 0 !!!
 	}
 }
+
+
 
 /*void AMass::GetClosestPoint()
 {

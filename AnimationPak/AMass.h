@@ -49,6 +49,8 @@ public:
 	void Simulate(float dt);
 	void Solve(/*Need more parameters*/);
 
+	void ImposeConstraints();
+
 	void GetClosestPoint();
 
 public:

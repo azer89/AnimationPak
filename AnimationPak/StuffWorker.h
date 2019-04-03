@@ -19,6 +19,7 @@ public:
 	void Reset();          // reset forces to zero
 	void Solve();            // calculate forces
 	void Simulate();     // (non-velocity verlet) iterate the masses by the change in time	
+	void ImposeConstraints();
 	void UpdateViz();
 
 public:

@@ -68,6 +68,7 @@ public:
 	Ogre::SceneManager* _scnMgr;
 
 	//cube
+	int _maxDebugLines; // TODO
 	std::deque<Ogre::Vector3> _debug_points;
 	DynamicLines* _debug_lines;
 	Ogre::SceneNode* _debugNode;

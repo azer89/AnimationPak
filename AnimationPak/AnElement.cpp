@@ -410,6 +410,9 @@ void AnElement::SolveForSprings()
 
 	for (unsigned int a = 0; a < _triEdges.size(); a++)
 	{
+		float k = k_edge;
+		if (_triEdges[a]._isLayer2Layer) { k *= 0.1; }
+
 		int idx0 = _triEdges[a]._index0;
 		int idx1 = _triEdges[a]._index1;
 
@@ -423,7 +426,7 @@ void AnElement::SolveForSprings()
 		float signVal = 1;
 		float diff = dist - oriDist;
 		if (diff < 0) { signVal = -1; }
-		eForce = (dir * k_edge *  signVal * diff * diff);
+		eForce = (dir * k *  signVal * diff * diff);
 
 		if (!eForce.IsBad())
 		{

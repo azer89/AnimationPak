@@ -24,7 +24,7 @@ StuffWorker::~StuffWorker()
 	}
 	/*if (_elem)
 	{
-		delete _elem;
+	delete _elem;
 	}*/
 
 	//Ogre::MaterialManager::getSingleton().remove("Examples/TransparentTest2");
@@ -32,14 +32,14 @@ StuffWorker::~StuffWorker()
 
 void StuffWorker::InitElements(Ogre::SceneManager* scnMgr)
 {
-	
+
 	/*_elem = new AnElement;
 	_elem->CreateStarTube();
 	_elem->ScaleXY(0.2);
 	Ogre::SceneNode* pNode = scnMgr->getRootSceneNode()->createChildSceneNode("Wow");
 	_elem->InitMesh(scnMgr, pNode, "StarTube1", "Examples/TransparentTest2");*/
-	
-	
+
+
 	{
 		AnElement elem;
 		elem.CreateStarTube(0);
@@ -49,7 +49,7 @@ void StuffWorker::InitElements(Ogre::SceneManager* scnMgr)
 		elem.InitMesh(scnMgr, pNode, "StarTube0", "Examples/TransparentTest2");
 		_element_list.push_back(elem);
 	}
-	
+
 	{
 		AnElement elem;
 		elem.CreateStarTube(1);
@@ -138,12 +138,15 @@ void StuffWorker::InitElements(Ogre::SceneManager* scnMgr)
 		_element_list.push_back(elem);
 	}
 
-	_c_grid_list.push_back(new CollisionGrid2D); // 0
-	_c_grid_list.push_back(new CollisionGrid2D); // 1
-	_c_grid_list.push_back(new CollisionGrid2D); // 2
-	_c_grid_list.push_back(new CollisionGrid2D); // 3
-	_c_grid_list.push_back(new CollisionGrid2D); // 4
-	_c_grid_list.push_back(new CollisionGrid2D); // 5
+	for(int a = 0; a < SystemParams::_num_layer; a++)
+	{
+		_c_grid_list.push_back(new CollisionGrid2D); // 0
+	}
+	//_c_grid_list.push_back(new CollisionGrid2D); // 1
+	//_c_grid_list.push_back(new CollisionGrid2D); // 2
+	//_c_grid_list.push_back(new CollisionGrid2D); // 3
+	//_c_grid_list.push_back(new CollisionGrid2D); // 4
+	//_c_grid_list.push_back(new CollisionGrid2D); // 5
 
 	for (int a = 0; a < _element_list.size(); a++)
 	{
@@ -151,7 +154,7 @@ void StuffWorker::InitElements(Ogre::SceneManager* scnMgr)
 		{
 			int c_grid_idx = _element_list[a]._massList[b]._debug_which_layer;
 			A3DVector p1 = _element_list[a]._massList[b]._pos;
-			
+
 			// assign mass to grid
 			_c_grid_list[c_grid_idx]->InsertAPoint(p1._x, p1._y, a, b);
 
@@ -177,7 +180,7 @@ void StuffWorker::Update()
 	{
 		for (int b = 0; b < _element_list[a]._massList.size(); b++)
 		{
-			
+
 			int c_grid_idx = _element_list[a]._massList[b]._debug_which_layer;
 			int layer_iter = iters[c_grid_idx];
 			A3DVector p1 = _element_list[a]._massList[b]._pos;
@@ -190,9 +193,9 @@ void StuffWorker::Update()
 			iters[c_grid_idx] += 1; // increment
 		}
 	}
-	for (int a = 0; a < _c_grid_list.size(); a++) 
-	{ 
-		_c_grid_list[a]->MovePoints(); 
+	for (int a = 0; a < _c_grid_list.size(); a++)
+	{
+		_c_grid_list[a]->MovePoints();
 		_c_grid_list[a]->PrecomputeGraphIndices();
 	}
 
@@ -263,4 +266,3 @@ void StuffWorker::UpdateViz()
 		_element_list[a].UpdateMesh2();
 	}
 }
-

@@ -262,8 +262,10 @@ void Display::setup()
 	}
 
 	_cameraNode = _scnMgr->getRootSceneNode()->createChildSceneNode();
-	_cameraNode->setPosition(250, 250, 700);
-	_cameraNode->lookAt(Ogre::Vector3(250, 250, 0), Ogre::Node::TS_PARENT);
+	//_cameraNode->setPosition(250, 250, 700);
+	_cameraNode->setPosition(1200, 250, -250);
+	//_cameraNode->lookAt(Ogre::Vector3(250, 250, 0), Ogre::Node::TS_PARENT);
+	_cameraNode->lookAt(Ogre::Vector3(250, 250, -250), Ogre::Node::TS_PARENT);
 
 	Ogre::Camera* cam = _scnMgr->createCamera("myCam");
 	cam->setNearClipDistance(5); // specific to this sample

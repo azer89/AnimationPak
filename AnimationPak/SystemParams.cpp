@@ -50,12 +50,12 @@ void SystemParams::LoadParameters()
 
 	// temp
 	//SystemParams::_cube_length = 500.0f;
-	SystemParams::_num_layer = 6; // plus one
+	SystemParams::_num_layer = 20; // plus one
 
 
-	//std::cout << SystemParams::_upscaleFactor << "\n";
-	//std::cout << SystemParams::_downscaleFactor << "\n";
-	//std::cout << SystemParams::_seed << "\n";
+								  //std::cout << SystemParams::_upscaleFactor << "\n";
+								  //std::cout << SystemParams::_downscaleFactor << "\n";
+								  //std::cout << SystemParams::_seed << "\n";
 
 }
 

@@ -37,3 +37,5 @@ _bin_square_size         = 125;
 --- 1 means considering all cells that are 1 block away from the query (3x3)
 --- 2 means considering all cells that are 2 block away from the query (5x5)
 _collission_block_radius = 1;  
+
+_num_layer = 5;

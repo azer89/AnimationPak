@@ -12,6 +12,8 @@
 #include <OgreHardwareIndexBuffer.h>
 #include <OgreSubMesh.h>
 
+#include "UtilityFunctions.h"
+
 
 AnElement::AnElement()
 {
@@ -26,29 +28,29 @@ AnElement::~AnElement()
 	// maybe they're automatically deleted???
 
 	_tubeObject = 0;
-	_sceneNode  = 0;
-	_sceneMgr   = 0;
+	_sceneNode = 0;
+	_sceneMgr = 0;
 	_material.reset();
 
-	
-	
+
+
 	/*if (_tubeObject)
 	{
-		if (_tubeObject->getParentSceneNode())
-			_tubeObject->getParentSceneNode()->detachObject(_tubeObject);
+	if (_tubeObject->getParentSceneNode())
+	_tubeObject->getParentSceneNode()->detachObject(_tubeObject);
 
-		_sceneMgr->destroyManualObject(_tubeObject);
+	_sceneMgr->destroyManualObject(_tubeObject);
 	}
-	
+
 	_material.reset();
 
 	if (_sceneNode)
 	{
-		_sceneNode->removeAndDestroyAllChildren();
-		_sceneNode->getParentSceneNode()->removeAndDestroyChild(_sceneNode->getName());
-		_sceneNode = 0;
+	_sceneNode->removeAndDestroyAllChildren();
+	_sceneNode->getParentSceneNode()->removeAndDestroyChild(_sceneNode->getName());
+	_sceneNode = 0;
 	}*/
-	
+
 }
 
 void AnElement::ScaleXY(float scVal)
@@ -124,7 +126,7 @@ void AnElement::UpdateMesh2()
 		// normal doesn't work???
 		//A3DVector normVec = A3DVector(250, 250, pos._z).DirectionTo(pos).Norm();
 		//_tubeObject->normal(normVec._x, normVec._y, normVec._z);
-		
+
 		// uv
 		int curLayer = a / 1;
 		int idx = a % 10;
@@ -138,7 +140,8 @@ void AnElement::UpdateMesh2()
 
 	int indexOffset = 10;
 	int A, B, C, D;
-	for (int i = 0; i < 5; i++)
+	int maxIdx = SystemParams::_num_layer - 1;
+	for (int i = 0; i < maxIdx; i++)
 	{
 		int startIdx = i * indexOffset;
 		// 0
@@ -167,7 +170,7 @@ void AnElement::UpdateMesh2()
 			D = B + indexOffset;
 			_tubeObject->quad(C, D, B, A);
 		}
-		
+
 		// 3
 		{
 			A = startIdx + 3;
@@ -247,6 +250,20 @@ void AnElement::UpdateSpringLengths()
 	}
 }
 
+void  AnElement::CreateHelix()
+{
+	for (int a = 0; a < _massList.size(); a++)
+	{
+		if (a % 11 == 0) { continue; }
+		A2DVector pos(_massList[a]._pos._x, _massList[a]._pos._y);
+		int curLayer = a % 11;
+		float radAngle = (3.14159265359 / (float)SystemParams::_num_layer) * (float)curLayer;
+		A2DVector rotPos = UtilityFunctions::Rotate(pos, A2DVector(250, 250), radAngle);
+		_massList[a]._pos._x = rotPos.x;
+		_massList[a]._pos._y = rotPos.y;
+	}
+}
+
 void AnElement::UpdateBackend()
 {
 	//
@@ -284,24 +301,27 @@ void AnElement::CreateStarTube(int self_idx)
 
 	//_massList.push_back(AMass());
 	float zPos = 0;
-	float zOffset = -(SystemParams::_upscaleFactor / (SystemParams::_num_layer - 1) );
-	for(int a = 0; a < SystemParams::_num_layer; a++)
+	float zOffset = -(SystemParams::_upscaleFactor / (SystemParams::_num_layer - 1));
+	for (int a = 0; a < SystemParams::_num_layer; a++)
 	{
 		// x y z mass_idx element_idx layer_idx
 		_massList.push_back(AMass(250, 250, zPos, 0, _self_idx, a)); // 0 center
-		_massList.push_back(AMass(0,   193, zPos, 1, _self_idx, a)); // 1
+		_massList.push_back(AMass(0, 193, zPos, 1, _self_idx, a)); // 1
 		_massList.push_back(AMass(172, 168, zPos, 2, _self_idx, a)); // 2
-		_massList.push_back(AMass(250, 12,  zPos, 3, _self_idx, a)); // 3
+		_massList.push_back(AMass(250, 12, zPos, 3, _self_idx, a)); // 3
 		_massList.push_back(AMass(327, 168, zPos, 4, _self_idx, a)); // 4
 		_massList.push_back(AMass(500, 193, zPos, 5, _self_idx, a)); // 5
 		_massList.push_back(AMass(375, 315, zPos, 6, _self_idx, a)); // 6
 		_massList.push_back(AMass(404, 487, zPos, 7, _self_idx, a)); // 7
 		_massList.push_back(AMass(250, 406, zPos, 8, _self_idx, a)); // 8
-		_massList.push_back(AMass(95,  487, zPos, 9, _self_idx, a)); // 9
+		_massList.push_back(AMass(95, 487, zPos, 9, _self_idx, a)); // 9
 		_massList.push_back(AMass(125, 315, zPos, 10, _self_idx, a)); // 10
 
 		zPos += zOffset;
 	}
+
+	// ???
+	//CreateHelix();
 
 	// dist
 	//float c2s_dist1 = A2DVector(250, 250).Distance(A2DVector(0, 193)); // center to side
@@ -312,7 +332,7 @@ void AnElement::CreateStarTube(int self_idx)
 
 	int idxOffset = 0;
 	int offsetGap = 11;
-	for (int a = 0; a <= 5; a++)
+	for (int a = 0; a < SystemParams::_num_layer; a++)
 	{
 		// center to side
 		_triEdges.push_back(AnIndexedLine(idxOffset, idxOffset + 1));//, c2s_dist1, c2s_dist1));
@@ -326,40 +346,40 @@ void AnElement::CreateStarTube(int self_idx)
 		_triEdges.push_back(AnIndexedLine(idxOffset, idxOffset + 9));//, c2s_dist1, c2s_dist1));
 		_triEdges.push_back(AnIndexedLine(idxOffset, idxOffset + 10));//, c2s_dist2, c2s_dist2));
 
-		// pentagon
+																	  // pentagon
 		_triEdges.push_back(AnIndexedLine(idxOffset + 10, idxOffset + 2));//, c2s_dist3, c2s_dist3));
-		_triEdges.push_back(AnIndexedLine(idxOffset + 2,  idxOffset + 4));//, c2s_dist3, c2s_dist3));
-		_triEdges.push_back(AnIndexedLine(idxOffset + 4,  idxOffset + 6));//, c2s_dist3, c2s_dist3));
-		_triEdges.push_back(AnIndexedLine(idxOffset + 6,  idxOffset + 8));//, c2s_dist3, c2s_dist3));
-		_triEdges.push_back(AnIndexedLine(idxOffset + 8,  idxOffset + 10));//, c2s_dist3, c2s_dist3));
+		_triEdges.push_back(AnIndexedLine(idxOffset + 2, idxOffset + 4));//, c2s_dist3, c2s_dist3));
+		_triEdges.push_back(AnIndexedLine(idxOffset + 4, idxOffset + 6));//, c2s_dist3, c2s_dist3));
+		_triEdges.push_back(AnIndexedLine(idxOffset + 6, idxOffset + 8));//, c2s_dist3, c2s_dist3));
+		_triEdges.push_back(AnIndexedLine(idxOffset + 8, idxOffset + 10));//, c2s_dist3, c2s_dist3));
 
-		// side to side
-		_triEdges.push_back(AnIndexedLine(idxOffset + 1,  idxOffset + 2));//, s2s_dist, s2s_dist));
-		_triEdges.push_back(AnIndexedLine(idxOffset + 2,  idxOffset + 3));//, s2s_dist, s2s_dist));
-		_triEdges.push_back(AnIndexedLine(idxOffset + 3,  idxOffset + 4));//, s2s_dist, s2s_dist));
-		_triEdges.push_back(AnIndexedLine(idxOffset + 4,  idxOffset + 5));//, s2s_dist, s2s_dist));
-		_triEdges.push_back(AnIndexedLine(idxOffset + 5,  idxOffset + 6));//, s2s_dist, s2s_dist));
-		_triEdges.push_back(AnIndexedLine(idxOffset + 6,  idxOffset + 7));//, s2s_dist, s2s_dist));
-		_triEdges.push_back(AnIndexedLine(idxOffset + 7,  idxOffset + 8));//, s2s_dist, s2s_dist));
-		_triEdges.push_back(AnIndexedLine(idxOffset + 8,  idxOffset + 9));//, s2s_dist, s2s_dist));
-		_triEdges.push_back(AnIndexedLine(idxOffset + 9,  idxOffset + 10));//, s2s_dist, s2s_dist));
+																		  // side to side
+		_triEdges.push_back(AnIndexedLine(idxOffset + 1, idxOffset + 2));//, s2s_dist, s2s_dist));
+		_triEdges.push_back(AnIndexedLine(idxOffset + 2, idxOffset + 3));//, s2s_dist, s2s_dist));
+		_triEdges.push_back(AnIndexedLine(idxOffset + 3, idxOffset + 4));//, s2s_dist, s2s_dist));
+		_triEdges.push_back(AnIndexedLine(idxOffset + 4, idxOffset + 5));//, s2s_dist, s2s_dist));
+		_triEdges.push_back(AnIndexedLine(idxOffset + 5, idxOffset + 6));//, s2s_dist, s2s_dist));
+		_triEdges.push_back(AnIndexedLine(idxOffset + 6, idxOffset + 7));//, s2s_dist, s2s_dist));
+		_triEdges.push_back(AnIndexedLine(idxOffset + 7, idxOffset + 8));//, s2s_dist, s2s_dist));
+		_triEdges.push_back(AnIndexedLine(idxOffset + 8, idxOffset + 9));//, s2s_dist, s2s_dist));
+		_triEdges.push_back(AnIndexedLine(idxOffset + 9, idxOffset + 10));//, s2s_dist, s2s_dist));
 		_triEdges.push_back(AnIndexedLine(idxOffset + 10, idxOffset + 1));//, s2s_dist, s2s_dist));
 
 		if (idxOffset > 0)
 		{
 			int prevOffset = idxOffset - offsetGap;
-			
+
 			// layer to layer
-			_triEdges.push_back(AnIndexedLine(prevOffset,      idxOffset,      true));//, l2l_dist, l2l_dist, true)); // 0
-			_triEdges.push_back(AnIndexedLine(prevOffset + 1,  idxOffset + 1,  true));//, l2l_dist, l2l_dist, true)); // 1
-			_triEdges.push_back(AnIndexedLine(prevOffset + 2,  idxOffset + 2,  true));//, l2l_dist, l2l_dist, true)); // 2
-			_triEdges.push_back(AnIndexedLine(prevOffset + 3,  idxOffset + 3,  true));//, l2l_dist, l2l_dist, true)); // 3
-			_triEdges.push_back(AnIndexedLine(prevOffset + 4,  idxOffset + 4,  true));//, l2l_dist, l2l_dist, true)); // 4
-			_triEdges.push_back(AnIndexedLine(prevOffset + 5,  idxOffset + 5,  true));//, l2l_dist, l2l_dist, true)); // 5
-			_triEdges.push_back(AnIndexedLine(prevOffset + 6,  idxOffset + 6,  true));//, l2l_dist, l2l_dist, true)); // 6
-			_triEdges.push_back(AnIndexedLine(prevOffset + 7,  idxOffset + 7,  true));//, l2l_dist, l2l_dist, true)); // 7
-			_triEdges.push_back(AnIndexedLine(prevOffset + 8,  idxOffset + 8,  true));//, l2l_dist, l2l_dist, true)); // 8
-			_triEdges.push_back(AnIndexedLine(prevOffset + 9,  idxOffset + 9,  true));//, l2l_dist, l2l_dist, true)); // 9
+			_triEdges.push_back(AnIndexedLine(prevOffset, idxOffset, true));//, l2l_dist, l2l_dist, true)); // 0
+			_triEdges.push_back(AnIndexedLine(prevOffset + 1, idxOffset + 1, true));//, l2l_dist, l2l_dist, true)); // 1
+			_triEdges.push_back(AnIndexedLine(prevOffset + 2, idxOffset + 2, true));//, l2l_dist, l2l_dist, true)); // 2
+			_triEdges.push_back(AnIndexedLine(prevOffset + 3, idxOffset + 3, true));//, l2l_dist, l2l_dist, true)); // 3
+			_triEdges.push_back(AnIndexedLine(prevOffset + 4, idxOffset + 4, true));//, l2l_dist, l2l_dist, true)); // 4
+			_triEdges.push_back(AnIndexedLine(prevOffset + 5, idxOffset + 5, true));//, l2l_dist, l2l_dist, true)); // 5
+			_triEdges.push_back(AnIndexedLine(prevOffset + 6, idxOffset + 6, true));//, l2l_dist, l2l_dist, true)); // 6
+			_triEdges.push_back(AnIndexedLine(prevOffset + 7, idxOffset + 7, true));//, l2l_dist, l2l_dist, true)); // 7
+			_triEdges.push_back(AnIndexedLine(prevOffset + 8, idxOffset + 8, true));//, l2l_dist, l2l_dist, true)); // 8
+			_triEdges.push_back(AnIndexedLine(prevOffset + 9, idxOffset + 9, true));//, l2l_dist, l2l_dist, true)); // 9
 			_triEdges.push_back(AnIndexedLine(prevOffset + 10, idxOffset + 10, true));//, l2l_dist, l2l_dist, true)); // 10
 		}
 
@@ -397,7 +417,7 @@ A2DVector AnElement::ClosestPtOnALayer(A2DVector pt, int layer_idx)
 	float dist = 10000000000000;
 	A2DVector closetPt;
 
-	for(int a = 0; a < _per_layer_points[layer_idx].size(); a++)
+	for (int a = 0; a < _per_layer_points[layer_idx].size(); a++)
 	{
 		float d = _per_layer_points[layer_idx][a].Distance(pt);
 		if (d < dist)

@@ -365,6 +365,7 @@ void Display::setup()
 
 void Display::CreateSpringLines()
 {
+	if (!SystemParams::_show_time_springs) { return; }
 
 	// springs
 	{
@@ -398,9 +399,8 @@ void Display::CreateSpringLines()
 
 void Display::UpdateSpringDisplay()
 {
-	/*for (int i = 0; i < _spring_points.size(); i++) {
-		_spring_lines->addPoint(_spring_points[i]);
-	}*/
+	if (!SystemParams::_show_time_springs) { return; }
+
 	int idx = 0;
 	for (int i = 0; i < _sWorker->_element_list.size(); i++)
 	{
@@ -415,8 +415,6 @@ void Display::UpdateSpringDisplay()
 			A3DVector pt2 = elem._massList[ln._index1]._pos;
 			_spring_lines->setPoint(idx++, Ogre::Vector3(pt1._x, pt1._y, pt1._z));
 			_spring_lines->setPoint(idx++, Ogre::Vector3(pt2._x, pt2._y, pt2._z));
-			//_spring_points.push_back(Ogre::Vector3(pt1._x, pt1._y, pt1._z));
-			//_spring_points.push_back(Ogre::Vector3(pt2._x, pt2._y, pt2._z));
 		}
 	}
 

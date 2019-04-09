@@ -22,7 +22,7 @@ public:
 	~AnElement();
 
 	void CreateStarTube(int self_idx);
-	void InitSpringLengths();
+	void ResetSpringRestLengths();
 	void CreateHelix();
 	void RandomizeLayerSize();
 

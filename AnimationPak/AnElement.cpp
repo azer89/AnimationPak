@@ -61,17 +61,17 @@ void AnElement::ScaleXY(float scVal)
 		_massList[a]._pos = A3DVector(pos._x * scVal, pos._y * scVal, pos._z);
 	}
 
-
+	ResetSpringRestLengths();
 	// TODO
 	// need to update edges
-	for (int a = 0; a < _triEdges.size(); a++)
+	/*for (int a = 0; a < _triEdges.size(); a++)
 	{
 		if (!_triEdges[a]._isLayer2Layer)
 		{
 			_triEdges[a]._oriDist *= scVal;
 			_triEdges[a]._dist *= scVal;
 		}
-	}
+	}*/
 }
 
 void AnElement::TranslateXY(float x, float y)
@@ -82,6 +82,8 @@ void AnElement::TranslateXY(float x, float y)
 		A3DVector pos = _massList[a]._pos;
 		_massList[a]._pos = A3DVector(pos._x + x, pos._y + y, pos._z);
 	}
+
+	ResetSpringRestLengths();
 }
 
 // visualization
@@ -465,7 +467,7 @@ void AnElement::CreateStarTube(int self_idx)
 	}
 
 	// 
-	InitSpringLengths();
+	ResetSpringRestLengths();
 
 	// _per_layer_points
 	for (int a = 0; a < SystemParams::_num_layer; a++)
@@ -480,7 +482,7 @@ void AnElement::CreateStarTube(int self_idx)
 	}
 }
 
-void AnElement::InitSpringLengths()
+void AnElement::ResetSpringRestLengths()
 {
 	for (int a = 0; a < _triEdges.size(); a++)
 	{

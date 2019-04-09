@@ -55,12 +55,13 @@ void SystemParams::LoadParameters()
 	//SystemParams::_cube_length = 500.0f;
 	SystemParams::_num_layer = script.get<int>("_num_layer");; // plus one
 
+	SystemParams::_show_time_springs = script.get<bool>("_show_time_springs");
 
 	//std::cout << SystemParams::_upscaleFactor << "\n";
 	//std::cout << SystemParams::_downscaleFactor << "\n";
 	//std::cout << SystemParams::_seed << "\n";
-	std::cout << SystemParams::_window_title << "\n";
-	std::cout << SystemParams::_save_folder << "\n";
+	//std::cout << SystemParams::_window_title << "\n";
+	//std::cout << SystemParams::_save_folder << "\n";
 
 }
 
@@ -91,3 +92,5 @@ int   SystemParams::_collission_block_radius = 0;
 
 // temp
 int SystemParams::_num_layer = 0.0f; // plus one
+
+bool  SystemParams::_show_time_springs = false;

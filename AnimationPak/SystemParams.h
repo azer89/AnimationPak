@@ -43,6 +43,8 @@ public:
 
 	// temp
 	static int _num_layer; // plus one
+
+	static bool _show_time_springs;
 };
 
 #endif

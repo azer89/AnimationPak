@@ -5,6 +5,8 @@
 
 #include "StuffWorker.h"
 
+#include "UtilityFunctions.h"
+
 AMass::AMass()
 {
 	//this->_m     = 0;             // mass is always one
@@ -109,11 +111,12 @@ void AMass::ImposeConstraints()
 		_pos._z = -SystemParams::_upscaleFactor;
 	}
 
-	if (_pos._x < 0) { _pos._x = 0; }
+	// boundary
+	/*if (_pos._x < 0) { _pos._x = 0; }
 	if (_pos._x >= SystemParams::_upscaleFactor) { _pos._x = SystemParams::_upscaleFactor - 1; }
 	
 	if (_pos._y < 0) { _pos._y = 0; }
-	if (_pos._y >= SystemParams::_upscaleFactor) { _pos._y = SystemParams::_upscaleFactor - 1; }
+	if (_pos._y >= SystemParams::_upscaleFactor) { _pos._y = SystemParams::_upscaleFactor - 1; }*/
 }
 
 
@@ -179,7 +182,7 @@ void AMass::GetClosestPoint()
 }
 
 
-void AMass::Solve()
+void AMass::Solve(const std::vector<A2DVector>& container)
 {
 	// ---------- REPULSION FORCE ----------
 	A2DVector sumR(0, 0);
@@ -194,6 +197,17 @@ void AMass::Solve()
 	if (!sumR.IsBad()) 
 	{ 
 		this->_repulsionForce += A3DVector(sumR.x, sumR.y, 0); // z is always 0 !!!
+	}
+
+	// ---------- BOUNDARY FORCE ----------
+	float k_boundary = SystemParams::_k_boundary;
+	if (!UtilityFunctions::InsidePolygon(container, _pos._x, _pos._y))
+	{
+		A2DVector pos2D = _pos.GetA2DVector();
+		A2DVector cPt = UtilityFunctions::GetClosestPtOnClosedCurve(container, pos2D);
+		A2DVector dirDist = pos2D.DirectionTo(cPt); // not normalized
+		A2DVector bForce = dirDist * k_boundary;
+		if (!bForce.IsBad()) { this->_boundaryForce += A3DVector(bForce.x, bForce.y, 0); } // z is always 0 !!!
 	}
 }
 

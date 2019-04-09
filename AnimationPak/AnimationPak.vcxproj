@@ -167,6 +167,7 @@
     <ClInclude Include="A2DObject.h" />
     <ClInclude Include="AVideoCreator.h" />
     <ClInclude Include="CollisionGrid2D.h" />
+    <ClInclude Include="ContainerWorker.h" />
     <ClInclude Include="Display.h" />
     <ClInclude Include="DynamicLines.h" />
     <ClInclude Include="DynamicRenderable.h" />
@@ -185,6 +186,7 @@
     <ClCompile Include="AnElement.cpp" />
     <ClCompile Include="AVideoCreator.cpp" />
     <ClCompile Include="CollisionGrid2D.cpp" />
+    <ClCompile Include="ContainerWorker.cpp" />
     <ClCompile Include="Display.cpp" />
     <ClCompile Include="DynamicLines.cpp" />
     <ClCompile Include="DynamicRenderable.cpp" />

@@ -4,7 +4,11 @@
 #include "AnElement.h"
 #include "CollisionGrid2D.h"
 
+//#include "ContainerWorker.h"
+
 #include <vector>
+
+class ContainerWorker;
 
 class StuffWorker
 {
@@ -25,6 +29,8 @@ public:
 	void SaveFrames();
 
 public:
+
+	ContainerWorker* _containerWorker;
 
 	//AnElement* _elem;
 	static std::vector<AnElement> _element_list;

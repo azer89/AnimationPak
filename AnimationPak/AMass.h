@@ -47,7 +47,7 @@ public:
 
 	void Init(); // reset forces to zero
 	void Simulate(float dt);
-	void Solve(/*Need more parameters*/);
+	void Solve(const std::vector<A2DVector>& container);
 
 	void ImposeConstraints();
 

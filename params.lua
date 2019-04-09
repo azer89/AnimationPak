@@ -23,7 +23,7 @@ _k_edge_small_factor   = 12;
 _k_repulsion           = 200;	--- 200 repulsion force
 _repulsion_soft_factor = 1.0;	--- soft factor for repulsion force
 _k_overlap             = 5;	--- overlap force
-_k_boundary            = 5;	--- boundary force
+_k_boundary            = 0.1;	--- boundary force
 _k_rotate              = 1;		--- 1
 _k_dock                = 100;
 
@@ -39,3 +39,5 @@ _bin_square_size         = 125;
 _collission_block_radius = 1;  
 
 _num_layer = 100;
+
+_show_time_springs = true;

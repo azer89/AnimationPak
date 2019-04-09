@@ -104,9 +104,9 @@ void AMass::ImposeConstraints()
 	{
 		_pos._z = 0;
 	}
-	else if (_debug_which_layer == SystemParams::_num_layer)
+	else if (_debug_which_layer == SystemParams::_num_layer - 1)
 	{
-		_pos._z = SystemParams::_upscaleFactor;
+		_pos._z = -SystemParams::_upscaleFactor;
 	}
 
 	if (_pos._x < 0) { _pos._x = 0; }

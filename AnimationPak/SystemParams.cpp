@@ -24,6 +24,9 @@ void SystemParams::LoadParameters()
 	//std::string lua_file = "..\\params.lua";
 	LuaScript script(_lua_file);
 
+	SystemParams::_window_title = script.get<std::string>("_window_title");
+	SystemParams::_save_folder = script.get<std::string>("_save_folder");
+
 	SystemParams::_upscaleFactor = script.get<float>("_upscaleFactor");
 	SystemParams::_downscaleFactor = script.get<float>("_downscaleFactor");
 
@@ -50,14 +53,19 @@ void SystemParams::LoadParameters()
 
 	// temp
 	//SystemParams::_cube_length = 500.0f;
-	SystemParams::_num_layer = 20; // plus one
+	SystemParams::_num_layer = script.get<int>("_num_layer");; // plus one
 
 
-								  //std::cout << SystemParams::_upscaleFactor << "\n";
-								  //std::cout << SystemParams::_downscaleFactor << "\n";
-								  //std::cout << SystemParams::_seed << "\n";
+	//std::cout << SystemParams::_upscaleFactor << "\n";
+	//std::cout << SystemParams::_downscaleFactor << "\n";
+	//std::cout << SystemParams::_seed << "\n";
+	std::cout << SystemParams::_window_title << "\n";
+	std::cout << SystemParams::_save_folder << "\n";
 
 }
+
+std::string SystemParams::_window_title = "";
+std::string SystemParams::_save_folder = "";
 
 float SystemParams::_upscaleFactor = 0.0f;
 float SystemParams::_downscaleFactor = 0.0f;

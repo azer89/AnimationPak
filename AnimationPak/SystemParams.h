@@ -16,6 +16,7 @@ public:
 public:
 	static std::string _lua_file;
 	static std::string _window_title;
+	static std::string _save_folder;
 
 	// because square
 	static float _upscaleFactor;

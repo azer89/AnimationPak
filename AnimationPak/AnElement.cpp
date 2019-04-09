@@ -135,8 +135,8 @@ void AnElement::UpdateMesh2()
 		_tubeObject->textureCoord(u, v);
 	}
 
-	std::cout << "_massList size = " << _massList.size() << "\n";
-	std::cout << "render vertex = " << _tubeObject->getCurrentVertexCount() << "\n";
+	//std::cout << "_massList size = " << _massList.size() << "\n";
+	//std::cout << "render vertex = " << _tubeObject->getCurrentVertexCount() << "\n";
 
 	int indexOffset = 10;
 	int A, B, C, D;
@@ -250,13 +250,68 @@ void AnElement::UpdateSpringLengths()
 	}
 }
 
+void AnElement::RandomizeLayerSize()
+{
+	float scale1 = (float)((rand() % 100) + 50) / 100.0f;
+	float scale2 = (float)((rand() % 100) + 50) / 100.0f;
+	float scale3 = (float)((rand() % 100) + 50) / 100.0f;
+	float scale4 = (float)((rand() % 100) + 50) / 100.0f;
+
+	int idx2 = SystemParams::_num_layer / 3;
+	int idx3 = 2 * SystemParams::_num_layer / 3;
+
+	float athird = SystemParams::_num_layer / 3;
+
+
+	std::vector<float> randomScale;
+
+	for (int a = 0; a < SystemParams::_num_layer; a++)
+	{
+		float scVal = 1.0f;
+		if (a >= 0 && a < idx2)
+		{
+			float ratioVal = (float)a / athird;
+			scVal = (1.0 - ratioVal) * scale1 + ratioVal * scale2;
+		}
+		else if (a >= idx2 && a < idx3)
+		{
+			float ratioVal = (float)(a - idx2) / athird;
+			scVal = (1.0 - ratioVal) * scale2 + ratioVal * scale3;
+		}
+		else
+		{
+			float ratioVal = (float)(a - idx3) / athird;
+			scVal = (1.0 - ratioVal) * scale3 + ratioVal * scale4;
+		}
+
+		//int randVal = (rand() % 100) + 50;
+		//float scaleVal = (float)randVal / 100.0;
+		randomScale.push_back(scVal);
+	}
+
+	A2DVector ctr(250, 250);
+	for (int a = 0; a < _massList.size(); a++)
+	{
+		A2DVector pos2D = _massList[a]._pos.GetA2DVector();
+		pos2D -= ctr;
+		
+		int lyr = _massList[a]._debug_which_layer;
+		pos2D *= randomScale[lyr];
+
+		pos2D += ctr;
+
+		_massList[a]._pos.SetXY(pos2D.x, pos2D.y);
+
+	}
+}
+
 void  AnElement::CreateHelix()
 {
 	for (int a = 0; a < _massList.size(); a++)
 	{
 		if (a % 11 == 0) { continue; }
 		A2DVector pos(_massList[a]._pos._x, _massList[a]._pos._y);
-		int curLayer = a % 11;
+		int curLayer = _massList[a]._debug_which_layer;
 		float radAngle = (3.14159265359 / (float)SystemParams::_num_layer) * (float)curLayer;
 		A2DVector rotPos = UtilityFunctions::Rotate(pos, A2DVector(250, 250), radAngle);
 		_massList[a]._pos._x = rotPos.x;
@@ -321,7 +376,8 @@ void AnElement::CreateStarTube(int self_idx)
 	}
 
 	// ???
-	//CreateHelix();
+	RandomizeLayerSize();
+	CreateHelix();
 
 	// dist
 	//float c2s_dist1 = A2DVector(250, 250).Distance(A2DVector(0, 193)); // center to side
@@ -381,6 +437,28 @@ void AnElement::CreateStarTube(int self_idx)
 			_triEdges.push_back(AnIndexedLine(prevOffset + 8, idxOffset + 8, true));//, l2l_dist, l2l_dist, true)); // 8
 			_triEdges.push_back(AnIndexedLine(prevOffset + 9, idxOffset + 9, true));//, l2l_dist, l2l_dist, true)); // 9
 			_triEdges.push_back(AnIndexedLine(prevOffset + 10, idxOffset + 10, true));//, l2l_dist, l2l_dist, true)); // 10
+
+			_triEdges.push_back(AnIndexedLine(prevOffset + 1, idxOffset + 2, true));//, l2l_dist, l2l_dist, true)); // 1
+			_triEdges.push_back(AnIndexedLine(prevOffset + 2, idxOffset + 3, true));//, l2l_dist, l2l_dist, true)); // 2
+			_triEdges.push_back(AnIndexedLine(prevOffset + 3, idxOffset + 4, true));//, l2l_dist, l2l_dist, true)); // 3
+			_triEdges.push_back(AnIndexedLine(prevOffset + 4, idxOffset + 5, true));//, l2l_dist, l2l_dist, true)); // 4
+			_triEdges.push_back(AnIndexedLine(prevOffset + 5, idxOffset + 6, true));//, l2l_dist, l2l_dist, true)); // 5
+			_triEdges.push_back(AnIndexedLine(prevOffset + 6, idxOffset + 7, true));//, l2l_dist, l2l_dist, true)); // 6
+			_triEdges.push_back(AnIndexedLine(prevOffset + 7, idxOffset + 8, true));//, l2l_dist, l2l_dist, true)); // 7
+			_triEdges.push_back(AnIndexedLine(prevOffset + 8, idxOffset + 9, true));//, l2l_dist, l2l_dist, true)); // 8
+			_triEdges.push_back(AnIndexedLine(prevOffset + 9, idxOffset + 10, true));//, l2l_dist, l2l_dist, true)); // 9
+			_triEdges.push_back(AnIndexedLine(prevOffset + 10, idxOffset + 1, true));//, l2l_dist, l2l_dist, true)); // 10
+
+			_triEdges.push_back(AnIndexedLine(prevOffset + 2, idxOffset + 1, true));//, l2l_dist, l2l_dist, true)); // 1
+			_triEdges.push_back(AnIndexedLine(prevOffset + 3, idxOffset + 2, true));//, l2l_dist, l2l_dist, true)); // 2
+			_triEdges.push_back(AnIndexedLine(prevOffset + 4, idxOffset + 3, true));//, l2l_dist, l2l_dist, true)); // 3
+			_triEdges.push_back(AnIndexedLine(prevOffset + 5, idxOffset + 4, true));//, l2l_dist, l2l_dist, true)); // 4
+			_triEdges.push_back(AnIndexedLine(prevOffset + 6, idxOffset + 5, true));//, l2l_dist, l2l_dist, true)); // 5
+			_triEdges.push_back(AnIndexedLine(prevOffset + 7, idxOffset + 6, true));//, l2l_dist, l2l_dist, true)); // 6
+			_triEdges.push_back(AnIndexedLine(prevOffset + 8, idxOffset + 7, true));//, l2l_dist, l2l_dist, true)); // 7
+			_triEdges.push_back(AnIndexedLine(prevOffset + 9, idxOffset + 8, true));//, l2l_dist, l2l_dist, true)); // 8
+			_triEdges.push_back(AnIndexedLine(prevOffset + 10, idxOffset + 9, true));//, l2l_dist, l2l_dist, true)); // 9
+			_triEdges.push_back(AnIndexedLine(prevOffset + 1, idxOffset + 10, true));//, l2l_dist, l2l_dist, true)); // 10*/
 		}
 
 		idxOffset += offsetGap;
@@ -444,7 +522,7 @@ void AnElement::SolveForSprings()
 	for (unsigned int a = 0; a < _triEdges.size(); a++)
 	{
 		float k = k_edge;
-		if (_triEdges[a]._isLayer2Layer) { k *= 0.1; }
+		//if (_triEdges[a]._isLayer2Layer) { k *= 0.1; }
 
 		int idx0 = _triEdges[a]._index0;
 		int idx1 = _triEdges[a]._index1;
@@ -456,10 +534,13 @@ void AnElement::SolveForSprings()
 
 		dir = pt0.DirectionTo(pt1).Norm();
 		float   oriDist = _triEdges[a]._oriDist;
-		float signVal = 1;
 		float diff = dist - oriDist;
+		/*float signVal = 1;
 		if (diff < 0) { signVal = -1; }
 		eForce = (dir * k *  signVal * diff * diff);
+		*/
+
+		eForce = dir * k *  diff;
 
 		if (!eForce.IsBad())
 		{

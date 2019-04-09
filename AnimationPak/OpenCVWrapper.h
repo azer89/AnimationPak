@@ -368,6 +368,9 @@ public:
 	template <typename T>
 	void DrawLine(std::string imageName, T pt1, T pt2, MyColor color, int thickness, float scale = 1.0f);
 
+	template <typename T>
+	void DrawLine(cv::Mat img, T pt1, T pt2, MyColor color, int thickness, float scale = 1.0f);
+
 	// ---------- draw ----------
 	void DrawCircle(std::string imageName, A2DVector pt, MyColor col, float radius)
 	{

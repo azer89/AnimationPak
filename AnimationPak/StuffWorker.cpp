@@ -1,6 +1,7 @@
 
 #include "StuffWorker.h"
 #include "OpenCVWrapper.h"
+#include "AVideoCreator.h"
 
 // static items
 std::vector<AnElement>  StuffWorker::_element_list = std::vector<AnElement>();
@@ -138,6 +139,17 @@ void StuffWorker::InitElements(Ogre::SceneManager* scnMgr)
 		_element_list.push_back(elem);
 	}
 
+	{
+		AnElement elem;
+		elem.CreateStarTube(9);
+		elem.ScaleXY(0.2);
+		elem.TranslateXY(0, 180);
+		elem.InitSpringLengths();
+		Ogre::SceneNode* pNode = scnMgr->getRootSceneNode()->createChildSceneNode("TubeNode9");
+		elem.InitMesh(scnMgr, pNode, "StarTube9", "Examples/TransparentTest2");
+		_element_list.push_back(elem);
+	}
+
 	for(int a = 0; a < SystemParams::_num_layer; a++)
 	{
 		_c_grid_list.push_back(new CollisionGrid2D); // 0
@@ -265,4 +277,28 @@ void StuffWorker::UpdateViz()
 	{
 		_element_list[a].UpdateMesh2();
 	}
+}
+
+void StuffWorker::SaveFrames()
+{
+	AVideoCreator vCreator;
+	vCreator.Init();
+	for (int a = 0; a < _element_list.size(); a++)
+	{
+		for (int b = 0; b < _element_list[a]._triEdges.size(); b++)
+		{
+			AnIndexedLine ln = _element_list[a]._triEdges[b];
+			if (!ln._isLayer2Layer)
+			{
+				A2DVector pt1 = _element_list[a]._massList[ln._index0]._pos.GetA2DVector();
+				A2DVector pt2 = _element_list[a]._massList[ln._index1]._pos.GetA2DVector();
+				int layerIdx = _element_list[a]._massList[ln._index0]._debug_which_layer;
+				vCreator.DrawLine(pt1, pt2, layerIdx);
+			}
+		}
+	}
+
+	std::stringstream ss;
+	ss << SystemParams::_save_folder << "PNG\\";
+	vCreator.Save(ss.str());
 }

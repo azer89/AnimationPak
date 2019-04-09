@@ -17,6 +17,8 @@ radhitya@uwaterloo.ca
 
 #include <vector>
 
+#include "A2DVector.h"
+
 //#include "SystemParams.h"
 
 /**
@@ -264,6 +266,17 @@ public:
 	//{
 	//	return (_x < 0 || _x > SystemParams::_upscaleFactor || _y < 0 || _y > SystemParams::_upscaleFactor || _z < 0 || _z > SystemParams::_upscaleFactor);
 	//}
+
+	A2DVector GetA2DVector()
+	{
+		return A2DVector(_x, _y);
+	}
+
+	void SetXY(float x, float y)
+	{
+		_x = x;
+		_y = y;
+	}
 
 	void Print()
 	{

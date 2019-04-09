@@ -22,6 +22,8 @@ public:
 	void ImposeConstraints();
 	void UpdateViz();
 
+	void SaveFrames();
+
 public:
 
 	//AnElement* _elem;

@@ -165,6 +165,7 @@
     <ClInclude Include="AnElement.h" />
     <ClInclude Include="AnIndexedLine.h" />
     <ClInclude Include="A2DObject.h" />
+    <ClInclude Include="AVideoCreator.h" />
     <ClInclude Include="CollisionGrid2D.h" />
     <ClInclude Include="Display.h" />
     <ClInclude Include="DynamicLines.h" />
@@ -182,6 +183,7 @@
   <ItemGroup>
     <ClCompile Include="AMass.cpp" />
     <ClCompile Include="AnElement.cpp" />
+    <ClCompile Include="AVideoCreator.cpp" />
     <ClCompile Include="CollisionGrid2D.cpp" />
     <ClCompile Include="Display.cpp" />
     <ClCompile Include="DynamicLines.cpp" />

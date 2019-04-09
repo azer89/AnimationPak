@@ -685,6 +685,18 @@ void OpenCVWrapper::DrawLine(std::string imageName, A2DVector pt1, A2DVector pt2
 
 /*================================================================================
 ================================================================================*/
+
+template <typename T>
+void OpenCVWrapper::DrawLine(cv::Mat img, T pt1, T pt2, MyColor color, int thickness, float scale)
+{
+	cv::line(img, cv::Point(pt1.x, pt1.y) * scale, cv::Point(pt2.x, pt2.y) * scale, cv::Scalar(color._b, color._g, color._r), thickness);
+}
+
+template
+void OpenCVWrapper::DrawLine(cv::Mat img, A2DVector pt1, A2DVector pt2, MyColor color, int thickness, float scale);
+
+/*================================================================================
+================================================================================*/
 template <typename T>
 int OpenCVWrapper::GetLongestContourIndex(std::vector<std::vector<T>> contours)
 {

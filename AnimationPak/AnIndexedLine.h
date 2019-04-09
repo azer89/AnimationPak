@@ -20,21 +20,17 @@ struct AnIndexedLine
 {
 public:
 	int _index0; // start index
-
 	int _index1; // end index 
-
 	//bool  _canGrow;
-
 	//float _angle;
-
 	//float _scale;
 	float _dist;
 	float _oriDist;
 	bool _isLayer2Layer; // is this an inter-layer edge
 
 public:
-	//void SetDist(float d) { _dist = d; _oriDist = _dist; }
-	//float GetDist() const { return _dist; }
+	//void SetDist(float d)  { _dist = d; _oriDist = _dist; }
+	//float GetDist() const  { return _dist; }
 	//float GetScale() const { return _scale; }
 
 public:
@@ -43,33 +39,27 @@ public:
 	AnIndexedLine(int index0, int index1, bool isLayer2Layer = false)
 	{
 		//this->_scale = 1.0f;
-
 		this->_index0 = index0;
 		this->_index1 = index1;
 		this->_dist = 0.0f;
 		this->_oriDist = 0.0f;
 		//this->_angle = 0.0f;
-		this->_isLayer2Layer = false;
-
+		this->_isLayer2Layer = isLayer2Layer;
 		//this->_canGrow = true;
 	}
-
-	AnIndexedLine(int index0, int index1, float dist, float oriDist, bool isLayer2Layer = false)
+	
+	/*AnIndexedLine(int index0, int index1, float dist, float oriDist, bool isLayer2Layer = false)
 	{
 		//this->_scale = 1.0f;
-
 		this->_index0 = index0;
 		this->_index1 = index1;
 		this->_dist = dist;
 		this->_oriDist = oriDist;
 		this->_isLayer2Layer = isLayer2Layer;
 		//this->_angle = 0.0f;
-
 		//this->_canGrow = true;
-	}
-
-
-
+	}*/
+	
 	void SetActualOriDistance(float d)
 	{
 		this->_dist = d;
@@ -88,8 +78,7 @@ public:
 		this->_oriDist = this->_dist;
 		this->_isLayer2Layer = isLayer2Layer;
 	}*/
-
-
+	
 	// Constructor
 	/*AnIndexedLine(int index0, int index1, float dist)
 	{

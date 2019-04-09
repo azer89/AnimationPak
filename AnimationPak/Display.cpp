@@ -95,16 +95,16 @@ bool Display::frameStarted(const Ogre::FrameEvent& evt)
 	//bool show_another_window = false;
 	//ImGui::Begin("AnimationPak", &show_another_window, ImVec2(240, 540));
 	ImGui::SetNextWindowPos(ImVec2(5, 5), ImGuiCond_Always);
-	ImGui::SetNextWindowSize(ImVec2(300, 500), ImGuiCond_Always);
+	ImGui::SetNextWindowSize(ImVec2(300, 300), ImGuiCond_Always);
 	bool* p_open = NULL;
 	ImGuiWindowFlags window_flags = 0;
 	ImGui::Begin("AnimationPak", p_open, window_flags);
 
-	if (ImGui::Button("Button A")) {  }
+	if (ImGui::Button("Save Frames")) { _sWorker->SaveFrames(); }
 
-	if (ImGui::Button("Button B")) {}
+	//if (ImGui::Button("Button B")) {}
 
-	if (ImGui::Button("Button C")) {}
+	//if (ImGui::Button("Button C")) {}
 
 	ImGui::Text("Press C to activate or deactivate camera");
 
@@ -262,10 +262,10 @@ void Display::setup()
 	}
 
 	_cameraNode = _scnMgr->getRootSceneNode()->createChildSceneNode();
-	//_cameraNode->setPosition(250, 250, 700);
-	_cameraNode->setPosition(1200, 250, -250);
-	//_cameraNode->lookAt(Ogre::Vector3(250, 250, 0), Ogre::Node::TS_PARENT);
-	_cameraNode->lookAt(Ogre::Vector3(250, 250, -250), Ogre::Node::TS_PARENT);
+	_cameraNode->setPosition(250, 250, 700);
+	//_cameraNode->setPosition(1200, 250, -250);
+	_cameraNode->lookAt(Ogre::Vector3(250, 250, 0), Ogre::Node::TS_PARENT);
+	//_cameraNode->lookAt(Ogre::Vector3(250, 250, -250), Ogre::Node::TS_PARENT);
 
 	Ogre::Camera* cam = _scnMgr->createCamera("myCam");
 	cam->setNearClipDistance(5); // specific to this sample
@@ -374,6 +374,9 @@ void Display::CreateSpringLines()
 			for (int a = 0; a < elem._triEdges.size(); a++)
 			{
 				AnIndexedLine ln = elem._triEdges[a];
+
+				if (!ln._isLayer2Layer) { continue; }
+
 				A3DVector pt1 = elem._massList[ln._index0]._pos;
 				A3DVector pt2 = elem._massList[ln._index1]._pos;
 				_spring_points.push_back(Ogre::Vector3(pt1._x, pt1._y, pt1._z));
@@ -405,6 +408,9 @@ void Display::UpdateSpringDisplay()
 		for (int a = 0; a < elem._triEdges.size(); a++)
 		{
 			AnIndexedLine ln = elem._triEdges[a];
+
+			if (!ln._isLayer2Layer) { continue; }
+
 			A3DVector pt1 = elem._massList[ln._index0]._pos;
 			A3DVector pt2 = elem._massList[ln._index1]._pos;
 			_spring_lines->setPoint(idx++, Ogre::Vector3(pt1._x, pt1._y, pt1._z));

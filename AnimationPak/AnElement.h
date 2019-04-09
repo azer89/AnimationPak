@@ -24,6 +24,7 @@ public:
 	void CreateStarTube(int self_idx);
 	void InitSpringLengths();
 	void CreateHelix();
+	void RandomizeLayerSize();
 
 	void InitMesh(Ogre::SceneManager* sceneMgr, 
 		Ogre::SceneNode* sceneNode,

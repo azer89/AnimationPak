@@ -42,6 +42,7 @@ public:
 
 	void ScaleXY(float scVal);
 	void TranslateXY(float x, float y);
+	void BuildAcrossTube();
 
 	A2DVector ClosestPtOnALayer(A2DVector pt, int layer_idx);
 

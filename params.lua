@@ -17,13 +17,13 @@ _dt = 0.2;   --- do not set this higher than 0.1
 _seed = -1; --- negative means random
 
 --- Force parameters
-_k_edge                = 0.5;	--- 1 edge force for filling elements
+_k_edge                = 1;	--- 0.5 edge force for filling elements
 _k_neg_space_edge      = 10;	--- edge force for springs
 _k_edge_small_factor   = 12;
 _k_repulsion           = 200;	--- 200 repulsion force
 _repulsion_soft_factor = 1.0;	--- soft factor for repulsion force
 _k_overlap             = 5;	--- overlap force
-_k_boundary            = 0.1;	--- boundary force
+_k_boundary            = 0.1;	--- 0.1 boundary force
 _k_rotate              = 1;		--- 1
 _k_dock                = 100;
 

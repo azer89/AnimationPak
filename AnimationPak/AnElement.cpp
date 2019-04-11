@@ -86,6 +86,30 @@ void AnElement::TranslateXY(float x, float y)
 	ResetSpringRestLengths();
 }
 
+void AnElement::BuildAcrossTube()
+{
+	A3DVector startPt(25, 25, 0);
+	A3DVector endPt(475, 475, 0);
+	A3DVector dirVector = startPt.DirectionTo(endPt).Norm();
+	float ln = startPt.Distance(endPt);
+	float gapCounter = ln / (float)(SystemParams::_num_layer - 1);
+	//A3DVector centerCounter(0, 0, 0);
+	
+	for (int a = 0; a < _massList.size(); a++)
+	{
+		int which_layer = _massList[a]._debug_which_layer;
+		A3DVector moveVector = dirVector * (gapCounter * which_layer);
+		_massList[a]._pos += moveVector;
+
+		if (which_layer == 0 || which_layer == (SystemParams::_num_layer - 1))
+		{
+			_massList[a]._lock = true;
+		}
+	}
+
+	ResetSpringRestLengths();
+}
+
 // visualization
 void AnElement::InitMesh(Ogre::SceneManager* sceneMgr,
 	Ogre::SceneNode* sceneNode,
@@ -378,8 +402,13 @@ void AnElement::CreateStarTube(int self_idx)
 	}
 
 	// ???
-	RandomizeLayerSize();
+	//RandomizeLayerSize();
 	CreateHelix();
+
+	//if (createAcrossTube)
+	//{
+	//	BuildAcrossTube();
+	//}
 
 	// dist
 	//float c2s_dist1 = A2DVector(250, 250).Distance(A2DVector(0, 193)); // center to side

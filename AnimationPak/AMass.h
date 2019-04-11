@@ -21,6 +21,8 @@ public:
 
 	CollisionGrid2D* _c_grid;
 
+	bool _lock;
+
 
 
 public:

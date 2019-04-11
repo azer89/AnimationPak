@@ -67,6 +67,8 @@ void AMass::CallMeFromConstructor()
 
 	_is_inside = false;
 
+	_lock = false;
+
 	Init();
 }
 
@@ -82,6 +84,8 @@ void AMass::Init()
 
 void AMass::Simulate(float dt)
 {
+	if (_lock) { return; }
+
 	// oiler
 	_velocity += ((/*_attractionForce + */ _edgeForce +
 		_repulsionForce +

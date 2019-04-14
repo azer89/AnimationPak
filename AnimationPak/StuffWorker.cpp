@@ -38,10 +38,12 @@ StuffWorker::~StuffWorker()
 
 void StuffWorker::InitElements(Ogre::SceneManager* scnMgr)
 {
+	float initialScale = 0.05;
+
 	{
 		AnElement elem;
 		elem.CreateStarTube(0);
-		elem.ScaleXY(0.1);
+		elem.ScaleXY(initialScale);
 		//elem.TranslateXY(0, 450);
 		//A2DVector startPt(25, 25, 0);
 		//A2DVector endPt(475, 475, 0);
@@ -56,9 +58,9 @@ void StuffWorker::InitElements(Ogre::SceneManager* scnMgr)
 	{
 		AnElement elem;
 		elem.CreateStarTube(1);
-		elem.ScaleXY(0.09);
+		elem.ScaleXY(initialScale);
 		elem.TranslateXY(450, 450);
-		elem.AdjustEnds(A2DVector(475, 475), A2DVector(180, 25));
+		elem.AdjustEnds(A2DVector(475, 475), A2DVector(25, 25));
 		//elem.TranslateXY(250, 400);
 		//elem.ResetSpringRestLengths();
 		Ogre::SceneNode* pNode = scnMgr->getRootSceneNode()->createChildSceneNode("TubeNode1");
@@ -70,7 +72,7 @@ void StuffWorker::InitElements(Ogre::SceneManager* scnMgr)
 	{
 		AnElement elem;
 		elem.CreateStarTube(2);
-		elem.ScaleXY(0.11);
+		elem.ScaleXY(initialScale);
 		elem.TranslateXY(250, 0);
 		//elem.ResetSpringRestLengths();
 		Ogre::SceneNode* pNode = scnMgr->getRootSceneNode()->createChildSceneNode("TubeNode2");
@@ -82,7 +84,7 @@ void StuffWorker::InitElements(Ogre::SceneManager* scnMgr)
 	{
 		AnElement elem;
 		elem.CreateStarTube(3);
-		elem.ScaleXY(0.12);
+		elem.ScaleXY(initialScale);
 		elem.TranslateXY(0, 350);
 		//elem.ResetSpringRestLengths();
 		Ogre::SceneNode* pNode = scnMgr->getRootSceneNode()->createChildSceneNode("TubeNode3");
@@ -93,7 +95,7 @@ void StuffWorker::InitElements(Ogre::SceneManager* scnMgr)
 	{
 		AnElement elem;
 		elem.CreateStarTube(4);
-		elem.ScaleXY(0.07);
+		elem.ScaleXY(initialScale);
 		elem.TranslateXY(100, 400);
 		//elem.ResetSpringRestLengths();
 		Ogre::SceneNode* pNode = scnMgr->getRootSceneNode()->createChildSceneNode("TubeNode4");
@@ -104,7 +106,7 @@ void StuffWorker::InitElements(Ogre::SceneManager* scnMgr)
 	{
 		AnElement elem;
 		elem.CreateStarTube(5);
-		elem.ScaleXY(0.12);
+		elem.ScaleXY(initialScale);
 		elem.TranslateXY(400, 0);
 		//elem.ResetSpringRestLengths();
 		Ogre::SceneNode* pNode = scnMgr->getRootSceneNode()->createChildSceneNode("TubeNode5");
@@ -115,7 +117,7 @@ void StuffWorker::InitElements(Ogre::SceneManager* scnMgr)
 	{
 		AnElement elem;
 		elem.CreateStarTube(6);
-		elem.ScaleXY(0.19);
+		elem.ScaleXY(initialScale);
 		elem.TranslateXY(40, 240);
 		//elem.ResetSpringRestLengths();
 		Ogre::SceneNode* pNode = scnMgr->getRootSceneNode()->createChildSceneNode("TubeNode6");
@@ -126,7 +128,7 @@ void StuffWorker::InitElements(Ogre::SceneManager* scnMgr)
 	{
 		AnElement elem;
 		elem.CreateStarTube(7);
-		elem.ScaleXY(0.22);
+		elem.ScaleXY(initialScale);
 		elem.TranslateXY(330, 140);
 		//elem.ResetSpringRestLengths();
 		Ogre::SceneNode* pNode = scnMgr->getRootSceneNode()->createChildSceneNode("TubeNode7");
@@ -137,7 +139,7 @@ void StuffWorker::InitElements(Ogre::SceneManager* scnMgr)
 	{
 		AnElement elem;
 		elem.CreateStarTube(8);
-		elem.ScaleXY(0.2);
+		elem.ScaleXY(initialScale);
 		elem.TranslateXY(400, 250);
 		//elem.ResetSpringRestLengths();
 		Ogre::SceneNode* pNode = scnMgr->getRootSceneNode()->createChildSceneNode("TubeNode8");
@@ -148,11 +150,33 @@ void StuffWorker::InitElements(Ogre::SceneManager* scnMgr)
 	{
 		AnElement elem;
 		elem.CreateStarTube(9);
-		elem.ScaleXY(0.2);
+		elem.ScaleXY(initialScale);
 		elem.TranslateXY(0, 180);
 		//elem.ResetSpringRestLengths();
 		Ogre::SceneNode* pNode = scnMgr->getRootSceneNode()->createChildSceneNode("TubeNode9");
 		elem.InitMesh(scnMgr, pNode, "StarTube9", "Examples/TransparentTest2");
+		_element_list.push_back(elem);
+	}
+
+	{
+		AnElement elem;
+		elem.CreateStarTube(10);
+		elem.ScaleXY(initialScale);
+		elem.TranslateXY(170, 200);
+		//elem.ResetSpringRestLengths();
+		Ogre::SceneNode* pNode = scnMgr->getRootSceneNode()->createChildSceneNode("TubeNode10");
+		elem.InitMesh(scnMgr, pNode, "StarTube10", "Examples/TransparentTest2");
+		_element_list.push_back(elem);
+	}
+
+	{
+		AnElement elem;
+		elem.CreateStarTube(11);
+		elem.ScaleXY(initialScale);
+		elem.TranslateXY(320, 270);
+		//elem.ResetSpringRestLengths();
+		Ogre::SceneNode* pNode = scnMgr->getRootSceneNode()->createChildSceneNode("TubeNode11");
+		elem.InitMesh(scnMgr, pNode, "StarTube11", "Examples/TransparentTest2");
 		_element_list.push_back(elem);
 	}
 

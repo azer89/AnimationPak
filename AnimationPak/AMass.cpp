@@ -67,7 +67,7 @@ void AMass::CallMeFromConstructor()
 
 	_is_inside = false;
 
-	_lock = false;
+	_isDocked = false;
 
 	Init();
 }
@@ -84,10 +84,10 @@ void AMass::Init()
 
 void AMass::Simulate(float dt)
 {
-	if (_lock) { return; }
+	//if (_isDocked) { return; }
 
 	// oiler
-	_velocity += ((/*_attractionForce + */ _edgeForce +
+	_velocity += ((_edgeForce +
 		_repulsionForce +
 		_boundaryForce +
 		_overlapForce +
@@ -185,6 +185,10 @@ void AMass::GetClosestPoint()
 	_closestDist = std::sqrt(_closestDist); // SQRT
 }
 
+void AMass::Grow(float growth_scale_iter, float dt)
+{
+	// nothing happens
+}
 
 void AMass::Solve(const std::vector<A2DVector>& container)
 {
@@ -212,6 +216,20 @@ void AMass::Solve(const std::vector<A2DVector>& container)
 		A2DVector dirDist = pos2D.DirectionTo(cPt); // not normalized
 		A2DVector bForce = dirDist * k_boundary;
 		if (!bForce.IsBad()) { this->_boundaryForce += A3DVector(bForce.x, bForce.y, 0); } // z is always 0 !!!
+	}
+
+	// --------- DOCKING FORCE	
+	if(_isDocked)
+	{
+		float k_dock = SystemParams::_k_dock;
+		A3DVector dir = _pos.DirectionTo(_dockPoint); // not normalized
+		float dist = dir.Length();
+		dir = dir.Norm();
+		A3DVector eForce = (dir * SystemParams::_k_dock * dist);
+		if (!eForce.IsBad())
+		{
+			_edgeForce += eForce;	
+		}
 	}
 }
 

@@ -86,14 +86,14 @@ void AnElement::TranslateXY(float x, float y)
 	ResetSpringRestLengths();
 }
 
-void AnElement::BuildAcrossTube()
+void AnElement::AdjustEnds(A2DVector startPt2D, A2DVector endPt2D, bool lockEnds)
 {
-	A3DVector startPt(25, 25, 0);
-	A3DVector endPt(475, 475, 0);
+
+	A3DVector startPt(startPt2D.x, startPt2D.y, 0);
+	A3DVector endPt(endPt2D.x, endPt2D.y, 0);
 	A3DVector dirVector = startPt.DirectionTo(endPt).Norm();
 	float ln = startPt.Distance(endPt);
 	float gapCounter = ln / (float)(SystemParams::_num_layer - 1);
-	//A3DVector centerCounter(0, 0, 0);
 	
 	for (int a = 0; a < _massList.size(); a++)
 	{
@@ -103,7 +103,8 @@ void AnElement::BuildAcrossTube()
 
 		if (which_layer == 0 || which_layer == (SystemParams::_num_layer - 1))
 		{
-			_massList[a]._lock = true;
+			_massList[a]._isDocked = lockEnds;
+			_massList[a]._dockPoint = _massList[a]._pos;
 		}
 	}
 
@@ -265,7 +266,7 @@ void AnElement::UpdateMesh2()
 
 }
 
-void AnElement::UpdateSpringLengths()
+/*void AnElement::UpdateSpringLengths()
 {
 	for (int a = 0; a < _triEdges.size(); a++)
 	{
@@ -274,7 +275,7 @@ void AnElement::UpdateSpringLengths()
 		float d = pt1.Distance(pt2);
 		_triEdges[a]._dist = d;
 	}
-}
+}*/
 
 void AnElement::RandomizeLayerSize()
 {
@@ -348,7 +349,7 @@ void  AnElement::CreateHelix()
 void AnElement::UpdateBackend()
 {
 	//
-	UpdateSpringLengths();
+	//UpdateSpringLengths();
 
 	// for closest point
 	for (int a = 0; a < _massList.size(); a++)
@@ -541,31 +542,56 @@ A2DVector AnElement::ClosestPtOnALayer(A2DVector pt, int layer_idx)
 	return closetPt;
 }
 
+void AnElement::Grow(float growth_scale_iter, float dt)
+{
+	for (unsigned int a = 0; a < _triEdges.size(); a++)
+	{
+		if (!_triEdges[a]._isLayer2Layer)
+		{
+			_triEdges[a].MakeLonger(/* _shrinking_state * */ growth_scale_iter, dt);
+		}
+	}
+}
+
 void AnElement::SolveForSprings()
 {
-	float k_edge = SystemParams::_k_edge;
+	//float k_edge = SystemParams::_k_edge;
 
 	A3DVector pt0;
 	A3DVector pt1;
 	A3DVector dir;
 	A3DVector eForce;
+	float dist = 0;
+	float diff = 0;
+	float k = 0;
 
 	for (unsigned int a = 0; a < _triEdges.size(); a++)
 	{
-		float k = k_edge;
-		//if (_triEdges[a]._isLayer2Layer) { k *= 0.1; }
-
 		int idx0 = _triEdges[a]._index0;
 		int idx1 = _triEdges[a]._index1;
 
 		pt0 = _massList[idx0]._pos;
 		pt1 = _massList[idx1]._pos;
 
-		float dist = pt0.Distance(pt1);
+		
 
-		dir = pt0.DirectionTo(pt1).Norm();
-		float   oriDist = _triEdges[a]._oriDist;
-		float diff = dist - oriDist;
+		if (_triEdges[a]._isLayer2Layer)
+		{
+			k = SystemParams::_k_time_edge;
+			dist = pt0.Distance(pt1);
+			dir = pt0.DirectionTo(pt1).Norm();
+			diff = dist - _triEdges[a]._dist;
+		}
+		else
+		{
+			k = SystemParams::_k_edge;
+			dir = pt0.DirectionTo(pt1);
+			dir._z = 0;
+			dir = dir.Norm();
+			dist = pt0.GetA2DVector().Distance(pt1.GetA2DVector());
+			diff = dist - _triEdges[a]._dist;
+		}
+		
 		/*float signVal = 1;
 		if (diff < 0) { signVal = -1; }
 		eForce = (dir * k *  signVal * diff * diff);
@@ -573,6 +599,12 @@ void AnElement::SolveForSprings()
 
 		eForce = dir * k *  diff;
 
+		// 2D
+		/*if(_triEdges[a]._isLayer2Layer)
+		{
+			//eForce._z = 0;
+			//eForce = eForce.Norm();
+		}*/
 		if (!eForce.IsBad())
 		{
 			_massList[idx0]._edgeForce += eForce;	// _massList[idx0]._distToBoundary;

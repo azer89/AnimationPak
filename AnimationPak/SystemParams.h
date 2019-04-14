@@ -27,6 +27,7 @@ public:
 	static int _seed;
 
 	static float _k_edge;
+	static float _k_time_edge;
 	static float _k_neg_space_edge;
 	static float _k_edge_small_factor;
 	static float _k_repulsion;
@@ -45,6 +46,8 @@ public:
 	static int _num_layer; // plus one
 
 	static bool _show_time_springs;
+
+	static float _growth_scale_iter;
 };
 
 #endif

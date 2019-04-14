@@ -23,9 +23,11 @@ public:
 	int _index1; // end index 
 	//bool  _canGrow;
 	//float _angle;
-	//float _scale;
+	float _scale;
+	
 	float _dist;
 	float _oriDist;
+	
 	bool _isLayer2Layer; // is this an inter-layer edge
 
 public:
@@ -46,6 +48,7 @@ public:
 		//this->_angle = 0.0f;
 		this->_isLayer2Layer = isLayer2Layer;
 		//this->_canGrow = true;
+		this->_scale = 1.0f;
 	}
 	
 	/*AnIndexedLine(int index0, int index1, float dist, float oriDist, bool isLayer2Layer = false)
@@ -60,6 +63,7 @@ public:
 		//this->_canGrow = true;
 	}*/
 	
+	// SET THIS BEFORE SIMULATION OK!
 	void SetActualOriDistance(float d)
 	{
 		this->_dist = d;
@@ -104,11 +108,11 @@ public:
 		this->_canGrow = true;
 	}*/
 
-	/*void MakeLonger(float growth_scale_iter, float dt)
+	void MakeLonger(float growth_scale_iter, float dt)
 	{
 		_scale += growth_scale_iter * dt;
 		_dist = _oriDist * _scale;
-	}*/
+	}
 
 	// http_://stackoverflow.com/questions/3647331/how-to-swap-two-numbers-without-using-temp-variables-or-arithmetic-operations
 	void Swap()

@@ -21,7 +21,8 @@ public:
 
 	CollisionGrid2D* _c_grid;
 
-	bool _lock;
+	bool _isDocked;
+	A3DVector _dockPoint;
 
 
 
@@ -54,6 +55,8 @@ public:
 	void ImposeConstraints();
 
 	void GetClosestPoint();
+
+	void Grow(float growth_scale_iter, float dt);
 
 public:
 	A3DVector _edgeForce;

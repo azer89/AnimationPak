@@ -37,6 +37,7 @@ void SystemParams::LoadParameters()
 	SystemParams::_seed = script.get<int>("_seed");
 
 	SystemParams::_k_edge = script.get<float>("_k_edge");
+	SystemParams::_k_time_edge = script.get<float>("_k_time_edge");
 	SystemParams::_k_neg_space_edge = script.get<float>("_k_neg_space_edge");
 	SystemParams::_k_edge_small_factor = script.get<float>("_k_edge_small_factor");
 	SystemParams::_k_repulsion = script.get<float>("_k_repulsion");
@@ -57,6 +58,8 @@ void SystemParams::LoadParameters()
 
 	SystemParams::_show_time_springs = script.get<bool>("_show_time_springs");
 
+	SystemParams::_growth_scale_iter = script.get<float>("_growth_scale_iter");
+
 	//std::cout << SystemParams::_upscaleFactor << "\n";
 	//std::cout << SystemParams::_downscaleFactor << "\n";
 	//std::cout << SystemParams::_seed << "\n";
@@ -76,6 +79,7 @@ float SystemParams::_dt = 0.0f;
 int SystemParams::_seed = 0;
 
 float SystemParams::_k_edge = 0.0f;
+float SystemParams::_k_time_edge = 0.0f;
 float SystemParams::_k_neg_space_edge = 0.0f;
 float SystemParams::_k_edge_small_factor = 0.0f;
 float SystemParams::_k_repulsion = 0.0f;
@@ -94,3 +98,5 @@ int   SystemParams::_collission_block_radius = 0;
 int SystemParams::_num_layer = 0.0f; // plus one
 
 bool  SystemParams::_show_time_springs = false;
+
+float SystemParams::_growth_scale_iter = 0.0f;

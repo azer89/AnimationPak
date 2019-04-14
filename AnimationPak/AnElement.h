@@ -32,7 +32,7 @@ public:
 		const Ogre::String& materialName);
 
 	void UpdateBackend();
-	void UpdateSpringLengths();
+	//void UpdateSpringLengths();
 
 
 	void SolveForSprings();
@@ -42,9 +42,11 @@ public:
 
 	void ScaleXY(float scVal);
 	void TranslateXY(float x, float y);
-	void BuildAcrossTube();
+	void AdjustEnds(A2DVector startPt2D, A2DVector endPt2D, bool lockEnds = true);
 
 	A2DVector ClosestPtOnALayer(A2DVector pt, int layer_idx);
+
+	void Grow(float growth_scale_iter, float dt);
 
 
 public:

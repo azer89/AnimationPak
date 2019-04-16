@@ -33,7 +33,10 @@ AnElement::~AnElement()
 	_material.reset();
 
 
-
+	for (int a = 0; a < SystemParams::_num_layer; a++)
+	{
+		_insideFlags.push_back(false);
+	}
 	/*if (_tubeObject)
 	{
 	if (_tubeObject->getParentSceneNode())
@@ -81,6 +84,32 @@ void AnElement::TranslateXY(float x, float y)
 	{
 		A3DVector pos = _massList[a]._pos;
 		_massList[a]._pos = A3DVector(pos._x + x, pos._y + y, pos._z);
+	}
+
+	ResetSpringRestLengths();
+}
+
+void AnElement::AdjustEndPosition(A2DVector endPt2D, bool lockEnds)
+{
+	float zGap = SystemParams::_upscaleFactor / (float)(SystemParams::_num_layer - 1);
+	A2DVector startPt = _massList[0]._pos.GetA2DVector();
+	A2DVector dirVector = startPt.DirectionTo(endPt2D);
+	float xyGap = dirVector.Length() / (float)(SystemParams::_num_layer - 1);
+	dirVector = dirVector.Norm();
+
+	for (int a = 0; a < _massList.size(); a++)
+	{
+		float which_layer = _massList[a]._debug_which_layer;
+		A2DVector moveVector2D = dirVector * (xyGap * which_layer);
+		_massList[a]._pos._x += moveVector2D.x;
+		_massList[a]._pos._y += moveVector2D.y;
+		_massList[a]._pos._z = -(zGap * which_layer);
+
+		if (which_layer == 0 || which_layer == (SystemParams::_num_layer - 1))
+		{
+			_massList[a]._isDocked = lockEnds;
+			_massList[a]._dockPoint = _massList[a]._pos;
+		}
 	}
 
 	ResetSpringRestLengths();
@@ -339,7 +368,7 @@ void  AnElement::CreateHelix()
 		if (a % 11 == 0) { continue; }
 		A2DVector pos(_massList[a]._pos._x, _massList[a]._pos._y);
 		int curLayer = _massList[a]._debug_which_layer;
-		float radAngle = (3.14159265359 / (float)SystemParams::_num_layer) * (float)curLayer;
+		float radAngle = (6.28318530718 / (float)SystemParams::_num_layer) * (float)curLayer;
 		A2DVector rotPos = UtilityFunctions::Rotate(pos, A2DVector(250, 250), radAngle);
 		_massList[a]._pos._x = rotPos.x;
 		_massList[a]._pos._y = rotPos.y;
@@ -358,6 +387,15 @@ void AnElement::UpdateBackend()
 		int layer_idx = _massList[a]._debug_which_layer;
 		int mass_idx = _massList[a]._self_idx;
 		_per_layer_points[layer_idx][mass_idx] = pt;
+	}
+
+	// per layer boundary
+	for (int a = 0; a < SystemParams::_num_layer; a++)
+	{
+		for (int b = 1; b < 11; b++)
+		{
+			_per_layer_boundary[a][b-1] = _per_layer_points[a][b];
+		}
 	}
 }
 
@@ -387,17 +425,17 @@ void AnElement::CreateStarTube(int self_idx)
 	for (int a = 0; a < SystemParams::_num_layer; a++)
 	{
 		// x y z mass_idx element_idx layer_idx
-		_massList.push_back(AMass(250, 250, zPos, 0, _self_idx, a)); // 0 center
-		_massList.push_back(AMass(0, 193, zPos, 1, _self_idx, a)); // 1
-		_massList.push_back(AMass(172, 168, zPos, 2, _self_idx, a)); // 2
-		_massList.push_back(AMass(250, 12, zPos, 3, _self_idx, a)); // 3
-		_massList.push_back(AMass(327, 168, zPos, 4, _self_idx, a)); // 4
-		_massList.push_back(AMass(500, 193, zPos, 5, _self_idx, a)); // 5
-		_massList.push_back(AMass(375, 315, zPos, 6, _self_idx, a)); // 6
-		_massList.push_back(AMass(404, 487, zPos, 7, _self_idx, a)); // 7
-		_massList.push_back(AMass(250, 406, zPos, 8, _self_idx, a)); // 8
-		_massList.push_back(AMass(95, 487, zPos, 9, _self_idx, a)); // 9
-		_massList.push_back(AMass(125, 315, zPos, 10, _self_idx, a)); // 10
+		_massList.push_back(AMass(250, 250, zPos, 0,  _self_idx, a)); // 0 center
+		_massList.push_back(AMass(0,   193, zPos, 1,  _self_idx, a, true)); // 1
+		_massList.push_back(AMass(172, 168, zPos, 2,  _self_idx, a, true)); // 2
+		_massList.push_back(AMass(250, 12,  zPos, 3,  _self_idx, a, true)); // 3
+		_massList.push_back(AMass(327, 168, zPos, 4,  _self_idx, a, true)); // 4
+		_massList.push_back(AMass(500, 193, zPos, 5,  _self_idx, a, true)); // 5
+		_massList.push_back(AMass(375, 315, zPos, 6,  _self_idx, a, true)); // 6
+		_massList.push_back(AMass(404, 487, zPos, 7,  _self_idx, a, true)); // 7
+		_massList.push_back(AMass(250, 406, zPos, 8,  _self_idx, a, true)); // 8
+		_massList.push_back(AMass(95,  487, zPos, 9,  _self_idx, a, true)); // 9
+		_massList.push_back(AMass(125, 315, zPos, 10, _self_idx, a, true)); // 10
 
 		zPos += zOffset;
 	}
@@ -503,12 +541,21 @@ void AnElement::CreateStarTube(int self_idx)
 	for (int a = 0; a < SystemParams::_num_layer; a++)
 	{
 		_per_layer_points.push_back(std::vector<A2DVector>());
+		_per_layer_boundary.push_back(std::vector<A2DVector>());
 	}
 	for (int a = 0; a < _massList.size(); a++)
 	{
 		A2DVector pt(_massList[a]._pos._x, _massList[a]._pos._y);
 		int layer_idx = _massList[a]._debug_which_layer;
 		_per_layer_points[layer_idx].push_back(pt);
+	}
+	// per layer boundary
+	for (int a = 0; a < SystemParams::_num_layer; a++)
+	{
+		for (int b = 1; b < 11; b++)
+		{
+			_per_layer_boundary[a].push_back(_per_layer_points[a][b]);
+		}
 	}
 }
 
@@ -525,21 +572,22 @@ void AnElement::ResetSpringRestLengths()
 A2DVector AnElement::ClosestPtOnALayer(A2DVector pt, int layer_idx)
 {
 	float dist = 10000000000000;
-	A2DVector closetPt;
+	A2DVector closestPt;
+	closestPt = UtilityFunctions::GetClosestPtOnClosedCurve(_per_layer_boundary[layer_idx], pt);
 
-	for (int a = 0; a < _per_layer_points[layer_idx].size(); a++)
+	/*for (int a = 0; a < _per_layer_points[layer_idx].size(); a++)
 	{
 		float d = _per_layer_points[layer_idx][a].Distance(pt);
 		if (d < dist)
 		{
 			dist = d;
-			closetPt = _per_layer_points[layer_idx][a];
+			closestPt = _per_layer_points[layer_idx][a];
 		}
-	}
+	}*/
 
-	//closetPt.Print();
+	//closestPt.Print();
 
-	return closetPt;
+	return closestPt;
 }
 
 void AnElement::Grow(float growth_scale_iter, float dt)

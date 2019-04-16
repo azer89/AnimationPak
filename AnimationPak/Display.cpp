@@ -79,11 +79,13 @@ bool Display::frameStarted(const Ogre::FrameEvent& evt)
 	_sWorker->Update();
 	_sWorker->Reset();
 	_sWorker->Solve();
-	_sWorker->Simulate();
+	//_sWorker->Simulate();	
+	//_sWorker->ImposeConstraints();
+
 	_sWorker->UpdateViz();
-	_sWorker->ImposeConstraints();
-	UpdateSpringDisplay();
-	//UpdateClosestPtsDisplay();
+	UpdateSpringDisplay(); // init CreateSpringLines()
+	//UpdatePerLayerBoundary();
+	UpdateClosestPtsDisplay();
 
 
 
@@ -181,6 +183,43 @@ void Display::CreateCubeFromLines()
 	cube_lines->update();
 	Ogre::SceneNode *linesNode = _scnMgr->getRootSceneNode()->createChildSceneNode("lines");
 	linesNode->attachObject(cube_lines);
+}
+
+void Display::UpdatePerLayerBoundary()
+{
+	_debug_points.clear();
+	_debug_lines->clear();
+
+	float zOffset = -(SystemParams::_upscaleFactor / (SystemParams::_num_layer - 1));
+	int elem_sz = _sWorker->_element_list.size();
+	for (int a = 0; a < elem_sz; a++) // iterate element
+	{
+		for (int b = 0; b < SystemParams::_num_layer; b++) // iterate layer
+		{			
+			float zPos = b * zOffset;
+
+			int boundary_sz = _sWorker->_element_list[a]._per_layer_boundary[b].size();
+			for (int c = 0; c < boundary_sz; c++) // iterate point
+			{
+				if (c == 0)
+				{
+					A2DVector pt1 = _sWorker->_element_list[a]._per_layer_boundary[b][boundary_sz - 1];
+					A2DVector pt2 = _sWorker->_element_list[a]._per_layer_boundary[b][c];
+					_debug_lines->addPoint(Ogre::Vector3(pt1.x, pt1.y, zPos));
+					_debug_lines->addPoint(Ogre::Vector3(pt2.x, pt2.y, zPos));
+
+					continue;
+				}
+
+				A2DVector pt1 = _sWorker->_element_list[a]._per_layer_boundary[b][c - 1];
+				A2DVector pt2 = _sWorker->_element_list[a]._per_layer_boundary[b][c];
+				_debug_lines->addPoint(Ogre::Vector3(pt1.x, pt1.y, zPos));
+				_debug_lines->addPoint(Ogre::Vector3(pt2.x, pt2.y, zPos));
+			}
+
+		}
+	}
+	_debug_lines->update();
 }
 
 void Display::UpdateClosestPtsDisplay()
@@ -317,7 +356,9 @@ void Display::setup()
 	_sWorker->InitElements(_scnMgr);
 
 	CreateCubeFromLines();
-	CreateSpringLines();
+	CreateSpringLines(); // if you want to display springs!!!
+	
+	
 	// add points
 	//somePoints.push_back(Ogre::Vector3(0.0f, 0.0f, 0.0f));
 	//somePoints.push_back(Ogre::Vector3(452.0f, 2345.0f, 453.0f));
@@ -376,7 +417,7 @@ void Display::CreateSpringLines()
 			{
 				AnIndexedLine ln = elem._triEdges[a];
 
-				if (!ln._isLayer2Layer) { continue; }
+				if (ln._isLayer2Layer) { continue; }
 
 				A3DVector pt1 = elem._massList[ln._index0]._pos;
 				A3DVector pt2 = elem._massList[ln._index1]._pos;
@@ -409,7 +450,7 @@ void Display::UpdateSpringDisplay()
 		{
 			AnIndexedLine ln = elem._triEdges[a];
 
-			if (!ln._isLayer2Layer) { continue; }
+			if (ln._isLayer2Layer) { continue; }
 
 			A3DVector pt1 = elem._massList[ln._index0]._pos;
 			A3DVector pt2 = elem._massList[ln._index1]._pos;

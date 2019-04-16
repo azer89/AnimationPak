@@ -48,6 +48,7 @@ public:
 
 	void CreateCubeFromLines();
 	void UpdateClosestPtsDisplay();
+	void UpdatePerLayerBoundary();
 
 	void CreateSpringLines();
 	void UpdateSpringDisplay();

@@ -32,12 +32,14 @@ AMass::AMass(float x,
 	         float z, 
 	         int self_idx, 
 	         int parent_idx, 
-	         int debug_which_layer)
+	         int debug_which_layer,
+			 bool is_boundary)
 {
 	this->_pos               = A3DVector(x, y, z);
 	this->_debug_which_layer = debug_which_layer;
 	this->_self_idx          = self_idx;
 	this->_parent_idx        = parent_idx;
+	this->_is_boundary       = is_boundary;
 
 	CallMeFromConstructor();
 }
@@ -127,6 +129,7 @@ void AMass::ImposeConstraints()
 
 void AMass::GetClosestPoint()
 {
+	if (!_is_boundary) { return; }
 	if (_parent_idx < 0 || _parent_idx >= StuffWorker::_element_list.size()) { return; }
 	//if (this->_idx >= StuffWorker::_graphs[parentGraphIndex]._skinPointNum) { return; } // uncomment me
 
@@ -166,9 +169,8 @@ void AMass::GetClosestPoint()
 			if (insideGraphFlags[a]) { continue; }
 
 			//A2DVector pt = UtilityFunctions::GetClosestPtOnClosedCurve(StuffWorker::_element_list[_closestGraphIndices[a]]._skin, _pos);
-			A2DVector pt = StuffWorker::_element_list[_closestGraphIndices[a]].ClosestPtOnALayer(A2DVector(_pos._x, _pos._y), _debug_which_layer);
-			_closestPoints[_closestPt_fill_sz] = pt;
-			_closestPt_fill_sz++;
+			A2DVector pt = StuffWorker::_element_list[_closestGraphIndices[a]].ClosestPtOnALayer(_pos.GetA2DVector(), _debug_which_layer);
+			_closestPoints[_closestPt_fill_sz++] = pt;
 		}
 	}
 
@@ -176,7 +178,7 @@ void AMass::GetClosestPoint()
 	_closestDist = std::numeric_limits<float>::max();
 	for (unsigned int a = 0; a < _closestPt_fill_sz; a++)
 	{
-		float d = _closestPoints[a].DistanceSquared(A2DVector(_pos._x, _pos._y));  // 2D!!!! // SQUARED!!!
+		float d = _closestPoints[a].DistanceSquared(_pos.GetA2DVector());  // 2D!!!! // SQUARED!!!
 		if (d < _closestDist)
 		{
 			_closestDist = d;
@@ -197,7 +199,7 @@ void AMass::Solve(const std::vector<A2DVector>& container)
 	A2DVector dir;
 	for (int a = 0; a < _closestPt_fill_sz; a++)
 	{
-		dir = _closestPoints[a].DirectionTo(A2DVector(_pos._x, _pos._y)); // direction, normalized
+		dir = _closestPoints[a].DirectionTo(_pos.GetA2DVector()); // direction, normalized
 		float dist = dir.Length(); // distance
 		sumR += (dir.Norm() / (SystemParams::_repulsion_soft_factor + std::pow(dist, 2)));
 	}

@@ -21,8 +21,22 @@ public:
 
 	CollisionGrid2D* _c_grid;
 
+	//bool _isInside;
+
 	bool _isDocked;
+	bool _is_inside;
+	bool _is_boundary;
+
 	A3DVector _dockPoint;
+
+	float                _closestDist;
+	std::vector<int>     _closestGraphIndices;
+
+	std::vector<A2DVector> _closestPoints;
+	int _closestPt_actual_sz; // reserve for avoiding push_back, actual size of the vector
+	int _closestPt_fill_sz;   // reserve for avoiding push_back, filled size of the vector
+
+	
 
 
 
@@ -41,7 +55,8 @@ public:
 		  float z, 
 		  int self_idx, 
 		  int parent_idx, 
-		  int debug_which_layer);
+		  int debug_which_layer,
+		  bool is_boundary = false);
 
 	// Constructor
 	AMass(A3DVector pos);
@@ -66,14 +81,7 @@ public:
 	A3DVector _rotationForce;
 
 
-	float                _closestDist;
-	std::vector<int>     _closestGraphIndices;
 	
-	std::vector<A2DVector> _closestPoints;
-	int _closestPt_actual_sz; // reserve for avoiding push_back, actual size of the vector
-	int _closestPt_fill_sz;   // reserve for avoiding push_back, filled size of the vector
-
-	bool _is_inside;
 };
 
 #endif

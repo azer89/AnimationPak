@@ -41,144 +41,209 @@ void StuffWorker::InitElements(Ogre::SceneManager* scnMgr)
 	float initialScale = 0.05;
 
 	{
+		int idx = _element_list.size();
 		AnElement elem;
-		elem.CreateStarTube(0);
+		elem.CreateStarTube(idx);
 		elem.ScaleXY(initialScale);
-		//elem.TranslateXY(0, 450);
+		elem.TranslateXY(10, 10);
 		//A2DVector startPt(25, 25, 0);
 		//A2DVector endPt(475, 475, 0);
-		elem.AdjustEnds( A2DVector(25, 25), A2DVector(475, 475) );
-		//elem.ResetSpringRestLengths();
-		Ogre::SceneNode* pNode = scnMgr->getRootSceneNode()->createChildSceneNode("TubeNode0");
-		elem.InitMesh(scnMgr, pNode, "StarTube0", "Examples/TransparentTest2");
+		//elem.AdjustEnds( A2DVector(75, 75), A2DVector(520, 520) );
+		elem.AdjustEndPosition(A2DVector(450, 450));
+		//Ogre::SceneNode* pNode = scnMgr->getRootSceneNode()->createChildSceneNode("TubeNode" + idx);
+		//elem.InitMesh(scnMgr, pNode, "StarTube" + idx, "Examples/TransparentTest2");
 		_element_list.push_back(elem);
 	}
 
 	
-	{
+	/*{
+	// don't use this
 		AnElement elem;
 		elem.CreateStarTube(1);
 		elem.ScaleXY(initialScale);
 		elem.TranslateXY(450, 450);
-		elem.AdjustEnds(A2DVector(475, 475), A2DVector(25, 25));
+		elem.AdjustEnds(A2DVector(475, 475), A2DVector(35, 35));
 		//elem.TranslateXY(250, 400);
 		//elem.ResetSpringRestLengths();
 		Ogre::SceneNode* pNode = scnMgr->getRootSceneNode()->createChildSceneNode("TubeNode1");
 		elem.InitMesh(scnMgr, pNode, "StarTube1", "Examples/TransparentTest2");
 		_element_list.push_back(elem);
-	}
+	}*/
 
-	
-	{
-		AnElement elem;
-		elem.CreateStarTube(2);
-		elem.ScaleXY(initialScale);
-		elem.TranslateXY(250, 0);
-		//elem.ResetSpringRestLengths();
-		Ogre::SceneNode* pNode = scnMgr->getRootSceneNode()->createChildSceneNode("TubeNode2");
-		elem.InitMesh(scnMgr, pNode, "StarTube2", "Examples/TransparentTest2");
-		_element_list.push_back(elem);
-	}
+	std::vector<A2DVector> posArray;
 
-	
-	{
-		AnElement elem;
-		elem.CreateStarTube(3);
-		elem.ScaleXY(initialScale);
-		elem.TranslateXY(0, 350);
-		//elem.ResetSpringRestLengths();
-		Ogre::SceneNode* pNode = scnMgr->getRootSceneNode()->createChildSceneNode("TubeNode3");
-		elem.InitMesh(scnMgr, pNode, "StarTube3", "Examples/TransparentTest2");
-		_element_list.push_back(elem);
-	}
-	
-	{
-		AnElement elem;
-		elem.CreateStarTube(4);
-		elem.ScaleXY(initialScale);
-		elem.TranslateXY(100, 400);
-		//elem.ResetSpringRestLengths();
-		Ogre::SceneNode* pNode = scnMgr->getRootSceneNode()->createChildSceneNode("TubeNode4");
-		elem.InitMesh(scnMgr, pNode, "StarTube4", "Examples/TransparentTest2");
-		_element_list.push_back(elem);
-	}
-	
-	{
-		AnElement elem;
-		elem.CreateStarTube(5);
-		elem.ScaleXY(initialScale);
-		elem.TranslateXY(400, 0);
-		//elem.ResetSpringRestLengths();
-		Ogre::SceneNode* pNode = scnMgr->getRootSceneNode()->createChildSceneNode("TubeNode5");
-		elem.InitMesh(scnMgr, pNode, "StarTube5", "Examples/TransparentTest2");
-		_element_list.push_back(elem);
-	}
-	
-	{
-		AnElement elem;
-		elem.CreateStarTube(6);
-		elem.ScaleXY(initialScale);
-		elem.TranslateXY(40, 240);
-		//elem.ResetSpringRestLengths();
-		Ogre::SceneNode* pNode = scnMgr->getRootSceneNode()->createChildSceneNode("TubeNode6");
-		elem.InitMesh(scnMgr, pNode, "StarTube6", "Examples/TransparentTest2");
-		_element_list.push_back(elem);
-	}
-	
-	{
-		AnElement elem;
-		elem.CreateStarTube(7);
-		elem.ScaleXY(initialScale);
-		elem.TranslateXY(330, 140);
-		//elem.ResetSpringRestLengths();
-		Ogre::SceneNode* pNode = scnMgr->getRootSceneNode()->createChildSceneNode("TubeNode7");
-		elem.InitMesh(scnMgr, pNode, "StarTube7", "Examples/TransparentTest2");
-		_element_list.push_back(elem);
-	}
-	
-	{
-		AnElement elem;
-		elem.CreateStarTube(8);
-		elem.ScaleXY(initialScale);
-		elem.TranslateXY(400, 250);
-		//elem.ResetSpringRestLengths();
-		Ogre::SceneNode* pNode = scnMgr->getRootSceneNode()->createChildSceneNode("TubeNode8");
-		elem.InitMesh(scnMgr, pNode, "StarTube8", "Examples/TransparentTest2");
-		_element_list.push_back(elem);
-	}
-	
-	{
-		AnElement elem;
-		elem.CreateStarTube(9);
-		elem.ScaleXY(initialScale);
-		elem.TranslateXY(0, 180);
-		//elem.ResetSpringRestLengths();
-		Ogre::SceneNode* pNode = scnMgr->getRootSceneNode()->createChildSceneNode("TubeNode9");
-		elem.InitMesh(scnMgr, pNode, "StarTube9", "Examples/TransparentTest2");
-		_element_list.push_back(elem);
-	}
+	posArray.push_back(A2DVector(250, 0));
+	posArray.push_back(A2DVector(0, 350));
+	posArray.push_back(A2DVector(100, 400));
+	/*posArray.push_back(A2DVector(400, 0));
+	posArray.push_back(A2DVector(40, 240));
+	posArray.push_back(A2DVector(330, 140));
+	posArray.push_back(A2DVector(400, 250));
+	posArray.push_back(A2DVector(0, 180));
+	posArray.push_back(A2DVector(170, 200));
+	posArray.push_back(A2DVector(320, 270));
+	posArray.push_back(A2DVector(350, 270));
+	posArray.push_back(A2DVector(350, 220));*/
 
+	for (int a = 0; a < posArray.size(); a++)
 	{
+		int idx = _element_list.size();
 		AnElement elem;
-		elem.CreateStarTube(10);
+		elem.CreateStarTube(idx);
 		elem.ScaleXY(initialScale);
-		elem.TranslateXY(170, 200);
+		elem.TranslateXY(posArray[a].x, posArray[a].y);
 		//elem.ResetSpringRestLengths();
-		Ogre::SceneNode* pNode = scnMgr->getRootSceneNode()->createChildSceneNode("TubeNode10");
-		elem.InitMesh(scnMgr, pNode, "StarTube10", "Examples/TransparentTest2");
+		//Ogre::SceneNode* pNode = scnMgr->getRootSceneNode()->createChildSceneNode("TubeNode" + std::to_string(idx));
+		//elem.InitMesh(scnMgr, pNode, "StarTube" + std::to_string(idx), "Examples/TransparentTest2");
 		_element_list.push_back(elem);
+			
 	}
+	
+	//{
+	//	int idx = _element_list.size();
+	//	AnElement elem;
+	//	elem.CreateStarTube(idx);
+	//	elem.ScaleXY(initialScale);
+	//	elem.TranslateXY(250, 0);
+	//	//elem.ResetSpringRestLengths();
+	//	Ogre::SceneNode* pNode = scnMgr->getRootSceneNode()->createChildSceneNode("TubeNode" + idx);
+	//	elem.InitMesh(scnMgr, pNode, "StarTube" + idx, "Examples/TransparentTest2");
+	//	_element_list.push_back(elem);
+	//}
 
-	{
-		AnElement elem;
-		elem.CreateStarTube(11);
-		elem.ScaleXY(initialScale);
-		elem.TranslateXY(320, 270);
-		//elem.ResetSpringRestLengths();
-		Ogre::SceneNode* pNode = scnMgr->getRootSceneNode()->createChildSceneNode("TubeNode11");
-		elem.InitMesh(scnMgr, pNode, "StarTube11", "Examples/TransparentTest2");
-		_element_list.push_back(elem);
-	}
+	//
+	//{
+	//	int idx = _element_list.size();
+	//	AnElement elem;
+	//	elem.CreateStarTube(idx);
+	//	elem.ScaleXY(initialScale);
+	//	elem.TranslateXY(0, 350);
+	//	//elem.ResetSpringRestLengths();
+	//	Ogre::SceneNode* pNode = scnMgr->getRootSceneNode()->createChildSceneNode("TubeNode" + idx);
+	//	elem.InitMesh(scnMgr, pNode, "StarTube" + idx, "Examples/TransparentTest2");
+	//	_element_list.push_back(elem);
+	//}
+	//
+	//{
+	//	int idx = _element_list.size();
+	//	AnElement elem;
+	//	elem.CreateStarTube(idx);
+	//	elem.ScaleXY(initialScale);
+	//	elem.TranslateXY(100, 400);
+	//	//elem.ResetSpringRestLengths();
+	//	Ogre::SceneNode* pNode = scnMgr->getRootSceneNode()->createChildSceneNode("TubeNode" + idx);
+	//	elem.InitMesh(scnMgr, pNode, "StarTube" + idx, "Examples/TransparentTest2");
+	//	_element_list.push_back(elem);
+	//}
+	//
+	//{
+	//	int idx = _element_list.size();
+	//	AnElement elem;
+	//	elem.CreateStarTube(idx);
+	//	elem.ScaleXY(initialScale);
+	//	elem.TranslateXY(400, 0);
+	//	//elem.ResetSpringRestLengths();
+	//	Ogre::SceneNode* pNode = scnMgr->getRootSceneNode()->createChildSceneNode("TubeNode" + idx);
+	//	elem.InitMesh(scnMgr, pNode, "StarTube" + idx, "Examples/TransparentTest2");
+	//	_element_list.push_back(elem);
+	//}
+	//
+	//{
+	//	int idx = _element_list.size();
+	//	AnElement elem;
+	//	elem.CreateStarTube(idx);
+	//	elem.ScaleXY(initialScale);
+	//	elem.TranslateXY(40, 240);
+	//	//elem.ResetSpringRestLengths();
+	//	Ogre::SceneNode* pNode = scnMgr->getRootSceneNode()->createChildSceneNode("TubeNode" + idx);
+	//	elem.InitMesh(scnMgr, pNode, "StarTube" + idx, "Examples/TransparentTest2");
+	//	_element_list.push_back(elem);
+	//}
+	//
+	//{
+	//	int idx = _element_list.size();
+	//	AnElement elem;
+	//	elem.CreateStarTube(idx);
+	//	elem.ScaleXY(initialScale);
+	//	elem.TranslateXY(330, 140);
+	//	//elem.ResetSpringRestLengths();
+	//	Ogre::SceneNode* pNode = scnMgr->getRootSceneNode()->createChildSceneNode("TubeNode" + idx);
+	//	elem.InitMesh(scnMgr, pNode, "StarTube" + idx, "Examples/TransparentTest2");
+	//	_element_list.push_back(elem);
+	//}
+	//
+	//{
+	//	int idx = _element_list.size();
+	//	AnElement elem;
+	//	elem.CreateStarTube(idx);
+	//	elem.ScaleXY(initialScale);
+	//	elem.TranslateXY(400, 250);
+	//	//elem.ResetSpringRestLengths();
+	//	Ogre::SceneNode* pNode = scnMgr->getRootSceneNode()->createChildSceneNode("TubeNode" + idx);
+	//	elem.InitMesh(scnMgr, pNode, "StarTube" + idx, "Examples/TransparentTest2");
+	//	_element_list.push_back(elem);
+	//}
+	//
+	//{
+	//	int idx = _element_list.size();
+	//	AnElement elem;
+	//	elem.CreateStarTube(idx);
+	//	elem.ScaleXY(initialScale);
+	//	elem.TranslateXY(0, 180);
+	//	//elem.ResetSpringRestLengths();
+	//	Ogre::SceneNode* pNode = scnMgr->getRootSceneNode()->createChildSceneNode("TubeNode" + idx);
+	//	elem.InitMesh(scnMgr, pNode, "StarTube" + idx, "Examples/TransparentTest2");
+	//	_element_list.push_back(elem);
+	//}
+
+	//{
+	//	int idx = _element_list.size();
+	//	AnElement elem;
+	//	elem.CreateStarTube(idx);
+	//	elem.ScaleXY(initialScale);
+	//	elem.TranslateXY(170, 200);
+	//	//elem.ResetSpringRestLengths();
+	//	Ogre::SceneNode* pNode = scnMgr->getRootSceneNode()->createChildSceneNode("TubeNode" + idx);
+	//	elem.InitMesh(scnMgr, pNode, "StarTube" + idx, "Examples/TransparentTest2");
+	//	_element_list.push_back(elem);
+	//}
+
+	//{
+	//	int idx = _element_list.size();
+	//	AnElement elem;
+	//	elem.CreateStarTube(idx);
+	//	elem.ScaleXY(initialScale);
+	//	elem.TranslateXY(320, 270);
+	//	//elem.ResetSpringRestLengths();
+	//	Ogre::SceneNode* pNode = scnMgr->getRootSceneNode()->createChildSceneNode("TubeNode" + idx);
+	//	elem.InitMesh(scnMgr, pNode, "StarTube" + idx, "Examples/TransparentTest2");
+	//	_element_list.push_back(elem);
+	//}
+
+
+	//{
+	//	int idx = _element_list.size();
+	//	AnElement elem;
+	//	elem.CreateStarTube(idx);
+	//	elem.ScaleXY(initialScale);
+	//	elem.TranslateXY(350, 270);
+	//	//elem.ResetSpringRestLengths();
+	//	Ogre::SceneNode* pNode = scnMgr->getRootSceneNode()->createChildSceneNode("TubeNode" + idx);
+	//	elem.InitMesh(scnMgr, pNode, "StarTube" + idx, "Examples/TransparentTest2");
+	//	_element_list.push_back(elem);
+	//}
+
+	//{
+	//	int idx = _element_list.size();
+	//	AnElement elem;
+	//	elem.CreateStarTube(idx);
+	//	elem.ScaleXY(initialScale);
+	//	elem.TranslateXY(350, 220);
+	//	//elem.ResetSpringRestLengths();
+	//	Ogre::SceneNode* pNode = scnMgr->getRootSceneNode()->createChildSceneNode("TubeNode" + idx);
+	//	elem.InitMesh(scnMgr, pNode, "StarTube" + idx, "Examples/TransparentTest2");
+	//	_element_list.push_back(elem);
+	//}
 
 	for(int a = 0; a < SystemParams::_num_layer; a++)
 	{
@@ -310,7 +375,7 @@ void StuffWorker::UpdateViz()
 {
 	for (int a = 0; a < _element_list.size(); a++)
 	{
-		_element_list[a].UpdateMesh2();
+		//_element_list[a].UpdateMesh2();
 	}
 }
 

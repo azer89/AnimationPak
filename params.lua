@@ -18,7 +18,7 @@ _seed = -1; --- negative means random
 
 --- Force parameters
 _k_edge                = 1;	--- 0.5 edge force for filling elements
-_k_time_edge           = 0.5;
+_k_time_edge           = 0.1;
 _k_neg_space_edge      = 10;	--- edge force for springs
 _k_edge_small_factor   = 12;
 _k_repulsion           = 500;	--- 200 repulsion force
@@ -26,7 +26,7 @@ _repulsion_soft_factor = 1.0;	--- soft factor for repulsion force
 _k_overlap             = 5;	--- overlap force
 _k_boundary            = 1;	--- 0.1 boundary force
 _k_rotate              = 1;		--- 1
-_k_dock                = 0.1;
+_k_dock                = 10;
 
 --- capping the velocity
 _velocity_cap   = 10; -- [Do not edit]
@@ -40,9 +40,9 @@ _bin_square_size         = 100;
 _collission_block_radius = 1;  
 
 --- for growing
-_growth_scale_iter     = 0.002;
+_growth_scale_iter     = 0.0;
 
-_num_layer = 6;
+_num_layer = 50;
 
 
 _show_time_springs = true;

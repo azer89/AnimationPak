@@ -31,27 +31,26 @@ public:
 
 	Display();
 	~Display();
+	
 	bool frameStarted(const Ogre::FrameEvent& evt);
-
-
+	
 	void setup();
 
 	bool keyPressed(const OgreBites::KeyboardEvent& evt);
-	bool 	keyReleased(const OgreBites::KeyboardEvent &evt);
-	bool 	mouseMoved(const OgreBites::MouseMotionEvent &evt);
-	bool 	mousePressed(const OgreBites::MouseButtonEvent &evt);
-	bool 	mouseReleased(const OgreBites::MouseButtonEvent &evt);
-	bool 	mouseWheelRolled(const OgreBites::MouseWheelEvent &evt);
+	bool keyReleased(const OgreBites::KeyboardEvent &evt);
+	bool mouseMoved(const OgreBites::MouseMotionEvent &evt);
+	bool mousePressed(const OgreBites::MouseButtonEvent &evt);
+	bool mouseReleased(const OgreBites::MouseButtonEvent &evt);
+	bool mouseWheelRolled(const OgreBites::MouseWheelEvent &evt);
 
 	//void DoStuff();
 	void shutdown();
 
-	void CreateCubeFromLines();
-	void UpdateClosestPtsDisplay();
-	void UpdatePerLayerBoundary();
+	//void CreateCubeFromLines();
+	
 
-	void CreateSpringLines();
-	void UpdateSpringDisplay();
+	//void CreateSpringLines();
+	//void UpdateSpringDisplay();
 
 	//void Draw();
 	//void Update(int nScreenWidth = 0, int nScreenHeight = 0);
@@ -59,25 +58,26 @@ public:
 	//bool MouseEvent(int button, int state, int x, int y);
 
 public:
-	bool _cameraActivated;            // activate or deactivate a camera
+	bool                  _cameraActivated;            // activate or deactivate a camera
 	OgreBites::CameraMan* _cameraMan; // 1st person shooter camera
-	Ogre::SceneNode* _cameraNode;
+	Ogre::SceneNode*      _cameraNode;
 
-	StuffWorker* _sWorker;
-
-	Ogre::Root* _root;
+	Ogre::Root*         _root;
 	Ogre::SceneManager* _scnMgr;
 
+	StuffWorker* _sWorker; // GOD class
+
+	
+
 	//cube
-	int _maxDebugLines; // TODO
-	std::deque<Ogre::Vector3> _debug_points;
-	DynamicLines* _debug_lines;
-	Ogre::SceneNode* _debugNode;
+	//int _maxDebugLines; // TODO
+	//std::deque<Ogre::Vector3> _debug_points;
+	
 
 	// element springs
-	std::deque<Ogre::Vector3> _spring_points;
-	DynamicLines* _spring_lines;
-	Ogre::SceneNode* _springNode;
+	//std::deque<Ogre::Vector3> _spring_points;
+	//DynamicLines* _spring_lines;
+	//Ogre::SceneNode* _springNode;
 
 	//AnElement* _debug_elem;
 	//static std::shared_ptr<Display> GetInstance();
@@ -85,9 +85,7 @@ public:
 	//static void ShowGL(int argc, char **argv);
 	//static void ResizeCallback(int w, int h);
 	//static void ShowCallback();
-
-
-
+	
 	//static void SpecialKeyboardCallback(int key, int x, int y);
 	//static void KeyboardCallback(unsigned char nChar, int x, int y);
 	//static void MouseCallback(int button, int state, int x, int y);

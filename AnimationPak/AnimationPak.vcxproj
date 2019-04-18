@@ -108,13 +108,13 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Users\azer\workspace\ogre-sdk-1.11.5\include\OGRE;C:\Users\azer\workspace\ogre_imgui;C:\Users\azer\workspace\ogre_imgui\imgui;C:\Users\azer\workspace\ogre-sdk-1.11.5\include\OGRE\Bites;C:\Users\azer\workspace\ogre-sdk-1.11.5\include\OGRE\Overlay;C:\Users\azer\workspace\ogre-sdk-1.11.5\include\OGRE\RTShaderSystem;C:\Users\azer\workspace\ogre-sdk-1.11.5\include\OGRE\HLMS;C:\Users\azer\workspace\ogre-sdk-1.11.5\include\OGRE\MeshLodGenerator;C:\Users\azer\workspace\ogre-sdk-1.11.5\include\OGRE\Paging;C:\Users\azer\workspace\ogre-sdk-1.11.5\include\OGRE\Property;C:\Users\azer\workspace\ogre-sdk-1.11.5\include\OGRE\Terrain;C:\Users\azer\workspace\ogre-sdk-1.11.5\include\OGRE\Volume;C:\Users\azer\workspace\Lua533\Lua533;C:\Users\azer\workspace\opencv_4_0_1\build\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\azer\workspace\ogre-sdk-1.11.5\include\OGRE;C:\Users\azer\workspace\ogre_imgui;C:\Users\azer\workspace\ogre_imgui\imgui;C:\Users\azer\workspace\ogre-sdk-1.11.5\include\OGRE\Bites;C:\Users\azer\workspace\ogre-sdk-1.11.5\include\OGRE\Overlay;C:\Users\azer\workspace\ogre-sdk-1.11.5\include\OGRE\RTShaderSystem;C:\Users\azer\workspace\ogre-sdk-1.11.5\include\OGRE\HLMS;C:\Users\azer\workspace\ogre-sdk-1.11.5\include\OGRE\MeshLodGenerator;C:\Users\azer\workspace\ogre-sdk-1.11.5\include\OGRE\Paging;C:\Users\azer\workspace\ogre-sdk-1.11.5\include\OGRE\Property;C:\Users\azer\workspace\ogre-sdk-1.11.5\include\OGRE\Terrain;C:\Users\azer\workspace\ogre-sdk-1.11.5\include\OGRE\Volume;C:\Users\azer\workspace\Lua533\Lua533;C:\Users\azer\workspace\opencv_4_0_1\build\include;C:\Users\azer\workspace\CGAL-4.13.1\include;C:\Users\azer\workspace\CGAL-4.13.1\auxiliary\gmp\include;C:\Users\azer\workspace\CGAL-4.13.1\bin\include;C:\Users\azer\workspace\boost_1_70_0;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:/Users/azer/workspace/ogre-sdk-1.11.5/lib;C:/Users/azer/workspace/ogre-sdk-1.11.5/lib/$(Configuration);C:\Users\azer\workspace\opencv_4_0_1\build\x64\vc15\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>C:\Users\azer\workspace\AnimationPak\Debug\OgreImgui.lib;C:\Users\azer\workspace\ogre-sdk-1.11.5\lib\OgreBites_d.lib;C:\Users\azer\workspace\ogre-sdk-1.11.5\lib\OgreHLMS_d.lib;C:\Users\azer\workspace\ogre-sdk-1.11.5\lib\OgreMeshLodGenerator_d.lib;C:\Users\azer\workspace\ogre-sdk-1.11.5\lib\OgreOverlay_d.lib;C:\Users\azer\workspace\ogre-sdk-1.11.5\lib\OgreProperty_d.lib;C:\Users\azer\workspace\ogre-sdk-1.11.5\lib\OgreRTShaderSystem_d.lib;C:\Users\azer\workspace\ogre-sdk-1.11.5\lib\OgreTerrain_d.lib;C:\Users\azer\workspace\ogre-sdk-1.11.5\lib\OgrePaging_d.lib;C:\Users\azer\workspace\ogre-sdk-1.11.5\lib\OgreVolume_d.lib;C:\Users\azer\workspace\ogre-sdk-1.11.5\lib\OgreMain_d.lib;C:\Users\azer\workspace\Lua533_vs2017\x64\Debug\Lua533.lib;C:\Users\azer\workspace\opencv_4_0_1\build\x64\vc15\lib\opencv_world401d.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:/Users/azer/workspace/ogre-sdk-1.11.5/lib;C:/Users/azer/workspace/ogre-sdk-1.11.5/lib/$(Configuration);C:\Users\azer\workspace\opencv_4_0_1\build\x64\vc15\lib;C:\Users\azer\workspace\CGAL-4.13.1\auxiliary\gmp\lib;C:\Users\azer\workspace\CGAL-4.13.1\bin\lib;C:\Users\azer\workspace\boost_1_70_0_\lib64-msvc-14.1;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>C:\Users\azer\workspace\AnimationPak\Debug\OgreImgui.lib;C:\Users\azer\workspace\ogre-sdk-1.11.5\lib\OgreBites_d.lib;C:\Users\azer\workspace\ogre-sdk-1.11.5\lib\OgreHLMS_d.lib;C:\Users\azer\workspace\ogre-sdk-1.11.5\lib\OgreMeshLodGenerator_d.lib;C:\Users\azer\workspace\ogre-sdk-1.11.5\lib\OgreOverlay_d.lib;C:\Users\azer\workspace\ogre-sdk-1.11.5\lib\OgreProperty_d.lib;C:\Users\azer\workspace\ogre-sdk-1.11.5\lib\OgreRTShaderSystem_d.lib;C:\Users\azer\workspace\ogre-sdk-1.11.5\lib\OgreTerrain_d.lib;C:\Users\azer\workspace\ogre-sdk-1.11.5\lib\OgrePaging_d.lib;C:\Users\azer\workspace\ogre-sdk-1.11.5\lib\OgreVolume_d.lib;C:\Users\azer\workspace\ogre-sdk-1.11.5\lib\OgreMain_d.lib;C:\Users\azer\workspace\Lua533_vs2017\x64\Debug\Lua533.lib;C:\Users\azer\workspace\opencv_4_0_1\build\x64\vc15\lib\opencv_world401d.lib;libgmp-10.lib;libmpfr-4.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -144,17 +144,17 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Users\azer\workspace\ogre-sdk-1.11.5\include\OGRE;C:\Users\azer\workspace\ogre_imgui;C:\Users\azer\workspace\ogre_imgui\imgui;C:\Users\azer\workspace\ogre-sdk-1.11.5\include\OGRE\Bites;C:\Users\azer\workspace\ogre-sdk-1.11.5\include\OGRE\Overlay;C:\Users\azer\workspace\ogre-sdk-1.11.5\include\OGRE\RTShaderSystem;C:\Users\azer\workspace\ogre-sdk-1.11.5\include\OGRE\HLMS;C:\Users\azer\workspace\ogre-sdk-1.11.5\include\OGRE\MeshLodGenerator;C:\Users\azer\workspace\ogre-sdk-1.11.5\include\OGRE\Paging;C:\Users\azer\workspace\ogre-sdk-1.11.5\include\OGRE\Property;C:\Users\azer\workspace\ogre-sdk-1.11.5\include\OGRE\Terrain;C:\Users\azer\workspace\ogre-sdk-1.11.5\include\OGRE\Volume;C:\Users\azer\workspace\Lua533\Lua533;C:\Users\azer\workspace\opencv_4_0_1\build\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\azer\workspace\ogre-sdk-1.11.5\include\OGRE;C:\Users\azer\workspace\ogre_imgui;C:\Users\azer\workspace\ogre_imgui\imgui;C:\Users\azer\workspace\ogre-sdk-1.11.5\include\OGRE\Bites;C:\Users\azer\workspace\ogre-sdk-1.11.5\include\OGRE\Overlay;C:\Users\azer\workspace\ogre-sdk-1.11.5\include\OGRE\RTShaderSystem;C:\Users\azer\workspace\ogre-sdk-1.11.5\include\OGRE\HLMS;C:\Users\azer\workspace\ogre-sdk-1.11.5\include\OGRE\MeshLodGenerator;C:\Users\azer\workspace\ogre-sdk-1.11.5\include\OGRE\Paging;C:\Users\azer\workspace\ogre-sdk-1.11.5\include\OGRE\Property;C:\Users\azer\workspace\ogre-sdk-1.11.5\include\OGRE\Terrain;C:\Users\azer\workspace\ogre-sdk-1.11.5\include\OGRE\Volume;C:\Users\azer\workspace\Lua533\Lua533;C:\Users\azer\workspace\opencv_4_0_1\build\include;C:\Users\azer\workspace\CGAL-4.13.1\include;C:\Users\azer\workspace\CGAL-4.13.1\auxiliary\gmp\include;C:\Users\azer\workspace\CGAL-4.13.1\bin\include;C:\Users\azer\workspace\boost_1_70_0;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:/Users/azer/workspace/ogre-sdk-1.11.5/lib;C:/Users/azer/workspace/ogre-sdk-1.11.5/lib/$(Configuration);C:\Users\azer\workspace\opencv_4_0_1\build\x64\vc15\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>C:\Users\azer\workspace\AnimationPak\Release\OgreImgui.lib;C:\Users\azer\workspace\ogre-sdk-1.11.5\lib\OgreBites.lib;C:\Users\azer\workspace\ogre-sdk-1.11.5\lib\OgreHLMS.lib;C:\Users\azer\workspace\ogre-sdk-1.11.5\lib\OgreMeshLodGenerator.lib;C:\Users\azer\workspace\ogre-sdk-1.11.5\lib\OgreOverlay.lib;C:\Users\azer\workspace\ogre-sdk-1.11.5\lib\OgreProperty.lib;C:\Users\azer\workspace\ogre-sdk-1.11.5\lib\OgreRTShaderSystem.lib;C:\Users\azer\workspace\ogre-sdk-1.11.5\lib\OgreTerrain.lib;C:\Users\azer\workspace\ogre-sdk-1.11.5\lib\OgrePaging.lib;C:\Users\azer\workspace\ogre-sdk-1.11.5\lib\OgreVolume.lib;C:\Users\azer\workspace\ogre-sdk-1.11.5\lib\OgreMain.lib;C:\Users\azer\workspace\Lua533_vs2017\x64\Release\Lua533.lib;C:\Users\azer\workspace\opencv_4_0_1\build\x64\vc15\lib\opencv_world401.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:/Users/azer/workspace/ogre-sdk-1.11.5/lib;C:/Users/azer/workspace/ogre-sdk-1.11.5/lib/$(Configuration);C:\Users\azer\workspace\opencv_4_0_1\build\x64\vc15\lib;C:\Users\azer\workspace\CGAL-4.13.1\auxiliary\gmp\lib;C:\Users\azer\workspace\CGAL-4.13.1\bin\lib;C:\Users\azer\workspace\boost_1_70_0_\lib64-msvc-14.1;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>C:\Users\azer\workspace\AnimationPak\Release\OgreImgui.lib;C:\Users\azer\workspace\ogre-sdk-1.11.5\lib\OgreBites.lib;C:\Users\azer\workspace\ogre-sdk-1.11.5\lib\OgreHLMS.lib;C:\Users\azer\workspace\ogre-sdk-1.11.5\lib\OgreMeshLodGenerator.lib;C:\Users\azer\workspace\ogre-sdk-1.11.5\lib\OgreOverlay.lib;C:\Users\azer\workspace\ogre-sdk-1.11.5\lib\OgreProperty.lib;C:\Users\azer\workspace\ogre-sdk-1.11.5\lib\OgreRTShaderSystem.lib;C:\Users\azer\workspace\ogre-sdk-1.11.5\lib\OgreTerrain.lib;C:\Users\azer\workspace\ogre-sdk-1.11.5\lib\OgrePaging.lib;C:\Users\azer\workspace\ogre-sdk-1.11.5\lib\OgreVolume.lib;C:\Users\azer\workspace\ogre-sdk-1.11.5\lib\OgreMain.lib;C:\Users\azer\workspace\Lua533_vs2017\x64\Release\Lua533.lib;C:\Users\azer\workspace\opencv_4_0_1\build\x64\vc15\lib\opencv_world401.lib;libgmp-10.lib;libmpfr-4.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -178,6 +178,7 @@
     <ClInclude Include="StuffWorker.h" />
     <ClInclude Include="SystemParams.h" />
     <ClInclude Include="targetver.h" />
+    <ClInclude Include="TetWrapper.h" />
     <ClInclude Include="Tubes.h" />
     <ClInclude Include="UtilityFunctions.h" />
   </ItemGroup>
@@ -201,6 +202,7 @@
     </ClCompile>
     <ClCompile Include="StuffWorker.cpp" />
     <ClCompile Include="SystemParams.cpp" />
+    <ClCompile Include="TetWrapper.cpp" />
     <ClCompile Include="Tubes.cpp" />
     <ClCompile Include="UtilityFunctions.cpp" />
   </ItemGroup>

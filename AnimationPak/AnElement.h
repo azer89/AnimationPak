@@ -15,6 +15,8 @@
 #include <OgreMesh.h>
 #include <OgreSceneManager.h>
 
+#include "DynamicLines.h"
+
 class AnElement
 {
 public:
@@ -26,7 +28,7 @@ public:
 	void CreateHelix();
 	void RandomizeLayerSize();
 
-	void InitMesh(Ogre::SceneManager* sceneMgr, 
+	void InitMeshOgre3D(Ogre::SceneManager* sceneMgr,
 		Ogre::SceneNode* sceneNode,
 		const Ogre::String& name,
 		const Ogre::String& materialName);
@@ -37,7 +39,7 @@ public:
 
 	void SolveForSprings();
 
-	void UpdateMesh2();
+	void UpdateMeshOgre3D();
 	//void UpdateMesh();
 
 	void ScaleXY(float scVal);
@@ -49,6 +51,10 @@ public:
 	A2DVector ClosestPtOnALayer(A2DVector pt, int layer_idx);
 
 	void Grow(float growth_scale_iter, float dt);
+
+	void UpdateClosestPtsDisplayOgre3D();
+	void UpdatePerLayerBoundaryOgre3D();
+	void UpdateSpringDisplayOgre3D();
 
 
 public:
@@ -68,6 +74,11 @@ public:
 	Ogre::MaterialPtr   _material;
 	//bool _uniqueMaterial;
 	Ogre::ManualObject* _tubeObject;
+
+	DynamicLines* _spring_lines;
+	Ogre::SceneNode* _springNode;
+	DynamicLines* _debug_lines;
+	Ogre::SceneNode* _debugNode;
 
 	//std::vector<A3DVector>       _skin;       // boundary points. temporary data, always updated every step
 

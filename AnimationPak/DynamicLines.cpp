@@ -10,13 +10,25 @@ enum {
 	TEXCOORD_BINDING
 };
 
-DynamicLines::DynamicLines(OperationType opType, std::string matName)
+DynamicLines::DynamicLines(Ogre::MaterialPtr material, OperationType opType)
 {
 	initialize(opType, false);
 
 	//setMaterial("BaseWhiteNoLighting");
 	// "Examples/BlueMat"
-	Ogre::MaterialPtr material = Ogre::MaterialManager::getSingleton().getByName(matName);
+	//Ogre::MaterialPtr material = Ogre::MaterialManager::getSingleton().getByName(matName);
+
+	/*if (randomMatColor)
+	{
+		material = material->clone(matName)
+
+		float rVal = (float)(rand() % 255) / 255.0f;
+		float gVal = (float)(rand() % 255) / 255.0f;
+		float bVal = (float)(rand() % 255) / 255.0f;
+
+		material->getTechnique(0)->getPass(0)->setDiffuse(Ogre::ColourValue(rVal, gVal, bVal, 1));
+	}*/
+
 	setMaterial(material);
 
 	mDirty = true;

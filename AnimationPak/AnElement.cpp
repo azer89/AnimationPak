@@ -141,7 +141,7 @@ void AnElement::AdjustEnds(A2DVector startPt2D, A2DVector endPt2D, bool lockEnds
 }
 
 // visualization
-void AnElement::InitMesh(Ogre::SceneManager* sceneMgr,
+void AnElement::InitMeshOgre3D(Ogre::SceneManager* sceneMgr,
 	Ogre::SceneNode* sceneNode,
 	const Ogre::String& name,
 	const Ogre::String& materialName)
@@ -151,21 +151,99 @@ void AnElement::InitMesh(Ogre::SceneManager* sceneMgr,
 
 	if (_tubeObject) return;
 
-	_material = Ogre::MaterialManager::getSingleton().getByName(materialName);
+	float rVal = (float)(rand() % 255) / 255.0f;
+	float gVal = (float)(rand() % 255) / 255.0f;
+	float bVal = (float)(rand() % 255) / 255.0f;
+
+	_material = Ogre::MaterialManager::getSingleton().getByName(materialName)->clone(materialName + std::to_string(_self_idx));
+	_material->getTechnique(0)->getPass(0)->setDiffuse(Ogre::ColourValue(rVal, gVal, bVal, 1));
+
+	// clone material
+	//_material = Ogre::MaterialManager::getSingleton().getByName(materialName)->clone(materialName + std::to_string(_self_idx));
+		
 
 	_tubeObject = _sceneMgr->createManualObject(name);
 	_tubeObject->setDynamic(true);
 
-	UpdateMesh2();
+	UpdateMeshOgre3D();
 
 	if (_sceneNode)
 		_sceneNode->attachObject(_tubeObject);
 	else
 		std::cout << "_sceneNode is null\n";
+
+	// material
+	Ogre::MaterialPtr line_material = Ogre::MaterialManager::getSingleton().getByName("Examples/RedMat")->clone("ElementLines" + std::to_string(_self_idx));
+	
+	line_material->getTechnique(0)->getPass(0)->setDiffuse(Ogre::ColourValue(rVal, gVal, bVal, 1));
+	
+
+	// Line drawing
+	//In the initialization somewhere, create the initial lines object :
+	_debug_lines = new DynamicLines(line_material, Ogre::RenderOperation::OT_LINE_LIST);
+	_debug_lines->update();
+	_debugNode = _sceneMgr->getRootSceneNode()->createChildSceneNode("debug_lines" + std::to_string(_self_idx));
+	_debugNode->attachObject(_debug_lines);
+
+	_spring_lines = new DynamicLines(line_material, Ogre::RenderOperation::OT_LINE_LIST);
+
+	// springs
+	//{
+	//for (int i = 0; i < _sWorker->_element_list.size(); i++)
+	//{
+	//AnElement elem = _sWorker->_element_list[i];
+	for (int a = 0; a < _triEdges.size(); a++)
+	{
+		AnIndexedLine ln = _triEdges[a];
+
+		if (!ln._isLayer2Layer) { continue; }
+
+		A3DVector pt1 = _massList[ln._index0]._pos;
+		A3DVector pt2 = _massList[ln._index1]._pos;
+		_spring_lines->addPoint(Ogre::Vector3(pt1._x, pt1._y, pt1._z));
+		_spring_lines->addPoint(Ogre::Vector3(pt2._x, pt2._y, pt2._z));
+	}
+	//}
+	//}
+
+	//In the initialization somewhere, create the initial lines object :
+
+	//for (int i = 0; i < _spring_points.size(); i++) {
+	//	_spring_lines->addPoint(_spring_points[i]);
+	//}
+
+	_spring_lines->update();
+	_springNode = _sceneMgr->getRootSceneNode()->createChildSceneNode("SpringNode" + std::to_string(_self_idx));
+	_springNode->attachObject(_spring_lines);
 }
 
+void AnElement::UpdateSpringDisplayOgre3D()
+{
+	if (!SystemParams::_show_time_springs) { return; }
+
+	int idx = 0;
+	//for (int i = 0; i < _sWorker->_element_list.size(); i++)
+	//{
+		//AnElement elem = _sWorker->_element_list[i];
+		for (int a = 0; a < _triEdges.size(); a++)
+		{
+			AnIndexedLine ln = _triEdges[a];
+
+			if (!ln._isLayer2Layer) { continue; }
+
+			A3DVector pt1 = _massList[ln._index0]._pos;
+			A3DVector pt2 = _massList[ln._index1]._pos;
+			_spring_lines->setPoint(idx++, Ogre::Vector3(pt1._x, pt1._y, pt1._z));
+			_spring_lines->setPoint(idx++, Ogre::Vector3(pt2._x, pt2._y, pt2._z));
+		}
+	//}
+
+	_spring_lines->update();
+}
+
+
 // visualization
-void AnElement::UpdateMesh2()
+void AnElement::UpdateMeshOgre3D()
 {
 	if (_tubeObject->getDynamic() == true && _tubeObject->getNumSections() > 0)
 		_tubeObject->beginUpdate(0);
@@ -563,9 +641,18 @@ void AnElement::ResetSpringRestLengths()
 {
 	for (int a = 0; a < _triEdges.size(); a++)
 	{
-		A3DVector p1 = _massList[_triEdges[a]._index0]._pos;
-		A3DVector p2 = _massList[_triEdges[a]._index1]._pos;
-		_triEdges[a].SetActualOriDistance(p1.Distance(p2));
+		/*if(_triEdges[a]._isLayer2Layer)
+		{
+			A2DVector p1 = _massList[_triEdges[a]._index0]._pos;
+			A2DVector p2 = _massList[_triEdges[a]._index1]._pos;
+			_triEdges[a].SetActualOriDistance(p1.Distance(p2));
+		}
+		else*/
+		{
+			A2DVector p1 = _massList[_triEdges[a]._index0]._pos.GetA2DVector();
+			A2DVector p2 = _massList[_triEdges[a]._index1]._pos.GetA2DVector();
+			_triEdges[a].SetActualOriDistance(p1.Distance(p2));
+		}
 	}
 }
 
@@ -594,7 +681,7 @@ void AnElement::Grow(float growth_scale_iter, float dt)
 {
 	for (unsigned int a = 0; a < _triEdges.size(); a++)
 	{
-		if (!_triEdges[a]._isLayer2Layer)
+		//if (!_triEdges[a]._isLayer2Layer)
 		{
 			_triEdges[a].MakeLonger(/* _shrinking_state * */ growth_scale_iter, dt);
 		}
@@ -605,10 +692,10 @@ void AnElement::SolveForSprings()
 {
 	//float k_edge = SystemParams::_k_edge;
 
-	A3DVector pt0;
-	A3DVector pt1;
-	A3DVector dir;
-	A3DVector eForce;
+	A2DVector pt0;
+	A2DVector pt1;
+	A2DVector dir;
+	A2DVector eForce;
 	float dist = 0;
 	float diff = 0;
 	float k = 0;
@@ -618,27 +705,35 @@ void AnElement::SolveForSprings()
 		int idx0 = _triEdges[a]._index0;
 		int idx1 = _triEdges[a]._index1;
 
-		pt0 = _massList[idx0]._pos;
-		pt1 = _massList[idx1]._pos;
-
-		
-
-		if (_triEdges[a]._isLayer2Layer)
-		{
+		pt0 = _massList[idx0]._pos.GetA2DVector();
+		pt1 = _massList[idx1]._pos.GetA2DVector();
+				
+		//if (_triEdges[a]._isLayer2Layer)
+		/*{
 			k = SystemParams::_k_time_edge;
 			dist = pt0.Distance(pt1);
 			dir = pt0.DirectionTo(pt1).Norm();
 			diff = dist - _triEdges[a]._dist;
+		}*/
+		//else
+
+		if (_triEdges[a]._isLayer2Layer)
+		{
+			k = SystemParams::_k_time_edge;
 		}
 		else
 		{
 			k = SystemParams::_k_edge;
-			dir = pt0.DirectionTo(pt1);
-			dir._z = 0;
-			dir = dir.Norm();
-			dist = pt0.GetA2DVector().Distance(pt1.GetA2DVector());
-			diff = dist - _triEdges[a]._dist;
 		}
+
+		//{
+			
+			dir = pt0.DirectionTo(pt1);
+			//dir._z = 0;
+			dir = dir.Norm();
+			dist = pt0.Distance(pt1);
+			diff = dist - _triEdges[a]._dist;
+		//}
 		
 		/*float signVal = 1;
 		if (diff < 0) { signVal = -1; }
@@ -655,8 +750,72 @@ void AnElement::SolveForSprings()
 		}*/
 		if (!eForce.IsBad())
 		{
-			_massList[idx0]._edgeForce += eForce;	// _massList[idx0]._distToBoundary;
-			_massList[idx1]._edgeForce -= eForce;	// _massList[idx1]._distToBoundary;
+			_massList[idx0]._edgeForce += A3DVector(eForce.x, eForce.y, 0);	// _massList[idx0]._distToBoundary;
+			_massList[idx1]._edgeForce -= A3DVector(eForce.x, eForce.y, 0);	// _massList[idx1]._distToBoundary;
 		}
 	}
+}
+
+void AnElement::UpdatePerLayerBoundaryOgre3D()
+{
+	//_debug_points.clear();
+	_debug_lines->clear();
+
+	float zOffset = -(SystemParams::_upscaleFactor / (SystemParams::_num_layer - 1));
+	//int elem_sz = _sWorker->_element_list.size();
+	//for (int a = 0; a < elem_sz; a++) // iterate element
+	//{
+	for (int b = 0; b < SystemParams::_num_layer; b++) // iterate layer
+	{
+		float zPos = b * zOffset;
+
+		int boundary_sz = _per_layer_boundary[b].size();
+		for (int c = 0; c < boundary_sz; c++) // iterate point
+		{
+			if (c == 0)
+			{
+				A2DVector pt1 = _per_layer_boundary[b][boundary_sz - 1];
+				A2DVector pt2 = _per_layer_boundary[b][c];
+				_debug_lines->addPoint(Ogre::Vector3(pt1.x, pt1.y, zPos));
+				_debug_lines->addPoint(Ogre::Vector3(pt2.x, pt2.y, zPos));
+
+				continue;
+			}
+
+			A2DVector pt1 = _per_layer_boundary[b][c - 1];
+			A2DVector pt2 = _per_layer_boundary[b][c];
+			_debug_lines->addPoint(Ogre::Vector3(pt1.x, pt1.y, zPos));
+			_debug_lines->addPoint(Ogre::Vector3(pt2.x, pt2.y, zPos));
+		}
+
+	}
+	//}
+	_debug_lines->update();
+}
+
+void AnElement::UpdateClosestPtsDisplayOgre3D()
+{
+	//_debug_points.clear();
+	_debug_lines->clear();
+
+	for (int b = 0; b < _massList.size(); b++)
+	{
+		for (int c = 0; c < _massList[b]._closestPt_fill_sz; c++)
+		{
+			A3DVector pt1 = _massList[b]._pos;
+			A2DVector pt22D = _massList[b]._closestPoints[c];
+			A3DVector pt2(pt22D.x, pt22D.y, pt1._z);
+
+			_debug_lines->addPoint(Ogre::Vector3(pt1._x, pt1._y, pt1._z));
+			_debug_lines->addPoint(Ogre::Vector3(pt2._x, pt2._y, pt2._z));
+		}
+	}
+
+
+	//for (int i = 0; i < _debug_points.size(); i++) 
+	//{
+	//	_debug_lines->addPoint(_debug_points[i]);
+	//}
+
+	_debug_lines->update();
 }

@@ -199,7 +199,7 @@ void AMass::Solve(const std::vector<A2DVector>& container)
 	A2DVector dir;
 	for (int a = 0; a < _closestPt_fill_sz; a++)
 	{
-		dir = _closestPoints[a].DirectionTo(_pos.GetA2DVector()); // direction, normalized
+		dir = _closestPoints[a].DirectionTo(_pos.GetA2DVector()); // direction
 		float dist = dir.Length(); // distance
 		sumR += (dir.Norm() / (SystemParams::_repulsion_soft_factor + std::pow(dist, 2)));
 	}

@@ -2,6 +2,7 @@
 #include "Display.h"
 
 #include "StuffWorker.h"
+#include "ContainerWorker.h"
 
 #include "DynamicLines.h" // Ogre tutorial
 #include "Tubes.h"		  // Ogre tutorial
@@ -22,16 +23,16 @@ Display::Display()  : OgreBites::ApplicationContext("AnimationPak"),
 	_cameraActivated(false), 
 	_sWorker(0),
 	_root(0),
-    _scnMgr(0),
-	_maxDebugLines(500),  // TODO
-	_debug_lines(0),
-	_debugNode(0),
-	_spring_lines(0),
-	_springNode(0)
+    _scnMgr(0)
+	//_maxDebugLines(500),  // TODO
+	//_debug_lines(0),
+	//_debugNode(0),
+	//_spring_lines(0),
+	//_springNode(0)
 
 {
-	_debug_points.clear();
-	_spring_points.clear();
+	//_debug_points.clear();
+	//_spring_points.clear();
 }
 
 Display::~Display()
@@ -39,8 +40,8 @@ Display::~Display()
 	// TODO
 	//if (_debug_elem) { delete _debug_elem; } // still can't create proper destructor ???
 	if (_cameraMan) { delete _cameraMan; }
-	if (_root) { _root = 0; }
-	if (_scnMgr) { _scnMgr = 0; }
+	if (_root)      { _root = 0; }
+	if (_scnMgr)    { _scnMgr = 0; }
 
 	// TODO
 	//if (_debug_lines) {}
@@ -79,16 +80,15 @@ bool Display::frameStarted(const Ogre::FrameEvent& evt)
 	_sWorker->Update();
 	_sWorker->Reset();
 	_sWorker->Solve();
-	//_sWorker->Simulate();	
-	//_sWorker->ImposeConstraints();
+	_sWorker->Simulate();	
+	_sWorker->ImposeConstraints();
 
-	_sWorker->UpdateViz();
-	UpdateSpringDisplay(); // init CreateSpringLines()
+	_sWorker->UpdateOgre3D();
+	
+	//UpdateSpringDisplay(); // init CreateSpringLines()
 	//UpdatePerLayerBoundary();
-	UpdateClosestPtsDisplay();
-
-
-
+	//UpdateClosestPtsDisplay();
+	
 	//ImGui::ShowDemoWindow();
 	//ImGui::ShowDemoWindow();
 	// Draw imgui
@@ -103,9 +103,7 @@ bool Display::frameStarted(const Ogre::FrameEvent& evt)
 	ImGui::Begin("AnimationPak", p_open, window_flags);
 
 	if (ImGui::Button("Save Frames")) { _sWorker->SaveFrames(); }
-
 	//if (ImGui::Button("Button B")) {}
-
 	//if (ImGui::Button("Button C")) {}
 
 	ImGui::Text("Press C to activate or deactivate camera");
@@ -116,154 +114,19 @@ bool Display::frameStarted(const Ogre::FrameEvent& evt)
 	ImGui::Text((std::to_string(camPos.y)).c_str());
 	ImGui::Text((std::to_string(camPos.z)).c_str());
 	//ImGui::Text( ("Camera position = " + std::to_string(camPos.x) + ", " + std::to_string(camPos.y) + ", " + std::to_string(camPos.z)).c_str()  );
-
 	// //Ogre::Vector3 camPos = _cameraNode->getPosition();
-
-
-
+	
 	ImGui::End();
 	//ImGui::Render();
 
 	return true;
 }
 
-void Display::CreateCubeFromLines()
-{
-	std::deque<Ogre::Vector3> somePoints;
-
-	// cube
-	{
-		// front
-		somePoints.push_back(Ogre::Vector3(0.0f, 0.0f, 0.0f));
-		somePoints.push_back(Ogre::Vector3(500.0f, 0.0f, 0.0f));
-
-		somePoints.push_back(Ogre::Vector3(500.0f, 0.0f, 0.0f));
-		somePoints.push_back(Ogre::Vector3(500.0f, 500.0f, 0.0f));
-
-		somePoints.push_back(Ogre::Vector3(500.0f, 500.0f, 0.0f));
-		somePoints.push_back(Ogre::Vector3(0.0f, 500.0f, 0.0f));
-
-		somePoints.push_back(Ogre::Vector3(0.0f, 500.0f, 0.0f));
-		somePoints.push_back(Ogre::Vector3(0.0f, 0.0f, 0.0f));
-
-		// back
-		somePoints.push_back(Ogre::Vector3(0.0f, 0.0f, -500.0f));
-		somePoints.push_back(Ogre::Vector3(500.0f, 0.0f, -500.0f));
-
-		somePoints.push_back(Ogre::Vector3(500.0f, 0.0f, -500.0f));
-		somePoints.push_back(Ogre::Vector3(500.0f, 500.0f, -500.0f));
-
-		somePoints.push_back(Ogre::Vector3(500.0f, 500.0f, -500.0f));
-		somePoints.push_back(Ogre::Vector3(0.0f, 500.0f, -500.0f));
-
-		somePoints.push_back(Ogre::Vector3(0.0f, 500.0f, -500.0f));
-		somePoints.push_back(Ogre::Vector3(0.0f, 0.0f, -500.0f));
-
-		// left
-		somePoints.push_back(Ogre::Vector3(0.0f, 500.0f, 0.0f));
-		somePoints.push_back(Ogre::Vector3(0.0f, 500.0f, -500.0f));
-
-		somePoints.push_back(Ogre::Vector3(0.0f, 0.0f, 0.0f));
-		somePoints.push_back(Ogre::Vector3(0.0f, 0.0f, -500.0f));
-
-		// right
-		somePoints.push_back(Ogre::Vector3(500.0f, 500.0f, 0.0f));
-		somePoints.push_back(Ogre::Vector3(500.0f, 500.0f, -500.0f));
-
-		somePoints.push_back(Ogre::Vector3(500.0f, 0.0f, 0.0f));
-		somePoints.push_back(Ogre::Vector3(500.0f, 0.0f, -500.0f));
-	}
-
-	//In the initialization somewhere, create the initial lines object :
-	DynamicLines * cube_lines = new DynamicLines(Ogre::RenderOperation::OT_LINE_LIST);
-	for (int i = 0; i<somePoints.size(); i++) {
-		cube_lines->addPoint(somePoints[i]);
-	}
-
-	cube_lines->update();
-	Ogre::SceneNode *linesNode = _scnMgr->getRootSceneNode()->createChildSceneNode("lines");
-	linesNode->attachObject(cube_lines);
-}
-
-void Display::UpdatePerLayerBoundary()
-{
-	_debug_points.clear();
-	_debug_lines->clear();
-
-	float zOffset = -(SystemParams::_upscaleFactor / (SystemParams::_num_layer - 1));
-	int elem_sz = _sWorker->_element_list.size();
-	for (int a = 0; a < elem_sz; a++) // iterate element
-	{
-		for (int b = 0; b < SystemParams::_num_layer; b++) // iterate layer
-		{			
-			float zPos = b * zOffset;
-
-			int boundary_sz = _sWorker->_element_list[a]._per_layer_boundary[b].size();
-			for (int c = 0; c < boundary_sz; c++) // iterate point
-			{
-				if (c == 0)
-				{
-					A2DVector pt1 = _sWorker->_element_list[a]._per_layer_boundary[b][boundary_sz - 1];
-					A2DVector pt2 = _sWorker->_element_list[a]._per_layer_boundary[b][c];
-					_debug_lines->addPoint(Ogre::Vector3(pt1.x, pt1.y, zPos));
-					_debug_lines->addPoint(Ogre::Vector3(pt2.x, pt2.y, zPos));
-
-					continue;
-				}
-
-				A2DVector pt1 = _sWorker->_element_list[a]._per_layer_boundary[b][c - 1];
-				A2DVector pt2 = _sWorker->_element_list[a]._per_layer_boundary[b][c];
-				_debug_lines->addPoint(Ogre::Vector3(pt1.x, pt1.y, zPos));
-				_debug_lines->addPoint(Ogre::Vector3(pt2.x, pt2.y, zPos));
-			}
-
-		}
-	}
-	_debug_lines->update();
-}
-
-void Display::UpdateClosestPtsDisplay()
-{
-	_debug_points.clear();
-	_debug_lines->clear();
-
-	// here
-	for (int a = 0; a < _sWorker->_element_list.size(); a++)
-	{
-		/*for (int b = 0; b < _sWorker->_element_list[a]._triEdges.size(); b++)
-		{
-			int idx1 = _sWorker->_element_list[a]._triEdges[b]._index0;
-			int idx2 = _sWorker->_element_list[a]._triEdges[b]._index1;
-
-			A3DVector pt1 = _sWorker->_element_list[a]._massList[idx1]._pos;
-			A3DVector pt2 = _sWorker->_element_list[a]._massList[idx2]._pos;
-
-			_debug_points.push_back(Ogre::Vector3(pt1._x, pt1._y, pt1._z) );
-			_debug_points.push_back(Ogre::Vector3(pt2._x, pt2._y, pt2._z));
-		}*/
-
-		for (int b = 0; b < _sWorker->_element_list[a]._massList.size(); b++)
-		{
-			for (int c = 0; c < _sWorker->_element_list[a]._massList[b]._closestPt_fill_sz; c++)
-			{
-				A3DVector pt1 = _sWorker->_element_list[a]._massList[b]._pos;
-				A2DVector pt22D = _sWorker->_element_list[a]._massList[b]._closestPoints[c];
-				A3DVector pt2(pt22D.x, pt22D.y, pt1._z);
-
-				_debug_points.push_back(Ogre::Vector3(pt1._x, pt1._y, pt1._z));
-				_debug_points.push_back(Ogre::Vector3(pt2._x, pt2._y, pt2._z));
-			}
-		}
-	}
+//void Display::CreateCubeFromLines()
+//{	
+//}
 
 
-	for (int i = 0; i < _debug_points.size(); i++) 
-	{
-		_debug_lines->addPoint(_debug_points[i]);
-	}
-
-	_debug_lines->update();
-}
 
 
 // setup OGRE
@@ -328,18 +191,7 @@ void Display::setup()
 	// what is this???
 	//Ogre::RenderSystemList::const_iterator renderers = mRoot->getAvailableRenderers().begin();
 
-	
 
-
-	// debug ==================
-
-	//In the initialization somewhere, create the initial lines object :
-	_debug_lines = new DynamicLines(Ogre::RenderOperation::OT_LINE_LIST, "Examples/RedMat");
-	_debug_lines->update();
-	_debugNode = _scnMgr->getRootSceneNode()->createChildSceneNode("debug_lines");
-	_debugNode->attachObject(_debug_lines);
-
-	// debug ==================
 	
 	//mCameraMan->manualStop();
 	/*
@@ -354,9 +206,10 @@ void Display::setup()
 
 	_sWorker = new StuffWorker;
 	_sWorker->InitElements(_scnMgr);
+	_sWorker->_containerWorker->CreateOgreContainer(_scnMgr);
 
-	CreateCubeFromLines();
-	CreateSpringLines(); // if you want to display springs!!!
+	//CreateCubeFromLines();
+	//CreateSpringLines(); // if you want to display springs!!!
 	
 	
 	// add points
@@ -404,63 +257,6 @@ void Display::setup()
 	
 }
 
-void Display::CreateSpringLines()
-{
-	if (!SystemParams::_show_time_springs) { return; }
-
-	// springs
-	{
-		for (int i = 0; i < _sWorker->_element_list.size(); i++)
-		{
-			AnElement elem = _sWorker->_element_list[i];
-			for (int a = 0; a < elem._triEdges.size(); a++)
-			{
-				AnIndexedLine ln = elem._triEdges[a];
-
-				if (ln._isLayer2Layer) { continue; }
-
-				A3DVector pt1 = elem._massList[ln._index0]._pos;
-				A3DVector pt2 = elem._massList[ln._index1]._pos;
-				_spring_points.push_back(Ogre::Vector3(pt1._x, pt1._y, pt1._z));
-				_spring_points.push_back(Ogre::Vector3(pt2._x, pt2._y, pt2._z));
-			}
-		}
-	}
-
-	//In the initialization somewhere, create the initial lines object :
-	_spring_lines = new DynamicLines(Ogre::RenderOperation::OT_LINE_LIST);
-	for (int i = 0; i < _spring_points.size(); i++) {
-		_spring_lines->addPoint(_spring_points[i]);
-	}
-
-	_spring_lines->update();
-	_springNode = _scnMgr->getRootSceneNode()->createChildSceneNode("SpringNode");
-	_springNode->attachObject(_spring_lines);
-}
-
-void Display::UpdateSpringDisplay()
-{
-	if (!SystemParams::_show_time_springs) { return; }
-
-	int idx = 0;
-	for (int i = 0; i < _sWorker->_element_list.size(); i++)
-	{
-		AnElement elem = _sWorker->_element_list[i];
-		for (int a = 0; a < elem._triEdges.size(); a++)
-		{
-			AnIndexedLine ln = elem._triEdges[a];
-
-			if (ln._isLayer2Layer) { continue; }
-
-			A3DVector pt1 = elem._massList[ln._index0]._pos;
-			A3DVector pt2 = elem._massList[ln._index1]._pos;
-			_spring_lines->setPoint(idx++, Ogre::Vector3(pt1._x, pt1._y, pt1._z));
-			_spring_lines->setPoint(idx++, Ogre::Vector3(pt2._x, pt2._y, pt2._z));
-		}
-	}
-
-	_spring_lines->update();
-}
 
 
 bool Display::keyPressed(const OgreBites::KeyboardEvent& evt)

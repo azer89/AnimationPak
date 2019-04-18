@@ -24,7 +24,7 @@ public:
 	void Solve();            // calculate forces
 	void Simulate();     // (non-velocity verlet) iterate the masses by the change in time	
 	void ImposeConstraints();
-	void UpdateViz();
+	void UpdateOgre3D();
 
 	void SaveFrames();
 

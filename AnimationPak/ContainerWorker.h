@@ -4,6 +4,10 @@
 #include "A2DVector.h"
 #include "A3DVector.h"
 
+// ogre
+
+#include <OgreSceneManager.h>
+
 class ContainerWorker
 {
 public:
@@ -11,6 +15,8 @@ public:
 	~ContainerWorker();
 
 	void LoadContainer();
+
+	void CreateOgreContainer(Ogre::SceneManager* scnMgr);
 
 	std::vector<A2DVector> _2d_container;
 };

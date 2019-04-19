@@ -42,6 +42,12 @@ public:
 	void UpdateMeshOgre3D();
 	//void UpdateMesh();
 
+	void Tetrahedralization();
+	void CreatePoints(std::vector<A2DVector> ornamentBoundary, // called from Tetrahedralization()
+						float img_length,
+						std::vector<A2DVector>& randomPoints,
+						int& boundaryPointNum);
+
 	void ScaleXY(float scVal);
 	void TranslateXY(float x, float y);
 	void AdjustEnds(A2DVector startPt2D, A2DVector endPt2D, bool lockEnds = true);

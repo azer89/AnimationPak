@@ -158,6 +158,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="A2DRectangle.h" />
     <ClInclude Include="A2DSquare.h" />
     <ClInclude Include="A2DVector.h" />
     <ClInclude Include="A3DVector.h" />
@@ -174,6 +175,7 @@
     <ClInclude Include="LuaScript.h" />
     <ClInclude Include="MyColor.h" />
     <ClInclude Include="OpenCVWrapper.h" />
+    <ClInclude Include="PoissonGenerator.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="StuffWorker.h" />
     <ClInclude Include="SystemParams.h" />

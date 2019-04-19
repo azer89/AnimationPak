@@ -23,3 +23,22 @@ TetWrapper::~TetWrapper()
 {
 
 }
+
+void TetWrapper::GenerateTet(std::vector<A3DVector> input_points)
+{
+	Delaunay T;
+
+	for (int a = 0; a < input_points.size(); a++)
+	{
+		T.insert(Point(input_points[a]._x, input_points[a]._y, input_points[a]._z));
+	}
+
+	Delaunay::Finite_vertices_iterator vit;
+	for (vit = T.finite_vertices_begin(); vit != T.finite_vertices_end(); ++vit)
+	{
+		//if (T.degree(vit) == 6)
+		//	vit->info() = CGAL::RED;
+	}
+		
+
+}

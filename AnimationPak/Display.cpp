@@ -80,7 +80,7 @@ bool Display::frameStarted(const Ogre::FrameEvent& evt)
 	_sWorker->Update();
 	_sWorker->Reset();
 	_sWorker->Solve();
-	_sWorker->Simulate();	
+	//_sWorker->Simulate();	
 	_sWorker->ImposeConstraints();
 
 	_sWorker->UpdateOgre3D();

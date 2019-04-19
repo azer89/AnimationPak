@@ -84,6 +84,12 @@
     <ClInclude Include="TetWrapper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="A2DRectangle.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PoissonGenerator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">

@@ -1,6 +1,10 @@
 
 #include "AnElement.h"
 #include "SystemParams.h"
+#include "A2DRectangle.h"
+#include "UtilityFunctions.h"
+
+#include "PoissonGenerator.h"
 
 #include <OgreManualObject.h>
 #include <OgreMaterialManager.h>
@@ -12,7 +16,7 @@
 #include <OgreHardwareIndexBuffer.h>
 #include <OgreSubMesh.h>
 
-#include "UtilityFunctions.h"
+
 
 
 AnElement::AnElement()
@@ -140,6 +144,110 @@ void AnElement::AdjustEnds(A2DVector startPt2D, A2DVector endPt2D, bool lockEnds
 	ResetSpringRestLengths();
 }
 
+void AnElement::Tetrahedralization()
+{
+	/*
+	center = 
+	star_points.push_back(A3DVector(250, 250, 0));
+	star_points.push_back(A3DVector(0, 193, 0));
+	star_points.push_back(A3DVector(172, 168, 0));
+	star_points.push_back(A3DVector(250, 12, 0));
+	star_points.push_back(A3DVector(327, 168, 0));
+	star_points.push_back(A3DVector(500, 193, 0));
+	star_points.push_back(A3DVector(375, 315, 0));
+	star_points.push_back(A3DVector(404, 487, 0));
+	star_points.push_back(A3DVector(250, 406, 0));
+	star_points.push_back(A3DVector(95, 487, 0));
+	star_points.push_back(A3DVector(125, 315, 0));
+	*/
+
+	std::vector<A2DVector> star_points_2d;
+	//star_points.push_back(A3DVector(250, 250, 0));
+	star_points_2d.push_back(A2DVector(0, 193));
+	star_points_2d.push_back(A2DVector(172, 168));
+	star_points_2d.push_back(A2DVector(250, 12));
+	star_points_2d.push_back(A2DVector(327, 168));
+	star_points_2d.push_back(A2DVector(500, 193));
+	star_points_2d.push_back(A2DVector(375, 315));
+	star_points_2d.push_back(A2DVector(404, 487));
+	star_points_2d.push_back(A2DVector(250, 406));
+	star_points_2d.push_back(A2DVector(95, 487));
+	star_points_2d.push_back(A2DVector(125, 315));
+
+
+	A2DRectangle bb = UtilityFunctions::GetBoundingBox(star_points_2d);
+	float img_length = bb.witdh;
+	if (bb.height > bb.witdh) { img_length = bb.height; }
+	A2DVector centerPt = bb.GetCenter();
+
+	// moving to new center
+	img_length += 5.0f; // triangulation error without this ?
+	A2DVector newCenter = A2DVector((img_length / 2.0f), (img_length / 2.0f));
+	std::vector<A2DVector> myOffsetBoundary = UtilityFunctions::MovePoly(myOffsetBoundary, centerPt, newCenter);          // moveee
+	//unionBoundary = UtilityFunctions::MovePoly(unionBoundary, centerPt, newCenter + centerOffset); // moveee
+	/*for (int a = 0; a < arts.size(); a++)                                                          // moveee
+	{
+		arts[a] = UtilityFunctions::MovePoly(arts[a], centerPt, newCenter + centerOffset);
+	}*/     // moveee
+}
+
+void AnElement::CreatePoints(std::vector<A2DVector> ornamentBoundary,
+							float img_length,
+							std::vector<A2DVector>& randomPoints,
+							int& boundaryPointNum)
+{
+	// how many points
+	float fVal = img_length / SystemParams::_upscaleFactor;
+	fVal *= fVal;
+	int numPoints = SystemParams::_sampling_density * fVal;
+	float resamplingGap = std::sqrt(float(numPoints)) / float(numPoints) * img_length;
+
+	std::vector<A2DVector> resampledBoundary;
+
+	ornamentBoundary.push_back(ornamentBoundary[0]); // closed sampling
+	float rGap = (float)(resamplingGap * SystemParams::_boundary_sampling_factor);
+	UtilityFunctions::UniformResample(ornamentBoundary, resampledBoundary, rGap);
+	// bug !!! nasty code
+	if (resampledBoundary[resampledBoundary.size() - 1].Distance(resampledBoundary[0]) < rGap * 0.5) // r gap
+	{
+		resampledBoundary.pop_back();
+	}
+
+
+	PoissonGenerator::DefaultPRNG PRNG;
+	if (SystemParams::_seed > 0)
+	{
+		PRNG = PoissonGenerator::DefaultPRNG(SystemParams::_seed);
+	}
+	const auto points = PoissonGenerator::GeneratePoissonPoints(numPoints, PRNG);
+
+	randomPoints.insert(randomPoints.begin(), resampledBoundary.begin(), resampledBoundary.end());
+	boundaryPointNum = resampledBoundary.size();
+
+	float sc = img_length * std::sqrt(2.0f);
+	float ofVal = 0.5f * (sc - img_length);
+	//float ofVal = 0;
+	// ---------- iterate points ----------
+	for (auto i = points.begin(); i != points.end(); i++)
+	{
+		float x = (i->x * sc) - ofVal;
+		float y = (i->y * sc) - ofVal;
+		A2DVector pt(x, y);
+
+		if (UtilityFunctions::InsidePolygon(ornamentBoundary, pt.x, pt.y))
+		{
+			float d = UtilityFunctions::DistanceToClosedCurve(resampledBoundary, pt);
+			if (d > resamplingGap)
+			{
+				randomPoints.push_back(pt);
+			}
+			//AVector cPt = knn->GetClosestPoints(pt, 1)[0];
+			//if (cPt.Distance(pt) > resamplingGap)
+			//	{ randomPoints.push_back(pt); }
+		}
+	}
+}
+
 // visualization
 void AnElement::InitMeshOgre3D(Ogre::SceneManager* sceneMgr,
 	Ogre::SceneNode* sceneNode,
@@ -155,13 +263,11 @@ void AnElement::InitMeshOgre3D(Ogre::SceneManager* sceneMgr,
 	float gVal = (float)(rand() % 255) / 255.0f;
 	float bVal = (float)(rand() % 255) / 255.0f;
 
-	_material = Ogre::MaterialManager::getSingleton().getByName(materialName)->clone(materialName + std::to_string(_self_idx));
+	/*_material = Ogre::MaterialManager::getSingleton().getByName(materialName)->clone(materialName + std::to_string(_self_idx));
 	_material->getTechnique(0)->getPass(0)->setDiffuse(Ogre::ColourValue(rVal, gVal, bVal, 1));
 
 	// clone material
 	//_material = Ogre::MaterialManager::getSingleton().getByName(materialName)->clone(materialName + std::to_string(_self_idx));
-		
-
 	_tubeObject = _sceneMgr->createManualObject(name);
 	_tubeObject->setDynamic(true);
 
@@ -170,7 +276,7 @@ void AnElement::InitMeshOgre3D(Ogre::SceneManager* sceneMgr,
 	if (_sceneNode)
 		_sceneNode->attachObject(_tubeObject);
 	else
-		std::cout << "_sceneNode is null\n";
+		std::cout << "_sceneNode is null\n";*/
 
 	// material
 	Ogre::MaterialPtr line_material = Ogre::MaterialManager::getSingleton().getByName("Examples/RedMat")->clone("ElementLines" + std::to_string(_self_idx));
@@ -520,7 +626,7 @@ void AnElement::CreateStarTube(int self_idx)
 
 	// ???
 	//RandomizeLayerSize();
-	CreateHelix();
+	//CreateHelix();
 
 	//if (createAcrossTube)
 	//{

@@ -48,6 +48,10 @@ public:
 	static bool _show_time_springs;
 
 	static float _growth_scale_iter;
+
+	// tetrathedralization
+	static float _sampling_density;
+	static float _boundary_sampling_factor;
 };
 
 #endif

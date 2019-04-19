@@ -5,7 +5,7 @@
 
 #include "A2DVector.h"
 //#include "ALine.h"
-//#include "ARectangle.h"
+#include "A2DRectangle.h"
 
 #include <sstream>
 
@@ -145,4 +145,177 @@ A2DVector UtilityFunctions::ClosestPtAtFiniteLine2(const A2DVector& lnStart, con
 	return A2DVector(lnStart.x + u * dx, lnStart.y + u * dy);
 }
 
+/*
+================================================================================
+================================================================================
+*/
+float UtilityFunctions::CurveLengthClosed(std::vector<A2DVector> curves)
+{
+	curves.push_back(curves[curves.size() - 1]);
+	return CurveLength(curves);
+}
 
+/*
+================================================================================
+================================================================================
+*/
+float UtilityFunctions::CurveLength(std::vector<A2DVector> curves)
+{
+	float length = 0.0;
+	for (size_t a = 1; a < curves.size(); a++) { length += curves[a].Distance(curves[a - 1]); }
+	return length;
+}
+
+/*
+================================================================================
+================================================================================
+*/
+void UtilityFunctions::UniformResample(std::vector<A2DVector> oriCurve, std::vector<A2DVector>& resampleCurve, float resampleGap)
+{
+	resampleCurve.clear();
+	float curveLength = CurveLength(oriCurve);
+
+	int segmentNum = (int)(std::round(curveLength / resampleGap)); // rounding
+	resampleGap = curveLength / (float)segmentNum;
+
+	int iter = 0;
+	float sumDist = 0.0;
+	resampleCurve.push_back(oriCurve[0]);
+	while (iter < oriCurve.size() - 1)
+	{
+		float currentDist = oriCurve[iter].Distance(oriCurve[iter + 1]);
+		sumDist += currentDist;
+
+		if (sumDist > resampleGap)
+		{
+			float vectorLength = currentDist - (sumDist - resampleGap);
+			A2DVector pt1 = oriCurve[iter];
+			A2DVector pt2 = oriCurve[iter + 1];
+			A2DVector directionVector = (pt2 - pt1).Norm();
+
+			A2DVector newPoint1 = pt1 + directionVector * vectorLength;
+			resampleCurve.push_back(newPoint1);
+
+			sumDist = currentDist - vectorLength;
+
+			while (sumDist - resampleGap > 1e-8)
+			{
+				A2DVector insertPt2 = resampleCurve[resampleCurve.size() - 1] + directionVector * resampleGap;
+				resampleCurve.push_back(insertPt2);
+				sumDist -= resampleGap;
+			}
+		}
+
+		iter++;
+
+	}
+
+
+
+	float eps = std::numeric_limits<float>::epsilon();
+	A2DVector lastPt = oriCurve[oriCurve.size() - 1];
+	if (resampleCurve[resampleCurve.size() - 1].Distance(lastPt) > (resampleGap - eps)) { resampleCurve.push_back(lastPt); }
+
+}
+
+/*
+================================================================================
+================================================================================
+*/
+A2DRectangle UtilityFunctions::GetBoundingBox(std::vector<A2DVector> boundary)
+{
+	/*std::vector<cv::Point2f> newBoundary;
+	for (int a = 0; a < boundary.size(); a++)
+	{ newBoundary.push_back(cv::Point2f(boundary[a].x, boundary[a].y)); }
+	cv::Rect bb = cv::boundingRect(newBoundary);
+	return ARectangle(AVector(bb.x, bb.y), bb.width, bb.height);*/
+
+	float xMax = std::numeric_limits<float>::min();
+	float yMax = std::numeric_limits<float>::min();
+	float xMin = std::numeric_limits<float>::max();
+	float yMin = std::numeric_limits<float>::max();
+
+	for (unsigned int a = 0; a < boundary.size(); a++)
+	{
+		A2DVector pt = boundary[a];
+
+		if (pt.x > xMax) { xMax = pt.x; }
+		if (pt.y > yMax) { yMax = pt.y; }
+		if (pt.x < xMin) { xMin = pt.x; }
+		if (pt.y < yMin) { yMin = pt.y; }
+	}
+
+	return A2DRectangle(A2DVector(xMin, yMin), xMax - xMin, yMax - yMin);
+}
+
+/*
+================================================================================
+================================================================================
+*/
+std::vector<A2DVector> UtilityFunctions::TranslatePoly(std::vector<A2DVector> poly, float x, float y)
+{
+	std::vector<A2DVector> newPoly;
+	for (unsigned int a = 0; a < poly.size(); a++)
+	{
+		newPoly.push_back(poly[a] + A2DVector(x, y));
+	}
+	return newPoly;
+}
+
+/*
+================================================================================
+================================================================================
+*/
+std::vector<A2DVector> UtilityFunctions::MovePoly(std::vector<A2DVector> poly, A2DVector oldCenter, A2DVector newCenter)
+{
+	A2DVector offsetVector = newCenter - oldCenter;
+	return TranslatePoly(poly, offsetVector.x, offsetVector.y);
+}
+
+
+
+/*
+================================================================================
+================================================================================
+*/
+float UtilityFunctions::DistanceToClosedCurve(std::vector<A2DVector> polyline, A2DVector p)
+{
+	polyline.push_back(polyline[0]); // because loop
+	return UtilityFunctions::DistanceToPolyline(polyline, p);
+}
+
+/*
+================================================================================
+================================================================================
+*/
+float UtilityFunctions::DistanceToPolyline(const std::vector<A2DVector>& polyline, A2DVector p)
+{
+	float dist = std::numeric_limits<float>::max();
+	for (unsigned int a = 1; a < polyline.size(); a++)
+	{
+		float d = DistanceToFiniteLine(polyline[a - 1], polyline[a], p);
+		if (d < dist) { dist = d; }
+	}
+	return dist;
+}
+
+/*================================================================================
+================================================================================*/
+float UtilityFunctions::DistanceToFiniteLine(A2DVector v, A2DVector w, A2DVector p)
+{
+	float machine_eps = std::numeric_limits<float>::epsilon();
+
+	// Return minimum distance between line segment vw and point p
+	float l2 = v.DistanceSquared(w);					   // i.e. |w-v|^2 -  avoid a sqrt
+	if (l2 > -machine_eps && l2 < machine_eps) return p.Distance(v);   // v == w case
+
+																	   // Consider the line extending the segment, parameterized as v + t (w - v).
+																	   // We find projection of point p onto the line. 
+																	   // It falls where t = [(p-v) . (w-v)] / |w-v|^2
+	float t = (p - v).Dot(w - v) / l2;
+
+	if (t < 0.0) { return  p.Distance(v); }  // Beyond the 'v' end of the segment
+	else if (t > 1.0) { return  p.Distance(w); }  // Beyond the 'w' end of the segment
+	A2DVector projection = v + (w - v) * t;         // Projection falls on the segment
+	return p.Distance(projection);
+}

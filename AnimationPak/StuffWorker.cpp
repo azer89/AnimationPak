@@ -39,9 +39,9 @@ StuffWorker::~StuffWorker()
 
 void StuffWorker::InitElements(Ogre::SceneManager* scnMgr)
 {
-	float initialScale = 0.05;
+	float initialScale = 0.5; // 0.05
 
-	{
+	/*{
 		int idx = _element_list.size();
 		AnElement elem;
 		elem.CreateStarTube(idx);
@@ -54,7 +54,7 @@ void StuffWorker::InitElements(Ogre::SceneManager* scnMgr)
 		Ogre::SceneNode* pNode = scnMgr->getRootSceneNode()->createChildSceneNode("TubeNode" + std::to_string(idx));
 		elem.InitMeshOgre3D(scnMgr, pNode, "StarTube" + std::to_string(idx), "Examples/TransparentTest2");
 		_element_list.push_back(elem);
-	}
+	}*/
 
 	
 	/*{
@@ -74,7 +74,7 @@ void StuffWorker::InitElements(Ogre::SceneManager* scnMgr)
 	std::vector<A2DVector> posArray;
 
 	posArray.push_back(A2DVector(250, 0));
-	posArray.push_back(A2DVector(0, 350));
+	/*posArray.push_back(A2DVector(0, 350));
 	posArray.push_back(A2DVector(100, 400));
 	posArray.push_back(A2DVector(400, 0));
 	posArray.push_back(A2DVector(40, 240));
@@ -84,7 +84,7 @@ void StuffWorker::InitElements(Ogre::SceneManager* scnMgr)
 	posArray.push_back(A2DVector(170, 210));
 	posArray.push_back(A2DVector(320, 280));
 	posArray.push_back(A2DVector(350, 280));
-	posArray.push_back(A2DVector(350, 220));
+	posArray.push_back(A2DVector(350, 220));*/
 
 	for (int a = 0; a < posArray.size(); a++)
 	{
@@ -376,7 +376,7 @@ void StuffWorker::UpdateOgre3D()
 {
 	for (int a = 0; a < _element_list.size(); a++)
 	{
-		_element_list[a].UpdateMeshOgre3D();
+		//_element_list[a].UpdateMeshOgre3D();
 		_element_list[a].UpdateSpringDisplayOgre3D();
 		//_element_list[a].UpdateClosestPtsDisplayOgre3D();
 	}

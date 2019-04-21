@@ -36,7 +36,7 @@ AMass::AMass(float x,
 			 bool is_boundary)
 {
 	this->_pos               = A3DVector(x, y, z);
-	this->_debug_which_layer = debug_which_layer;
+	this->_layer_idx = debug_which_layer;
 	this->_self_idx          = self_idx;
 	this->_parent_idx        = parent_idx;
 	this->_is_boundary       = is_boundary;
@@ -64,7 +64,7 @@ void AMass::CallMeFromConstructor()
 
 	// hard parameter for closest pt search
 	_closestPt_fill_sz = 0;
-	_closestPt_actual_sz = 50;
+	_closestPt_actual_sz = 150; // BE CAREFUL HARD CODED PARAM!!!
 	_closestPoints = std::vector <A2DVector>(_closestPt_actual_sz);
 
 	_is_inside = false;
@@ -108,11 +108,11 @@ void AMass::Simulate(float dt)
 
 void AMass::ImposeConstraints()
 {
-	if (_debug_which_layer == 0)
+	if (_layer_idx == 0)
 	{
 		_pos._z = 0;
 	}
-	else if (_debug_which_layer == SystemParams::_num_layer - 1)
+	else if (_layer_idx == SystemParams::_num_layer - 1)
 	{
 		_pos._z = -SystemParams::_upscaleFactor;
 	}
@@ -134,11 +134,10 @@ void AMass::GetClosestPoint()
 	//if (this->_idx >= StuffWorker::_graphs[parentGraphIndex]._skinPointNum) { return; } // uncomment me
 
 	this->_closestGraphIndices.clear();
-	//this->_closestPoints.clear();
 	this->_closestPt_fill_sz = 0;
 	this->_is_inside = false;           // "inside" flag
 
-	_c_grid->GetGraphIndices2B(_pos._x, _pos._y, _parent_idx, _closestGraphIndices);
+	_c_grid->GetGraphIndices2B(_pos._x, _pos._y, _closestGraphIndices);
 
 	if (_closestGraphIndices.size() > 0)
 	{
@@ -163,13 +162,13 @@ void AMass::GetClosestPoint()
 
 		// closest pts
 		int sz2 = sz;
-		if (sz2 > _closestPt_actual_sz) { sz2 = _closestPt_actual_sz; }
+		if (sz2 > _closestPt_actual_sz) { sz2 = _closestPt_actual_sz; }  // _closestPt_actual_sz --> BE CAREFUL HARD CODED PARAM!!!
 		for (unsigned int a = 0; a < sz2; a++)
 		{
 			if (insideGraphFlags[a]) { continue; }
 
 			//A2DVector pt = UtilityFunctions::GetClosestPtOnClosedCurve(StuffWorker::_element_list[_closestGraphIndices[a]]._skin, _pos);
-			A2DVector pt = StuffWorker::_element_list[_closestGraphIndices[a]].ClosestPtOnALayer(_pos.GetA2DVector(), _debug_which_layer);
+			A2DVector pt = StuffWorker::_element_list[_closestGraphIndices[a]].ClosestPtOnALayer(_pos.GetA2DVector(), _layer_idx);
 			_closestPoints[_closestPt_fill_sz++] = pt;
 		}
 	}

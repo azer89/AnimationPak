@@ -98,10 +98,11 @@ void CollisionGrid2D::PrecomputeGraphIndices()
 	// int _numColumn;
 	// std::vector<GraphIndices> _graphIndexArray;
 
-	_graphIndexArray.clear();
+	_graphIndexArray.clear(); // std::vector<std::vector<int>>
+
 	for (unsigned int iter = 0; iter < _squares.size(); iter++)
 	{
-		GraphIndices gIndices;
+		GraphIndices gIndices; // typedef std::vector<int> GraphIndices
 
 		int xPos = iter / _numColumn;
 		int yPos = iter - (xPos * _numColumn);
@@ -154,7 +155,7 @@ void CollisionGrid2D::GetGraphIndices1B(float x, float y, std::vector<int>& clos
 		closestGraphIndices = _graphIndexArray[idx];
 }
 
-void CollisionGrid2D::GetGraphIndices2B(float x, float y, int parentGraphIndex, std::vector<int>& closestGraphIndices)
+void CollisionGrid2D::GetGraphIndices2B(float x, float y, std::vector<int>& closestGraphIndices)
 {
 	// warning !!! no check
 	//if (std::isnan(x) || std::isinf(x) || std::isnan(y) || std::isinf(y)) { return; }

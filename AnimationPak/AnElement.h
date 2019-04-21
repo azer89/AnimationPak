@@ -64,10 +64,10 @@ public:
 
 
 public:
-	int _self_idx; // for identification
+	int _elem_idx; // for identification
 
-	std::vector<std::vector<A2DVector>> _per_layer_points; // check function ClosestPtOnALayer()
-	std::vector<std::vector<A2DVector>> _per_layer_boundary;
+	std::vector<std::vector<A2DVector>> _per_layer_points; // need to delete this, check function ClosestPtOnALayer()
+	std::vector<std::vector<A2DVector>> _per_layer_boundary; // only need this
 
 public:
 	std::vector<bool> _insideFlags;

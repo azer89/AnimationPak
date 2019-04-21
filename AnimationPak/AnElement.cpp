@@ -103,7 +103,7 @@ void AnElement::AdjustEndPosition(A2DVector endPt2D, bool lockEnds)
 
 	for (int a = 0; a < _massList.size(); a++)
 	{
-		float which_layer = _massList[a]._debug_which_layer;
+		float which_layer = _massList[a]._layer_idx;
 		A2DVector moveVector2D = dirVector * (xyGap * which_layer);
 		_massList[a]._pos._x += moveVector2D.x;
 		_massList[a]._pos._y += moveVector2D.y;
@@ -130,7 +130,7 @@ void AnElement::AdjustEnds(A2DVector startPt2D, A2DVector endPt2D, bool lockEnds
 	
 	for (int a = 0; a < _massList.size(); a++)
 	{
-		int which_layer = _massList[a]._debug_which_layer;
+		int which_layer = _massList[a]._layer_idx;
 		A3DVector moveVector = dirVector * (gapCounter * which_layer);
 		_massList[a]._pos += moveVector;
 
@@ -146,23 +146,8 @@ void AnElement::AdjustEnds(A2DVector startPt2D, A2DVector endPt2D, bool lockEnds
 
 void AnElement::Tetrahedralization()
 {
-	/*
-	center = 
-	star_points.push_back(A3DVector(250, 250, 0));
-	star_points.push_back(A3DVector(0, 193, 0));
-	star_points.push_back(A3DVector(172, 168, 0));
-	star_points.push_back(A3DVector(250, 12, 0));
-	star_points.push_back(A3DVector(327, 168, 0));
-	star_points.push_back(A3DVector(500, 193, 0));
-	star_points.push_back(A3DVector(375, 315, 0));
-	star_points.push_back(A3DVector(404, 487, 0));
-	star_points.push_back(A3DVector(250, 406, 0));
-	star_points.push_back(A3DVector(95, 487, 0));
-	star_points.push_back(A3DVector(125, 315, 0));
-	*/
-
-	std::vector<A2DVector> star_points_2d;
-	//star_points.push_back(A3DVector(250, 250, 0));
+	// define a star
+	std::vector<A2DVector> star_points_2d;	
 	star_points_2d.push_back(A2DVector(0, 193));
 	star_points_2d.push_back(A2DVector(172, 168));
 	star_points_2d.push_back(A2DVector(250, 12));
@@ -173,8 +158,9 @@ void AnElement::Tetrahedralization()
 	star_points_2d.push_back(A2DVector(250, 406));
 	star_points_2d.push_back(A2DVector(95, 487));
 	star_points_2d.push_back(A2DVector(125, 315));
+	//star_points.push_back(A3DVector(250, 250, 0)); // should be in end
 
-
+	// why do we need bounding box?
 	A2DRectangle bb = UtilityFunctions::GetBoundingBox(star_points_2d);
 	float img_length = bb.witdh;
 	if (bb.height > bb.witdh) { img_length = bb.height; }
@@ -183,12 +169,29 @@ void AnElement::Tetrahedralization()
 	// moving to new center
 	img_length += 5.0f; // triangulation error without this ?
 	A2DVector newCenter = A2DVector((img_length / 2.0f), (img_length / 2.0f));
-	std::vector<A2DVector> myOffsetBoundary = UtilityFunctions::MovePoly(myOffsetBoundary, centerPt, newCenter);          // moveee
-	//unionBoundary = UtilityFunctions::MovePoly(unionBoundary, centerPt, newCenter + centerOffset); // moveee
-	/*for (int a = 0; a < arts.size(); a++)                                                          // moveee
+	star_points_2d = UtilityFunctions::MovePoly(star_points_2d, centerPt, newCenter);
+
+	// random points
+	int boundaryPointNum = 0; // num of boundary points per layer
+	std::vector<A2DVector> randomPoints;
+	CreatePoints(star_points_2d, img_length, randomPoints, boundaryPointNum);
+	// randomPoints.size() == num of all points per layer
+
+	float zOffset = -((float)SystemParams::_upscaleFactor) / ((float)SystemParams::_num_layer - 1);
+	
+	// generate points
+	for (int a = 0; a < SystemParams::_num_layer; a++)
 	{
-		arts[a] = UtilityFunctions::MovePoly(arts[a], centerPt, newCenter + centerOffset);
-	}*/     // moveee
+		float zPos = zOffset * a;
+		for (int b = 0; b < randomPoints.size(); b++)
+		{
+			bool isBoundary = false;
+			if (b < boundaryPointNum) { isBoundary = true; }
+
+			_massList.push_back(AMass(randomPoints[a].x, randomPoints[a].y, zPos, _massList.size(), _elem_idx, a));
+
+		}
+	}
 }
 
 void AnElement::CreatePoints(std::vector<A2DVector> ornamentBoundary,
@@ -196,7 +199,7 @@ void AnElement::CreatePoints(std::vector<A2DVector> ornamentBoundary,
 							std::vector<A2DVector>& randomPoints,
 							int& boundaryPointNum)
 {
-	// how many points
+	// how many points (really weird code...)
 	float fVal = img_length / SystemParams::_upscaleFactor;
 	fVal *= fVal;
 	int numPoints = SystemParams::_sampling_density * fVal;
@@ -212,8 +215,7 @@ void AnElement::CreatePoints(std::vector<A2DVector> ornamentBoundary,
 	{
 		resampledBoundary.pop_back();
 	}
-
-
+	
 	PoissonGenerator::DefaultPRNG PRNG;
 	if (SystemParams::_seed > 0)
 	{
@@ -279,8 +281,7 @@ void AnElement::InitMeshOgre3D(Ogre::SceneManager* sceneMgr,
 		std::cout << "_sceneNode is null\n";*/
 
 	// material
-	Ogre::MaterialPtr line_material = Ogre::MaterialManager::getSingleton().getByName("Examples/RedMat")->clone("ElementLines" + std::to_string(_self_idx));
-	
+	Ogre::MaterialPtr line_material = Ogre::MaterialManager::getSingleton().getByName("Examples/RedMat")->clone("ElementLines" + std::to_string(_elem_idx));	
 	line_material->getTechnique(0)->getPass(0)->setDiffuse(Ogre::ColourValue(rVal, gVal, bVal, 1));
 	
 
@@ -288,7 +289,7 @@ void AnElement::InitMeshOgre3D(Ogre::SceneManager* sceneMgr,
 	//In the initialization somewhere, create the initial lines object :
 	_debug_lines = new DynamicLines(line_material, Ogre::RenderOperation::OT_LINE_LIST);
 	_debug_lines->update();
-	_debugNode = _sceneMgr->getRootSceneNode()->createChildSceneNode("debug_lines" + std::to_string(_self_idx));
+	_debugNode = _sceneMgr->getRootSceneNode()->createChildSceneNode("debug_lines" + std::to_string(_elem_idx));
 	_debugNode->attachObject(_debug_lines);
 
 	_spring_lines = new DynamicLines(line_material, Ogre::RenderOperation::OT_LINE_LIST);
@@ -319,7 +320,7 @@ void AnElement::InitMeshOgre3D(Ogre::SceneManager* sceneMgr,
 	//}
 
 	_spring_lines->update();
-	_springNode = _sceneMgr->getRootSceneNode()->createChildSceneNode("SpringNode" + std::to_string(_self_idx));
+	_springNode = _sceneMgr->getRootSceneNode()->createChildSceneNode("SpringNode" + std::to_string(_elem_idx));
 	_springNode->attachObject(_spring_lines);
 }
 
@@ -535,7 +536,7 @@ void AnElement::RandomizeLayerSize()
 		A2DVector pos2D = _massList[a]._pos.GetA2DVector();
 		pos2D -= ctr;
 		
-		int lyr = _massList[a]._debug_which_layer;
+		int lyr = _massList[a]._layer_idx;
 		pos2D *= randomScale[lyr];
 
 		pos2D += ctr;
@@ -551,7 +552,7 @@ void  AnElement::CreateHelix()
 	{
 		if (a % 11 == 0) { continue; }
 		A2DVector pos(_massList[a]._pos._x, _massList[a]._pos._y);
-		int curLayer = _massList[a]._debug_which_layer;
+		int curLayer = _massList[a]._layer_idx;
 		float radAngle = (6.28318530718 / (float)SystemParams::_num_layer) * (float)curLayer;
 		A2DVector rotPos = UtilityFunctions::Rotate(pos, A2DVector(250, 250), radAngle);
 		_massList[a]._pos._x = rotPos.x;
@@ -563,13 +564,14 @@ void AnElement::UpdateBackend()
 {
 	//
 	//UpdateSpringLengths();
+	
 
 	// for closest point
 	for (int a = 0; a < _massList.size(); a++)
 	{
 		A2DVector pt(_massList[a]._pos._x, _massList[a]._pos._y);
-		int layer_idx = _massList[a]._debug_which_layer;
-		int mass_idx = _massList[a]._self_idx;
+		int layer_idx = _massList[a]._layer_idx;
+		int mass_idx = a % 11;
 		_per_layer_points[layer_idx][mass_idx] = pt;
 	}
 
@@ -587,7 +589,7 @@ void AnElement::UpdateBackend()
 void AnElement::CreateStarTube(int self_idx)
 {
 	// for identification
-	_self_idx = self_idx;
+	_elem_idx = self_idx;
 
 	/*
 	center = 250, 250, 0
@@ -608,18 +610,20 @@ void AnElement::CreateStarTube(int self_idx)
 	float zOffset = -(SystemParams::_upscaleFactor / (SystemParams::_num_layer - 1));
 	for (int a = 0; a < SystemParams::_num_layer; a++)
 	{
+		int idxGap = a * 11;
+
 		// x y z mass_idx element_idx layer_idx
-		_massList.push_back(AMass(250, 250, zPos, 0,  _self_idx, a)); // 0 center
-		_massList.push_back(AMass(0,   193, zPos, 1,  _self_idx, a, true)); // 1
-		_massList.push_back(AMass(172, 168, zPos, 2,  _self_idx, a, true)); // 2
-		_massList.push_back(AMass(250, 12,  zPos, 3,  _self_idx, a, true)); // 3
-		_massList.push_back(AMass(327, 168, zPos, 4,  _self_idx, a, true)); // 4
-		_massList.push_back(AMass(500, 193, zPos, 5,  _self_idx, a, true)); // 5
-		_massList.push_back(AMass(375, 315, zPos, 6,  _self_idx, a, true)); // 6
-		_massList.push_back(AMass(404, 487, zPos, 7,  _self_idx, a, true)); // 7
-		_massList.push_back(AMass(250, 406, zPos, 8,  _self_idx, a, true)); // 8
-		_massList.push_back(AMass(95,  487, zPos, 9,  _self_idx, a, true)); // 9
-		_massList.push_back(AMass(125, 315, zPos, 10, _self_idx, a, true)); // 10
+		_massList.push_back(AMass(250, 250, zPos, 0 + idxGap, _elem_idx, a)); // 0 center
+		_massList.push_back(AMass(0,   193, zPos, 1 + idxGap, _elem_idx, a, true)); // 1
+		_massList.push_back(AMass(172, 168, zPos, 2 + idxGap, _elem_idx, a, true)); // 2
+		_massList.push_back(AMass(250, 12,  zPos, 3 + idxGap, _elem_idx, a, true)); // 3
+		_massList.push_back(AMass(327, 168, zPos, 4 + idxGap, _elem_idx, a, true)); // 4
+		_massList.push_back(AMass(500, 193, zPos, 5 + idxGap, _elem_idx, a, true)); // 5
+		_massList.push_back(AMass(375, 315, zPos, 6 + idxGap, _elem_idx, a, true)); // 6
+		_massList.push_back(AMass(404, 487, zPos, 7 + idxGap, _elem_idx, a, true)); // 7
+		_massList.push_back(AMass(250, 406, zPos, 8 + idxGap, _elem_idx, a, true)); // 8
+		_massList.push_back(AMass(95,  487, zPos, 9 + idxGap, _elem_idx, a, true)); // 9
+		_massList.push_back(AMass(125, 315, zPos, 10 + idxGap, _elem_idx, a, true)); // 10
 
 		zPos += zOffset;
 	}
@@ -730,7 +734,7 @@ void AnElement::CreateStarTube(int self_idx)
 	for (int a = 0; a < _massList.size(); a++)
 	{
 		A2DVector pt(_massList[a]._pos._x, _massList[a]._pos._y);
-		int layer_idx = _massList[a]._debug_which_layer;
+		int layer_idx = _massList[a]._layer_idx;
 		_per_layer_points[layer_idx].push_back(pt);
 	}
 	// per layer boundary

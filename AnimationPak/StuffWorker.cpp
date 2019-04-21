@@ -260,7 +260,7 @@ void StuffWorker::InitElements(Ogre::SceneManager* scnMgr)
 	{
 		for (int b = 0; b < _element_list[a]._massList.size(); b++)
 		{
-			int c_grid_idx = _element_list[a]._massList[b]._debug_which_layer;
+			int c_grid_idx = _element_list[a]._massList[b]._layer_idx;
 			A3DVector p1 = _element_list[a]._massList[b]._pos;
 
 			// assign mass to grid
@@ -289,7 +289,7 @@ void StuffWorker::Update()
 		for (int b = 0; b < _element_list[a]._massList.size(); b++)
 		{
 
-			int c_grid_idx = _element_list[a]._massList[b]._debug_which_layer;
+			int c_grid_idx = _element_list[a]._massList[b]._layer_idx;
 			int layer_iter = iters[c_grid_idx];
 			A3DVector p1 = _element_list[a]._massList[b]._pos;
 
@@ -298,7 +298,7 @@ void StuffWorker::Update()
 			_c_grid_list[c_grid_idx]->_objects[layer_iter]->_x = p1._x;
 			_c_grid_list[c_grid_idx]->_objects[layer_iter]->_y = p1._y;
 
-			iters[c_grid_idx] += 1; // increment
+			iters[c_grid_idx]++; // increment
 		}
 	}
 	for (int a = 0; a < _c_grid_list.size(); a++)
@@ -395,7 +395,7 @@ void StuffWorker::SaveFrames()
 			{
 				A2DVector pt1 = _element_list[a]._massList[ln._index0]._pos.GetA2DVector();
 				A2DVector pt2 = _element_list[a]._massList[ln._index1]._pos.GetA2DVector();
-				int layerIdx = _element_list[a]._massList[ln._index0]._debug_which_layer;
+				int layerIdx = _element_list[a]._massList[ln._index0]._layer_idx;
 				vCreator.DrawLine(pt1, pt2, layerIdx);
 			}
 		}

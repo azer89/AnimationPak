@@ -37,7 +37,7 @@ public:
 
 	void GetGraphIndices2(float x, float y, int parentGraphIndex, std::vector<int>& closestGraphIndices);
 
-	void GetGraphIndices2B(float x, float y, int parentGraphIndex, std::vector<int>& closestGraphIndices);
+	void GetGraphIndices2B(float x, float y, std::vector<int>& closestGraphIndices);
 
 	void GetData(float x, float y, int parentGraphIndex, std::vector<A2DVector>& closestPts, std::vector<int>& closestGraphIndices);
 

@@ -15,9 +15,9 @@ public:
 	A3DVector _pos;	  // current
 	A3DVector _velocity;
 
-	int _self_idx; // for identification
+	int _self_idx; // for identification, not PER LAYER
 	int _parent_idx; // parent identification
-	int _debug_which_layer; // 0 1 2 3 4 5
+	int _layer_idx; // layer idx
 
 	CollisionGrid2D* _c_grid;
 
@@ -72,6 +72,11 @@ public:
 	void GetClosestPoint();
 
 	void Grow(float growth_scale_iter, float dt);
+
+	void Print()
+	{
+		std::cout << _self_idx << " - " << _parent_idx << "\n";
+	}
 
 public:
 	A3DVector _edgeForce;

@@ -24,8 +24,10 @@
 
 AnElement::AnElement()
 {
-	this->_tubeObject = 0;
-	this->_sceneNode = 0;
+	this->_tubeObject          = 0;
+	this->_sceneNode           = 0;
+	this->_numPointPerLayer    = 0;
+	this->_numBoundaryPointPerLayer = 0;
 	//this->_uniqueMaterial = false;
 }
 
@@ -227,9 +229,11 @@ void AnElement::Triangularization(int self_idx)
 	star_points_2d = UtilityFunctions::MovePoly(star_points_2d, centerPt, newCenter);
 
 	// random points
-	int boundaryPointNum = 0; // num of boundary points per layer
+	//int boundaryPointNum = 0; // num of boundary points per layer
 	std::vector<A2DVector> randomPoints;
-	CreateRandomPoints(star_points_2d, img_length, randomPoints, boundaryPointNum);
+	CreateRandomPoints(star_points_2d, img_length, randomPoints, this->_numBoundaryPointPerLayer);
+	this->_numPointPerLayer = randomPoints.size(); // ASSIGN
+	//this->_numBoundaryPerLayer = boundaryPointNum;
 	// randomPoints.size() == num of all points per layer
 
 	// debug delete me
@@ -288,6 +292,22 @@ void AnElement::Triangularization(int self_idx)
 		}
 	}
 	// ---------- triangle edge springs ----------
+
+	ResetSpringRestLengths();
+
+	// some precomputation
+	for (int a = 0; a < SystemParams::_num_layer; a++)
+	{
+		_per_layer_boundary.push_back(std::vector<A2DVector>());
+	}for (int a = 0; a < _massList.size(); a++)
+	{
+		int perLayerIdx = a % _numPointPerLayer;
+		if (perLayerIdx < _numBoundaryPointPerLayer)
+		{
+			int layerIdx = _massList[a]._layer_idx;
+			_per_layer_boundary[layerIdx].push_back ( _massList[a]._pos.GetA2DVector() );
+		}
+	}
 
 	// generate points
 	/*for (int a = 0; a < SystemParams::_num_layer; a++)
@@ -685,22 +705,31 @@ void AnElement::UpdateBackend()
 	
 
 	// for closest point
-	for (int a = 0; a < _massList.size(); a++)
+	/*for (int a = 0; a < _massList.size(); a++)
 	{
 		A2DVector pt(_massList[a]._pos._x, _massList[a]._pos._y);
 		int layer_idx = _massList[a]._layer_idx;
 		int mass_idx = a % 11;
 		_per_layer_points[layer_idx][mass_idx] = pt;
-	}
+	}*/
 
 	// per layer boundary
-	for (int a = 0; a < SystemParams::_num_layer; a++)
+	for (int a = 0; a < _massList.size(); a++)
+	{
+		int perLayerIdx = a % _numPointPerLayer;
+		if (perLayerIdx < _numBoundaryPointPerLayer)
+		{
+			int layerIdx = _massList[a]._layer_idx;
+			_per_layer_boundary[layerIdx][perLayerIdx] = _massList[a]._pos.GetA2DVector();
+		}
+	}
+	/*for (int a = 0; a < SystemParams::_num_layer; a++)
 	{
 		for (int b = 1; b < 11; b++)
 		{
 			_per_layer_boundary[a][b-1] = _per_layer_points[a][b];
 		}
-	}
+	}*/
 }
 
 // back end
@@ -836,7 +865,7 @@ void AnElement::CreateStarTube(int self_idx)
 	ResetSpringRestLengths();
 
 	// _per_layer_points
-	for (int a = 0; a < SystemParams::_num_layer; a++)
+	/*for (int a = 0; a < SystemParams::_num_layer; a++)
 	{
 		_per_layer_points.push_back(std::vector<A2DVector>());
 		_per_layer_boundary.push_back(std::vector<A2DVector>());
@@ -854,7 +883,7 @@ void AnElement::CreateStarTube(int self_idx)
 		{
 			_per_layer_boundary[a].push_back(_per_layer_points[a][b]);
 		}
-	}
+	}*/
 }
 
 void AnElement::ResetSpringRestLengths()

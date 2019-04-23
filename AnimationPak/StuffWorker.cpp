@@ -276,10 +276,10 @@ void StuffWorker::InitElements(Ogre::SceneManager* scnMgr)
 void StuffWorker::Update()
 {
 	// ???
-	/*for (int a = 0; a < _element_list.size(); a++)
+	for (int a = 0; a < _element_list.size(); a++)
 	{
 		_element_list[a].UpdateBackend();
-	}*/
+	}
 
 	// update collision grid
 	std::vector<int> iters; // TODO can be better
@@ -379,7 +379,7 @@ void StuffWorker::UpdateOgre3D()
 	{
 		//_element_list[a].UpdateMeshOgre3D();
 		_element_list[a].UpdateSpringDisplayOgre3D();
-		//_element_list[a].UpdateClosestPtsDisplayOgre3D();
+		_element_list[a].UpdateClosestPtsDisplayOgre3D();
 	}
 }
 

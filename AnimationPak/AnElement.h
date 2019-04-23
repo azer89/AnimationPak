@@ -76,26 +76,29 @@ public:
 public:
 	int _elem_idx; // for identification
 
-	std::vector<std::vector<A2DVector>> _per_layer_points; // need to delete this, check function ClosestPtOnALayer()
+	//std::vector<std::vector<A2DVector>> _per_layer_points; // need to delete this, check function ClosestPtOnALayer()
 	std::vector<std::vector<A2DVector>> _per_layer_boundary; // only need this
 
 public:
 	std::vector<bool> _insideFlags;
 
-	std::vector<AMass>   _massList;       // list of the masses
+	int _numPointPerLayer;
+	int _numBoundaryPointPerLayer;
+
+	std::vector<AMass>         _massList;       // list of the masses
 	std::vector<AnIndexedLine> _triEdges;  // for edge forces
 	std::vector<AnIdxTriangle> _triangles;
 	//std::vector<AnIndexedLine> _tetEdges;
 
 	Ogre::SceneManager* _sceneMgr;
-	Ogre::SceneNode* _sceneNode;
+	Ogre::SceneNode*    _sceneNode;
 	Ogre::MaterialPtr   _material;
 	//bool _uniqueMaterial;
 	Ogre::ManualObject* _tubeObject;
 
-	DynamicLines* _spring_lines;
+	DynamicLines*    _spring_lines;
 	Ogre::SceneNode* _springNode;
-	DynamicLines* _debug_lines;
+	DynamicLines*    _debug_lines;
 	Ogre::SceneNode* _debugNode;
 
 	//std::vector<A3DVector>       _skin;       // boundary points. temporary data, always updated every step

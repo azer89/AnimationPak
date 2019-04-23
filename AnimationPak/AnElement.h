@@ -6,6 +6,7 @@
 #include "A3DVector.h"
 #include "AMass.h"
 #include "AnIndexedLine.h"
+#include "AnIdxTriangle.h"
 
 // ogre
 #include <Ogre.h>
@@ -42,8 +43,12 @@ public:
 	void UpdateMeshOgre3D();
 	//void UpdateMesh();
 
-	void Tetrahedralization();
-	void CreatePoints(std::vector<A2DVector> ornamentBoundary, // called from Tetrahedralization()
+	void DrawEdges();
+	void DrawRandomPoints(std::vector<A2DVector> randomPoints); // debug
+
+	float GetMaxDistRandomPoints(const std::vector<A2DVector>& randomPoints);
+	void Triangularization(int self_idx);
+	void CreateRandomPoints(std::vector<A2DVector> ornamentBoundary, // called from Tetrahedralization()
 						float img_length,
 						std::vector<A2DVector>& randomPoints,
 						int& boundaryPointNum);
@@ -62,6 +67,11 @@ public:
 	void UpdatePerLayerBoundaryOgre3D();
 	void UpdateSpringDisplayOgre3D();
 
+	// edges
+	bool TryToAddTriangleEdge(AnIndexedLine anEdge/*, int triIndex*/);
+	int FindTriangleEdge(AnIndexedLine anEdge);
+
+
 
 public:
 	int _elem_idx; // for identification
@@ -74,6 +84,8 @@ public:
 
 	std::vector<AMass>   _massList;       // list of the masses
 	std::vector<AnIndexedLine> _triEdges;  // for edge forces
+	std::vector<AnIdxTriangle> _triangles;
+	//std::vector<AnIndexedLine> _tetEdges;
 
 	Ogre::SceneManager* _sceneMgr;
 	Ogre::SceneNode* _sceneNode;

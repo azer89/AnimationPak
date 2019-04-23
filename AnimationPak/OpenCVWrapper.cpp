@@ -6,7 +6,7 @@
 
 //#include "ARectangle.h"
 //#include "UtilityFunctions.h"
-//#include "NANOFLANNWrapper.h"
+#include "NANOFLANNWrapper2D.h"
 
 //#include "ClipperWrapper.h"
 
@@ -854,18 +854,18 @@ std::vector<std::vector<cv::Point>> OpenCVWrapper::GetCVContours(const std::vect
 }*/
 
 
-/*void OpenCVWrapper::Triangulate(std::vector<AnIdxTriangle>& myTriangles,
-	std::vector<AnIndexedLine>& negSpaceEdges,
+void OpenCVWrapper::Triangulate(std::vector<AnIdxTriangle>& myTriangles,
+	//std::vector<AnIndexedLine>& negSpaceEdges,
 	const std::vector<A2DVector>& randomPoints,
 	const std::vector<A2DVector>& boundary,
-	float img_length,
-	const std::vector<std::vector<A2DVector>>& arts)
+	float img_length/*,
+	const std::vector<std::vector<A2DVector>>& arts*/)
 {
 	std::vector<cv::Point2f> cvBoundary = ConvertList<A2DVector, cv::Point2f>(boundary);
 
 
 	std::vector<int> indices;
-	NANOFLANNWrapper* knn = new NANOFLANNWrapper();
+	NANOFLANNWrapper2D* knn = new NANOFLANNWrapper2D();
 	knn->_leaf_max_size = 4;
 	knn->SetPointData(randomPoints);
 	knn->CreatePointKDTree();
@@ -907,7 +907,7 @@ std::vector<std::vector<cv::Point>> OpenCVWrapper::GetCVContours(const std::vect
 		A2DVector centerPt = (pt1 + pt2 + pt3) / 3.0f;
 		if (cv::pointPolygonTest(cvBoundary, cv::Point2f(centerPt.x, centerPt.y), true) < 0)
 		{
-			A2DVector cPt;
+			/*A2DVector cPt;
 			float d;
 
 			// 1 & 2
@@ -926,32 +926,30 @@ std::vector<std::vector<cv::Point>> OpenCVWrapper::GetCVContours(const std::vect
 			if (std::abs(idx3 - idx1) > 2)
 			{
 				negSpaceEdges.push_back(AnIndexedLine(idx3, idx1));
-			}
+			}*/
 
 			continue;
 		}
 
 
-
-
-		std::vector<A2DVector> triPts = { pt1, pt2, pt3 };
-		if (ClipperWrapper::IsClockwise(triPts))
-		{
-			AnIdxTriangle tri(idx1, idx2, idx3);
-			myTriangles.push_back(tri);
-		}
-		else
+		//std::vector<A2DVector> triPts = { pt1, pt2, pt3 };
+		//if (ClipperWrapper::IsClockwise(triPts))
+		//{
+		AnIdxTriangle tri(idx1, idx2, idx3);
+		myTriangles.push_back(tri);
+		//}
+		/*else
 		{
 			std::cout << "flip\n";
 			AnIdxTriangle tri(idx3, idx2, idx1);
 			myTriangles.push_back(tri);
-		}
+		}*/
 
 
 	}
 
 	delete knn;
-}*/
+}
 
 /*void OpenCVWrapper::CaptureOpenGL(int w, int h, std::string filename)
 {

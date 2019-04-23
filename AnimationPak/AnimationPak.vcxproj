@@ -164,6 +164,7 @@
     <ClInclude Include="A3DVector.h" />
     <ClInclude Include="AMass.h" />
     <ClInclude Include="AnElement.h" />
+    <ClInclude Include="AnIdxTriangle.h" />
     <ClInclude Include="AnIndexedLine.h" />
     <ClInclude Include="A2DObject.h" />
     <ClInclude Include="AVideoCreator.h" />
@@ -174,7 +175,9 @@
     <ClInclude Include="DynamicRenderable.h" />
     <ClInclude Include="LuaScript.h" />
     <ClInclude Include="MyColor.h" />
+    <ClInclude Include="NANOFLANNWrapper2D.h" />
     <ClInclude Include="OpenCVWrapper.h" />
+    <ClInclude Include="PointCloud2D.h" />
     <ClInclude Include="PoissonGenerator.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="StuffWorker.h" />
@@ -195,6 +198,7 @@
     <ClCompile Include="DynamicRenderable.cpp" />
     <ClCompile Include="LuaScript.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="NANOFLANNWrapper2D.cpp" />
     <ClCompile Include="OpenCVWrapper.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

@@ -24,6 +24,7 @@ radhitya@uwaterloo.ca
 #include "MyColor.h"
 
 #include "AnIndexedLine.h"
+#include "AnIdxTriangle.h"
 //#include "ABlob.h"
 
 #define BGR_255 CV_8UC3
@@ -492,11 +493,17 @@ public:
 
 	// ----------  ----------
 	/*void Triangulate(std::vector<AnIdxTriangle>& myTriangles,
-		std::vector<AnIndexedLine>& negSpaceEdges,
-		const std::vector<A2DVector>& randomPoints,
-		const std::vector<A2DVector>& boundary,
-		float img_length,
-		const std::vector<std::vector<A2DVector>>& arts);*/
+						std::vector<AnIndexedLine>& negSpaceEdges,
+						const std::vector<A2DVector>& randomPoints,
+						const std::vector<A2DVector>& boundary,
+						float img_length,
+						const std::vector<std::vector<A2DVector>>& arts);*/
+	void Triangulate(std::vector<AnIdxTriangle>& myTriangles,
+						//std::vector<AnIndexedLine>& negSpaceEdges,
+						const std::vector<A2DVector>& randomPoints,
+						const std::vector<A2DVector>& boundary,
+						float img_length/*,
+						const std::vector<std::vector<A2DVector>>& arts*/);
 
 	//void CaptureOpenGL(int w, int h, std::string filename);
 

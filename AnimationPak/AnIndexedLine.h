@@ -31,7 +31,7 @@ public:
 	bool _isLayer2Layer; // is this an inter-layer edge
 
 public:
-	//void SetDist(float d)  { _dist = d; _oriDist = _dist; }
+	void SetDist(float d)  { _dist = d; _oriDist = _dist; }
 	//float GetDist() const  { return _dist; }
 	//float GetScale() const { return _scale; }
 

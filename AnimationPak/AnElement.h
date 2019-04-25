@@ -50,14 +50,15 @@ public:
 	float GetMaxDistRandomPoints(const std::vector<A2DVector>& randomPoints);
 	void Triangularization(int self_idx);
 	void CreateRandomPoints(std::vector<A2DVector> ornamentBoundary, // called from Tetrahedralization()
-						float img_length,
-						std::vector<A2DVector>& randomPoints,
-						int& boundaryPointNum);
+							float img_length,
+							std::vector<A2DVector>& randomPoints,
+							int& boundaryPointNum);
 
 	void ScaleXY(float scVal);
 	void TranslateXY(float x, float y);
 	void AdjustEnds(A2DVector startPt2D, A2DVector endPt2D, bool lockEnds = true);
 
+	void CreateDockPoint(A2DVector queryPos, A2DVector lockPos, int layer_idx);
 	void AdjustEndPosition(A2DVector endPt2D, bool lockEnds = true);
 
 	A2DVector ClosestPtOnALayer(A2DVector pt, int layer_idx);
@@ -67,6 +68,8 @@ public:
 	void UpdateClosestPtsDisplayOgre3D();
 	void UpdatePerLayerBoundaryOgre3D();
 	void UpdateSpringDisplayOgre3D();
+
+	void CalculateRestStructure();
 
 	// edges
 	bool TryToAddTriangleEdge(AnIndexedLine anEdge/*, int triIndex*/);
@@ -87,8 +90,10 @@ public:
 	int _numBoundaryPointPerLayer;
 
 	// for growing
-	std::vector<A2DVector> _layer_center_array;
-	std::vector<A3DVector> _rest_mass_pos_array;
+	float _scale; // initially 1.0f
+	std::vector<A2DVector> _layer_center_array; // 
+	std::vector<A3DVector> _ori_rest_mass_pos_array; // before scaling
+	std::vector<A3DVector> _rest_mass_pos_array; // after scaling
 
 	std::vector<AMass>         _massList;       // list of the masses
 	std::vector<AnIndexedLine> _triEdges;  // for edge forces

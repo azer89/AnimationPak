@@ -27,7 +27,7 @@ public:
 	bool _is_inside;
 	bool _is_boundary;
 
-	A3DVector _dockPoint;
+	A3DVector _dockPoint; // you probably want the dockpoint be 2D?
 
 	float                _closestDist;
 	std::vector<int>     _closestGraphIndices;

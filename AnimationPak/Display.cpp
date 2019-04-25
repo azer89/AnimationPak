@@ -106,6 +106,8 @@ bool Display::frameStarted(const Ogre::FrameEvent& evt)
 	//if (ImGui::Button("Button B")) {}
 	//if (ImGui::Button("Button C")) {}
 
+	ImGui::Text(("Scale = " + std::to_string(_sWorker->_element_list[0]._scale)).c_str());
+
 	ImGui::Text("Press C to activate or deactivate camera");
 
 	Ogre::Vector3 camPos = _cameraNode->getPosition();

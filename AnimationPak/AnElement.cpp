@@ -28,6 +28,8 @@ AnElement::AnElement()
 	this->_sceneNode           = 0;
 	this->_numPointPerLayer    = 0;
 	this->_numBoundaryPointPerLayer = 0;
+
+	this->_scale = 1.0f;
 	//this->_uniqueMaterial = false;
 }
 
@@ -98,6 +100,33 @@ void AnElement::TranslateXY(float x, float y)
 	ResetSpringRestLengths();
 }
 
+void AnElement::CreateDockPoint(A2DVector queryPos, A2DVector lockPos, int layer_idx)
+{
+	int massListIdx = -1;
+	float dist = 100000;
+	for (int a = 0; a < _massList.size(); a++)
+	{
+		if (_massList[a]._layer_idx == layer_idx)
+		{
+			float d = _massList[a]._pos.GetA2DVector().Distance(queryPos);
+			if (d < dist)
+			{
+				dist = d;
+				massListIdx = a;
+			}
+		}
+	}
+
+	if (massListIdx == -1)
+	{
+		std::cout << "error massListIdx == -1\n";
+	}
+
+	_massList[massListIdx]._isDocked = true;
+	// you probably want the dockpoint be 2D?
+	_massList[massListIdx]._dockPoint = A3DVector(lockPos.x, lockPos.y, _massList[massListIdx]._pos._z);
+}
+
 void AnElement::AdjustEndPosition(A2DVector endPt2D, bool lockEnds)
 {
 	float zGap = SystemParams::_upscaleFactor / (float)(SystemParams::_num_layer - 1);
@@ -114,11 +143,20 @@ void AnElement::AdjustEndPosition(A2DVector endPt2D, bool lockEnds)
 		_massList[a]._pos._y += moveVector2D.y;
 		_massList[a]._pos._z = -(zGap * which_layer);
 
-		if (which_layer == 0 || which_layer == (SystemParams::_num_layer - 1))
+		/*if (which_layer == 0 || which_layer == (SystemParams::_num_layer - 1))
 		{
 			_massList[a]._isDocked = lockEnds;
 			_massList[a]._dockPoint = _massList[a]._pos;
+		}*/
+		if (which_layer == 0)
+		{
+			CreateDockPoint(A2DVector(0, 0), A2DVector(0, 0), 0);
 		}
+		else if (which_layer == (SystemParams::_num_layer - 1))
+		{
+			CreateDockPoint(endPt2D, endPt2D, (SystemParams::_num_layer - 1));
+		}
+
 	}
 
 	ResetSpringRestLengths();
@@ -201,9 +239,10 @@ float AnElement::GetMaxDistRandomPoints(const std::vector<A2DVector>& randomPoin
 
 void AnElement::Triangularization(int self_idx)
 {
+	// ----- element index -----
 	this->_elem_idx = self_idx;
 
-	// define a star
+	// ----- define a star ----- 
 	std::vector<A2DVector> star_points_2d;	
 	star_points_2d.push_back(A2DVector(0, 193));
 	star_points_2d.push_back(A2DVector(172, 168));
@@ -215,42 +254,39 @@ void AnElement::Triangularization(int self_idx)
 	star_points_2d.push_back(A2DVector(250, 406));
 	star_points_2d.push_back(A2DVector(95, 487));
 	star_points_2d.push_back(A2DVector(125, 315));
-	//star_points.push_back(A3DVector(250, 250, 0)); // should be in end
 
-	// why do we need bounding box?
+	// -----  why do we need bounding box? ----- 
 	A2DRectangle bb = UtilityFunctions::GetBoundingBox(star_points_2d);
 	float img_length = bb.witdh;
 	if (bb.height > bb.witdh) { img_length = bb.height; }
 	A2DVector centerPt = bb.GetCenter();
 
-	// moving to new center
+	// -----  moving to new center ----- 
 	img_length += 5.0f; // triangulation error without this ?
 	A2DVector newCenter = A2DVector((img_length / 2.0f), (img_length / 2.0f));
 	star_points_2d = UtilityFunctions::MovePoly(star_points_2d, centerPt, newCenter);
 
-	// random points
-	//int boundaryPointNum = 0; // num of boundary points per layer
+	// -----  random points ----- 
 	std::vector<A2DVector> randomPoints;
 	CreateRandomPoints(star_points_2d, img_length, randomPoints, this->_numBoundaryPointPerLayer);
 	this->_numPointPerLayer = randomPoints.size(); // ASSIGN
-	//this->_numBoundaryPerLayer = boundaryPointNum;
-	// randomPoints.size() == num of all points per layer
 
 	// debug delete me
 	//DrawRandomPoints(randomPoints);
 
-	// ---------- triangulation ----------
+	// -----  triangulation ----- 
 	OpenCVWrapper cvWrapper;
 	cvWrapper.Triangulate(_triangles,
 						randomPoints,
 						star_points_2d,
 						img_length);	
-	// ---------- triangulation ----------
+	// -----  triangulation ----- 
 
 
+	// z axis offset
 	float zOffset = -((float)SystemParams::_upscaleFactor) / ((float)SystemParams::_num_layer - 1);
 
-	// --- generate mass ---
+	// -----  generate mass ----- 
 	int massCounter = 0;
 	for (int a = 0; a < SystemParams::_num_layer; a++)
 	{
@@ -267,9 +303,10 @@ void AnElement::Triangularization(int self_idx)
 			_massList.push_back(m);                                     
 		}
 	}
-	// ---------- generate mass  ----------
+	// ----- generate mass ----- 
 
-	// ---------- triangle edge springs ----------
+	// -----  triangle edge springs ----- 
+	// intra layer
 	for (int a = 0; a < SystemParams::_num_layer; a++)
 	{
 		float massIdxOffset = a * randomPoints.size();
@@ -295,6 +332,7 @@ void AnElement::Triangularization(int self_idx)
 			TryToAddTriangleEdge(AnIndexedLine(b + massIdxOffset1, b + massIdxOffset2, true));
 		}
 	}*/
+	// cross pattern
 	for (int a = 0; a < SystemParams::_num_layer - 1; a++)
 	{
 		int massIdxOffset1 = a * randomPoints.size();
@@ -316,13 +354,15 @@ void AnElement::Triangularization(int self_idx)
 			TryToAddTriangleEdge(AnIndexedLine(b + massIdxOffset1, idxB + massIdxOffset2, true));
 		}
 	}
-	// ---------- triangle edge springs ----------
+	// -----  triangle edge springs ----- 
 
+	// rotate
 	CreateHelix();
 
+	// reset !!!
 	ResetSpringRestLengths();
 
-	// some precomputation
+	// ----- some precomputation ----- 
 	for (int a = 0; a < SystemParams::_num_layer; a++)
 	{
 		_per_layer_boundary.push_back(std::vector<A2DVector>());
@@ -336,27 +376,62 @@ void AnElement::Triangularization(int self_idx)
 		}
 	}
 
-	// generate points
-	/*for (int a = 0; a < SystemParams::_num_layer; a++)
+}
+
+void AnElement::CalculateRestStructure()
+{
+	UpdateBackend(); // update per_layer_boundary
+
+	//std::vector<A2DVector> _layer_center_array; // OpenCVWrapper::GetCenter
+	OpenCVWrapper cvWrapper;
+	for (int a = 0; a < SystemParams::_num_layer; a++)
 	{
-		float zPos = zOffset * a;
-		for (int b = 0; b < randomPoints.size(); b++)
-		{
-			bool isBoundary = false;
-			if (b < boundaryPointNum) { isBoundary = true; }
+		A2DVector centerPt = cvWrapper.GetCenter(_per_layer_boundary[a]);
+		_layer_center_array.push_back(centerPt);
+	}
 
-			_massList.push_back(AMass(randomPoints[b].x, randomPoints[b].y, zPos, _massList.size(), _elem_idx, a));
+	//std::vector<A3DVector> _rest_mass_pos_array;
+	_rest_mass_pos_array.clear();
+	for (int a = 0; a < _massList.size(); a++)
+	{
+		_ori_rest_mass_pos_array.push_back(_massList[a]._pos);
+		_rest_mass_pos_array.push_back(_massList[a]._pos);
+	}
+	
+}
 
-		}
-	}*/
+void AnElement::Grow(float growth_scale_iter, float dt)
+{
+	if (_scale > 6.0f)
+	{
+		return;
+	}
 
-	//float maxDistRandPt = GetMaxDistRandomPoints(randomPoints);
+	_scale += growth_scale_iter * dt;
 
-	// CGAL
-	//TetWrapper tWrapper;
-	//tWrapper.GenerateTet(_massList, maxDistRandPt, _tetEdges);
+	// iterate rest_mass_pos
+	for (int a = 0; a < _rest_mass_pos_array.size(); a++)
+	{
+		int layer_idx = _massList[a]._layer_idx;
+		A2DVector pos = _ori_rest_mass_pos_array[a].GetA2DVector();
+		pos -= _layer_center_array[layer_idx];		
+		pos *= _scale;
+		pos += _layer_center_array[layer_idx];
+		_rest_mass_pos_array[a]._x = pos.x;
+		_rest_mass_pos_array[a]._y = pos.y;
+	}
 
-	std::cout << "done\n";
+	// iterate edges
+	for (unsigned int a = 0; a < _triEdges.size(); a++)
+	{
+		//if (!_triEdges[a]._isLayer2Layer)
+		//{
+			A2DVector p1 = _rest_mass_pos_array[_triEdges[a]._index0].GetA2DVector();
+			A2DVector p2 = _rest_mass_pos_array[_triEdges[a]._index1].GetA2DVector();
+			_triEdges[a].SetActualOriDistance(p1.Distance(p2));
+
+		//}
+	}
 }
 
 void AnElement::CreateRandomPoints(std::vector<A2DVector> ornamentBoundary,
@@ -468,7 +543,7 @@ void AnElement::InitMeshOgre3D(Ogre::SceneManager* sceneMgr,
 	{
 		AnIndexedLine ln = _triEdges[a];
 
-		if (!ln._isLayer2Layer) { continue; }
+		if (ln._isLayer2Layer) { continue; }
 
 		A3DVector pt1 = _massList[ln._index0]._pos;
 		A3DVector pt2 = _massList[ln._index1]._pos;
@@ -501,7 +576,7 @@ void AnElement::UpdateSpringDisplayOgre3D()
 		{
 			AnIndexedLine ln = _triEdges[a];
 
-			if (!ln._isLayer2Layer) { continue; }
+			if (ln._isLayer2Layer) { continue; }
 
 			A3DVector pt1 = _massList[ln._index0]._pos;
 			A3DVector pt2 = _massList[ln._index1]._pos;
@@ -715,7 +790,7 @@ void  AnElement::CreateHelix()
 {
 	float ggg = 6.28318530718 * 5;
 
-	int randVal = (rand() % 1) - 1;
+	int randVal = rand() % 2;
 	if (randVal == 0)
 	{
 		ggg = -ggg;
@@ -960,16 +1035,7 @@ A2DVector AnElement::ClosestPtOnALayer(A2DVector pt, int layer_idx)
 	return closestPt;
 }
 
-void AnElement::Grow(float growth_scale_iter, float dt)
-{
-	//for (unsigned int a = 0; a < _triEdges.size(); a++)
-	//{
-	//	//if (!_triEdges[a]._isLayer2Layer)
-	//	{
-	//		_triEdges[a].MakeLonger(/* _shrinking_state * */ growth_scale_iter, dt);
-	//	}
-	//}
-}
+
 
 void AnElement::SolveForSprings2D()
 {

@@ -41,10 +41,10 @@ void StuffWorker::InitElements(Ogre::SceneManager* scnMgr)
 {
 	float initialScale = 0.05; // 0.05
 
-	/*{
+	{
 		int idx = _element_list.size();
 		AnElement elem;
-		elem.CreateStarTube(idx);
+		elem.Triangularization(idx);
 		elem.ScaleXY(initialScale);
 		elem.TranslateXY(10, 10);
 		//A2DVector startPt(25, 25, 0);
@@ -54,7 +54,7 @@ void StuffWorker::InitElements(Ogre::SceneManager* scnMgr)
 		Ogre::SceneNode* pNode = scnMgr->getRootSceneNode()->createChildSceneNode("TubeNode" + std::to_string(idx));
 		elem.InitMeshOgre3D(scnMgr, pNode, "StarTube" + std::to_string(idx), "Examples/TransparentTest2");
 		_element_list.push_back(elem);
-	}*/
+	}
 
 	
 	/*{
@@ -342,7 +342,7 @@ void StuffWorker::Solve()
 {
 	for (int a = 0; a < _element_list.size(); a++)
 	{
-		_element_list[a].SolveForSprings();
+		_element_list[a].SolveForSprings2D();
 
 		for (int b = 0; b < _element_list[a]._massList.size(); b++)
 		{
@@ -379,14 +379,14 @@ void StuffWorker::UpdateOgre3D()
 	{
 		//_element_list[a].UpdateMeshOgre3D();
 		_element_list[a].UpdateSpringDisplayOgre3D();
-		_element_list[a].UpdateClosestPtsDisplayOgre3D();
+		//_element_list[a].UpdateClosestPtsDisplayOgre3D();
 	}
 }
 
 void StuffWorker::SaveFrames()
 {
 	std::cout << "please uncomment me\n";
-	/*AVideoCreator vCreator;
+	AVideoCreator vCreator;
 	vCreator.Init();
 	for (int a = 0; a < _element_list.size(); a++)
 	{
@@ -405,5 +405,5 @@ void StuffWorker::SaveFrames()
 
 	std::stringstream ss;
 	ss << SystemParams::_save_folder << "PNG\\";
-	vCreator.Save(ss.str());*/
+	vCreator.Save(ss.str());
 }

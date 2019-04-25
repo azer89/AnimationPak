@@ -38,7 +38,8 @@ public:
 	//void UpdateSpringLengths();
 
 
-	void SolveForSprings();
+	void SolveForSprings3D();
+	void SolveForSprings2D();
 
 	void UpdateMeshOgre3D();
 	//void UpdateMesh();
@@ -84,6 +85,10 @@ public:
 
 	int _numPointPerLayer;
 	int _numBoundaryPointPerLayer;
+
+	// for growing
+	std::vector<A2DVector> _layer_center_array;
+	std::vector<A3DVector> _rest_mass_pos_array;
 
 	std::vector<AMass>         _massList;       // list of the masses
 	std::vector<AnIndexedLine> _triEdges;  // for edge forces

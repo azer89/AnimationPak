@@ -24,7 +24,7 @@ void AVideoCreator::Init()
 
 void AVideoCreator::DrawLine(A2DVector pt1, A2DVector pt2, int layerIdx)
 {
-	_cvWrapper.DrawLine(_frames[layerIdx]._img, pt1, pt2, MyColor(0, 0, 0), 2, _img_scale);
+	_cvWrapper.DrawLine(_frames[layerIdx]._img, pt1, pt2, MyColor(0, 0, 0), 1, _img_scale);
 }
 
 void AVideoCreator::Save(std::string folderName)

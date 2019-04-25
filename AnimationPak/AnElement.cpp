@@ -257,12 +257,14 @@ void AnElement::Triangularization(int self_idx)
 		float zPos = zOffset * a;
 		for (int b = 0; b < randomPoints.size(); b++)
 		{
-			_massList.push_back(AMass(randomPoints[b].x, // x
+			AMass m(randomPoints[b].x, // x
 				randomPoints[b].y,                       // y
 				zPos,                                       // z
 				massCounter++,                           // self_idx
 				_elem_idx,                               // parent_idx
-				a));                                     // debug_which_layer
+				a); // debug_which_layer
+			if (b < _numBoundaryPointPerLayer) { m._is_boundary = true; }
+			_massList.push_back(m);                                     
 		}
 	}
 	// ---------- generate mass  ----------
@@ -282,7 +284,9 @@ void AnElement::Triangularization(int self_idx)
 			TryToAddTriangleEdge(AnIndexedLine(idx2, idx0)); // 2 - 0
 		}
 	}
-	for (int a = 0; a < SystemParams::_num_layer - 1; a++)
+
+	// 1-1 pattern
+	/*for (int a = 0; a < SystemParams::_num_layer - 1; a++)
 	{
 		int massIdxOffset1 = a * randomPoints.size();
 		int massIdxOffset2 = massIdxOffset1 + randomPoints.size();
@@ -290,8 +294,31 @@ void AnElement::Triangularization(int self_idx)
 		{
 			TryToAddTriangleEdge(AnIndexedLine(b + massIdxOffset1, b + massIdxOffset2, true));
 		}
+	}*/
+	for (int a = 0; a < SystemParams::_num_layer - 1; a++)
+	{
+		int massIdxOffset1 = a * randomPoints.size();
+		int massIdxOffset2 = massIdxOffset1 + randomPoints.size();
+		for (int b = 0; b < _numBoundaryPointPerLayer; b++)
+		{
+			int idxA = b - 1; // prev
+			int idxB = b + 1; // next
+			if (b == 0)
+			{
+				idxA = _numBoundaryPointPerLayer - 1;
+			}
+			else if (b == _numBoundaryPointPerLayer - 1)
+			{
+				idxB = 0;
+			}
+
+			TryToAddTriangleEdge(AnIndexedLine(b + massIdxOffset1, idxA + massIdxOffset2, true));
+			TryToAddTriangleEdge(AnIndexedLine(b + massIdxOffset1, idxB + massIdxOffset2, true));
+		}
 	}
 	// ---------- triangle edge springs ----------
+
+	CreateHelix();
 
 	ResetSpringRestLengths();
 
@@ -441,7 +468,7 @@ void AnElement::InitMeshOgre3D(Ogre::SceneManager* sceneMgr,
 	{
 		AnIndexedLine ln = _triEdges[a];
 
-		//if (!ln._isLayer2Layer) { continue; }
+		if (!ln._isLayer2Layer) { continue; }
 
 		A3DVector pt1 = _massList[ln._index0]._pos;
 		A3DVector pt2 = _massList[ln._index1]._pos;
@@ -474,7 +501,7 @@ void AnElement::UpdateSpringDisplayOgre3D()
 		{
 			AnIndexedLine ln = _triEdges[a];
 
-			//if (!ln._isLayer2Layer) { continue; }
+			if (!ln._isLayer2Layer) { continue; }
 
 			A3DVector pt1 = _massList[ln._index0]._pos;
 			A3DVector pt2 = _massList[ln._index1]._pos;
@@ -686,12 +713,20 @@ void AnElement::RandomizeLayerSize()
 
 void  AnElement::CreateHelix()
 {
+	float ggg = 6.28318530718 * 5;
+
+	int randVal = (rand() % 1) - 1;
+	if (randVal == 0)
+	{
+		ggg = -ggg;
+	}
+
 	for (int a = 0; a < _massList.size(); a++)
 	{
-		if (a % 11 == 0) { continue; }
+		//if (a % 11 == 0) { continue; }
 		A2DVector pos(_massList[a]._pos._x, _massList[a]._pos._y);
 		int curLayer = _massList[a]._layer_idx;
-		float radAngle = (6.28318530718 / (float)SystemParams::_num_layer) * (float)curLayer;
+		float radAngle = (ggg / (float)SystemParams::_num_layer) * (float)curLayer;
 		A2DVector rotPos = UtilityFunctions::Rotate(pos, A2DVector(250, 250), radAngle);
 		_massList[a]._pos._x = rotPos.x;
 		_massList[a]._pos._y = rotPos.y;
@@ -891,21 +926,17 @@ void AnElement::ResetSpringRestLengths()
 	// PLEASE UNCOMMENT ME
 	// PLEASE FIX ME
 
-	//for (int a = 0; a < _triEdges.size(); a++)
-	//{
-	//	/*if(_triEdges[a]._isLayer2Layer)
-	//	{
-	//		A2DVector p1 = _massList[_triEdges[a]._index0]._pos;
-	//		A2DVector p2 = _massList[_triEdges[a]._index1]._pos;
-	//		_triEdges[a].SetActualOriDistance(p1.Distance(p2));
-	//	}
-	//	else*/
-	//	{
-	//		A2DVector p1 = _massList[_triEdges[a]._index0]._pos.GetA2DVector();
-	//		A2DVector p2 = _massList[_triEdges[a]._index1]._pos.GetA2DVector();
-	//		_triEdges[a].SetActualOriDistance(p1.Distance(p2));
-	//	}
-	//}
+	for (int a = 0; a < _triEdges.size(); a++)
+	{		
+		//{
+		A2DVector p1 = _massList[_triEdges[a]._index0]._pos.GetA2DVector();
+		A2DVector p2 = _massList[_triEdges[a]._index1]._pos.GetA2DVector();
+		_triEdges[a].SetActualOriDistance(p1.Distance(p2));
+		//}
+		/*A3DVector p1 = _massList[_triEdges[a]._index0]._pos;
+		A3DVector p2 = _massList[_triEdges[a]._index1]._pos;
+		_triEdges[a].SetActualOriDistance(p1.Distance(p2));*/
+	}
 }
 
 A2DVector AnElement::ClosestPtOnALayer(A2DVector pt, int layer_idx)
@@ -940,7 +971,7 @@ void AnElement::Grow(float growth_scale_iter, float dt)
 	//}
 }
 
-void AnElement::SolveForSprings()
+void AnElement::SolveForSprings2D()
 {
 	//float k_edge = SystemParams::_k_edge;
 
@@ -1010,6 +1041,78 @@ void AnElement::SolveForSprings()
 		}
 	}
 }
+
+void AnElement::SolveForSprings3D()
+{
+	//float k_edge = SystemParams::_k_edge;
+
+	A3DVector pt0;
+	A3DVector pt1;
+	A3DVector dir;
+	A3DVector eForce;
+	float dist = 0;
+	float diff = 0;
+	float k = 0;
+
+	// PLEASE UNCOMMENT ME
+	// PLEASE FIX ME
+
+	for (unsigned int a = 0; a < _triEdges.size(); a++)
+	{
+		int idx0 = _triEdges[a]._index0;
+		int idx1 = _triEdges[a]._index1;
+
+		pt0 = _massList[idx0]._pos;
+		pt1 = _massList[idx1]._pos;
+
+		//if (_triEdges[a]._isLayer2Layer)
+		/*{
+		k = SystemParams::_k_time_edge;
+		dist = pt0.Distance(pt1);
+		dir = pt0.DirectionTo(pt1).Norm();
+		diff = dist - _triEdges[a]._dist;
+		}*/
+		//else
+
+		if (_triEdges[a]._isLayer2Layer)
+		{
+			k = SystemParams::_k_time_edge;
+		}
+		else
+		{
+			k = SystemParams::_k_edge;
+		}
+
+		//{
+
+		dir = pt0.DirectionTo(pt1);
+		//dir._z = 0;
+		dir = dir.Norm();
+		dist = pt0.Distance(pt1);
+		diff = dist - _triEdges[a]._dist;
+		//}
+
+		/*float signVal = 1;
+		if (diff < 0) { signVal = -1; }
+		eForce = (dir * k *  signVal * diff * diff);
+		*/
+
+		eForce = dir * k *  diff;
+
+		// 2D
+		/*if(_triEdges[a]._isLayer2Layer)
+		{
+		//eForce._z = 0;
+		//eForce = eForce.Norm();
+		}*/
+		if (!eForce.IsBad())
+		{
+			_massList[idx0]._edgeForce += eForce;	// _massList[idx0]._distToBoundary;
+			_massList[idx1]._edgeForce -= eForce;	// _massList[idx1]._distToBoundary;
+		}
+	}
+}
+
 
 void AnElement::UpdatePerLayerBoundaryOgre3D()
 {

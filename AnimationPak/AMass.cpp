@@ -129,6 +129,7 @@ void AMass::ImposeConstraints()
 
 void AMass::GetClosestPoint()
 {
+	//std::cout << "closestpt";
 	if (!_is_boundary) { return; }
 	if (_parent_idx < 0 || _parent_idx >= StuffWorker::_element_list.size()) { return; }
 	//if (this->_idx >= StuffWorker::_graphs[parentGraphIndex]._skinPointNum) { return; } // uncomment me
@@ -141,6 +142,8 @@ void AMass::GetClosestPoint()
 
 	if (_closestGraphIndices.size() > 0)
 	{
+		//std::cout << "closestpt";
+
 		std::vector<bool> insideGraphFlags;
 		int sz = _closestGraphIndices.size();
 		for (unsigned int a = 0; a < sz; a++)
@@ -194,6 +197,7 @@ void AMass::Grow(float growth_scale_iter, float dt)
 void AMass::Solve(const std::vector<A2DVector>& container)
 {
 	// ---------- REPULSION FORCE ----------
+	//std::cout << _closestPt_fill_sz << " ";
 	A2DVector sumR(0, 0);
 	A2DVector dir;
 	for (int a = 0; a < _closestPt_fill_sz; a++)

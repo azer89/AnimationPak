@@ -13,12 +13,13 @@ public:
 	AVideoCreator();
 	~AVideoCreator();
 
-	void Init();
-	void DrawLine(A2DVector pt1, A2DVector pt2, int layerIdx);
+	void Init(int numInterpolation = 1);
+	void DrawLine(A2DVector pt1, A2DVector pt2, int frameIdx);
 	void Save(std::string folderName);
 
 private:
 	float _img_scale;
+	int _num_frame;
 	std::vector<CVImg> _frames;
 	OpenCVWrapper _cvWrapper;
 

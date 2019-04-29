@@ -44,7 +44,7 @@ public:
 	void UpdateMeshOgre3D();
 	//void UpdateMesh();
 
-	void DrawEdges();
+	
 	void DrawRandomPoints(std::vector<A2DVector> randomPoints); // debug
 
 	float GetMaxDistRandomPoints(const std::vector<A2DVector>& randomPoints);
@@ -68,13 +68,16 @@ public:
 	void UpdateClosestPtsDisplayOgre3D();
 	void UpdatePerLayerBoundaryOgre3D();
 	void UpdateSpringDisplayOgre3D();
+	void UpdateBoundaryDisplayOgre3D();
 
 	void CalculateRestStructure();
 
 	// edges
-	bool TryToAddTriangleEdge(AnIndexedLine anEdge/*, int triIndex*/);
-	int FindTriangleEdge(AnIndexedLine anEdge);
-
+	bool TryToAddTriangleEdge(AnIndexedLine anEdge, int triIndex);
+	int FindTriangleEdge(AnIndexedLine anEdge);	
+	std::vector<AnIndexedLine> CreateBendingSprings(); // create bending springs
+	int GetUnsharedVertexIndex(AnIdxTriangle tri, AnIndexedLine edge);
+	void DrawEdges();
 
 
 public:
@@ -91,12 +94,15 @@ public:
 
 	// for growing
 	float _scale; // initially 1.0f
+	float _maxScale;
 	std::vector<A2DVector> _layer_center_array; // 
 	std::vector<A3DVector> _ori_rest_mass_pos_array; // before scaling
 	std::vector<A3DVector> _rest_mass_pos_array; // after scaling
 
 	std::vector<AMass>         _massList;       // list of the masses
+	std::vector<AnIndexedLine> _auxiliaryEdges; // for edge forces // UNCOMMENT
 	std::vector<AnIndexedLine> _triEdges;  // for edge forces
+	std::vector<std::vector<int>> _edgeToTri; // for aux edges, if -1 means time springs!!!
 	std::vector<AnIdxTriangle> _triangles;
 	//std::vector<AnIndexedLine> _tetEdges;
 

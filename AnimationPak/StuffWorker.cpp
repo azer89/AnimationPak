@@ -46,8 +46,8 @@ void StuffWorker::InitElements(Ogre::SceneManager* scnMgr)
 		AnElement elem;
 		elem.Triangularization(idx);
 		elem.ScaleXY(initialScale);
-		elem.TranslateXY(10, 10);
-		elem.AdjustEndPosition(A2DVector(470, 470));
+		elem.TranslateXY(20, 20);
+		elem.AdjustEndPosition(A2DVector(480, 480));
 		elem.CalculateRestStructure();
 		Ogre::SceneNode* pNode = scnMgr->getRootSceneNode()->createChildSceneNode("TubeNode" + std::to_string(idx));
 		elem.InitMeshOgre3D(scnMgr, pNode, "StarTube" + std::to_string(idx), "Examples/TransparentTest2");
@@ -75,10 +75,13 @@ void StuffWorker::InitElements(Ogre::SceneManager* scnMgr)
 	posArray.push_back(A2DVector(0, 350));
 	posArray.push_back(A2DVector(100, 400));
 	posArray.push_back(A2DVector(400, 0));
+	posArray.push_back(A2DVector(400, 30)); //
+	posArray.push_back(A2DVector(400, 70)); //
 	posArray.push_back(A2DVector(40, 240));
 	posArray.push_back(A2DVector(330, 140));
 	posArray.push_back(A2DVector(400, 250));
 	posArray.push_back(A2DVector(0, 180));
+	posArray.push_back(A2DVector(30, 180)); //
 	posArray.push_back(A2DVector(170, 210));
 	posArray.push_back(A2DVector(320, 280));
 	posArray.push_back(A2DVector(350, 280));
@@ -221,16 +224,21 @@ void StuffWorker::UpdateOgre3D()
 	for (int a = 0; a < _element_list.size(); a++)
 	{
 		//_element_list[a].UpdateMeshOgre3D();
-		_element_list[a].UpdateSpringDisplayOgre3D();
+		//_element_list[a].UpdateSpringDisplayOgre3D();
+		_element_list[a].UpdateBoundaryDisplayOgre3D();
 		//_element_list[a].UpdateClosestPtsDisplayOgre3D();
 	}
 }
 
 void StuffWorker::SaveFrames()
 {
-	std::cout << "please uncomment me\n";
+	//std::cout << "please uncomment me\n";
+		
+	int numInterpolation = 5;
+
 	AVideoCreator vCreator;
-	vCreator.Init();
+	vCreator.Init(numInterpolation);
+	//vCreator.Init();
 
 	for (int l = 0; l < SystemParams::_num_layer; l++)
 	{
@@ -268,7 +276,64 @@ void StuffWorker::SaveFrames()
 				}
 				A2DVector pt1 = _element_list[a]._massList[massIdx1]._pos.GetA2DVector();
 				A2DVector pt2 = _element_list[a]._massList[massIdx2]._pos.GetA2DVector();
-				vCreator.DrawLine(pt1, pt2, l);
+				vCreator.DrawLine(pt1, pt2, l * numInterpolation);
+				//vCreator.DrawLine(pt1, pt2, l);
+			}
+		}
+	}
+
+	// WARNING very messy nested loops
+
+	// only generate numInterpolation - 1 frames (one less)
+	for (int i = 1; i < numInterpolation; i++)
+	{
+		float interVal = ((float)i) / ((float)numInterpolation);
+		
+		// one less layer
+		for (int l = 0; l < SystemParams::_num_layer - 1; l++)
+		{
+			for (int a = 0; a < _element_list.size(); a++)
+			{
+				int layerOffset = l * _element_list[a]._numPointPerLayer;
+				for (int b = 0; b < _element_list[a]._numBoundaryPointPerLayer; b++)
+				{
+					int massIdx1 = b + layerOffset;
+					int massIdx2 = b + layerOffset + 1;
+
+					if (b == _element_list[a]._numBoundaryPointPerLayer - 1)
+					{
+						massIdx2 = layerOffset;
+					}
+
+					int massIdx1_next = massIdx1 + _element_list[a]._numPointPerLayer; // next
+					int massIdx2_next = massIdx2 + _element_list[a]._numPointPerLayer; // next
+
+					A2DVector pt1 = _element_list[a]._massList[massIdx1]._pos.GetA2DVector();
+					A2DVector pt2 = _element_list[a]._massList[massIdx2]._pos.GetA2DVector();
+
+					A2DVector pt1_next = _element_list[a]._massList[massIdx1_next]._pos.GetA2DVector();
+					A2DVector pt2_next = _element_list[a]._massList[massIdx2_next]._pos.GetA2DVector();
+					
+
+					A2DVector dir1 = pt1.DirectionTo(pt1_next);
+					A2DVector dir2 = pt2.DirectionTo(pt2_next);
+
+					float d1 = dir1.Length() * interVal;
+					float d2 = dir2.Length() * interVal;
+
+					dir1 = dir1.Norm();
+					dir2 = dir2.Norm();
+
+					A2DVector pt1_mid = pt1 + (dir1 * d1);
+					A2DVector pt2_mid = pt2 + (dir2 * d2);
+					
+					//A2DVector pt1_mid = (pt1 + pt1_next) / 2.0;
+					//A2DVector pt2_mid = (pt2 + pt2_next) / 2.0;
+
+					int frameIdx = l * numInterpolation + i;
+
+					vCreator.DrawLine(pt1_mid, pt2_mid, frameIdx);
+				}
 			}
 		}
 	}

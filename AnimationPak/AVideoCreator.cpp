@@ -11,9 +11,10 @@ AVideoCreator::~AVideoCreator()
 
 }
 
-void AVideoCreator::Init()
+void AVideoCreator::Init(int numInterpolation)
 {
-	for (int a = 0; a < SystemParams::_num_layer; a++)
+	_num_frame = numInterpolation * SystemParams::_num_layer;
+	for (int a = 0; a < _num_frame; a++)
 	{
 		CVImg img;
 		img.CreateColorImage(SystemParams::_upscaleFactor * _img_scale);
@@ -22,9 +23,9 @@ void AVideoCreator::Init()
 	}
 }
 
-void AVideoCreator::DrawLine(A2DVector pt1, A2DVector pt2, int layerIdx)
+void AVideoCreator::DrawLine(A2DVector pt1, A2DVector pt2, int frameIdx)
 {
-	_cvWrapper.DrawLine(_frames[layerIdx]._img, pt1, pt2, MyColor(0, 0, 0), 1, _img_scale);
+	_cvWrapper.DrawLine(_frames[frameIdx]._img, pt1, pt2, MyColor(0, 0, 0), 1, _img_scale);
 }
 
 void AVideoCreator::Save(std::string folderName)

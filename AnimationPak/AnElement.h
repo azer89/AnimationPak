@@ -8,6 +8,8 @@
 #include "AnIndexedLine.h"
 #include "AnIdxTriangle.h"
 
+#include "OpenCVWrapper.h"
+
 // ogre
 #include <Ogre.h>
 #include <OgreApplicationContext.h>
@@ -54,6 +56,7 @@ public:
 							std::vector<A2DVector>& randomPoints,
 							int& boundaryPointNum);
 
+	void RotateXY(float radAngle);
 	void ScaleXY(float scVal);
 	void TranslateXY(float x, float y);
 	void AdjustEnds(A2DVector startPt2D, A2DVector endPt2D, bool lockEnds = true);
@@ -85,6 +88,10 @@ public:
 
 	//std::vector<std::vector<A2DVector>> _per_layer_points; // need to delete this, check function ClosestPtOnALayer()
 	std::vector<std::vector<A2DVector>> _per_layer_boundary; // only need this
+
+	MyColor _color;
+
+	A2DVector _layer_center; // star only, please delete me!
 
 public:
 	std::vector<bool> _insideFlags;

@@ -5,6 +5,8 @@
 #include "A3DVector.h"
 #include "AMass.h"
 
+#include "AnIdxTriangle.h"
+
 #include "CollisionGrid2D.h"
 
 class AMass
@@ -37,7 +39,7 @@ public:
 	int _closestPt_fill_sz;   // reserve for avoiding push_back, filled size of the vector
 
 	
-
+	std::vector<AnIdxTriangle> _triangles; // for overlap force
 
 
 public:

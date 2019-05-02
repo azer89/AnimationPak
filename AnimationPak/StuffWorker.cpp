@@ -39,20 +39,20 @@ StuffWorker::~StuffWorker()
 
 void StuffWorker::InitElements(Ogre::SceneManager* scnMgr)
 {
-	float initialScale = 0.05; // 0.05
+	float initialScale = 0.5; // 0.05
 
-	{
+	/*{
 		int idx = _element_list.size();
 		AnElement elem;
 		elem.Triangularization(idx);
 		elem.ScaleXY(initialScale);
 		elem.TranslateXY(20, 20);
-		elem.AdjustEndPosition(A2DVector(480, 480));
+		elem.AdjustEndPosition(A2DVector(470, 470));
 		elem.CalculateRestStructure();
 		Ogre::SceneNode* pNode = scnMgr->getRootSceneNode()->createChildSceneNode("TubeNode" + std::to_string(idx));
 		elem.InitMeshOgre3D(scnMgr, pNode, "StarTube" + std::to_string(idx), "Examples/TransparentTest2");
 		_element_list.push_back(elem);
-	}
+	}*/
 
 	
 	/*{
@@ -71,7 +71,10 @@ void StuffWorker::InitElements(Ogre::SceneManager* scnMgr)
 
 	std::vector<A2DVector> posArray;
 
-	posArray.push_back(A2DVector(250, 0));
+	posArray.push_back(A2DVector(50, 270));
+	posArray.push_back(A2DVector(450, 220));
+
+	/*posArray.push_back(A2DVector(250, 0));
 	posArray.push_back(A2DVector(0, 350));
 	posArray.push_back(A2DVector(100, 400));
 	posArray.push_back(A2DVector(400, 0));
@@ -85,15 +88,21 @@ void StuffWorker::InitElements(Ogre::SceneManager* scnMgr)
 	posArray.push_back(A2DVector(170, 210));
 	posArray.push_back(A2DVector(320, 280));
 	posArray.push_back(A2DVector(350, 280));
-	posArray.push_back(A2DVector(350, 220));
+	posArray.push_back(A2DVector(350, 220));*/
 
 	for (int a = 0; a < posArray.size(); a++)
 	{
 		int idx = _element_list.size();
 		AnElement elem;
 		elem.Triangularization(idx);
+		
+		// random rotation
+		float radAngle = float(rand() % 628) / 100.0;
+		elem.RotateXY(radAngle);
+
 		elem.ScaleXY(initialScale);
 		elem.TranslateXY(posArray[a].x, posArray[a].y);	
+
 		elem.CalculateRestStructure();
 		Ogre::SceneNode* pNode = scnMgr->getRootSceneNode()->createChildSceneNode("TubeNode" + std::to_string(idx));
 		elem.InitMeshOgre3D(scnMgr, pNode, "StarTube" + std::to_string(idx), "Examples/TransparentTest2");
@@ -234,7 +243,7 @@ void StuffWorker::SaveFrames()
 {
 	//std::cout << "please uncomment me\n";
 		
-	int numInterpolation = 5;
+	int numInterpolation = 10;
 
 	AVideoCreator vCreator;
 	vCreator.Init(numInterpolation);
@@ -276,7 +285,7 @@ void StuffWorker::SaveFrames()
 				}
 				A2DVector pt1 = _element_list[a]._massList[massIdx1]._pos.GetA2DVector();
 				A2DVector pt2 = _element_list[a]._massList[massIdx2]._pos.GetA2DVector();
-				vCreator.DrawLine(pt1, pt2, l * numInterpolation);
+				vCreator.DrawLine(pt1, pt2, _element_list[a]._color, l * numInterpolation);
 				//vCreator.DrawLine(pt1, pt2, l);
 			}
 		}
@@ -332,7 +341,7 @@ void StuffWorker::SaveFrames()
 
 					int frameIdx = l * numInterpolation + i;
 
-					vCreator.DrawLine(pt1_mid, pt2_mid, frameIdx);
+					vCreator.DrawLine(pt1_mid, pt2_mid, _element_list[a]._color, frameIdx);
 				}
 			}
 		}

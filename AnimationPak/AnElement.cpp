@@ -29,8 +29,10 @@ AnElement::AnElement()
 	this->_numPointPerLayer    = 0;
 	this->_numBoundaryPointPerLayer = 0;
 
+	this->_layer_center = A2DVector(250, 250);
+
 	this->_scale = 1.0f;
-	this->_maxScale = 5.0f;
+	this->_maxScale = SystemParams::_element_max_scale;
 	//this->_uniqueMaterial = false;
 }
 
@@ -67,6 +69,20 @@ AnElement::~AnElement()
 
 }
 
+void  AnElement::RotateXY(float radAngle)
+{
+	for (int a = 0; a < _massList.size(); a++)
+	{
+		A2DVector pos = _massList[a]._pos.GetA2DVector();
+		//_massList[a]._pos = A3DVector(pos._x * scVal, pos._y * scVal, pos._z);
+		A2DVector rotPos = UtilityFunctions::Rotate(pos, _layer_center, radAngle);
+		_massList[a]._pos._x = rotPos.x;
+		_massList[a]._pos._y = rotPos.y;
+	}
+
+	ResetSpringRestLengths();
+}
+
 void AnElement::ScaleXY(float scVal)
 {
 	for (int a = 0; a < _massList.size(); a++)
@@ -76,16 +92,6 @@ void AnElement::ScaleXY(float scVal)
 	}
 
 	ResetSpringRestLengths();
-	// TODO
-	// need to update edges
-	/*for (int a = 0; a < _triEdges.size(); a++)
-	{
-		if (!_triEdges[a]._isLayer2Layer)
-		{
-			_triEdges[a]._oriDist *= scVal;
-			_triEdges[a]._dist *= scVal;
-		}
-	}*/
 }
 
 void AnElement::TranslateXY(float x, float y)
@@ -108,15 +114,15 @@ void AnElement::CreateDockPoint(A2DVector queryPos, A2DVector lockPos, int layer
 	int l2 = l1 + _numBoundaryPointPerLayer;
 	for (int a = l1; a < l2; a++)
 	{
-		if (_massList[a]._layer_idx == layer_idx)
+		//if (_massList[a]._layer_idx == layer_idx)
+		//{
+		float d = _massList[a]._pos.GetA2DVector().Distance(queryPos);
+		if (d < dist)
 		{
-			float d = _massList[a]._pos.GetA2DVector().Distance(queryPos);
-			if (d < dist)
-			{
-				dist = d;
-				massListIdx = a;
-			}
+			dist = d;
+			massListIdx = a;
 		}
+		//}
 	}
 
 	if (massListIdx == -1)
@@ -152,11 +158,11 @@ void AnElement::AdjustEndPosition(A2DVector endPt2D, bool lockEnds)
 		}*/
 		if (which_layer == 0)
 		{
-			CreateDockPoint(A2DVector(0, 0), A2DVector(0, 0), 0);
+			CreateDockPoint(A2DVector(-40, -40), A2DVector(5, 5), 0);
 		}
 		else if (which_layer == (SystemParams::_num_layer - 1))
 		{
-			CreateDockPoint(endPt2D, endPt2D, (SystemParams::_num_layer - 1));
+			CreateDockPoint(endPt2D + A2DVector(40, 40), endPt2D, (SystemParams::_num_layer - 1));
 		}
 
 	}
@@ -246,17 +252,18 @@ void AnElement::Triangularization(int self_idx)
 
 	// ----- define a star ----- 
 	std::vector<A2DVector> star_points_2d;	
-	star_points_2d.push_back(A2DVector(0, 193));
-	star_points_2d.push_back(A2DVector(172, 168));
-	star_points_2d.push_back(A2DVector(250, 12));
-	star_points_2d.push_back(A2DVector(327, 168));
-	star_points_2d.push_back(A2DVector(500, 193));
-	star_points_2d.push_back(A2DVector(375, 315));
-	star_points_2d.push_back(A2DVector(404, 487));
-	star_points_2d.push_back(A2DVector(250, 406));
-	star_points_2d.push_back(A2DVector(95, 487));
-	star_points_2d.push_back(A2DVector(125, 315));
 
+	star_points_2d.push_back(A2DVector(125, 315)); // 10
+	star_points_2d.push_back(A2DVector(95, 487)); // 9
+	star_points_2d.push_back(A2DVector(250, 406)); // 8
+	star_points_2d.push_back(A2DVector(404, 487)); // 7
+	star_points_2d.push_back(A2DVector(375, 315)); // 6
+	star_points_2d.push_back(A2DVector(500, 193)); // 5
+	star_points_2d.push_back(A2DVector(327, 168)); // 4
+	star_points_2d.push_back(A2DVector(250, 12)); // 3
+	star_points_2d.push_back(A2DVector(172, 168)); // 2
+	star_points_2d.push_back(A2DVector(0, 193));   // 1
+	
 	// -----  why do we need bounding box? ----- 
 	A2DRectangle bb = UtilityFunctions::GetBoundingBox(star_points_2d);
 	float img_length = bb.witdh;
@@ -278,10 +285,24 @@ void AnElement::Triangularization(int self_idx)
 
 	// -----  triangulation ----- 
 	OpenCVWrapper cvWrapper;
-	cvWrapper.Triangulate(_triangles,
-						randomPoints,
-						star_points_2d,
-						img_length);	
+	std::vector<AnIdxTriangle> tempTriangles;
+	cvWrapper.Triangulate(tempTriangles,
+						  randomPoints,
+						  star_points_2d,
+						  img_length);	
+	// duplicate triangles
+	for (int a = 0; a < SystemParams::_num_layer; a++)
+	{
+		float massIdxOffset = a * randomPoints.size();
+		for (unsigned int b = 0; b < tempTriangles.size(); b++)
+		{
+			int idx0 = tempTriangles[b].idx0 + massIdxOffset;
+			int idx1 = tempTriangles[b].idx1 + massIdxOffset;
+			int idx2 = tempTriangles[b].idx2 + massIdxOffset;
+			AnIdxTriangle tri(idx0, idx1, idx2);
+			_triangles.push_back(tri);
+		}
+	}
 	// -----  triangulation ----- 
 
 
@@ -309,7 +330,7 @@ void AnElement::Triangularization(int self_idx)
 
 	// -----  triangle edge springs ----- 
 	// intra layer
-	for (int a = 0; a < SystemParams::_num_layer; a++)
+	/*for (int a = 0; a < SystemParams::_num_layer; a++)
 	{
 		float massIdxOffset = a * randomPoints.size();
 		for (unsigned int b = 0; b < _triangles.size(); b++)
@@ -318,13 +339,38 @@ void AnElement::Triangularization(int self_idx)
 			int idx1 = _triangles[b].idx1 + massIdxOffset;
 			int idx2 = _triangles[b].idx2 + massIdxOffset;
 
+			// TO DO the b index is wrong?
 			TryToAddTriangleEdge(AnIndexedLine(idx0, idx1), b); // 0 - 1		
 			TryToAddTriangleEdge(AnIndexedLine(idx1, idx2), b); // 1 - 2		
 			TryToAddTriangleEdge(AnIndexedLine(idx2, idx0), b); // 2 - 0
+
+			// ----- add triangles to mass -----
+			AnIdxTriangle tri(idx0, idx1, idx2);
+			_massList[idx0]._triangles.push_back(tri);
+			_massList[idx1]._triangles.push_back(tri);
+			_massList[idx2]._triangles.push_back(tri);
 		}
+	}*/
+	for (unsigned int a = 0; a < _triangles.size(); a++)
+	{
+		int idx0 = _triangles[a].idx0;
+		int idx1 = _triangles[a].idx1;
+		int idx2 = _triangles[a].idx2;
+
+		TryToAddTriangleEdge(AnIndexedLine(idx0, idx1), a); // 0 - 1		
+		TryToAddTriangleEdge(AnIndexedLine(idx1, idx2), a); // 1 - 2		
+		TryToAddTriangleEdge(AnIndexedLine(idx2, idx0), a); // 2 - 0
+
+		// ----- add triangles to mass -----
+		AnIdxTriangle tri(idx0, idx1, idx2);
+		_massList[idx0]._triangles.push_back(tri);
+		_massList[idx1]._triangles.push_back(tri);
+		_massList[idx2]._triangles.push_back(tri);
 	}
 
-	std::vector<AnIndexedLine> aux_edge_temp = CreateBendingSprings();
+	// ----- bending springs ----- 
+	_auxiliaryEdges = CreateBendingSprings();
+	/*std::vector<AnIndexedLine> aux_edge_temp = CreateBendingSprings();
 	_auxiliaryEdges.insert(_auxiliaryEdges.end(), aux_edge_temp.begin(), aux_edge_temp.end());
 	for (int a = 1; a < SystemParams::_num_layer; a++)
 	{
@@ -336,7 +382,8 @@ void AnElement::Triangularization(int self_idx)
 			ln._index1 += layerOffset;
 			_auxiliaryEdges.push_back(ln);
 		}
-	}
+	}*/
+	// ----- bending springs ----- 
 
 	// 1-1 pattern
 	/*for (int a = 0; a < SystemParams::_num_layer - 1; a++)
@@ -511,9 +558,9 @@ void AnElement::CreateRandomPoints(std::vector<A2DVector> ornamentBoundary,
 
 // visualization
 void AnElement::InitMeshOgre3D(Ogre::SceneManager* sceneMgr,
-	Ogre::SceneNode* sceneNode,
-	const Ogre::String& name,
-	const Ogre::String& materialName)
+								Ogre::SceneNode* sceneNode,
+								const Ogre::String& name,
+								const Ogre::String& materialName)
 {
 	this->_sceneMgr = sceneMgr;
 	this->_sceneNode = sceneNode;
@@ -523,6 +570,8 @@ void AnElement::InitMeshOgre3D(Ogre::SceneManager* sceneMgr,
 	float rVal = (float)(rand() % 255) / 255.0f;
 	float gVal = (float)(rand() % 255) / 255.0f;
 	float bVal = (float)(rand() % 255) / 255.0f;
+
+	_color = MyColor(rVal * 255, gVal * 255, bVal * 255);
 
 	/*_material = Ogre::MaterialManager::getSingleton().getByName(materialName)->clone(materialName + std::to_string(_self_idx));
 	_material->getTechnique(0)->getPass(0)->setDiffuse(Ogre::ColourValue(rVal, gVal, bVal, 1));
@@ -557,7 +606,7 @@ void AnElement::InitMeshOgre3D(Ogre::SceneManager* sceneMgr,
 		A3DVector pt2 = _massList[ln._index1]._pos;
 		_spring_lines->addPoint(Ogre::Vector3(pt1._x, pt1._y, pt1._z));
 		_spring_lines->addPoint(Ogre::Vector3(pt2._x, pt2._y, pt2._z));
-	}
+	}/
 	for (int a = 0; a < _auxiliaryEdges.size(); a++)
 	{
 		AnIndexedLine ln = _auxiliaryEdges[a];
@@ -596,8 +645,7 @@ void AnElement::InitMeshOgre3D(Ogre::SceneManager* sceneMgr,
 	_debugNode = _sceneMgr->getRootSceneNode()->createChildSceneNode("debug_lines" + std::to_string(_elem_idx));
 	_debugNode->attachObject(_debug_lines);
 	// ---------- boundary ----------
-
-	
+		
 }
 
 void AnElement::UpdateBoundaryDisplayOgre3D()
@@ -631,7 +679,7 @@ void AnElement::UpdateSpringDisplayOgre3D()
 
 	int idx = 0;
 
-	for (int a = 0; a < _triEdges.size(); a++)
+	/*for (int a = 0; a < _triEdges.size(); a++)
 	{
 		AnIndexedLine ln = _triEdges[a];
 
@@ -641,7 +689,7 @@ void AnElement::UpdateSpringDisplayOgre3D()
 		A3DVector pt2 = _massList[ln._index1]._pos;
 		_spring_lines->setPoint(idx++, Ogre::Vector3(pt1._x, pt1._y, pt1._z));
 		_spring_lines->setPoint(idx++, Ogre::Vector3(pt2._x, pt2._y, pt2._z));
-	}
+	}*/
 	for (int a = 0; a < _auxiliaryEdges.size(); a++)
 	{
 		AnIndexedLine ln = _auxiliaryEdges[a];
@@ -838,7 +886,7 @@ void AnElement::RandomizeLayerSize()
 		randomScale.push_back(scVal);
 	}
 
-	A2DVector ctr(250, 250);
+	A2DVector ctr = _layer_center;
 	for (int a = 0; a < _massList.size(); a++)
 	{
 		A2DVector pos2D = _massList[a]._pos.GetA2DVector();
@@ -870,7 +918,7 @@ void  AnElement::CreateHelix()
 		A2DVector pos(_massList[a]._pos._x, _massList[a]._pos._y);
 		int curLayer = _massList[a]._layer_idx;
 		float radAngle = (ggg / (float)SystemParams::_num_layer) * (float)curLayer;
-		A2DVector rotPos = UtilityFunctions::Rotate(pos, A2DVector(250, 250), radAngle);
+		A2DVector rotPos = UtilityFunctions::Rotate(pos, _layer_center, radAngle);
 		_massList[a]._pos._x = rotPos.x;
 		_massList[a]._pos._y = rotPos.y;
 	}
@@ -1148,6 +1196,11 @@ void AnElement::SolveForSprings2D()
 		if (_triEdges[a]._isLayer2Layer)
 		{
 			k = SystemParams::_k_time_edge;
+
+			if (_scale > 3.0f)
+			{
+				k *= 0.25;
+			}
 		}
 		else
 		{
@@ -1155,7 +1208,7 @@ void AnElement::SolveForSprings2D()
 
 			if (_scale < 3.0f)
 			{
-				k *= 2;
+				k *= 5;
 			}
 		}
 
@@ -1201,7 +1254,7 @@ void AnElement::SolveForSprings2D()
 
 		if (_scale < 3.0f)
 		{
-			k *= 2;
+			k *= 5;
 		}
 
 		dir = pt0.DirectionTo(pt1);

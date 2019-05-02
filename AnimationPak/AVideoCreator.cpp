@@ -23,9 +23,9 @@ void AVideoCreator::Init(int numInterpolation)
 	}
 }
 
-void AVideoCreator::DrawLine(A2DVector pt1, A2DVector pt2, int frameIdx)
+void AVideoCreator::DrawLine(A2DVector pt1, A2DVector pt2, MyColor color, int frameIdx)
 {
-	_cvWrapper.DrawLine(_frames[frameIdx]._img, pt1, pt2, MyColor(0, 0, 0), 1, _img_scale);
+	_cvWrapper.DrawLine(_frames[frameIdx]._img, pt1, pt2, color, 1, _img_scale);
 }
 
 void AVideoCreator::Save(std::string folderName)

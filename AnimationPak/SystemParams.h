@@ -48,6 +48,7 @@ public:
 	static bool _show_time_springs;
 
 	static float _growth_scale_iter;
+	static float _element_max_scale;
 
 	// tetrathedralization
 	static float _sampling_density;

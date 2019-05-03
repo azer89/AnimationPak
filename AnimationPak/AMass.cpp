@@ -71,6 +71,8 @@ void AMass::CallMeFromConstructor()
 
 	_isDocked = false;
 
+	_draw_frame_mode = false;
+
 	Init();
 }
 

@@ -49,10 +49,13 @@ public:
 
 	static float _growth_scale_iter;
 	static float _element_max_scale;
+	static float _element_initial_scale;
 
 	// tetrathedralization
 	static float _sampling_density;
 	static float _boundary_sampling_factor;
+
+	static int _interpolation_factor;
 };
 
 #endif

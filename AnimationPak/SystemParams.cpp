@@ -54,13 +54,16 @@ void SystemParams::LoadParameters()
 
 	// temp
 	//SystemParams::_cube_length = 500.0f;
-	SystemParams::_num_layer = script.get<int>("_num_layer");; // plus one
+	SystemParams::_num_layer = script.get<int>("_num_layer"); // plus one
 	SystemParams::_show_time_springs = script.get<bool>("_show_time_springs");
 	SystemParams::_growth_scale_iter = script.get<float>("_growth_scale_iter");
 	SystemParams::_element_max_scale = script.get<float>("_element_max_scale");
+	SystemParams::_element_initial_scale = script.get<float>("_element_initial_scale");
 
 	SystemParams::_sampling_density = script.get<float>("_sampling_density");
 	SystemParams::_boundary_sampling_factor = script.get<float>("_boundary_sampling_factor");
+
+	SystemParams::_interpolation_factor = script.get<int>("_interpolation_factor");
 
 	//std::cout << SystemParams::_upscaleFactor << "\n";
 	//std::cout << SystemParams::_downscaleFactor << "\n";
@@ -103,6 +106,9 @@ bool  SystemParams::_show_time_springs = false;
 
 float SystemParams::_growth_scale_iter = 0.0f;
 float SystemParams::_element_max_scale = 0.0f;
+float SystemParams::_element_initial_scale = 0.0f;
 
 float SystemParams::_sampling_density = 0.0f;
 float SystemParams::_boundary_sampling_factor = 0.0f;
+
+int SystemParams::_interpolation_factor = 0;

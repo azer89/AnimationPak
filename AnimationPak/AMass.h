@@ -41,6 +41,10 @@ public:
 	
 	std::vector<AnIdxTriangle> _triangles; // for overlap force
 
+private:
+	A3DVector _temp_pos;
+	A3DVector _temp_velocity;
+	bool _draw_frame_mode;
 
 public:
 	AMass();

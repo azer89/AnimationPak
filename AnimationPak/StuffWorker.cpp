@@ -39,9 +39,9 @@ StuffWorker::~StuffWorker()
 
 void StuffWorker::InitElements(Ogre::SceneManager* scnMgr)
 {
-	float initialScale = 0.5; // 0.05
+	float initialScale = SystemParams::_element_initial_scale; // 0.05
 
-	/*{
+	{
 		int idx = _element_list.size();
 		AnElement elem;
 		elem.Triangularization(idx);
@@ -52,7 +52,7 @@ void StuffWorker::InitElements(Ogre::SceneManager* scnMgr)
 		Ogre::SceneNode* pNode = scnMgr->getRootSceneNode()->createChildSceneNode("TubeNode" + std::to_string(idx));
 		elem.InitMeshOgre3D(scnMgr, pNode, "StarTube" + std::to_string(idx), "Examples/TransparentTest2");
 		_element_list.push_back(elem);
-	}*/
+	}
 
 	
 	/*{
@@ -71,10 +71,10 @@ void StuffWorker::InitElements(Ogre::SceneManager* scnMgr)
 
 	std::vector<A2DVector> posArray;
 
-	posArray.push_back(A2DVector(50, 270));
-	posArray.push_back(A2DVector(450, 220));
+	//posArray.push_back(A2DVector(50, 270));
+	//posArray.push_back(A2DVector(450, 220));
 
-	/*posArray.push_back(A2DVector(250, 0));
+	posArray.push_back(A2DVector(250, 0));
 	posArray.push_back(A2DVector(0, 350));
 	posArray.push_back(A2DVector(100, 400));
 	posArray.push_back(A2DVector(400, 0));
@@ -88,7 +88,7 @@ void StuffWorker::InitElements(Ogre::SceneManager* scnMgr)
 	posArray.push_back(A2DVector(170, 210));
 	posArray.push_back(A2DVector(320, 280));
 	posArray.push_back(A2DVector(350, 280));
-	posArray.push_back(A2DVector(350, 220));*/
+	posArray.push_back(A2DVector(350, 220));
 
 	for (int a = 0; a < posArray.size(); a++)
 	{
@@ -241,39 +241,17 @@ void StuffWorker::UpdateOgre3D()
 
 void StuffWorker::SaveFrames()
 {
-	//std::cout << "please uncomment me\n";
-		
-	int numInterpolation = 10;
+
+	int numInterpolation = SystemParams::_interpolation_factor;
 
 	AVideoCreator vCreator;
 	vCreator.Init(numInterpolation);
-	//vCreator.Init();
 
 	for (int l = 0; l < SystemParams::_num_layer; l++)
 	{
 
 		for (int a = 0; a < _element_list.size(); a++)
 		{
-			/*for (int b = 0; b < _element_list[a]._triEdges.size(); b++)
-			{
-				AnIndexedLine ln = _element_list[a]._triEdges[b];
-				if (!ln._isLayer2Layer)
-				{
-					int massIdx1 = ln._index0 % _element_list[a]._numPointPerLayer;
-					int massIdx2 = ln._index1 % _element_list[a]._numPointPerLayer;
-
-					int boundaryIdx = _element_list[a]._numBoundaryPointPerLayer;
-
-					if(massIdx1 < boundaryIdx && massIdx2 < boundaryIdx)
-					{
-						A2DVector pt1 = _element_list[a]._massList[ln._index0]._pos.GetA2DVector();
-						A2DVector pt2 = _element_list[a]._massList[ln._index1]._pos.GetA2DVector();
-						int layerIdx = _element_list[a]._massList[ln._index0]._layer_idx;
-						vCreator.DrawLine(pt1, pt2, layerIdx);
-					}
-				}
-			}*/
-
 			int layerOffset = l * _element_list[a]._numPointPerLayer;
 			for (int b = 0; b < _element_list[a]._numBoundaryPointPerLayer; b++)
 			{

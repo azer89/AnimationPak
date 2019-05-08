@@ -71,7 +71,9 @@ void AMass::CallMeFromConstructor()
 
 	_isDocked = false;
 
-	_draw_frame_mode = false;
+	//_interpolation_mode = false;
+
+	
 
 	Init();
 }
@@ -270,7 +272,15 @@ void AMass::Solve(const std::vector<A2DVector>& container)
 	}
 }
 
+/*void AMass::EnableInterpolationMode()
+{
 
+}*/
+
+/*void AMass::DisableInterpolationMode()
+{
+
+}*/
 
 /*void AMass::GetClosestPoint()
 {

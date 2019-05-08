@@ -29,6 +29,14 @@ public:
 	void SaveFrames();
 
 public:
+	//static bool  _interpolation_mode;
+	//static int   _interpolation_iter;
+	//static float _interpolation_value;
+
+	//void EnableInterpolationMode();
+	//void DisableInterpolationMode();
+
+public:
 
 	ContainerWorker* _containerWorker;
 

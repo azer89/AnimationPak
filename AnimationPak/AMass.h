@@ -17,6 +17,8 @@ public:
 	A3DVector _pos;	  // current
 	A3DVector _velocity;
 
+	
+
 	int _self_idx; // for identification, not PER LAYER
 	int _parent_idx; // parent identification
 	int _layer_idx; // layer idx
@@ -41,10 +43,17 @@ public:
 	
 	std::vector<AnIdxTriangle> _triangles; // for overlap force
 
-private:
-	A3DVector _temp_pos;
-	A3DVector _temp_velocity;
-	bool _draw_frame_mode;
+public:
+	//A3DVector _temp_pos; // for interpolation mode
+	//A3DVector _temp_velocity; // for interpolation mode
+	//bool _interpolation_mode; // for interpolation mode
+
+	//A2DVector _inter_dir; // for interpolation mode
+	//float _inter_dir_length; // for interpolation mode
+
+//public:
+//	void EnableInterpolationMode();
+//	void DisableInterpolationMode();
 
 public:
 	AMass();

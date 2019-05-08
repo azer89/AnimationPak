@@ -6,9 +6,14 @@
 
 #include "ContainerWorker.h"
 
-// static items
+// static variables
 std::vector<AnElement>  StuffWorker::_element_list = std::vector<AnElement>();
 std::vector<CollisionGrid2D*>  StuffWorker::_c_grid_list = std::vector< CollisionGrid2D * >();
+
+// static variables for interpolation
+//bool  StuffWorker::_interpolation_mode = false;
+//int   StuffWorker::_interpolation_iter = 0;
+//float StuffWorker::_interpolation_value = 0;
 
 StuffWorker::StuffWorker() : _containerWorker(0)//: _elem(0)
 {
@@ -130,13 +135,13 @@ void StuffWorker::InitElements(Ogre::SceneManager* scnMgr)
 
 void StuffWorker::Update()
 {
-	// ???
+	// ----- for closest point calculation -----
 	for (int a = 0; a < _element_list.size(); a++)
 	{
-		_element_list[a].UpdateBackend();
+		_element_list[a].UpdateLayerBoundaries();
 	}
 
-	// update collision grid
+	// ----- update collision grid -----
 	std::vector<int> iters; // TODO can be better
 	for (int a = 0; a < _c_grid_list.size(); a++) { iters.push_back(0); }
 
@@ -144,13 +149,11 @@ void StuffWorker::Update()
 	{
 		for (int b = 0; b < _element_list[a]._massList.size(); b++)
 		{
-
 			int c_grid_idx = _element_list[a]._massList[b]._layer_idx;
 			int layer_iter = iters[c_grid_idx];
 			A3DVector p1 = _element_list[a]._massList[b]._pos;
 
 			// update pt
-			//_c_grid_list[c_grid_idx]->InsertAPoint(p1._x, p1._y, a, b);
 			_c_grid_list[c_grid_idx]->_objects[layer_iter]->_x = p1._x;
 			_c_grid_list[c_grid_idx]->_objects[layer_iter]->_y = p1._y;
 
@@ -163,7 +166,7 @@ void StuffWorker::Update()
 		_c_grid_list[a]->PrecomputeGraphIndices();
 	}
 
-	// update closest points
+	// ----- update closest points -----
 	for (int a = 0; a < _element_list.size(); a++)
 	{
 		for (int b = 0; b < _element_list[a]._massList.size(); b++)
@@ -173,7 +176,7 @@ void StuffWorker::Update()
 
 	}
 
-	// grow
+	// ----- grow -----
 	for (int a = 0; a < _element_list.size(); a++)
 	{
 		_element_list[a].Grow(SystemParams::_growth_scale_iter, SystemParams::_dt);
@@ -247,6 +250,7 @@ void StuffWorker::SaveFrames()
 	AVideoCreator vCreator;
 	vCreator.Init(numInterpolation);
 
+	// ----- shouldn't be deleted for interpolation mode -----
 	for (int l = 0; l < SystemParams::_num_layer; l++)
 	{
 
@@ -258,16 +262,17 @@ void StuffWorker::SaveFrames()
 				int massIdx1 = b + layerOffset;
 				int massIdx2 = b + layerOffset + 1;
 				if (b == _element_list[a]._numBoundaryPointPerLayer - 1)
-				{
-					massIdx2 = layerOffset;
-				}
+					{ massIdx2 = layerOffset; }
 				A2DVector pt1 = _element_list[a]._massList[massIdx1]._pos.GetA2DVector();
 				A2DVector pt2 = _element_list[a]._massList[massIdx2]._pos.GetA2DVector();
 				vCreator.DrawLine(pt1, pt2, _element_list[a]._color, l * numInterpolation);
-				//vCreator.DrawLine(pt1, pt2, l);
+				vCreator.DrawRedCircle(l * numInterpolation); // debug delete me
+
 			}
 		}
 	}
+	// ----- shouldn't be deleted for interpolation mode -----
+
 
 	// WARNING very messy nested loops
 
@@ -329,3 +334,32 @@ void StuffWorker::SaveFrames()
 	ss << SystemParams::_save_folder << "PNG\\";
 	vCreator.Save(ss.str());
 }
+
+//void StuffWorker::EnableInterpolationMode()
+//{
+//	// ----- variables -----
+//	StuffWorker::_interpolation_mode  = true;
+//	StuffWorker::_interpolation_iter  = 0;
+//	StuffWorker::_interpolation_value = 0;
+//
+//	// -----  -----
+//
+//	// ----- Enable ? -----
+//	for (int a = 0; a < _element_list.size(); a++)
+//	{
+//		_element_list[a].EnableInterpolationMode();
+//	}
+//	
+//}
+//
+//void StuffWorker::DisableInterpolationMode()
+//{
+//	StuffWorker::_interpolation_mode  = false;
+//	StuffWorker::_interpolation_iter  = 0;
+//	StuffWorker::_interpolation_value = 0;
+//
+//	for (int a = 0; a < _element_list.size(); a++)
+//	{
+//		_element_list[a].DisableInterpolationMode();
+//	}
+//}

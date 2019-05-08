@@ -34,6 +34,7 @@ AnElement::AnElement()
 	this->_scale = 1.0f;
 	this->_maxScale = SystemParams::_element_max_scale;
 	//this->_uniqueMaterial = false;
+	this->_predefined_time_path = false;
 }
 
 AnElement::~AnElement()
@@ -48,7 +49,7 @@ AnElement::~AnElement()
 
 	for (int a = 0; a < SystemParams::_num_layer; a++)
 	{
-		_insideFlags.push_back(false);
+		_insideFlags.push_back(false); // TODO currently not used
 	}
 	/*if (_tubeObject)
 	{
@@ -166,6 +167,9 @@ void AnElement::AdjustEndPosition(A2DVector endPt2D, bool lockEnds)
 		}
 
 	}
+
+	// flag
+	_predefined_time_path = true;
 
 	ResetSpringRestLengths();
 }
@@ -286,10 +290,7 @@ void AnElement::Triangularization(int self_idx)
 	// -----  triangulation ----- 
 	OpenCVWrapper cvWrapper;
 	std::vector<AnIdxTriangle> tempTriangles;
-	cvWrapper.Triangulate(tempTriangles,
-						  randomPoints,
-						  star_points_2d,
-						  img_length);	
+	cvWrapper.Triangulate(tempTriangles, randomPoints, star_points_2d, img_length);	
 	// duplicate triangles
 	for (int a = 0; a < SystemParams::_num_layer; a++)
 	{
@@ -305,61 +306,72 @@ void AnElement::Triangularization(int self_idx)
 	}
 	// -----  triangulation ----- 
 
+	// ----- interpolation triangles -----
+	for (int a = 0; a < SystemParams::_interpolation_factor; a++)
+	{
+		float massIdxOffset = a * randomPoints.size();
+		for (unsigned int b = 0; b < tempTriangles.size(); b++)
+		{
+			int idx0 = tempTriangles[b].idx0 + massIdxOffset;
+			int idx1 = tempTriangles[b].idx1 + massIdxOffset;
+			int idx2 = tempTriangles[b].idx2 + massIdxOffset;
+			AnIdxTriangle tri(idx0, idx1, idx2);
+			_interp_triangles.push_back(tri);
+		}
+	}
+	// ----- interpolation triangles -----
 
 	// z axis offset
 	float zOffset = -((float)SystemParams::_upscaleFactor) / ((float)SystemParams::_num_layer - 1);
 
 	// -----  generate mass ----- 
-	int massCounter = 0;
+	int massCounter = 0; // self_idx
 	for (int a = 0; a < SystemParams::_num_layer; a++)
 	{
 		float zPos = zOffset * a;
 		for (int b = 0; b < randomPoints.size(); b++)
 		{
 			AMass m(randomPoints[b].x, // x
-				randomPoints[b].y,                       // y
-				zPos,                                       // z
-				massCounter++,                           // self_idx
-				_elem_idx,                               // parent_idx
-				a); // debug_which_layer
+				randomPoints[b].y,     // y
+				zPos,                  // z
+				massCounter++,         // self_idx
+				_elem_idx,             // parent_idx
+				a);                    // debug_which_layer
 			if (b < _numBoundaryPointPerLayer) { m._is_boundary = true; }
 			_massList.push_back(m);                                     
 		}
 	}
 	// ----- generate mass ----- 
 
-	// -----  triangle edge springs ----- 
-	// intra layer
-	/*for (int a = 0; a < SystemParams::_num_layer; a++)
+	// -----  generate interpolation mass ----- 
+	int interp_massCounter = 0; // self_idx
+	for (int a = 0; a < SystemParams::_interpolation_factor; a++)
 	{
-		float massIdxOffset = a * randomPoints.size();
-		for (unsigned int b = 0; b < _triangles.size(); b++)
+		float zPos = zOffset * a; // follow the original
+		for (int b = 0; b < randomPoints.size(); b++)
 		{
-			int idx0 = _triangles[b].idx0 + massIdxOffset;
-			int idx1 = _triangles[b].idx1 + massIdxOffset;
-			int idx2 = _triangles[b].idx2 + massIdxOffset;
-
-			// TO DO the b index is wrong?
-			TryToAddTriangleEdge(AnIndexedLine(idx0, idx1), b); // 0 - 1		
-			TryToAddTriangleEdge(AnIndexedLine(idx1, idx2), b); // 1 - 2		
-			TryToAddTriangleEdge(AnIndexedLine(idx2, idx0), b); // 2 - 0
-
-			// ----- add triangles to mass -----
-			AnIdxTriangle tri(idx0, idx1, idx2);
-			_massList[idx0]._triangles.push_back(tri);
-			_massList[idx1]._triangles.push_back(tri);
-			_massList[idx2]._triangles.push_back(tri);
+			AMass m(randomPoints[b].x, // x
+				randomPoints[b].y,     // y
+				zPos,                  // z, will be changed
+				interp_massCounter++,  // self_idx
+				_elem_idx,             // parent_idx
+				a);                    // debug_which_layer
+			if (b < _numBoundaryPointPerLayer) { m._is_boundary = true; }
+			_interp_massList.push_back(m);
 		}
-	}*/
+	}
+	// -----  generate interpolation mass ----- 
+
+	// -----  triangle edge springs ----- 
 	for (unsigned int a = 0; a < _triangles.size(); a++)
 	{
 		int idx0 = _triangles[a].idx0;
 		int idx1 = _triangles[a].idx1;
 		int idx2 = _triangles[a].idx2;
 
-		TryToAddTriangleEdge(AnIndexedLine(idx0, idx1), a); // 0 - 1		
-		TryToAddTriangleEdge(AnIndexedLine(idx1, idx2), a); // 1 - 2		
-		TryToAddTriangleEdge(AnIndexedLine(idx2, idx0), a); // 2 - 0
+		TryToAddTriangleEdge(AnIndexedLine(idx0, idx1), a, _triEdges, _edgeToTri); // 0 - 1		
+		TryToAddTriangleEdge(AnIndexedLine(idx1, idx2), a, _triEdges, _edgeToTri); // 1 - 2		
+		TryToAddTriangleEdge(AnIndexedLine(idx2, idx0), a, _triEdges, _edgeToTri); // 2 - 0
 
 		// ----- add triangles to mass -----
 		AnIdxTriangle tri(idx0, idx1, idx2);
@@ -368,22 +380,32 @@ void AnElement::Triangularization(int self_idx)
 		_massList[idx2]._triangles.push_back(tri);
 	}
 
-	// ----- bending springs ----- 
-	_auxiliaryEdges = CreateBendingSprings();
-	/*std::vector<AnIndexedLine> aux_edge_temp = CreateBendingSprings();
-	_auxiliaryEdges.insert(_auxiliaryEdges.end(), aux_edge_temp.begin(), aux_edge_temp.end());
-	for (int a = 1; a < SystemParams::_num_layer; a++)
+	// ----- interpolation triangle edge springs ----- 
+	for (unsigned int a = 0; a < _interp_triangles.size(); a++)
 	{
-		int layerOffset = a * _numPointPerLayer;
-		for (int b = 0; b < aux_edge_temp.size(); b++)
-		{
-			AnIndexedLine ln = aux_edge_temp[b];
-			ln._index0 += layerOffset;
-			ln._index1 += layerOffset;
-			_auxiliaryEdges.push_back(ln);
-		}
-	}*/
+		int idx0 = _interp_triangles[a].idx0;
+		int idx1 = _interp_triangles[a].idx1;
+		int idx2 = _interp_triangles[a].idx2;
+
+		TryToAddTriangleEdge(AnIndexedLine(idx0, idx1), a, _interp_triEdges, _interp_edgeToTri); // 0 - 1		
+		TryToAddTriangleEdge(AnIndexedLine(idx1, idx2), a, _interp_triEdges, _interp_edgeToTri); // 1 - 2		
+		TryToAddTriangleEdge(AnIndexedLine(idx2, idx0), a, _interp_triEdges, _interp_edgeToTri); // 2 - 0
+
+		// ----- add triangles to mass -----
+		AnIdxTriangle tri(idx0, idx1, idx2);
+		_interp_massList[idx0]._triangles.push_back(tri);
+		_interp_massList[idx1]._triangles.push_back(tri);
+		_interp_massList[idx2]._triangles.push_back(tri);
+	}
+
 	// ----- bending springs ----- 
+	_auxiliaryEdges = CreateBendingSprings(_massList, _triangles, _triEdges, _edgeToTri);
+	// ----- bending springs ----- 
+
+	// ----- interpolation bending springs ----- 
+	_interp_auxiliaryEdges = CreateBendingSprings(_interp_massList, _interp_triangles, _interp_triEdges, _interp_edgeToTri);
+	// ----- interpolation bending springs ----- 
+
 
 	// 1-1 pattern
 	/*for (int a = 0; a < SystemParams::_num_layer - 1; a++)
@@ -413,11 +435,34 @@ void AnElement::Triangularization(int self_idx)
 				idxB = 0;
 			}
 
-			TryToAddTriangleEdge(AnIndexedLine(b + massIdxOffset1, idxA + massIdxOffset2, true), -1);
-			TryToAddTriangleEdge(AnIndexedLine(b + massIdxOffset1, idxB + massIdxOffset2, true), -1);
+			TryToAddTriangleEdge(AnIndexedLine(b + massIdxOffset1, idxA + massIdxOffset2, true), -1, _triEdges, _edgeToTri);
+			TryToAddTriangleEdge(AnIndexedLine(b + massIdxOffset1, idxB + massIdxOffset2, true), -1, _triEdges, _edgeToTri);
 		}
 	}
 	// -----  triangle edge springs ----- 
+
+	// ----- interpolation cross pattern -----
+	for (int a = 0; a < SystemParams::_interpolation_factor - 1; a++)
+	{
+		int massIdxOffset1 = a * randomPoints.size();
+		int massIdxOffset2 = massIdxOffset1 + randomPoints.size();
+		for (int b = 0; b < _numBoundaryPointPerLayer; b++)
+		{
+			int idxA = b - 1; // prev
+			int idxB = b + 1; // next
+			if (b == 0)
+			{
+				idxA = _numBoundaryPointPerLayer - 1;
+			}
+			else if (b == _numBoundaryPointPerLayer - 1)
+			{
+				idxB = 0;
+			}
+
+			TryToAddTriangleEdge(AnIndexedLine(b + massIdxOffset1, idxA + massIdxOffset2, true), -1, _interp_triEdges, _interp_edgeToTri);
+			TryToAddTriangleEdge(AnIndexedLine(b + massIdxOffset1, idxB + massIdxOffset2, true), -1, _interp_triEdges, _interp_edgeToTri);
+		}
+	}
 
 	// rotate
 	CreateHelix();
@@ -443,7 +488,7 @@ void AnElement::Triangularization(int self_idx)
 
 void AnElement::CalculateRestStructure()
 {
-	UpdateBackend(); // update per_layer_boundary
+	UpdateLayerBoundaries(); // update per_layer_boundary
 
 	//std::vector<A2DVector> _layer_center_array; // OpenCVWrapper::GetCenter
 	OpenCVWrapper cvWrapper;
@@ -583,30 +628,25 @@ void AnElement::InitMeshOgre3D(Ogre::SceneManager* sceneMgr,
 
 	UpdateMeshOgre3D();
 
-	if (_sceneNode)
-		_sceneNode->attachObject(_tubeObject);
-	else
-		std::cout << "_sceneNode is null\n";*/
+	if (_sceneNode) _sceneNode->attachObject(_tubeObject);
+	else std::cout << "_sceneNode is null\n";*/
 
 	// material
 	Ogre::MaterialPtr line_material = Ogre::MaterialManager::getSingleton().getByName("Examples/RedMat")->clone("ElementLines" + std::to_string(_elem_idx));	
 	line_material->getTechnique(0)->getPass(0)->setDiffuse(Ogre::ColourValue(rVal, gVal, bVal, 1));
 	
-	
-
 	// ---------- springs ----------
 	/*_spring_lines = new DynamicLines(line_material, Ogre::RenderOperation::OT_LINE_LIST);
 	for (int a = 0; a < _triEdges.size(); a++)
 	{
 		AnIndexedLine ln = _triEdges[a];
-
-		if (ln._isLayer2Layer) { continue; }
+		//if (ln._isLayer2Layer) { continue; }
 
 		A3DVector pt1 = _massList[ln._index0]._pos;
 		A3DVector pt2 = _massList[ln._index1]._pos;
 		_spring_lines->addPoint(Ogre::Vector3(pt1._x, pt1._y, pt1._z));
 		_spring_lines->addPoint(Ogre::Vector3(pt2._x, pt2._y, pt2._z));
-	}/
+	}
 	for (int a = 0; a < _auxiliaryEdges.size(); a++)
 	{
 		AnIndexedLine ln = _auxiliaryEdges[a];
@@ -679,17 +719,17 @@ void AnElement::UpdateSpringDisplayOgre3D()
 
 	int idx = 0;
 
-	/*for (int a = 0; a < _triEdges.size(); a++)
+	for (int a = 0; a < _triEdges.size(); a++)
 	{
 		AnIndexedLine ln = _triEdges[a];
 
-		if (ln._isLayer2Layer) { continue; }
+		//if (ln._isLayer2Layer) { continue; }
 
 		A3DVector pt1 = _massList[ln._index0]._pos;
 		A3DVector pt2 = _massList[ln._index1]._pos;
 		_spring_lines->setPoint(idx++, Ogre::Vector3(pt1._x, pt1._y, pt1._z));
 		_spring_lines->setPoint(idx++, Ogre::Vector3(pt2._x, pt2._y, pt2._z));
-	}*/
+	}
 	for (int a = 0; a < _auxiliaryEdges.size(); a++)
 	{
 		AnIndexedLine ln = _auxiliaryEdges[a];
@@ -904,7 +944,7 @@ void AnElement::RandomizeLayerSize()
 
 void  AnElement::CreateHelix()
 {
-	float ggg = 6.28318530718 * 5;
+	float ggg = 6.28318530718;
 
 	int randVal = rand() % 2;
 	if (randVal == 0)
@@ -924,7 +964,7 @@ void  AnElement::CreateHelix()
 	}
 }
 
-void AnElement::UpdateBackend()
+void AnElement::UpdateLayerBoundaries()
 {
 	//
 	//UpdateSpringLengths();
@@ -1114,9 +1154,6 @@ void AnElement::CreateStarTube(int self_idx)
 
 void AnElement::ResetSpringRestLengths()
 {
-	// PLEASE UNCOMMENT ME
-	// PLEASE FIX ME
-
 	for (int a = 0; a < _triEdges.size(); a++)
 	{		
 		//{
@@ -1196,11 +1233,15 @@ void AnElement::SolveForSprings2D()
 		if (_triEdges[a]._isLayer2Layer)
 		{
 			k = SystemParams::_k_time_edge;
-
-			if (_scale > 3.0f)
-			{
-				k *= 0.25;
-			}
+			//std::cout << ">";
+			//if (_predefined_time_path)
+			//{
+			//	k *= 200;
+			//}
+			//else if (_scale > 3.0f)
+			//{
+			//	k *= 0.25;
+			//}
 		}
 		else
 		{
@@ -1208,7 +1249,7 @@ void AnElement::SolveForSprings2D()
 
 			if (_scale < 3.0f)
 			{
-				k *= 5;
+				k *= 50;
 			}
 		}
 
@@ -1419,22 +1460,25 @@ int AnElement::GetUnsharedVertexIndex(AnIdxTriangle tri, AnIndexedLine edge)
 	return -1;
 }
 
-std::vector<AnIndexedLine> AnElement::CreateBendingSprings()
+std::vector<AnIndexedLine> AnElement::CreateBendingSprings(std::vector<AMass>& mList,
+														   const std::vector<AnIdxTriangle>& tris,
+	                                                       const std::vector<AnIndexedLine>& tEdges,
+														   const std::vector<std::vector<int>>& e2t)
 {
 	std::vector<AnIndexedLine> auxiliaryEdges;
-	for (unsigned a = 0; a < _edgeToTri.size(); a++)
+	for (unsigned a = 0; a < e2t.size(); a++)
 	{
-		if (_edgeToTri[a].size() != 2) { continue; }
+		if (e2t[a].size() != 2) { continue; }
 
-		int idx1 = GetUnsharedVertexIndex(_triangles[_edgeToTri[a][0]], _triEdges[a]);
+		int idx1 = GetUnsharedVertexIndex(tris[e2t[a][0]], tEdges[a]);
 		if (idx1 < 0) { continue; }
 
-		int idx2 = GetUnsharedVertexIndex(_triangles[_edgeToTri[a][1]], _triEdges[a]);
+		int idx2 = GetUnsharedVertexIndex(tris[e2t[a][1]], tEdges[a]);
 		if (idx2 < 0) { continue; }
 
 		AnIndexedLine anEdge(idx1, idx2);
-		A2DVector pt1 = _massList[idx1]._pos.GetA2DVector();
-		A2DVector pt2 = _massList[idx2]._pos.GetA2DVector();
+		A2DVector pt1 = mList[idx1]._pos.GetA2DVector();
+		A2DVector pt2 = mList[idx2]._pos.GetA2DVector();
 		//anEdge._dist = pt1.Distance(pt2);
 		float d = pt1.Distance(pt2);
 		anEdge.SetDist(d);
@@ -1445,9 +1489,9 @@ std::vector<AnIndexedLine> AnElement::CreateBendingSprings()
 	return auxiliaryEdges;
 }
 
-bool AnElement::TryToAddTriangleEdge(AnIndexedLine anEdge, int triIndex)
+bool AnElement::TryToAddTriangleEdge(AnIndexedLine anEdge, int triIndex, std::vector<AnIndexedLine>& tEdges, std::vector<std::vector<int>>& e2t)
 {
-	int edgeIndex = FindTriangleEdge(anEdge);
+	int edgeIndex = FindTriangleEdge(anEdge, tEdges);
 	if (edgeIndex < 0)
 	{
 		A3DVector pt1 = _massList[anEdge._index0]._pos;
@@ -1456,37 +1500,36 @@ bool AnElement::TryToAddTriangleEdge(AnIndexedLine anEdge, int triIndex)
 		anEdge.SetDist(d);
 
 		// push to edge list
-		_triEdges.push_back(anEdge);
+		tEdges.push_back(anEdge);
 
 		// push to edge-to-triangle list
 		std::vector<int> indices;
 		indices.push_back(triIndex);
-		_edgeToTri.push_back(indices);
+		e2t.push_back(indices);
 
 		return true;
 	}
 
-	// UNCOMMENT PERHAPS?
 	//// push to edge-to-triangle list
-	_edgeToTri[edgeIndex].push_back(triIndex);
+	e2t[edgeIndex].push_back(triIndex);
 
 	return false;
 }
 
 
 // triangle edges
-int AnElement::FindTriangleEdge(AnIndexedLine anEdge)
+int AnElement::FindTriangleEdge(AnIndexedLine anEdge, std::vector<AnIndexedLine>& tEdges)
 {
-	for (unsigned int a = 0; a < _triEdges.size(); a++)
+	for (unsigned int a = 0; a < tEdges.size(); a++)
 	{
-		if (_triEdges[a]._index0 == anEdge._index0 &&
-			_triEdges[a]._index1 == anEdge._index1)
+		if (tEdges[a]._index0 == anEdge._index0 &&
+			tEdges[a]._index1 == anEdge._index1)
 		{
 			return a;
 		}
 
-		if (_triEdges[a]._index1 == anEdge._index0 &&
-			_triEdges[a]._index0 == anEdge._index1)
+		if (tEdges[a]._index1 == anEdge._index0 &&
+			tEdges[a]._index0 == anEdge._index1)
 		{
 			return a;
 		}
@@ -1495,3 +1538,42 @@ int AnElement::FindTriangleEdge(AnIndexedLine anEdge)
 	return -1;
 }
 
+//void AnElement::EnableInterpolationMode()
+//{
+//	 AMass
+//	/*
+//	_temp_pos;
+//	_temp_velocity;
+//	_interpolation_mode;
+//	_inter_dir;
+//	_inter_dir_length;
+//	*/
+//
+//	int numInterpolation = SystemParams::_interpolation_factor;
+//	for (int i = 1; i < numInterpolation; i++) 
+//	{
+//		float interVal = ((float)i) / ((float)numInterpolation);
+//
+//		 one less layer
+//		for (int l = 0; l < SystemParams::_num_layer - 1; l++)
+//		{
+//			int layerOffset = l * _numPointPerLayer;
+//			for (int b = 0; b < _numBoundaryPointPerLayer; b++) 
+//			{
+//				int massIdx1 = b + layerOffset;
+//				int massIdx1_next = massIdx1 + _numPointPerLayer; 
+//				A2DVector pt1 = _massList[massIdx1]._pos.GetA2DVector();
+//				A2DVector pt1_next = _massList[massIdx1_next]._pos.GetA2DVector();
+//				A2DVector dir1 = pt1.DirectionTo(pt1_next);
+//				float d1 = dir1.Length() * interVal;
+//				dir1 = dir1.Norm();
+//				A2DVector pt1_mid = pt1 + (dir1 * d1);
+//			} // for (int b = 0; b < _element_list[a]._numBoundaryPointPerLayer; b++)
+//		} // for (int l = 0; l < SystemParams::_num_layer - 1; l++)
+//	} // for (int i = 1; i < numInterpolation; i++)
+//
+//}
+//
+//void AnElement::DisableInterpolationMode()
+//{
+//}

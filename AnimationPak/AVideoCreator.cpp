@@ -23,9 +23,14 @@ void AVideoCreator::Init(int numInterpolation)
 	}
 }
 
+void AVideoCreator::DrawRedCircle(int frameIdx)
+{
+	_cvWrapper.DrawCircle(_frames[frameIdx]._img, A2DVector(20, 20), MyColor(255, 0, 0), 10);
+}
+
 void AVideoCreator::DrawLine(A2DVector pt1, A2DVector pt2, MyColor color, int frameIdx)
 {
-	_cvWrapper.DrawLine(_frames[frameIdx]._img, pt1, pt2, color, 1, _img_scale);
+	_cvWrapper.DrawLine(_frames[frameIdx]._img, pt1, pt2, color, _img_scale, _img_scale);
 }
 
 void AVideoCreator::Save(std::string folderName)

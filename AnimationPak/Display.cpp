@@ -154,14 +154,14 @@ void Display::setup()
 	{
 		Ogre::Light* light = _scnMgr->createLight("Light1");
 		Ogre::SceneNode* lightNode = _scnMgr->getRootSceneNode()->createChildSceneNode();
-		lightNode->setPosition(0, 0, 0);
+		lightNode->setPosition(0, 0, -500);
 		lightNode->attachObject(light);
 	}
 
 	{
 		Ogre::Light* light = _scnMgr->createLight("Light2");
 		Ogre::SceneNode* lightNode = _scnMgr->getRootSceneNode()->createChildSceneNode();
-		lightNode->setPosition(500, 500, 500);
+		lightNode->setPosition(500, 500, 900);
 		lightNode->attachObject(light);
 	}
 

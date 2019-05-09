@@ -33,6 +33,7 @@ public:
 	
 	void UpdateLayerBoundaries();
 	//void UpdateSpringLengths();
+	void UpdateInterpMasses();
 
 	void SolveForSprings3D();
 	void SolveForSprings2D();
@@ -51,7 +52,7 @@ public:
 	void RotateXY(float radAngle);
 	void ScaleXY(float scVal);
 	void TranslateXY(float x, float y);
-	void AdjustEnds(A2DVector startPt2D, A2DVector endPt2D, bool lockEnds = true);
+	//void AdjustEnds(A2DVector startPt2D, A2DVector endPt2D, bool lockEnds = true);
 
 	void CreateDockPoint(A2DVector queryPos, A2DVector lockPos, int layer_idx);
 	void AdjustEndPosition(A2DVector endPt2D, bool lockEnds = true);
@@ -82,6 +83,7 @@ public:
 	void UpdatePerLayerBoundaryOgre3D();
 	void UpdateSpringDisplayOgre3D();
 	void UpdateBoundaryDisplayOgre3D();
+	void UpdateDebug2Ogre3D();
 	// ---------- Ogre 3D ----------
 
 	
@@ -128,7 +130,10 @@ public:
 	std::vector<AnIndexedLine>    _interp_auxiliaryEdges; // for edge forces
 	std::vector<AnIndexedLine>    _interp_triEdges;  // for edge forces
 	std::vector<std::vector<int>> _interp_edgeToTri;
-	std::vector<AnIdxTriangle>    _interp_triangles; // 
+	std::vector<AnIdxTriangle>    _interp_triangles; //
+
+	std::vector<AnIndexedLine>    _timeEdgesA; // first index is from original, second index is from interpolation
+	std::vector<AnIndexedLine>    _timeEdgesB; // first index is from interpolation, second index is from original
 
 	// ---------- Ogre 3D ----------
 	Ogre::SceneManager* _sceneMgr;
@@ -145,6 +150,7 @@ public:
 
 	DynamicLines*    _debug_lines_2;
 	Ogre::SceneNode* _debugNode_2;
+	std::vector<int> _dock_mass_idx;
 };
 
 #endif

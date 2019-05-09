@@ -134,10 +134,15 @@ void AnElement::CreateDockPoint(A2DVector queryPos, A2DVector lockPos, int layer
 	_massList[massListIdx]._isDocked = true;
 	// you probably want the dockpoint be 2D?
 	_massList[massListIdx]._dockPoint = A3DVector(lockPos.x, lockPos.y, _massList[massListIdx]._pos._z);
+
+	_dock_mass_idx.push_back(massListIdx);
+	//_debug_lines_2->addPoint(Ogre::Vector3(_massList[massListIdx]._pos._x, _massList[massListIdx]._pos._y, _massList[massListIdx]._pos._z));
+	//_debug_lines_2->addPoint(Ogre::Vector3(_massList[massListIdx]._dockPoint._x, _massList[massListIdx]._dockPoint._y, _massList[massListIdx]._dockPoint._z));
 }
 
 void AnElement::AdjustEndPosition(A2DVector endPt2D, bool lockEnds)
 {
+	// ----- stuff -----
 	float zGap = SystemParams::_upscaleFactor / (float)(SystemParams::_num_layer - 1);
 	A2DVector startPt = _massList[0]._pos.GetA2DVector();
 	A2DVector dirVector = startPt.DirectionTo(endPt2D);
@@ -151,53 +156,44 @@ void AnElement::AdjustEndPosition(A2DVector endPt2D, bool lockEnds)
 		_massList[a]._pos._x += moveVector2D.x;
 		_massList[a]._pos._y += moveVector2D.y;
 		_massList[a]._pos._z = -(zGap * which_layer);
+	}
 
-		/*if (which_layer == 0 || which_layer == (SystemParams::_num_layer - 1))
-		{
-			_massList[a]._isDocked = lockEnds;
-			_massList[a]._dockPoint = _massList[a]._pos;
-		}*/
-		if (which_layer == 0)
-		{
-			CreateDockPoint(A2DVector(-40, -40), A2DVector(5, 5), 0);
-		}
-		else if (which_layer == (SystemParams::_num_layer - 1))
-		{
-			CreateDockPoint(endPt2D + A2DVector(40, 40), endPt2D, (SystemParams::_num_layer - 1));
-		}
-
+	if(lockEnds)
+	{
+		CreateDockPoint(A2DVector(-40, -40), A2DVector(5, 5), 0);
+		CreateDockPoint(endPt2D + A2DVector(40, 40), endPt2D, (SystemParams::_num_layer - 1));
 	}
 
 	// flag
 	_predefined_time_path = true;
 
-	ResetSpringRestLengths();
+	ResetSpringRestLengths();	
 }
 
-void AnElement::AdjustEnds(A2DVector startPt2D, A2DVector endPt2D, bool lockEnds)
-{
-
-	A3DVector startPt(startPt2D.x, startPt2D.y, 0);
-	A3DVector endPt(endPt2D.x, endPt2D.y, 0);
-	A3DVector dirVector = startPt.DirectionTo(endPt).Norm();
-	float ln = startPt.Distance(endPt);
-	float gapCounter = ln / (float)(SystemParams::_num_layer - 1);
-	
-	for (int a = 0; a < _massList.size(); a++)
-	{
-		int which_layer = _massList[a]._layer_idx;
-		A3DVector moveVector = dirVector * (gapCounter * which_layer);
-		_massList[a]._pos += moveVector;
-
-		if (which_layer == 0 || which_layer == (SystemParams::_num_layer - 1))
-		{
-			_massList[a]._isDocked = lockEnds;
-			_massList[a]._dockPoint = _massList[a]._pos;
-		}
-	}
-
-	ResetSpringRestLengths();
-}
+//void AnElement::AdjustEnds(A2DVector startPt2D, A2DVector endPt2D, bool lockEnds)
+//{
+//
+//	A3DVector startPt(startPt2D.x, startPt2D.y, 0);
+//	A3DVector endPt(endPt2D.x, endPt2D.y, 0);
+//	A3DVector dirVector = startPt.DirectionTo(endPt).Norm();
+//	float ln = startPt.Distance(endPt);
+//	float gapCounter = ln / (float)(SystemParams::_num_layer - 1);
+//	
+//	for (int a = 0; a < _massList.size(); a++)
+//	{
+//		int which_layer = _massList[a]._layer_idx;
+//		A3DVector moveVector = dirVector * (gapCounter * which_layer);
+//		_massList[a]._pos += moveVector;
+//
+//		if (which_layer == 0 || which_layer == (SystemParams::_num_layer - 1))
+//		{
+//			_massList[a]._isDocked = lockEnds;
+//			_massList[a]._dockPoint = _massList[a]._pos;
+//		}
+//	}
+//
+//	ResetSpringRestLengths();
+//}
 
 void AnElement::DrawEdges()
 {
@@ -284,9 +280,7 @@ void AnElement::Triangularization(int self_idx)
 	CreateRandomPoints(star_points_2d, img_length, randomPoints, this->_numBoundaryPointPerLayer);
 	this->_numPointPerLayer = randomPoints.size(); // ASSIGN
 
-	// debug delete me
-	//DrawRandomPoints(randomPoints);
-
+	
 	// -----  triangulation ----- 
 	OpenCVWrapper cvWrapper;
 	std::vector<AnIdxTriangle> tempTriangles;
@@ -306,10 +300,10 @@ void AnElement::Triangularization(int self_idx)
 	}
 	// -----  triangulation ----- 
 
-	// ----- interpolation triangles -----
-	for (int a = 0; a < SystemParams::_interpolation_factor; a++)
+	// ----- interpolation triangles -----	
+	for (int a = 0; a < SystemParams::_interpolation_factor - 1; a++)  // one less layer
 	{
-		float massIdxOffset = a * randomPoints.size();
+		float massIdxOffset = a * _numPointPerLayer;
 		for (unsigned int b = 0; b < tempTriangles.size(); b++)
 		{
 			int idx0 = tempTriangles[b].idx0 + massIdxOffset;
@@ -345,17 +339,17 @@ void AnElement::Triangularization(int self_idx)
 
 	// -----  generate interpolation mass ----- 
 	int interp_massCounter = 0; // self_idx
-	for (int a = 0; a < SystemParams::_interpolation_factor; a++)
+	for (int a = 0; a < SystemParams::_interpolation_factor - 1; a++) // one less layer
 	{
 		float zPos = zOffset * a; // follow the original
 		for (int b = 0; b < randomPoints.size(); b++)
 		{
-			AMass m(randomPoints[b].x, // x
-				randomPoints[b].y,     // y
-				zPos,                  // z, will be changed
-				interp_massCounter++,  // self_idx
-				_elem_idx,             // parent_idx
-				a);                    // debug_which_layer
+			AMass m(randomPoints[b].x,     // x
+					randomPoints[b].y,     // y
+					zPos,                  // z, will be changed
+					interp_massCounter++,  // self_idx
+					_elem_idx,             // parent_idx
+					a);                    // debug_which_layer
 			if (b < _numBoundaryPointPerLayer) { m._is_boundary = true; }
 			_interp_massList.push_back(m);
 		}
@@ -442,10 +436,30 @@ void AnElement::Triangularization(int self_idx)
 	// -----  triangle edge springs ----- 
 
 	// ----- interpolation cross pattern -----
-	for (int a = 0; a < SystemParams::_interpolation_factor - 1; a++)
+	// ----- FIRST -----
+	for (int a = 0; a < _numBoundaryPointPerLayer; a++)
 	{
-		int massIdxOffset1 = a * randomPoints.size();
-		int massIdxOffset2 = massIdxOffset1 + randomPoints.size();
+		int idxA = a - 1; // prev
+		int idxB = a + 1; // next
+		if (a == 0)
+		{
+			idxA = _numBoundaryPointPerLayer - 1;
+		}
+		else if (a == _numBoundaryPointPerLayer - 1)
+		{
+			idxB = 0;
+		}
+
+		// first index is from original, second index is from interpolation
+		TryToAddTriangleEdge(AnIndexedLine(a, idxA, true), -1, _interp_triEdges, _interp_edgeToTri);
+		TryToAddTriangleEdge(AnIndexedLine(a, idxB, true), -1, _interp_triEdges, _interp_edgeToTri);
+	}
+
+	// ----- MID -----
+	for (int a = 0; a < SystemParams::_interpolation_factor - 2; a++) // two less
+	{
+		int massIdxOffset1 = a * _numPointPerLayer;
+		int massIdxOffset2 = massIdxOffset1 + _numPointPerLayer;
 		for (int b = 0; b < _numBoundaryPointPerLayer; b++)
 		{
 			int idxA = b - 1; // prev
@@ -462,6 +476,24 @@ void AnElement::Triangularization(int self_idx)
 			TryToAddTriangleEdge(AnIndexedLine(b + massIdxOffset1, idxA + massIdxOffset2, true), -1, _interp_triEdges, _interp_edgeToTri);
 			TryToAddTriangleEdge(AnIndexedLine(b + massIdxOffset1, idxB + massIdxOffset2, true), -1, _interp_triEdges, _interp_edgeToTri);
 		}
+	}
+	// ----- END -----
+	for (int a = 0; a < _numBoundaryPointPerLayer; a++)
+	{
+		int idxA = a - 1; // prev
+		int idxB = a + 1; // next
+		if (a == 0)
+		{
+			idxA = _numBoundaryPointPerLayer - 1;
+		}
+		else if (a == _numBoundaryPointPerLayer - 1)
+		{
+			idxB = 0;
+		}
+
+		// first index is from original, second index is from interpolation
+		TryToAddTriangleEdge(AnIndexedLine(a, idxA, true), -1, _interp_triEdges, _interp_edgeToTri);
+		TryToAddTriangleEdge(AnIndexedLine(a, idxB, true), -1, _interp_triEdges, _interp_edgeToTri);
 	}
 
 	// rotate
@@ -685,7 +717,44 @@ void AnElement::InitMeshOgre3D(Ogre::SceneManager* sceneMgr,
 	_debugNode = _sceneMgr->getRootSceneNode()->createChildSceneNode("debug_lines" + std::to_string(_elem_idx));
 	_debugNode->attachObject(_debug_lines);
 	// ---------- boundary ----------
+
+
+	// debug
+	
+	if (_dock_mass_idx.size() > 0)
+	{
+		Ogre::MaterialPtr line_material_2 = Ogre::MaterialManager::getSingleton().getByName("Examples/RedMat")->clone("DockLines" + std::to_string(_elem_idx));
+		line_material_2->getTechnique(0)->getPass(0)->setDiffuse(Ogre::ColourValue(1, 0, 0, 1));
+		_debug_lines_2 = new DynamicLines(line_material_2, Ogre::RenderOperation::OT_LINE_LIST);
+
+		for (int a = 0; a < _dock_mass_idx.size(); a++)
+		{
+			int massIdx = _dock_mass_idx[a];
+			_debug_lines_2->addPoint(Ogre::Vector3(_massList[massIdx]._pos._x, _massList[massIdx]._pos._y, _massList[massIdx]._pos._z));
+			_debug_lines_2->addPoint(Ogre::Vector3(_massList[massIdx]._dockPoint._x, _massList[massIdx]._dockPoint._y, _massList[massIdx]._dockPoint._z));
+		}
+
+		_debug_lines_2->update();
+		_debugNode_2 = _sceneMgr->getRootSceneNode()->createChildSceneNode("debug_lines_2_" + std::to_string(_elem_idx));
+		_debugNode_2->attachObject(_debug_lines_2);
+	}
 		
+}
+
+void AnElement::UpdateDebug2Ogre3D()
+{
+	if (_dock_mass_idx.size() == 0) { return; }
+
+	for (int a = 0; a < _dock_mass_idx.size(); a++)
+	{
+		int idx1 = a * 2;
+		int idx2 = idx1 + 1;
+		int massIdx = _dock_mass_idx[a];
+		_debug_lines_2->setPoint(idx1, Ogre::Vector3(_massList[massIdx]._pos._x, _massList[massIdx]._pos._y, _massList[massIdx]._pos._z));
+		_debug_lines_2->setPoint(idx2, Ogre::Vector3(_massList[massIdx]._dockPoint._x, _massList[massIdx]._dockPoint._y, _massList[massIdx]._dockPoint._z));
+	}
+
+	_debug_lines_2->update();
 }
 
 void AnElement::UpdateBoundaryDisplayOgre3D()
@@ -1537,6 +1606,34 @@ int AnElement::FindTriangleEdge(AnIndexedLine anEdge, std::vector<AnIndexedLine>
 
 	return -1;
 }
+
+
+void  AnElement::UpdateInterpMasses()
+{
+	int numInterpolation = SystemParams::_interpolation_factor;
+	for (int i = 1; i < numInterpolation; i++) 
+	{
+		float interVal = ((float)i) / ((float)numInterpolation);
+
+		for (int l = 0; l < SystemParams::_num_layer - 1; l++)
+		{
+			int layerOffset = l * _numPointPerLayer;
+			for (int b = 0; b < _numBoundaryPointPerLayer; b++) 
+			{
+				int massIdx1 = b + layerOffset;
+				int massIdx1_next = massIdx1 + _numPointPerLayer; 
+				A2DVector pt1 = _massList[massIdx1]._pos.GetA2DVector();
+				A2DVector pt1_next = _massList[massIdx1_next]._pos.GetA2DVector();
+				A2DVector dir1 = pt1.DirectionTo(pt1_next);
+				float d1 = dir1.Length() * interVal;
+				dir1 = dir1.Norm();
+				A2DVector pt1_mid = pt1 + (dir1 * d1);
+			} // for (int b = 0; b < _element_list[a]._numBoundaryPointPerLayer; b++)
+		} // for (int l = 0; l < SystemParams::_num_layer - 1; l++)
+	} // for (int i = 1; i < numInterpolation; i++)
+	
+}
+
 
 //void AnElement::EnableInterpolationMode()
 //{

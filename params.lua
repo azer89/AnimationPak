@@ -57,6 +57,6 @@ _boundary_sampling_factor   = 1.2;  -- [Do not edit]
 
 
 -- for frame rendering
-_interpolation_factor = 10; -- how many interpolation between two layers
+_interpolation_factor = 5; -- how many interpolation between two layers
 
 

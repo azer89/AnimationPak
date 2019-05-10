@@ -75,10 +75,17 @@ void  AnElement::RotateXY(float radAngle)
 	for (int a = 0; a < _massList.size(); a++)
 	{
 		A2DVector pos = _massList[a]._pos.GetA2DVector();
-		//_massList[a]._pos = A3DVector(pos._x * scVal, pos._y * scVal, pos._z);
 		A2DVector rotPos = UtilityFunctions::Rotate(pos, _layer_center, radAngle);
 		_massList[a]._pos._x = rotPos.x;
 		_massList[a]._pos._y = rotPos.y;
+	}
+
+	for (int a = 0; a < _interp_massList.size(); a++)
+	{
+		A2DVector pos = _interp_massList[a]._pos.GetA2DVector();
+		A2DVector rotPos = UtilityFunctions::Rotate(pos, _layer_center, radAngle);
+		_interp_massList[a]._pos._x = rotPos.x;
+		_interp_massList[a]._pos._y = rotPos.y;
 	}
 
 	ResetSpringRestLengths();
@@ -92,6 +99,12 @@ void AnElement::ScaleXY(float scVal)
 		_massList[a]._pos = A3DVector(pos._x * scVal, pos._y * scVal, pos._z);
 	}
 
+	for (int a = 0; a < _interp_massList.size(); a++)
+	{
+		A3DVector pos = _interp_massList[a]._pos;
+		_interp_massList[a]._pos = A3DVector(pos._x * scVal, pos._y * scVal, pos._z);
+	}
+
 	ResetSpringRestLengths();
 }
 
@@ -102,6 +115,12 @@ void AnElement::TranslateXY(float x, float y)
 	{
 		A3DVector pos = _massList[a]._pos;
 		_massList[a]._pos = A3DVector(pos._x + x, pos._y + y, pos._z);
+	}
+
+	for (int a = 0; a < _interp_massList.size(); a++)
+	{
+		A3DVector pos = _interp_massList[a]._pos;
+		_interp_massList[a]._pos = A3DVector(pos._x + x, pos._y + y, pos._z);
 	}
 
 	ResetSpringRestLengths();
@@ -288,7 +307,7 @@ void AnElement::Triangularization(int self_idx)
 	// duplicate triangles
 	for (int a = 0; a < SystemParams::_num_layer; a++)
 	{
-		float massIdxOffset = a * randomPoints.size();
+		float massIdxOffset = a * _numPointPerLayer;
 		for (unsigned int b = 0; b < tempTriangles.size(); b++)
 		{
 			int idx0 = tempTriangles[b].idx0 + massIdxOffset;
@@ -339,14 +358,15 @@ void AnElement::Triangularization(int self_idx)
 
 	// -----  generate interpolation mass ----- 
 	int interp_massCounter = 0; // self_idx
+	float interp_zOffset = zOffset / ((float)SystemParams::_interpolation_factor );
 	for (int a = 0; a < SystemParams::_interpolation_factor - 1; a++) // one less layer
 	{
-		float zPos = zOffset * a; // follow the original
+		float zPos = interp_zOffset * (a + 1);
 		for (int b = 0; b < randomPoints.size(); b++)
 		{
 			AMass m(randomPoints[b].x,     // x
 					randomPoints[b].y,     // y
-					zPos,                  // z, will be changed
+					zPos, // z, will be changed
 					interp_massCounter++,  // self_idx
 					_elem_idx,             // parent_idx
 					a);                    // debug_which_layer
@@ -451,8 +471,8 @@ void AnElement::Triangularization(int self_idx)
 		}
 
 		// first index is from original, second index is from interpolation
-		TryToAddTriangleEdge(AnIndexedLine(a, idxA, true), -1, _interp_triEdges, _interp_edgeToTri);
-		TryToAddTriangleEdge(AnIndexedLine(a, idxB, true), -1, _interp_triEdges, _interp_edgeToTri);
+		TryToAddTriangleEdge(AnIndexedLine(a, idxA, true), -1, _timeEdgesA, _interp_edgeToTriA);
+		TryToAddTriangleEdge(AnIndexedLine(a, idxB, true), -1, _timeEdgesA, _interp_edgeToTriA);
 	}
 
 	// ----- MID -----
@@ -478,6 +498,8 @@ void AnElement::Triangularization(int self_idx)
 		}
 	}
 	// ----- END -----
+	int interp_factor = (SystemParams::_interpolation_factor - 2) * _numPointPerLayer;
+	int ori_factor = _numPointPerLayer;
 	for (int a = 0; a < _numBoundaryPointPerLayer; a++)
 	{
 		int idxA = a - 1; // prev
@@ -491,9 +513,9 @@ void AnElement::Triangularization(int self_idx)
 			idxB = 0;
 		}
 
-		// first index is from original, second index is from interpolation
-		TryToAddTriangleEdge(AnIndexedLine(a, idxA, true), -1, _interp_triEdges, _interp_edgeToTri);
-		TryToAddTriangleEdge(AnIndexedLine(a, idxB, true), -1, _interp_triEdges, _interp_edgeToTri);
+		// first index is from interpolation, second index is from original
+		TryToAddTriangleEdge(AnIndexedLine(interp_factor + a, ori_factor + idxA , true), -1, _timeEdgesB, _interp_edgeToTriB);
+		TryToAddTriangleEdge(AnIndexedLine(interp_factor + a, ori_factor + idxB, true), -1, _timeEdgesB, _interp_edgeToTriB);
 	}
 
 	// rotate
@@ -714,13 +736,12 @@ void AnElement::InitMeshOgre3D(Ogre::SceneManager* sceneMgr,
 		}
 	}	
 	_debug_lines->update();
-	_debugNode = _sceneMgr->getRootSceneNode()->createChildSceneNode("debug_lines" + std::to_string(_elem_idx));
+	_debugNode = _sceneMgr->getRootSceneNode()->createChildSceneNode("debug_lines_" + std::to_string(_elem_idx));
 	_debugNode->attachObject(_debug_lines);
 	// ---------- boundary ----------
 
 
-	// debug
-	
+	// ---------- debug	----------
 	if (_dock_mass_idx.size() > 0)
 	{
 		Ogre::MaterialPtr line_material_2 = Ogre::MaterialManager::getSingleton().getByName("Examples/RedMat")->clone("DockLines" + std::to_string(_elem_idx));
@@ -738,6 +759,40 @@ void AnElement::InitMeshOgre3D(Ogre::SceneManager* sceneMgr,
 		_debugNode_2 = _sceneMgr->getRootSceneNode()->createChildSceneNode("debug_lines_2_" + std::to_string(_elem_idx));
 		_debugNode_2->attachObject(_debug_lines_2);
 	}
+
+	// ---------- debug	----------
+	Ogre::MaterialPtr line_material_3 = Ogre::MaterialManager::getSingleton().getByName("Examples/RedMat")->clone("InterpLines" + std::to_string(_elem_idx));
+	line_material_3->getTechnique(0)->getPass(0)->setDiffuse(Ogre::ColourValue(0, 0, 1, 1));
+	_debug_lines_3 = new DynamicLines(line_material_3, Ogre::RenderOperation::OT_LINE_LIST);
+	// mid
+	for (int a = 0; a < _interp_triEdges.size(); a++)
+	{
+		int idx1 = _interp_triEdges[a]._index0;
+		int idx2 = _interp_triEdges[a]._index1;
+		_debug_lines_3->addPoint(Ogre::Vector3(_interp_massList[idx1]._pos._x, _interp_massList[idx1]._pos._y, _interp_massList[idx1]._pos._z));
+		_debug_lines_3->addPoint(Ogre::Vector3(_interp_massList[idx2]._pos._x, _interp_massList[idx2]._pos._y, _interp_massList[idx2]._pos._z));
+	}
+	// first 
+	// first index is from original, second index is from interpolation
+	for (int a = 0; a < _timeEdgesA.size(); a++)
+	{
+		int idx1 = _timeEdgesA[a]._index0;
+		int idx2 = _timeEdgesA[a]._index1;
+		_debug_lines_3->addPoint(Ogre::Vector3(_massList[idx1]._pos._x, _massList[idx1]._pos._y, _massList[idx1]._pos._z));
+		_debug_lines_3->addPoint(Ogre::Vector3(_interp_massList[idx2]._pos._x, _interp_massList[idx2]._pos._y, _interp_massList[idx2]._pos._z));
+	}
+	// last
+	// first index is from interpolation, second index is from original
+	for (int a = 0; a < _timeEdgesB.size(); a++)
+	{
+		int idx1 = _timeEdgesB[a]._index0;
+		int idx2 = _timeEdgesB[a]._index1;
+		_debug_lines_3->addPoint(Ogre::Vector3(_interp_massList[idx1]._pos._x, _interp_massList[idx1]._pos._y, _interp_massList[idx1]._pos._z));
+		_debug_lines_3->addPoint(Ogre::Vector3(_massList[idx2]._pos._x, _massList[idx2]._pos._y, _massList[idx2]._pos._z));
+	}
+	_debug_lines_3->update();
+	_debugNode_3 = _sceneMgr->getRootSceneNode()->createChildSceneNode("debug_lines_3_" + std::to_string(_elem_idx));
+	_debugNode_3->attachObject(_debug_lines_3);
 		
 }
 
@@ -780,6 +835,38 @@ void AnElement::UpdateBoundaryDisplayOgre3D()
 	}
 
 	_debug_lines->update();
+}
+
+void AnElement::UpdateDebug3Ogre3D()
+{
+	int idx = 0;
+
+	for (int a = 0; a < _interp_triEdges.size(); a++)
+	{
+		int idx1 = _interp_triEdges[a]._index0;
+		int idx2 = _interp_triEdges[a]._index1;
+		_debug_lines_3->setPoint(idx++, Ogre::Vector3(_interp_massList[idx1]._pos._x, _interp_massList[idx1]._pos._y, _interp_massList[idx1]._pos._z));
+		_debug_lines_3->setPoint(idx++, Ogre::Vector3(_interp_massList[idx2]._pos._x, _interp_massList[idx2]._pos._y, _interp_massList[idx2]._pos._z));
+	}
+	// first 
+	// first index is from original, second index is from interpolation
+	for (int a = 0; a < _timeEdgesA.size(); a++)
+	{
+		int idx1 = _timeEdgesA[a]._index0;
+		int idx2 = _timeEdgesA[a]._index1;
+		_debug_lines_3->setPoint(idx++, Ogre::Vector3(_massList[idx1]._pos._x, _massList[idx1]._pos._y, _massList[idx1]._pos._z));
+		_debug_lines_3->setPoint(idx++, Ogre::Vector3(_interp_massList[idx2]._pos._x, _interp_massList[idx2]._pos._y, _interp_massList[idx2]._pos._z));
+	}
+	// last
+	// first index is from interpolation, second index is from original
+	for (int a = 0; a < _timeEdgesB.size(); a++)
+	{
+		int idx1 = _timeEdgesB[a]._index0;
+		int idx2 = _timeEdgesB[a]._index1;
+		_debug_lines_3->setPoint(idx++, Ogre::Vector3(_interp_massList[idx1]._pos._x, _interp_massList[idx1]._pos._y, _interp_massList[idx1]._pos._z));
+		_debug_lines_3->setPoint(idx++, Ogre::Vector3(_massList[idx2]._pos._x, _massList[idx2]._pos._y, _massList[idx2]._pos._z));
+	}
+	_debug_lines_3->update();
 }
 
 void AnElement::UpdateSpringDisplayOgre3D()
@@ -1224,15 +1311,10 @@ void AnElement::CreateStarTube(int self_idx)
 void AnElement::ResetSpringRestLengths()
 {
 	for (int a = 0; a < _triEdges.size(); a++)
-	{		
-		//{
+	{	
 		A2DVector p1 = _massList[_triEdges[a]._index0]._pos.GetA2DVector();
 		A2DVector p2 = _massList[_triEdges[a]._index1]._pos.GetA2DVector();
 		_triEdges[a].SetActualOriDistance(p1.Distance(p2));
-		//}
-		/*A3DVector p1 = _massList[_triEdges[a]._index0]._pos;
-		A3DVector p2 = _massList[_triEdges[a]._index1]._pos;
-		_triEdges[a].SetActualOriDistance(p1.Distance(p2));*/
 	}
 
 	for (int a = 0; a < _auxiliaryEdges.size(); a++)
@@ -1241,6 +1323,32 @@ void AnElement::ResetSpringRestLengths()
 		A2DVector p1 = _massList[_auxiliaryEdges[a]._index0]._pos.GetA2DVector();
 		A2DVector p2 = _massList[_auxiliaryEdges[a]._index1]._pos.GetA2DVector();
 		_auxiliaryEdges[a].SetActualOriDistance(p1.Distance(p2));
+	}
+	
+	// interpolation, mid
+	for (int a = 0; a < _interp_triEdges.size(); a++)
+	{
+		A2DVector p1 = _interp_massList[_interp_triEdges[a]._index0]._pos.GetA2DVector();
+		A2DVector p2 = _interp_massList[_interp_triEdges[a]._index1]._pos.GetA2DVector();
+		_interp_triEdges[a].SetActualOriDistance(p1.Distance(p2));
+	}
+
+	// interpolation, first
+	// first index is from original, second index is from interpolation
+	for (int a = 0; a < _timeEdgesA.size(); a++)
+	{
+		A2DVector p1 = _massList[_timeEdgesA[a]._index0]._pos.GetA2DVector();
+		A2DVector p2 = _interp_massList[_timeEdgesA[a]._index1]._pos.GetA2DVector();
+		_interp_triEdges[a].SetActualOriDistance(p1.Distance(p2));
+	}
+
+	// interpolation, last
+	// first index is from interpolation, second index is from original
+	for (int a = 0; a < _timeEdgesB.size(); a++)
+	{
+		A2DVector p1 = _interp_massList[_timeEdgesB[a]._index0]._pos.GetA2DVector();
+		A2DVector p2 = _massList[_timeEdgesB[a]._index1]._pos.GetA2DVector();
+		_interp_triEdges[a].SetActualOriDistance(p1.Distance(p2));
 	}
 }
 
@@ -1610,7 +1718,37 @@ int AnElement::FindTriangleEdge(AnIndexedLine anEdge, std::vector<AnIndexedLine>
 
 void  AnElement::UpdateInterpMasses()
 {
+
+	// only 1 and two
 	int numInterpolation = SystemParams::_interpolation_factor;
+	for (int i = 1; i < numInterpolation; i++)
+	{
+		float interVal = ((float)i) / ((float)numInterpolation);
+
+		for (int l = 0; l < 1; l++)
+		{
+			int layerOffset = l * _numPointPerLayer;
+			for (int b = 0; b < _numPointPerLayer; b++)
+			{
+				int massIdx1 = b + layerOffset;
+				int massIdx1_next = massIdx1 + _numPointPerLayer;
+				A2DVector pt1 = _massList[massIdx1]._pos.GetA2DVector();
+				A2DVector pt1_next = _massList[massIdx1_next]._pos.GetA2DVector();
+				A2DVector dir1 = pt1.DirectionTo(pt1_next);
+				float d1 = dir1.Length() * interVal;
+				dir1 = dir1.Norm();
+				A2DVector pt1_mid = pt1 + (dir1 * d1);
+
+				// idx of interp pt
+				int interp_idx = (i - 1) * _numPointPerLayer + b;
+				_interp_massList[interp_idx]._pos._x = pt1_mid.x;
+				_interp_massList[interp_idx]._pos._y = pt1_mid.y;
+
+			} // for (int b = 0; b < _element_list[a]._numBoundaryPointPerLayer; b++)
+		} // for (int l = 0; l < SystemParams::_num_layer - 1; l++)
+	} // for (int i = 1; i < numInterpolation; i++)
+
+	/*int numInterpolation = SystemParams::_interpolation_factor;
 	for (int i = 1; i < numInterpolation; i++) 
 	{
 		float interVal = ((float)i) / ((float)numInterpolation);
@@ -1618,7 +1756,7 @@ void  AnElement::UpdateInterpMasses()
 		for (int l = 0; l < SystemParams::_num_layer - 1; l++)
 		{
 			int layerOffset = l * _numPointPerLayer;
-			for (int b = 0; b < _numBoundaryPointPerLayer; b++) 
+			for (int b = 0; b < _numBoundaryPointPerLayer; b++)  // num points per layer???
 			{
 				int massIdx1 = b + layerOffset;
 				int massIdx1_next = massIdx1 + _numPointPerLayer; 
@@ -1630,7 +1768,7 @@ void  AnElement::UpdateInterpMasses()
 				A2DVector pt1_mid = pt1 + (dir1 * d1);
 			} // for (int b = 0; b < _element_list[a]._numBoundaryPointPerLayer; b++)
 		} // for (int l = 0; l < SystemParams::_num_layer - 1; l++)
-	} // for (int i = 1; i < numInterpolation; i++)
+	} // for (int i = 1; i < numInterpolation; i++)*/
 	
 }
 

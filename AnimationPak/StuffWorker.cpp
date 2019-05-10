@@ -181,6 +181,13 @@ void StuffWorker::Update()
 	{
 		_element_list[a].Grow(SystemParams::_growth_scale_iter, SystemParams::_dt);
 	}
+
+
+	// ----- interpolation -----
+	for (int a = 0; a < _element_list.size(); a++)
+	{
+		_element_list[a].UpdateInterpMasses();
+	}
 }
 
 void StuffWorker::Reset()
@@ -239,6 +246,7 @@ void StuffWorker::UpdateOgre3D()
 		//_element_list[a].UpdateSpringDisplayOgre3D();
 		_element_list[a].UpdateBoundaryDisplayOgre3D();
 		_element_list[a].UpdateDebug2Ogre3D();
+		_element_list[a].UpdateDebug3Ogre3D();
 		//_element_list[a].UpdateClosestPtsDisplayOgre3D();
 	}
 

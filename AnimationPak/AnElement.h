@@ -84,6 +84,7 @@ public:
 	void UpdateSpringDisplayOgre3D();
 	void UpdateBoundaryDisplayOgre3D();
 	void UpdateDebug2Ogre3D();
+	void UpdateDebug3Ogre3D();
 	// ---------- Ogre 3D ----------
 
 	
@@ -134,6 +135,8 @@ public:
 
 	std::vector<AnIndexedLine>    _timeEdgesA; // first index is from original, second index is from interpolation
 	std::vector<AnIndexedLine>    _timeEdgesB; // first index is from interpolation, second index is from original
+	std::vector<std::vector<int>> _interp_edgeToTriA; // not used
+	std::vector<std::vector<int>> _interp_edgeToTriB; // not used
 
 	// ---------- Ogre 3D ----------
 	Ogre::SceneManager* _sceneMgr;
@@ -151,6 +154,10 @@ public:
 	DynamicLines*    _debug_lines_2;
 	Ogre::SceneNode* _debugNode_2;
 	std::vector<int> _dock_mass_idx;
+
+	// testing time edges of interpolation 
+	DynamicLines*    _debug_lines_3;
+	Ogre::SceneNode* _debugNode_3;
 };
 
 #endif

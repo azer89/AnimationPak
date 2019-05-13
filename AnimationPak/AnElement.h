@@ -92,6 +92,8 @@ public:
 	A2DVector Interp_ClosestPtOnALayer(A2DVector pt, int layer_idx);
 	void Interp_UpdateLayerBoundaries();
 	bool Interp_HasOverlap();
+	void Interp_SolveForSprings2D();
+	void Interp_ResetSpringRestLengths();
 	// ----- interpolation ----- 
 
 public:

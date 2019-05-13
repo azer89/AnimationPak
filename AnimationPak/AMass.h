@@ -80,6 +80,7 @@ public:
 
 	void Init(); // reset forces to zero
 	void Simulate(float dt);
+	void Interp_Simulate(float dt); // debug delete me...
 	void Solve(const std::vector<A2DVector>& container);
 
 	void ImposeConstraints();

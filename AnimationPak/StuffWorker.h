@@ -23,7 +23,7 @@ public:
 	void Interp_Reset();          // reset forces to zero
 	void Interp_Solve();            // calculate forces
 	void Interp_Simulate();     // (non-velocity verlet) iterate the masses by the change in time	
-	void Interp_ImposeConstraints();
+	//void Interp_ImposeConstraints();
 
 	void Update();
 	void Reset();          // reset forces to zero

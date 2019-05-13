@@ -145,14 +145,58 @@ void StuffWorker::InitElements(Ogre::SceneManager* scnMgr)
 			int c_grid_idx = _element_list[a]._interp_massList[b]._layer_idx;
 			A3DVector p1 = _element_list[a]._interp_massList[b]._pos;
 
-			_c_grid_list[c_grid_idx]->InsertAPoint(p1._x, p1._y, a, b); // assign mass to grid			
-			_element_list[a]._interp_massList[b]._c_grid = _c_grid_list[c_grid_idx]; // assign grid to mass
+			_interp_c_grid_list[c_grid_idx]->InsertAPoint(p1._x, p1._y, a, b); // assign mass to grid			
+			_element_list[a]._interp_massList[b]._c_grid = _interp_c_grid_list[c_grid_idx]; // assign grid to mass
 		}
 	}
 }
+
+// INTERPOLATION
 void StuffWorker::Interp_Update()
 {
+	// ----- for closest point calculation -----
+	for (int a = 0; a < _element_list.size(); a++)
+	{
+		_element_list[a].Interp_UpdateLayerBoundaries();
+	}
 
+	// ----- update collision grid -----
+	std::vector<int> iters; // TODO can be better
+	for (int a = 0; a < _interp_c_grid_list.size(); a++) 
+		{ iters.push_back(0); }
+
+	for (int a = 0; a < _element_list.size(); a++)
+	{
+		for (int b = 0; b < _element_list[a]._interp_massList.size(); b++)
+		{
+			int c_grid_idx = _element_list[a]._interp_massList[b]._layer_idx;
+			int layer_iter = iters[c_grid_idx];  // why is this called layer_iter?
+			A3DVector p1 = _element_list[a]._interp_massList[b]._pos;
+
+			// update pt
+			_interp_c_grid_list[c_grid_idx]->_objects[layer_iter]->_x = p1._x;
+			_interp_c_grid_list[c_grid_idx]->_objects[layer_iter]->_y = p1._y;
+
+			iters[c_grid_idx]++; // increment
+		}
+	}
+	for (int a = 0; a < _interp_c_grid_list.size(); a++)
+	{
+		_interp_c_grid_list[a]->MovePoints();
+		_interp_c_grid_list[a]->PrecomputeGraphIndices();
+	}
+
+	// ----- update closest points -----
+	for (int a = 0; a < _element_list.size(); a++)
+	{
+		for (int b = 0; b < _element_list[a]._interp_massList.size(); b++)
+		{
+			_element_list[a]._interp_massList[b].Interp_GetClosestPoint();
+		}
+
+	}
+
+	// no growing
 }
 
 void StuffWorker::Update()
@@ -172,7 +216,7 @@ void StuffWorker::Update()
 		for (int b = 0; b < _element_list[a]._massList.size(); b++)
 		{
 			int c_grid_idx = _element_list[a]._massList[b]._layer_idx;
-			int layer_iter = iters[c_grid_idx];
+			int layer_iter = iters[c_grid_idx]; // why is this called layer_iter?
 			A3DVector p1 = _element_list[a]._massList[b]._pos;
 
 			// update pt
@@ -212,6 +256,19 @@ void StuffWorker::Update()
 	}
 }
 
+void StuffWorker::Interp_Reset()
+{
+	// update closest points
+	for (int a = 0; a < _element_list.size(); a++)
+	{
+		for (int b = 0; b < _element_list[a]._interp_massList.size(); b++)
+		{
+			_element_list[a]._interp_massList[b].Init();
+		}
+
+	}
+}
+
 void StuffWorker::Reset()
 {
 	// update closest points
@@ -222,6 +279,19 @@ void StuffWorker::Reset()
 			_element_list[a]._massList[b].Init();
 		}
 
+	}
+}
+
+void StuffWorker::Interp_Solve()
+{
+	for (int a = 0; a < _element_list.size(); a++)
+	{
+		_element_list[a].Interp_SolveForSprings2D();
+
+		for (int b = 0; b < _element_list[a]._interp_massList.size(); b++)
+		{
+			_element_list[a]._interp_massList[b].Solve(_containerWorker->_2d_container);
+		}
 	}
 }
 
@@ -238,6 +308,17 @@ void StuffWorker::Solve()
 	}
 }
 
+void StuffWorker::Interp_Simulate()
+{
+	for (int a = 0; a < _element_list.size(); a++)
+	{
+		for (int b = 0; b < _element_list[a]._interp_massList.size(); b++)
+		{
+			_element_list[a]._interp_massList[b].Interp_Simulate(SystemParams::_dt);
+		}
+	}
+}
+
 void StuffWorker::Simulate()
 {
 	for (int a = 0; a < _element_list.size(); a++)
@@ -248,6 +329,17 @@ void StuffWorker::Simulate()
 		}
 	}
 }
+
+/*void StuffWorker::Interp_ImposeConstraints()
+{
+	for (int a = 0; a < _element_list.size(); a++)
+	{
+		for (int b = 0; b < _element_list[a]._interp_massList.size(); b++)
+		{
+			_element_list[a]._interp_massList[b].ImposeConstraints();
+		}
+	}
+}*/
 
 void StuffWorker::ImposeConstraints()
 {
@@ -376,11 +468,17 @@ void StuffWorker::EnableInterpolationMode()
 //
 //	// -----  -----
 //
-//	// ----- Enable ? -----
-//	for (int a = 0; a < _element_list.size(); a++)
-//	{
-//		_element_list[a].EnableInterpolationMode();
-//	}
+	// ----- interpolation -----
+	for (int a = 0; a < _element_list.size(); a++)
+	{
+		_element_list[a].UpdateInterpMasses();
+	}
+
+	// ----- Enable ? -----
+	for (int a = 0; a < _element_list.size(); a++)
+	{
+		_element_list[a].Interp_ResetSpringRestLengths();
+	}
 //	
 }
 

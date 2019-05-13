@@ -51,12 +51,12 @@ _show_time_springs = true;
 
 --- density of random points inside the skin
 --- if the density is higher, you get more triangles
-_sampling_density               = 50;
+_sampling_density               = 100;
 --- uniform sampling on the skin
 _boundary_sampling_factor   = 1.2;  -- [Do not edit]
 
 
 -- for frame rendering
-_interpolation_factor = 5; -- how many interpolation between two layers
+_interpolation_factor = 3; -- how many interpolation between two layers
 
 

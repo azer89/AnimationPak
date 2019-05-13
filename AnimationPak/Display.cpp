@@ -79,6 +79,10 @@ bool Display::frameStarted(const Ogre::FrameEvent& evt)
 	///// UPDATE
 	if (StuffWorker::_interpolation_mode)
 	{
+		_sWorker->Interp_Update();
+		_sWorker->Interp_Reset();
+		_sWorker->Interp_Solve();
+		_sWorker->Interp_Simulate();
 	}
 	else
 	{

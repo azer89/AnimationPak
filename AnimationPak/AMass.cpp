@@ -88,6 +88,25 @@ void AMass::Init()
 	this->_rotationForce  = A3DVector(0, 0, 0);
 }
 
+void AMass::Interp_Simulate(float dt)
+{
+	_velocity += ((_edgeForce +
+		_repulsionForce +
+		_boundaryForce +
+		_overlapForce +
+		_rotationForce) * dt);
+	float len = _velocity.Length();
+
+	float capVal = SystemParams::_velocity_cap * dt;
+
+	if (len > capVal)
+	{
+		_velocity = _velocity.Norm() * capVal;
+	}
+
+	_pos = _pos + _velocity * dt;
+}
+
 void AMass::Simulate(float dt)
 {
 	//if (_isDocked) { return; }

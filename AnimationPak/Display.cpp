@@ -77,14 +77,20 @@ bool Display::frameStarted(const Ogre::FrameEvent& evt)
 	}
 
 	///// UPDATE
-	_sWorker->Update();
-	_sWorker->Reset();
-	_sWorker->Solve();
-	_sWorker->Simulate();	
-	_sWorker->ImposeConstraints();
+	if (StuffWorker::_interpolation_mode)
+	{
+	}
+	else
+	{
+		_sWorker->Update();
+		_sWorker->Reset();
+		_sWorker->Solve();
+		_sWorker->Simulate();	
+		_sWorker->ImposeConstraints();
 
+		
+	}
 	_sWorker->UpdateOgre3D();
-	
 	//UpdateSpringDisplay(); // init CreateSpringLines()
 	//UpdatePerLayerBoundary();
 	//UpdateClosestPtsDisplay();
@@ -101,6 +107,28 @@ bool Display::frameStarted(const Ogre::FrameEvent& evt)
 	bool* p_open = NULL;
 	ImGuiWindowFlags window_flags = 0;
 	ImGui::Begin("AnimationPak", p_open, window_flags);
+
+	std::string interp_str = " ";
+	if (StuffWorker::_interpolation_mode)
+	{
+		interp_str = "Interpolation mode is active";
+	}
+
+	ImGui::Text(interp_str.c_str());
+	
+	if (ImGui::Button("Interpolation Mode")) 
+	{ 
+		StuffWorker::_interpolation_mode = !StuffWorker::_interpolation_mode;
+		if (StuffWorker::_interpolation_mode)
+		{
+			_sWorker->EnableInterpolationMode();
+		}
+		/*if(StuffWorker::_interpolation_mode)
+			std::cout << "active\n";
+		else
+			std::cout << "not\n";*/
+	}
+
 
 	if (ImGui::Button("Save Frames")) { _sWorker->SaveFrames(); }
 	//if (ImGui::Button("Button B")) {}

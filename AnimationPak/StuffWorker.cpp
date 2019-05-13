@@ -11,8 +11,9 @@ std::vector<AnElement>  StuffWorker::_element_list = std::vector<AnElement>();
 std::vector<CollisionGrid2D*>  StuffWorker::_c_grid_list = std::vector< CollisionGrid2D * >();
 
 // static variables for interpolation
-//bool  StuffWorker::_interpolation_mode = false;
-//int   StuffWorker::_interpolation_iter = 0;
+bool  StuffWorker::_interpolation_mode = false;
+int   StuffWorker::_interpolation_iter = 0;
+std::vector<CollisionGrid2D*>  StuffWorker::_interp_c_grid_list = std::vector< CollisionGrid2D * >();
 //float StuffWorker::_interpolation_value = 0;
 
 StuffWorker::StuffWorker() : _containerWorker(0)//: _elem(0)
@@ -114,11 +115,11 @@ void StuffWorker::InitElements(Ogre::SceneManager* scnMgr)
 		_element_list.push_back(elem);			
 	}
 
+	// ----- Collision grid -----
 	for(int a = 0; a < SystemParams::_num_layer; a++)
-	{
-		_c_grid_list.push_back(new CollisionGrid2D);
-	}
+	{ _c_grid_list.push_back(new CollisionGrid2D); }
 
+	// ----- Assign to collision grid -----
 	for (int a = 0; a < _element_list.size(); a++)
 	{
 		for (int b = 0; b < _element_list[a]._massList.size(); b++)
@@ -131,6 +132,27 @@ void StuffWorker::InitElements(Ogre::SceneManager* scnMgr)
 			_element_list[a]._massList[b]._c_grid = _c_grid_list[c_grid_idx]; // assign grid to mass
 		}
 	}
+
+	// ----- Interpolation collision grid -----
+	for (int a = 0; a < SystemParams::_interpolation_factor; a++)
+		{ _interp_c_grid_list.push_back(new CollisionGrid2D); }
+
+	// ----- Assign to interpolation collision grid -----
+	for (int a = 0; a < _element_list.size(); a++)
+	{
+		for (int b = 0; b < _element_list[a]._interp_massList.size(); b++)
+		{
+			int c_grid_idx = _element_list[a]._interp_massList[b]._layer_idx;
+			A3DVector p1 = _element_list[a]._interp_massList[b]._pos;
+
+			_c_grid_list[c_grid_idx]->InsertAPoint(p1._x, p1._y, a, b); // assign mass to grid			
+			_element_list[a]._interp_massList[b]._c_grid = _c_grid_list[c_grid_idx]; // assign grid to mass
+		}
+	}
+}
+void StuffWorker::Interp_Update()
+{
+
 }
 
 void StuffWorker::Update()
@@ -345,11 +367,11 @@ void StuffWorker::SaveFrames()
 	vCreator.Save(ss.str());
 }
 
-//void StuffWorker::EnableInterpolationMode()
-//{
-//	// ----- variables -----
-//	StuffWorker::_interpolation_mode  = true;
-//	StuffWorker::_interpolation_iter  = 0;
+void StuffWorker::EnableInterpolationMode()
+{
+	// ----- variables -----
+	StuffWorker::_interpolation_mode  = true;
+	StuffWorker::_interpolation_iter  = 0;
 //	StuffWorker::_interpolation_value = 0;
 //
 //	// -----  -----
@@ -360,16 +382,16 @@ void StuffWorker::SaveFrames()
 //		_element_list[a].EnableInterpolationMode();
 //	}
 //	
-//}
-//
-//void StuffWorker::DisableInterpolationMode()
-//{
-//	StuffWorker::_interpolation_mode  = false;
-//	StuffWorker::_interpolation_iter  = 0;
+}
+
+void StuffWorker::DisableInterpolationMode()
+{
+	StuffWorker::_interpolation_mode  = false;
+	StuffWorker::_interpolation_iter  = 0;
 //	StuffWorker::_interpolation_value = 0;
 //
 //	for (int a = 0; a < _element_list.size(); a++)
 //	{
 //		_element_list[a].DisableInterpolationMode();
 //	}
-//}
+}

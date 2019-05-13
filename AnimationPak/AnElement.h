@@ -39,6 +39,7 @@ public:
 	void SolveForSprings2D();
 
 	
+	
 		
 	void DrawRandomPoints(std::vector<A2DVector> randomPoints); // debug
 
@@ -87,8 +88,27 @@ public:
 	void UpdateDebug3Ogre3D();
 	// ---------- Ogre 3D ----------
 
-	
+	// ----- interpolation ----- 
+	A2DVector Interp_ClosestPtOnALayer(A2DVector pt, int layer_idx);
+	void Interp_UpdateLayerBoundaries();
+	bool Interp_HasOverlap();
+	// ----- interpolation ----- 
 
+public:
+	// ---------- interpolation stuff ----------
+	std::vector<std::vector<A2DVector>> _interp_per_layer_boundary;
+
+	std::vector<AMass>            _interp_massList;       // list of the masses
+	std::vector<AnIndexedLine>    _interp_auxiliaryEdges; // for edge forces
+	std::vector<AnIndexedLine>    _interp_triEdges;  // for edge forces
+	std::vector<std::vector<int>> _interp_edgeToTri;
+	std::vector<AnIdxTriangle>    _interp_triangles; //
+
+	std::vector<AnIndexedLine>    _timeEdgesA; // first index is from original, second index is from interpolation
+	std::vector<AnIndexedLine>    _timeEdgesB; // first index is from interpolation, second index is from original
+	std::vector<std::vector<int>> _interp_edgeToTriA; // not used
+	std::vector<std::vector<int>> _interp_edgeToTriB; // not used
+													  // ---------- interpolation stuff ----------
 
 public:
 	int _elem_idx; // for identification
@@ -126,17 +146,7 @@ public:
 	std::vector<std::vector<int>> _edgeToTri; // for aux edges, if -1 means time springs!!!
 	std::vector<AnIdxTriangle>    _triangles;
 
-	// ---------- interpolation stuff ----------
-	std::vector<AMass>            _interp_massList;       // list of the masses
-	std::vector<AnIndexedLine>    _interp_auxiliaryEdges; // for edge forces
-	std::vector<AnIndexedLine>    _interp_triEdges;  // for edge forces
-	std::vector<std::vector<int>> _interp_edgeToTri;
-	std::vector<AnIdxTriangle>    _interp_triangles; //
-
-	std::vector<AnIndexedLine>    _timeEdgesA; // first index is from original, second index is from interpolation
-	std::vector<AnIndexedLine>    _timeEdgesB; // first index is from interpolation, second index is from original
-	std::vector<std::vector<int>> _interp_edgeToTriA; // not used
-	std::vector<std::vector<int>> _interp_edgeToTriB; // not used
+	
 
 	// ---------- Ogre 3D ----------
 	Ogre::SceneManager* _sceneMgr;

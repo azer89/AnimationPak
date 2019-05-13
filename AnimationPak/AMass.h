@@ -86,6 +86,8 @@ public:
 
 	void GetClosestPoint();
 
+	void Interp_GetClosestPoint();
+
 	void Grow(float growth_scale_iter, float dt);
 
 	void Print()

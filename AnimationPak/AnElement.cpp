@@ -349,7 +349,7 @@ void AnElement::Triangularization(int self_idx)
 				zPos,                  // z
 				massCounter++,         // self_idx
 				_elem_idx,             // parent_idx
-				a);                    // debug_which_layer
+				a);                    // layer_idx
 			if (b < _numBoundaryPointPerLayer) { m._is_boundary = true; }
 			_massList.push_back(m);                                     
 		}
@@ -369,7 +369,7 @@ void AnElement::Triangularization(int self_idx)
 					zPos, // z, will be changed
 					interp_massCounter++,  // self_idx
 					_elem_idx,             // parent_idx
-					a);                    // debug_which_layer
+					a);                    // layer_idx
 			if (b < _numBoundaryPointPerLayer) { m._is_boundary = true; }
 			_interp_massList.push_back(m);
 		}
@@ -528,13 +528,29 @@ void AnElement::Triangularization(int self_idx)
 	for (int a = 0; a < SystemParams::_num_layer; a++)
 	{
 		_per_layer_boundary.push_back(std::vector<A2DVector>());
-	}for (int a = 0; a < _massList.size(); a++)
+	}
+	for (int a = 0; a < _massList.size(); a++)
 	{
 		int perLayerIdx = a % _numPointPerLayer;
 		if (perLayerIdx < _numBoundaryPointPerLayer)
 		{
 			int layerIdx = _massList[a]._layer_idx;
 			_per_layer_boundary[layerIdx].push_back ( _massList[a]._pos.GetA2DVector() );
+		}
+	}
+
+	// ----- some precomputation or interpolation ----- 
+	for (int a = 0; a < SystemParams::_interpolation_factor - 1; a++)
+	{
+		_interp_per_layer_boundary.push_back(std::vector<A2DVector>());
+	}
+	for (int a = 0; a < _interp_massList.size(); a++)
+	{
+		int perLayerIdx = a % _numPointPerLayer;
+		if (perLayerIdx < _numBoundaryPointPerLayer)
+		{
+			int layerIdx = _interp_massList[a]._layer_idx;
+			_interp_per_layer_boundary[layerIdx].push_back(_interp_massList[a]._pos.GetA2DVector());
 		}
 	}
 
@@ -1120,21 +1136,23 @@ void  AnElement::CreateHelix()
 	}
 }
 
+void AnElement::Interp_UpdateLayerBoundaries()
+{
+	// per layer boundary
+	for (int a = 0; a < _interp_massList.size(); a++)
+	{
+		int perLayerIdx = a % _numPointPerLayer;
+		if (perLayerIdx < _numBoundaryPointPerLayer)
+		{
+			int layerIdx = _interp_massList[a]._layer_idx;
+			_interp_per_layer_boundary[layerIdx][perLayerIdx] = _interp_massList[a]._pos.GetA2DVector();
+		}
+	}
+}
+
 void AnElement::UpdateLayerBoundaries()
 {
-	//
-	//UpdateSpringLengths();
 	
-
-	// for closest point
-	/*for (int a = 0; a < _massList.size(); a++)
-	{
-		A2DVector pt(_massList[a]._pos._x, _massList[a]._pos._y);
-		int layer_idx = _massList[a]._layer_idx;
-		int mass_idx = a % 11;
-		_per_layer_points[layer_idx][mass_idx] = pt;
-	}*/
-
 	// per layer boundary
 	for (int a = 0; a < _massList.size(); a++)
 	{
@@ -1145,13 +1163,6 @@ void AnElement::UpdateLayerBoundaries()
 			_per_layer_boundary[layerIdx][perLayerIdx] = _massList[a]._pos.GetA2DVector();
 		}
 	}
-	/*for (int a = 0; a < SystemParams::_num_layer; a++)
-	{
-		for (int b = 1; b < 11; b++)
-		{
-			_per_layer_boundary[a][b-1] = _per_layer_points[a][b];
-		}
-	}*/
 }
 
 // back end
@@ -1352,23 +1363,19 @@ void AnElement::ResetSpringRestLengths()
 	}
 }
 
+A2DVector  AnElement::Interp_ClosestPtOnALayer(A2DVector pt, int layer_idx)
+{
+	A2DVector closestPt;
+	closestPt = UtilityFunctions::GetClosestPtOnClosedCurve(_interp_per_layer_boundary[layer_idx], pt);
+
+	return closestPt;
+}
+
 A2DVector AnElement::ClosestPtOnALayer(A2DVector pt, int layer_idx)
 {
-	float dist = 10000000000000;
+	//float dist = 10000000000000;
 	A2DVector closestPt;
 	closestPt = UtilityFunctions::GetClosestPtOnClosedCurve(_per_layer_boundary[layer_idx], pt);
-
-	/*for (int a = 0; a < _per_layer_points[layer_idx].size(); a++)
-	{
-		float d = _per_layer_points[layer_idx][a].Distance(pt);
-		if (d < dist)
-		{
-			dist = d;
-			closestPt = _per_layer_points[layer_idx][a];
-		}
-	}*/
-
-	//closestPt.Print();
 
 	return closestPt;
 }
@@ -1713,6 +1720,14 @@ int AnElement::FindTriangleEdge(AnIndexedLine anEdge, std::vector<AnIndexedLine>
 	}
 
 	return -1;
+}
+
+bool AnElement::Interp_HasOverlap()
+{
+	for (int a = 0; a < _interp_massList.size(); a++)
+	{
+
+	}
 }
 
 

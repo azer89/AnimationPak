@@ -66,6 +66,7 @@ public:
 
 	// edges
 	bool TryToAddTriangleEdge(AnIndexedLine anEdge, int triIndex, std::vector<AnIndexedLine>& tEdges, std::vector<std::vector<int>>& e2t);
+	void ForceAddTriangleEdge(AnIndexedLine anEdge, int triIndex, std::vector<AnIndexedLine>& tEdges, std::vector<std::vector<int>>& e2t);
 	int FindTriangleEdge(AnIndexedLine anEdge, std::vector<AnIndexedLine>& tEdges);
 	std::vector<AnIndexedLine> CreateBendingSprings(std::vector<AMass>& mList, 
 													const std::vector<AnIdxTriangle>& tris,

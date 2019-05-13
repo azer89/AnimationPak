@@ -452,8 +452,16 @@ void AnElement::Triangularization(int self_idx)
 				idxB = 0;
 			}
 
-			TryToAddTriangleEdge(AnIndexedLine(b + massIdxOffset1, idxA + massIdxOffset2, true), -1, _triEdges, _edgeToTri);
-			TryToAddTriangleEdge(AnIndexedLine(b + massIdxOffset1, idxB + massIdxOffset2, true), -1, _triEdges, _edgeToTri);
+			if(!TryToAddTriangleEdge(AnIndexedLine(b + massIdxOffset1, idxA + massIdxOffset2, true), -1, _triEdges, _edgeToTri))
+			{
+				std::cout << "_triEdges error 1\n";
+			}
+
+			if(!TryToAddTriangleEdge(AnIndexedLine(b + massIdxOffset1, idxB + massIdxOffset2, true), -1, _triEdges, _edgeToTri))
+			{
+				std::cout << "_triEdges error 2\n";
+			}
+
 		}
 	}
 	// -----  triangle edge springs ----- 
@@ -474,14 +482,8 @@ void AnElement::Triangularization(int self_idx)
 		}
 
 		// first index is from original, second index is from interpolation
-		if (!TryToAddTriangleEdge(AnIndexedLine(a, idxA, true), -1, _timeEdgesA, _interp_edgeToTriA))
-		{
-			std::cout << "_timeEdgesA error 1\n";
-		}
-		if (!TryToAddTriangleEdge(AnIndexedLine(a, idxB, true), -1, _timeEdgesA, _interp_edgeToTriA))
-		{
-			std::cout << "_timeEdgesA error 2\n";
-		}
+		ForceAddTriangleEdge(AnIndexedLine(a, idxA, true), -1, _timeEdgesA, _interp_edgeToTriA);
+		ForceAddTriangleEdge(AnIndexedLine(a, idxB, true), -1, _timeEdgesA, _interp_edgeToTriA);
 	}
 
 	// ----- MID -----
@@ -523,14 +525,8 @@ void AnElement::Triangularization(int self_idx)
 		}
 
 		// first index is from interpolation, second index is from original
-		if (!TryToAddTriangleEdge(AnIndexedLine(interp_factor + a, ori_factor + idxA , true), -1, _timeEdgesB, _interp_edgeToTriB))
-		{
-			std::cout << "_timeEdgesB error 1\n";
-		}
-		if (!TryToAddTriangleEdge(AnIndexedLine(interp_factor + a, ori_factor + idxB, true), -1, _timeEdgesB, _interp_edgeToTriB))
-		{
-			std::cout << "_timeEdgesB error 2\n";
-		}
+		ForceAddTriangleEdge(AnIndexedLine(interp_factor + a, ori_factor + idxA, true), -1, _timeEdgesB, _interp_edgeToTriB);
+		ForceAddTriangleEdge(AnIndexedLine(interp_factor + a, ori_factor + idxB, true), -1, _timeEdgesB, _interp_edgeToTriB);
 	}
 
 	// rotate
@@ -1772,6 +1768,21 @@ std::vector<AnIndexedLine> AnElement::CreateBendingSprings(std::vector<AMass>& m
 	}
 	return auxiliaryEdges;
 }
+void  AnElement::ForceAddTriangleEdge(AnIndexedLine anEdge, int triIndex, std::vector<AnIndexedLine>& tEdges, std::vector<std::vector<int>>& e2t)
+{
+	A3DVector pt1 = _massList[anEdge._index0]._pos;
+	A3DVector pt2 = _massList[anEdge._index1]._pos;
+	float d = pt1.Distance(pt2);
+	anEdge.SetDist(d);
+
+	// push to edge list
+	tEdges.push_back(anEdge);
+
+	// push to edge-to-triangle list
+	std::vector<int> indices;
+	indices.push_back(triIndex);
+	e2t.push_back(indices);
+}
 
 bool AnElement::TryToAddTriangleEdge(AnIndexedLine anEdge, int triIndex, std::vector<AnIndexedLine>& tEdges, std::vector<std::vector<int>>& e2t)
 {
@@ -1828,6 +1839,7 @@ bool AnElement::Interp_HasOverlap()
 	{
 
 	}
+	return true;
 }
 
 

@@ -17,14 +17,14 @@ _dt = 0.1;   --- do not set this higher than 0.1
 _seed = -1; --- negative means random
 
 --- Force parameters
-_k_edge                = 0.7;	--- 0.5 edge force for filling elements
-_k_time_edge           = 0.2;
+_k_edge                = 0.9;	--- 0.5 edge force for filling elements
+_k_time_edge           = 0.01;
 _k_neg_space_edge      = 10;	--- edge force for springs
 _k_edge_small_factor   = 12;
 _k_repulsion           = 200;	--- 200 repulsion force
 _repulsion_soft_factor = 1.0;	--- soft factor for repulsion force
-_k_overlap             = 100;	--- overlap force
-_k_boundary            = 0.3;	--- 0.1 boundary force
+_k_overlap             = 0.1;	--- overlap force
+_k_boundary            = 0.1;	--- 0.1 boundary force
 _k_rotate              = 1;		--- 1
 _k_dock                = 3.0;
 
@@ -40,23 +40,23 @@ _bin_square_size         = 125;
 _collission_block_radius = 1;  
 
 --- for growing
-_growth_scale_iter     = 0.005; -- 0.005
+_growth_scale_iter     = 0.01; -- 0.005
 _element_initial_scale = 0.05; 
-_element_max_scale = 4.8;
+_element_max_scale = 5.0;
 
-_num_layer = 11;
+_num_layer = 101;
 
 
 _show_time_springs = true;
 
 --- density of random points inside the skin
 --- if the density is higher, you get more triangles
-_sampling_density               = 100;
+_sampling_density               = 150;
 --- uniform sampling on the skin
 _boundary_sampling_factor   = 1.2;  -- [Do not edit]
 
 
 -- for frame rendering
-_interpolation_factor = 3; -- how many interpolation between two layers
+_interpolation_factor = 5; -- how many interpolation between two layers
 
 

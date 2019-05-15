@@ -33,6 +33,14 @@ void AVideoCreator::DrawLine(A2DVector pt1, A2DVector pt2, MyColor color, int fr
 	_cvWrapper.DrawLine(_frames[frameIdx]._img, pt1, pt2, color, _img_scale, _img_scale);
 }
 
+void AVideoCreator::ClearFrames()
+{
+	for (int a = 0; a < _frames.size(); a++)
+	{
+		_frames[a].SetColorImageToWhite();
+	}
+}
+
 void AVideoCreator::Save(std::string folderName)
 {
 	for (int a = 0; a < _frames.size(); a++)

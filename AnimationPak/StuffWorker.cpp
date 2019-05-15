@@ -11,8 +11,8 @@ std::vector<AnElement>  StuffWorker::_element_list = std::vector<AnElement>();
 std::vector<CollisionGrid2D*>  StuffWorker::_c_grid_list = std::vector< CollisionGrid2D * >();
 
 // static variables for interpolation
-bool  StuffWorker::_interpolation_mode = false;
-int   StuffWorker::_interpolation_iter = 0;
+bool  StuffWorker::_interp_mode = false;
+int   StuffWorker::_interp_iter = 0;
 std::vector<CollisionGrid2D*>  StuffWorker::_interp_c_grid_list = std::vector< CollisionGrid2D * >();
 //float StuffWorker::_interpolation_value = 0;
 
@@ -20,6 +20,8 @@ StuffWorker::StuffWorker() : _containerWorker(0)//: _elem(0)
 {
 	_containerWorker = new ContainerWorker;
 	_containerWorker->LoadContainer();
+
+	_video_creator.Init(SystemParams::_interpolation_factor);
 }
 
 StuffWorker::~StuffWorker()
@@ -84,8 +86,8 @@ void StuffWorker::InitElements(Ogre::SceneManager* scnMgr)
 	posArray.push_back(A2DVector(0, 350));
 	posArray.push_back(A2DVector(100, 400));
 	posArray.push_back(A2DVector(400, 0));
-	posArray.push_back(A2DVector(400, 30)); //
-	posArray.push_back(A2DVector(400, 70)); //
+	posArray.push_back(A2DVector(300, 30)); //
+	posArray.push_back(A2DVector(470, 100)); //
 	posArray.push_back(A2DVector(40, 240));
 	posArray.push_back(A2DVector(330, 140));
 	posArray.push_back(A2DVector(400, 250));
@@ -196,7 +198,37 @@ void StuffWorker::Interp_Update()
 
 	}
 
-	// no growing
+	// move to another layer?
+	if (!Interp_HasOverlap())
+	{
+		Interp_SaveFrames();
+
+		StuffWorker::_interp_iter++;
+
+		if (StuffWorker::_interp_iter == SystemParams::_num_layer - 1)
+		{
+			std::stringstream ss;
+			ss << SystemParams::_save_folder << "PNG\\";
+			_video_creator.Save(ss.str());
+
+			DisableInterpolationMode();
+		}
+		else
+		{
+			// ----- interpolation -----
+			for (int a = 0; a < _element_list.size(); a++)
+			{
+				_element_list[a].UpdateInterpMasses();
+			}
+
+			// ----- Enable ? -----
+			for (int a = 0; a < _element_list.size(); a++)
+			{
+				_element_list[a].Interp_ResetSpringRestLengths();
+			}
+		}
+	}
+
 }
 
 void StuffWorker::Update()
@@ -319,6 +351,16 @@ void StuffWorker::Interp_Simulate()
 	}
 }
 
+bool StuffWorker::Interp_HasOverlap()
+{
+	for (int a = 0; a < _element_list.size(); a++)
+	{
+		if (_element_list[a].Interp_HasOverlap())
+			return true;
+	}
+	return false;
+}
+
 void StuffWorker::Simulate()
 {
 	for (int a = 0; a < _element_list.size(); a++)
@@ -360,10 +402,57 @@ void StuffWorker::UpdateOgre3D()
 		//_element_list[a].UpdateSpringDisplayOgre3D();
 		_element_list[a].UpdateBoundaryDisplayOgre3D();
 		_element_list[a].UpdateDebug2Ogre3D();
-		_element_list[a].UpdateDebug3Ogre3D();
+		_element_list[a].UpdateDebug34Ogre3D();
 		//_element_list[a].UpdateClosestPtsDisplayOgre3D();
 	}
 
+}
+
+void StuffWorker::Interp_SaveFrames()
+{
+	//int l = StuffWorker::_interpolation_iter;
+	for (int a = 0; a < _element_list.size(); a++)
+	{
+		int layerOffset = StuffWorker::_interp_iter * _element_list[a]._numPointPerLayer;
+		for (int b = 0; b < _element_list[a]._numBoundaryPointPerLayer; b++)
+		{
+			int massIdx1 = b + layerOffset;
+			int massIdx2 = b + layerOffset + 1;
+			if (b == _element_list[a]._numBoundaryPointPerLayer - 1)
+			{
+				massIdx2 = layerOffset;
+			}
+			A2DVector pt1 = _element_list[a]._massList[massIdx1]._pos.GetA2DVector();
+			A2DVector pt2 = _element_list[a]._massList[massIdx2]._pos.GetA2DVector();
+			int frameIdx = StuffWorker::_interp_iter * SystemParams::_interpolation_factor;
+			_video_creator.DrawLine(pt1, pt2, _element_list[a]._color, frameIdx);
+			_video_creator.DrawRedCircle(frameIdx); // debug delete me
+
+		}
+	}
+
+	for (int i = 0; i < SystemParams::_interpolation_factor - 1; i++)
+	{		
+		for (int a = 0; a < _element_list.size(); a++)
+		{
+			int layerOffset = i * _element_list[a]._numPointPerLayer;
+			for (int b = 0; b < _element_list[a]._numBoundaryPointPerLayer; b++)
+			{
+				int massIdx1 = b + layerOffset;
+				int massIdx2 = b + layerOffset + 1;
+				if (b == _element_list[a]._numBoundaryPointPerLayer - 1)
+				{
+					massIdx2 = layerOffset;
+				}
+				A2DVector pt1 = _element_list[a]._interp_massList[massIdx1]._pos.GetA2DVector();
+				A2DVector pt2 = _element_list[a]._interp_massList[massIdx2]._pos.GetA2DVector();
+
+				int frameIdx = (StuffWorker::_interp_iter * SystemParams::_interpolation_factor) + (i + 1);
+				_video_creator.DrawLine(pt1, pt2, _element_list[a]._color, frameIdx);
+
+			}
+		}
+	}
 }
 
 void StuffWorker::SaveFrames()
@@ -461,13 +550,17 @@ void StuffWorker::SaveFrames()
 
 void StuffWorker::EnableInterpolationMode()
 {
+	std::cout << "enable interpolation\n";
+
 	// ----- variables -----
-	StuffWorker::_interpolation_mode  = true;
-	StuffWorker::_interpolation_iter  = 0;
+	StuffWorker::_interp_mode  = true;
+	StuffWorker::_interp_iter  = 0;
 //	StuffWorker::_interpolation_value = 0;
 //
 //	// -----  -----
 //
+	_video_creator.ClearFrames();
+
 	// ----- interpolation -----
 	for (int a = 0; a < _element_list.size(); a++)
 	{
@@ -484,8 +577,10 @@ void StuffWorker::EnableInterpolationMode()
 
 void StuffWorker::DisableInterpolationMode()
 {
-	StuffWorker::_interpolation_mode  = false;
-	StuffWorker::_interpolation_iter  = 0;
+	std::cout << "disable interpolation\n";
+
+	StuffWorker::_interp_mode  = false;
+	StuffWorker::_interp_iter  = 0;
 //	StuffWorker::_interpolation_value = 0;
 //
 //	for (int a = 0; a < _element_list.size(); a++)

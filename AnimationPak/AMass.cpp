@@ -88,6 +88,7 @@ void AMass::Init()
 	this->_rotationForce  = A3DVector(0, 0, 0);
 }
 
+// debug delete me
 void AMass::Interp_Simulate(float dt)
 {
 	_velocity += ((_edgeForce +

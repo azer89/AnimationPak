@@ -18,6 +18,8 @@ public:
 	void DrawRedCircle(int frameIdx);
 	void Save(std::string folderName);
 
+	void ClearFrames();
+
 private:
 	float _img_scale;
 	int _num_frame;

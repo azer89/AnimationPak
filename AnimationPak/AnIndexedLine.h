@@ -19,14 +19,16 @@
 struct AnIndexedLine
 {
 public:
+	float _dist;
+	float _oriDist;
+
 	int _index0; // start index
 	int _index1; // end index 
 	//bool  _canGrow;
 	//float _angle;
 	float _scale;
 	
-	float _dist;
-	float _oriDist;
+	
 	
 	bool _isLayer2Layer; // is this an inter-layer edge
 

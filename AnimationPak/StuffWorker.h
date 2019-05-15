@@ -3,6 +3,7 @@
 
 #include "AnElement.h"
 #include "CollisionGrid2D.h"
+#include "AVideoCreator.h"
 
 //#include "ContainerWorker.h"
 
@@ -23,6 +24,7 @@ public:
 	void Interp_Reset();          // reset forces to zero
 	void Interp_Solve();            // calculate forces
 	void Interp_Simulate();     // (non-velocity verlet) iterate the masses by the change in time	
+	bool Interp_HasOverlap();
 	//void Interp_ImposeConstraints();
 
 	void Update();
@@ -32,11 +34,12 @@ public:
 	void ImposeConstraints();
 	void UpdateOgre3D();
 
+	void Interp_SaveFrames();
 	void SaveFrames();
 
 public:
-	static bool  _interpolation_mode;
-	static int   _interpolation_iter; // from zero to _interpolation_factor - 1
+	static bool  _interp_mode;
+	static int   _interp_iter; // from zero to _interpolation_factor - 1
 	//static float _interpolation_value;
 	static std::vector<CollisionGrid2D*> _interp_c_grid_list;
 
@@ -53,6 +56,8 @@ public:
 
 	// collission grid
 	static std::vector<CollisionGrid2D*> _c_grid_list;
+
+	AVideoCreator _video_creator;
 };
 
 #endif

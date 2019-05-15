@@ -86,7 +86,7 @@ public:
 	void UpdateSpringDisplayOgre3D();
 	void UpdateBoundaryDisplayOgre3D();
 	void UpdateDebug2Ogre3D();
-	void UpdateDebug3Ogre3D();
+	void UpdateDebug34Ogre3D();
 	// ---------- Ogre 3D ----------
 
 	// ----- interpolation ----- 
@@ -171,6 +171,10 @@ public:
 	// testing time edges of interpolation 
 	DynamicLines*    _debug_lines_3;
 	Ogre::SceneNode* _debugNode_3;
+
+	// testing closest points of interpolation 
+	DynamicLines*    _debug_lines_4;
+	Ogre::SceneNode* _debugNode_4;
 };
 
 #endif

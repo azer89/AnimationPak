@@ -77,7 +77,7 @@ bool Display::frameStarted(const Ogre::FrameEvent& evt)
 	}
 
 	///// UPDATE
-	if (StuffWorker::_interpolation_mode)
+	if (StuffWorker::_interp_mode)
 	{
 		_sWorker->Interp_Update();
 		_sWorker->Interp_Reset();
@@ -113,7 +113,7 @@ bool Display::frameStarted(const Ogre::FrameEvent& evt)
 	ImGui::Begin("AnimationPak", p_open, window_flags);
 
 	std::string interp_str = " ";
-	if (StuffWorker::_interpolation_mode)
+	if (StuffWorker::_interp_mode)
 	{
 		interp_str = "Interpolation mode is active";
 	}
@@ -122,8 +122,8 @@ bool Display::frameStarted(const Ogre::FrameEvent& evt)
 	
 	if (ImGui::Button("Interpolation Mode")) 
 	{ 
-		StuffWorker::_interpolation_mode = !StuffWorker::_interpolation_mode;
-		if (StuffWorker::_interpolation_mode)
+		StuffWorker::_interp_mode = !StuffWorker::_interp_mode;
+		if (StuffWorker::_interp_mode)
 		{
 			_sWorker->EnableInterpolationMode();
 		}

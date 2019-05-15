@@ -19,6 +19,17 @@ typedef std::vector<int> GraphIndices;
 class CollisionGrid2D
 {
 public:
+	
+	std::vector<A2DObject*> _objects;
+
+	std::vector<A2DSquare*> _squares;
+
+	std::vector<GraphIndices> _graphIndexArray;
+
+	int _numColumn;
+	float _maxLength;
+
+public:
 	CollisionGrid2D();
 
 	CollisionGrid2D(float cellSize);
@@ -57,15 +68,7 @@ public:
 
 	//bool NearBoundary(float x, float y);
 
-public:
-	std::vector<GraphIndices> _graphIndexArray;
 
-	int _numColumn;
-	float _maxLength;
-
-	std::vector<A2DObject*> _objects;
-
-	std::vector<A2DSquare*> _squares;
 };
 
 #endif

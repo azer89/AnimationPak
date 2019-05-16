@@ -1,19 +1,20 @@
 
 
-#ifndef __A_2D_Square__
-#define __A_2D_Square__
+#ifndef __A_3D_Square__
+#define __A_3D_Square__
 
-#include "A2DObject.h"
+#include "A3DObject.h"
 
 #include <iostream>
 #include <vector>
 
-class A2DSquare
+class A3DSquare
 {
 public:
-	A2DSquare(float x, float y, float length) :
+	A3DSquare(float x, float y, float z, float length) :
 		_x(x),
 		_y(y),
+		_z(z),
 		_length(length)
 	{
 		//float offVal = 1.0f;
@@ -24,22 +25,25 @@ public:
 
 		_xCenter = _x + (_length * 0.5);
 		_yCenter = _y + (_length * 0.5);
+		_zCenter = _z + (_length * 0.5);
 
 		//_containerFlag = 0;
 	}
 
-	~A2DSquare()
+	~A3DSquare()
 	{
 	}
 
 public:
 	float _x;
 	float _y;
+	float _z;
+
 	float _length;
 
 	float _xCenter;
 	float _yCenter;
-
+	float _zCenter;
 	/*
 	0 be careful
 	1 nope !!!
@@ -52,14 +56,16 @@ public:
 	//float _x2;
 	//float _y2;
 
-	std::vector<A2DObject*>	_objects;
+	std::vector<A3DObject*>	_objects;
 
-	inline bool Contains(A2DObject* obj)
+	inline bool Contains(A3DObject* obj)
 	{
 		return !(obj->_x < _x ||
 			obj->_y < _y ||
+			obj->_z < _z ||
 			obj->_x > _x + _length ||
-			obj->_y > _y + _length);
+			obj->_y > _y + _length ||
+			obj->_z > _z + _length);
 	}
 
 	void Clear()

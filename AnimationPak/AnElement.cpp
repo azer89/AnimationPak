@@ -795,8 +795,28 @@ void AnElement::InitMeshOgre3D(Ogre::SceneManager* sceneMgr,
 	Ogre::MaterialPtr line_material_3 = Ogre::MaterialManager::getSingleton().getByName("Examples/RedMat")->clone("InterpLines" + std::to_string(_elem_idx));
 	line_material_3->getTechnique(0)->getPass(0)->setDiffuse(Ogre::ColourValue(0, 0, 1, 1));
 	_debug_lines_3 = new DynamicLines(line_material_3, Ogre::RenderOperation::OT_LINE_LIST);
+	
+	// boundary only
+	for (int l = 0; l < SystemParams::_interpolation_factor - 1; l++)
+	{
+		int layerOffset = l * _numPointPerLayer;
+		for (int b = 0; b < _numBoundaryPointPerLayer; b++)
+		{
+			int massIdx1 = b + layerOffset;
+			int massIdx2 = b + layerOffset + 1;
+			if (b == _numBoundaryPointPerLayer - 1)
+			{
+				massIdx2 = layerOffset;
+			}
+			A3DVector pt1 = _interp_massList[massIdx1]._pos;
+			A3DVector pt2 = _interp_massList[massIdx2]._pos;
+			_debug_lines_3->addPoint(Ogre::Vector3(pt1._x, pt1._y, pt1._z));
+			_debug_lines_3->addPoint(Ogre::Vector3(pt2._x, pt2._y, pt2._z));
+		}
+	}
+
 	// mid
-	for (int a = 0; a < _interp_triEdges.size(); a++)
+	/*for (int a = 0; a < _interp_triEdges.size(); a++)
 	{
 		if (_interp_triEdges[a]._isLayer2Layer) { continue; }
 
@@ -804,7 +824,7 @@ void AnElement::InitMeshOgre3D(Ogre::SceneManager* sceneMgr,
 		int idx2 = _interp_triEdges[a]._index1;
 		_debug_lines_3->addPoint(Ogre::Vector3(_interp_massList[idx1]._pos._x, _interp_massList[idx1]._pos._y, _interp_massList[idx1]._pos._z));
 		_debug_lines_3->addPoint(Ogre::Vector3(_interp_massList[idx2]._pos._x, _interp_massList[idx2]._pos._y, _interp_massList[idx2]._pos._z));
-	}
+	}*/
 	/*for (int a = 0; a < _interp_auxiliaryEdges.size(); a++)
 	{
 		int idx1 = _interp_auxiliaryEdges[a]._index0;
@@ -890,7 +910,7 @@ void AnElement::UpdateDebug34Ogre3D()
 {
 	int idx = 0;
 
-	for (int a = 0; a < _interp_triEdges.size(); a++)
+	/*for (int a = 0; a < _interp_triEdges.size(); a++)
 	{
 		if (_interp_triEdges[a]._isLayer2Layer) { continue; }
 
@@ -898,7 +918,26 @@ void AnElement::UpdateDebug34Ogre3D()
 		int idx2 = _interp_triEdges[a]._index1;
 		_debug_lines_3->setPoint(idx++, Ogre::Vector3(_interp_massList[idx1]._pos._x, _interp_massList[idx1]._pos._y, _interp_massList[idx1]._pos._z));
 		_debug_lines_3->setPoint(idx++, Ogre::Vector3(_interp_massList[idx2]._pos._x, _interp_massList[idx2]._pos._y, _interp_massList[idx2]._pos._z));
+	}*/
+
+	for (int l = 0; l < SystemParams::_interpolation_factor - 1; l++)
+	{
+		int layerOffset = l * _numPointPerLayer;
+		for (int b = 0; b < _numBoundaryPointPerLayer; b++)
+		{
+			int massIdx1 = b + layerOffset;
+			int massIdx2 = b + layerOffset + 1;
+			if (b == _numBoundaryPointPerLayer - 1)
+			{
+				massIdx2 = layerOffset;
+			}
+			A3DVector pt1 = _interp_massList[massIdx1]._pos;
+			A3DVector pt2 = _interp_massList[massIdx2]._pos;
+			_debug_lines_3->setPoint(idx++, Ogre::Vector3(pt1._x, pt1._y, pt1._z));
+			_debug_lines_3->setPoint(idx++, Ogre::Vector3(pt2._x, pt2._y, pt2._z));
+		}
 	}
+
 	/*for (int a = 0; a < _interp_auxiliaryEdges.size(); a++)
 	{
 		int idx1 = _interp_auxiliaryEdges[a]._index0;

@@ -1,18 +1,20 @@
-#ifndef __A_2D_Object__
-#define __A_2D_Object__
+#ifndef __A_3D_Object__
+#define __A_3D_Object__
 
-class A2DObject {
+class A3DObject {
 public:
 	float _x;
 	float _y;
+	float _z;
 	int   _info1;  // which element
 	int   _info2;  // which mass
 
-				  
 
-	A2DObject(float x, float y, int info1, int info2) :
+
+	A3DObject(float x, float y, float z, int info1, int info2) :
 		_x(x),
 		_y(y),
+		_z(z),
 		_info1(info1),
 		_info2(info2)//,
 					 //_nx(-1000),
@@ -20,9 +22,10 @@ public:
 	{
 	}
 
-	A2DObject(float x, float y, int info1) :
+	A3DObject(float x, float y, float z, int info1) :
 		_x(x),
 		_y(y),
+		_z(z),
 		_info1(info1),
 		_info2(-1)//,
 				  //_nx(-1000),
@@ -30,9 +33,10 @@ public:
 	{
 	}
 
-	A2DObject(float x, float y) :
+	A3DObject(float x, float y, float z) :
 		_x(x),
 		_y(y),
+		_z(z),
 		_info1(-1),
 		_info2(-1)//,
 				  //_nx(-1000),

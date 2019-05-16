@@ -161,6 +161,8 @@
     <ClInclude Include="A2DRectangle.h" />
     <ClInclude Include="A2DSquare.h" />
     <ClInclude Include="A2DVector.h" />
+    <ClInclude Include="A3DObject.h" />
+    <ClInclude Include="A3DSquare.h" />
     <ClInclude Include="A3DVector.h" />
     <ClInclude Include="AMass.h" />
     <ClInclude Include="AnElement.h" />
@@ -169,6 +171,7 @@
     <ClInclude Include="A2DObject.h" />
     <ClInclude Include="AVideoCreator.h" />
     <ClInclude Include="CollisionGrid2D.h" />
+    <ClInclude Include="CollisionGrid3D.h" />
     <ClInclude Include="ContainerWorker.h" />
     <ClInclude Include="Display.h" />
     <ClInclude Include="DynamicLines.h" />
@@ -192,6 +195,7 @@
     <ClCompile Include="AnElement.cpp" />
     <ClCompile Include="AVideoCreator.cpp" />
     <ClCompile Include="CollisionGrid2D.cpp" />
+    <ClCompile Include="CollisionGrid3D.cpp" />
     <ClCompile Include="ContainerWorker.cpp" />
     <ClCompile Include="Display.cpp" />
     <ClCompile Include="DynamicLines.cpp" />

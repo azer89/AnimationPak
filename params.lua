@@ -42,16 +42,16 @@ _collission_block_radius = 1;
 --- for growing
 _growth_scale_iter     = 0.01; -- 0.005
 _element_initial_scale = 0.05; 
-_element_max_scale = 4.5;
+_element_max_scale = 4.0;
 
-_num_layer = 101;
+_num_layer = 11;
 
 
 _show_time_springs = true;
 
 --- density of random points inside the skin
 --- if the density is higher, you get more triangles
-_sampling_density               = 150;
+_sampling_density               = 50;
 --- uniform sampling on the skin
 _boundary_sampling_factor   = 1.2;  -- [Do not edit]
 

@@ -4,10 +4,13 @@
 #include "UtilityFUnctions.h"
 
 #include "A2DVector.h"
+#include "A3DVector.h"
 //#include "ALine.h"
 #include "A2DRectangle.h"
 
 #include <sstream>
+
+#include <algorithm>
 
 #define PI 3.14159265359
 #define PI2 6.28318530718
@@ -299,6 +302,21 @@ float UtilityFunctions::DistanceToPolyline(const std::vector<A2DVector>& polylin
 	return dist;
 }
 
+/*
+================================================================================
+================================================================================
+*/
+float UtilityFunctions::DistanceToBunchOfPoints(const std::vector<A3DVector>& points, A3DVector p)
+{
+	float dist = std::numeric_limits<float>::max();
+	for (unsigned int b = 0; b < points.size(); b++)
+	{
+		float d = p.DistanceSquared(points[b]);
+		if (d < dist) { dist = d; }
+	}
+	return std::sqrt(dist);
+}
+
 /*================================================================================
 ================================================================================*/
 float UtilityFunctions::DistanceToFiniteLine(A2DVector v, A2DVector w, A2DVector p)
@@ -318,4 +336,109 @@ float UtilityFunctions::DistanceToFiniteLine(A2DVector v, A2DVector w, A2DVector
 	else if (t > 1.0) { return  p.Distance(w); }  // Beyond the 'w' end of the segment
 	A2DVector projection = v + (w - v) * t;         // Projection falls on the segment
 	return p.Distance(projection);
+}
+
+
+/*================================================================================
+================================================================================*/
+
+float clip(float n, float lower, float upper) {
+	return std::max(lower, std::min(n, upper));
+}
+
+A3DVector UtilityFunctions::ClosestPointOnTriangle(std::vector<A3DVector>& triangle, A3DVector sourcePosition)
+{
+	A3DVector edge0 = triangle[1] - triangle[0];
+	A3DVector edge1 = triangle[2] - triangle[0];
+	A3DVector v0 = triangle[0] - sourcePosition;
+
+	float a = edge0.Dot(edge0);
+	float b = edge0.Dot(edge1);
+	float c = edge1.Dot(edge1);
+	float d = edge0.Dot(v0);
+	float e = edge1.Dot(v0);
+
+	float det = a * c - b * b;
+	float s = b * e - c * d;
+	float t = b * d - a * e;
+
+	if (s + t < det)
+	{
+		if (s < 0.f)
+		{
+			if (t < 0.f)
+			{
+				if (d < 0.f)
+				{
+					s = clip(-d / a, 0.f, 1.f);
+					t = 0.f;
+				}
+				else
+				{
+					s = 0.f;
+					t = clip(-e / c, 0.f, 1.f);
+				}
+			}
+			else
+			{
+				s = 0.f;
+				t = clip(-e / c, 0.f, 1.f);
+			}
+		}
+		else if (t < 0.f)
+		{
+			s = clip(-d / a, 0.f, 1.f);
+			t = 0.f;
+		}
+		else
+		{
+			float invDet = 1.f / det;
+			s *= invDet;
+			t *= invDet;
+		}
+	}
+	else
+	{
+		if (s < 0.f)
+		{
+			float tmp0 = b + d;
+			float tmp1 = c + e;
+			if (tmp1 > tmp0)
+			{
+				float numer = tmp1 - tmp0;
+				float denom = a - 2 * b + c;
+				s = clip(numer / denom, 0.f, 1.f);
+				t = 1 - s;
+			}
+			else
+			{
+				t = clip(-e / c, 0.f, 1.f);
+				s = 0.f;
+			}
+		}
+		else if (t < 0.f)
+		{
+			if (a + d > b + e)
+			{
+				float numer = c + e - b - d;
+				float denom = a - 2 * b + c;
+				s = clip(numer / denom, 0.f, 1.f);
+				t = 1 - s;
+			}
+			else
+			{
+				s = clip(-e / c, 0.f, 1.f);
+				t = 0.f;
+			}
+		}
+		else
+		{
+			float numer = c + e - b - d;
+			float denom = a - 2 * b + c;
+			s = clip(numer / denom, 0.f, 1.f);
+			t = 1.f - s;
+		}
+	}
+
+	return triangle[0] + (edge0 * s) + (edge1 * t);
 }

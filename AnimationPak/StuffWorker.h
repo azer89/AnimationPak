@@ -3,6 +3,7 @@
 
 #include "AnElement.h"
 #include "CollisionGrid2D.h"
+#include "CollisionGrid3D.h"
 #include "AVideoCreator.h"
 
 //#include "ContainerWorker.h"
@@ -23,14 +24,13 @@ public:
 	void Interp_Update();
 	void Interp_Reset();          // reset forces to zero
 	void Interp_Solve();            // calculate forces
-	void Interp_Simulate();     // (non-velocity verlet) iterate the masses by the change in time	
+	void Interp_Simulate();     // 
 	bool Interp_HasOverlap();
-	//void Interp_ImposeConstraints();
 
 	void Update();
 	void Reset();          // reset forces to zero
 	void Solve();            // calculate forces
-	void Simulate();     // (non-velocity verlet) iterate the masses by the change in time	
+	void Simulate();     // 
 	void ImposeConstraints();
 	void UpdateOgre3D();
 
@@ -40,7 +40,6 @@ public:
 public:
 	static bool  _interp_mode;
 	static int   _interp_iter; // from zero to _interpolation_factor - 1
-	//static float _interpolation_value;
 	static std::vector<CollisionGrid2D*> _interp_c_grid_list;
 
 
@@ -51,13 +50,23 @@ public:
 
 	ContainerWorker* _containerWorker;
 
-	//AnElement* _elem;
 	static std::vector<AnElement> _element_list;
 
-	// collission grid
-	static std::vector<CollisionGrid2D*> _c_grid_list;
+	
+	//static std::vector<CollisionGrid2D*> _c_grid_list; // collission grid 2D
+	static CollisionGrid3D* _c_grid_3d; // collission grid 3D
 
 	AVideoCreator _video_creator;
+
+public:
+	/*
+	// points-triangles debug
+	std::vector<std::vector<A3DVector>> _triangles;
+
+	// points-triangles debug
+	DynamicLines*    _debug_lines_tri;
+	Ogre::SceneNode* _debugNode_tri;
+	*/
 };
 
 #endif

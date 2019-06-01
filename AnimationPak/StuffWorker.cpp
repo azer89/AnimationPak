@@ -6,15 +6,17 @@
 
 #include "ContainerWorker.h"
 
+#include "UtilityFunctions.h"
+
 // static variables
 std::vector<AnElement>  StuffWorker::_element_list = std::vector<AnElement>();
-std::vector<CollisionGrid2D*>  StuffWorker::_c_grid_list = std::vector< CollisionGrid2D * >();
+//std::vector<CollisionGrid2D*>  StuffWorker::_c_grid_list = std::vector< CollisionGrid2D * >();
+CollisionGrid3D* StuffWorker::_c_grid_3d = new CollisionGrid3D;
 
 // static variables for interpolation
 bool  StuffWorker::_interp_mode = false;
 int   StuffWorker::_interp_iter = 0;
 std::vector<CollisionGrid2D*>  StuffWorker::_interp_c_grid_list = std::vector< CollisionGrid2D * >();
-//float StuffWorker::_interpolation_value = 0;
 
 StuffWorker::StuffWorker() : _containerWorker(0)//: _elem(0)
 {
@@ -29,19 +31,27 @@ StuffWorker::~StuffWorker()
 	if (_containerWorker) { delete _containerWorker; }
 
 	_element_list.clear();
-	if (_c_grid_list.size() > 0)
+	/*if (_c_grid_list.size() > 0)
 	{
 		for (int a = _c_grid_list.size() - 1; a >= 0; a--)
 		{
 			delete _c_grid_list[a];
 		}
 		_c_grid_list.clear();
-	}
-	/*if (_elem)
-	{
-	delete _elem;
 	}*/
 
+	if (_c_grid_3d)
+	{
+		delete _c_grid_3d;
+	}
+
+	// doesn't work!
+	/*if (_elem)
+	{
+		delete _elem;
+	}*/
+
+	// doesn't work!
 	//Ogre::MaterialManager::getSingleton().remove("Examples/TransparentTest2");
 }
 
@@ -97,7 +107,7 @@ void StuffWorker::InitElements(Ogre::SceneManager* scnMgr)
 	posArray.push_back(A2DVector(320, 280));
 	posArray.push_back(A2DVector(350, 280));
 	posArray.push_back(A2DVector(350, 220));
-
+	
 	for (int a = 0; a < posArray.size(); a++)
 	{
 		int idx = _element_list.size();
@@ -117,12 +127,15 @@ void StuffWorker::InitElements(Ogre::SceneManager* scnMgr)
 		_element_list.push_back(elem);			
 	}
 
-	// ----- Collision grid -----
-	for(int a = 0; a < SystemParams::_num_layer; a++)
-	{ _c_grid_list.push_back(new CollisionGrid2D); }
+	// ----- Collision grid 2D -----
+	//for(int a = 0; a < SystemParams::_num_layer; a++)
+	//{ _c_grid_list.push_back(new CollisionGrid2D); }
 
-	// ----- Assign to collision grid -----
-	for (int a = 0; a < _element_list.size(); a++)
+	// ----- Collision grid 3D -----
+	StuffWorker::_c_grid_3d->Init();
+
+	// ----- Assign to collision grid 2D-----
+	/*for (int a = 0; a < _element_list.size(); a++)
 	{
 		for (int b = 0; b < _element_list[a]._massList.size(); b++)
 		{
@@ -133,14 +146,45 @@ void StuffWorker::InitElements(Ogre::SceneManager* scnMgr)
 			_c_grid_list[c_grid_idx]->InsertAPoint(p1._x, p1._y, a, b); // assign mass to grid			
 			_element_list[a]._massList[b]._c_grid = _c_grid_list[c_grid_idx]; // assign grid to mass
 		}
+	}*/
+
+	// ---------- Assign to collision grid 3D ----------
+	for (int a = 0; a < _element_list.size(); a++)
+	{
+		/*for (int b = 0; b < _element_list[a]._massList.size(); b++)
+		{
+			A3DVector p1 = _element_list[a]._massList[b]._pos;
+			_c_grid_3d->InsertAPoint(p1._x, p1._y, p1._z, a, b); // assign mass to grid			
+			_element_list[a]._massList[b]._c_grid_3d = _c_grid_3d; // assign grid to mass
+		}*/
+
+		// time triangle
+		for (int b = 0; b < _element_list[a]._timeTriangles.size(); b++)
+		{
+			AnIdxTriangle tri = _element_list[a]._timeTriangles[b];
+			A3DVector p1      = _element_list[a]._massList[tri.idx0]._pos;
+			A3DVector p2      = _element_list[a]._massList[tri.idx1]._pos;
+			A3DVector p3      = _element_list[a]._massList[tri.idx2]._pos;
+
+			_c_grid_3d->InsertAPoint(p1._x, p1._y, p1._z, a, b); // assign mass to grid		
+			_c_grid_3d->InsertAPoint(p2._x, p2._y, p2._z, a, b); // assign mass to grid		
+			_c_grid_3d->InsertAPoint(p3._x, p3._y, p3._z, a, b); // assign mass to grid		
+		}
+
+		// assign
+		for (int b = 0; b < _element_list[a]._massList.size(); b++)
+		{
+			_element_list[a]._massList[b]._c_grid_3d = _c_grid_3d; // assign grid to mass
+		}
 	}
 
 	// ----- Interpolation collision grid -----
-	for (int a = 0; a < SystemParams::_interpolation_factor; a++)
-		{ _interp_c_grid_list.push_back(new CollisionGrid2D); }
+	// INTERP WONT WORK BECAUSE OF THIS
+	//for (int a = 0; a < SystemParams::_interpolation_factor; a++)
+	//	{ _interp_c_grid_list.push_back(new CollisionGrid2D); }
 
 	// ----- Assign to interpolation collision grid -----
-	for (int a = 0; a < _element_list.size(); a++)
+	/*for (int a = 0; a < _element_list.size(); a++)
 	{
 		for (int b = 0; b < _element_list[a]._interp_massList.size(); b++)
 		{
@@ -150,7 +194,53 @@ void StuffWorker::InitElements(Ogre::SceneManager* scnMgr)
 			_interp_c_grid_list[c_grid_idx]->InsertAPoint(p1._x, p1._y, a, b); // assign mass to grid			
 			_element_list[a]._interp_massList[b]._c_grid = _interp_c_grid_list[c_grid_idx]; // assign grid to mass
 		}
+	}*/
+	// INTERP WONT WORK BECAUSE OF THIS
+
+	// debug delete me
+	/*std::vector<A3DVector> tri1;
+	tri1.push_back(A3DVector(300, 0, -100));
+	tri1.push_back(A3DVector(400, 0, -400));
+	tri1.push_back(A3DVector(0, 0, -10));
+	
+	
+	_triangles.push_back(tri1);
+
+	// material
+	Ogre::MaterialPtr line_material = Ogre::MaterialManager::getSingleton().getByName("Examples/RedMat")->clone("TriDebugLines");
+	line_material->getTechnique(0)->getPass(0)->setDiffuse(Ogre::ColourValue(1, 0, 0, 1));
+	_debug_lines_tri = new DynamicLines(line_material, Ogre::RenderOperation::OT_LINE_LIST);
+	for (int a = 0; a < _triangles.size(); a++)
+	{
+		A3DVector pt1 = _triangles[a][0];
+		A3DVector pt2 = _triangles[a][1];
+		A3DVector pt3 = _triangles[a][2];
+
+		_debug_lines_tri->addPoint(Ogre::Vector3(pt1._x, pt1._y, pt1._z));
+		_debug_lines_tri->addPoint(Ogre::Vector3(pt2._x, pt2._y, pt2._z));
+
+		_debug_lines_tri->addPoint(Ogre::Vector3(pt2._x, pt2._y, pt2._z));
+		_debug_lines_tri->addPoint(Ogre::Vector3(pt3._x, pt3._y, pt3._z));
+
+		_debug_lines_tri->addPoint(Ogre::Vector3(pt3._x, pt3._y, pt3._z));
+		_debug_lines_tri->addPoint(Ogre::Vector3(pt1._x, pt1._y, pt1._z));
 	}
+
+
+	for (int a = 0; a < 100; a++)
+	{
+		A3DVector randPt(rand()% 500, rand() % 500, -(rand() % 500));
+		A3DVector closestPt = UtilityFunctions::ClosestPointOnTriangle(_triangles[0], randPt);
+
+		_debug_lines_tri->addPoint(Ogre::Vector3(randPt._x, randPt._y, randPt._z));
+		_debug_lines_tri->addPoint(Ogre::Vector3(closestPt._x, closestPt._y, closestPt._z));
+
+	}
+
+	_debug_lines_tri->update();
+	_debugNode_tri = scnMgr->getRootSceneNode()->createChildSceneNode("debug_lines_tri_debug");
+	_debugNode_tri->attachObject(_debug_lines_tri);*/
+
 }
 
 // INTERPOLATION
@@ -239,8 +329,8 @@ void StuffWorker::Update()
 		_element_list[a].UpdateLayerBoundaries();
 	}
 
-	// ----- update collision grid -----
-	std::vector<int> iters; // TODO can be better
+	// ----- update collision grid 2D -----
+	/*std::vector<int> iters; // TODO can be better
 	for (int a = 0; a < _c_grid_list.size(); a++) { iters.push_back(0); }
 
 	for (int a = 0; a < _element_list.size(); a++)
@@ -262,14 +352,38 @@ void StuffWorker::Update()
 	{
 		_c_grid_list[a]->MovePoints();
 		_c_grid_list[a]->PrecomputeGraphIndices();
-	}
+	}*/
+	float iter = 0;
+	/*for (int a = 0; a < _element_list.size(); a++)
+	{
+		for (int b = 0; b < _element_list[a]._massList.size(); b++)
+		{
+			A3DVector p1 = _element_list[a]._massList[b]._pos;
 
+			_c_grid_3d->SetPoint(iter++, p1);
+		}
+	}*/
+	for (int a = 0; a < _element_list.size(); a++)
+	{
+		for (int b = 0; b < _element_list[a]._timeTriangles.size(); b++)
+		{
+			AnIdxTriangle tri = _element_list[a]._timeTriangles[b];
+			_c_grid_3d->SetPoint(iter++, _element_list[a]._massList[tri.idx0]._pos);
+			_c_grid_3d->SetPoint(iter++, _element_list[a]._massList[tri.idx1]._pos);
+			_c_grid_3d->SetPoint(iter++, _element_list[a]._massList[tri.idx2]._pos);
+		}
+	}	
+	_c_grid_3d->MovePoints();
+	_c_grid_3d->PrecomputeGraphIndices();
+	
 	// ----- update closest points -----
+	// TODO
 	for (int a = 0; a < _element_list.size(); a++)
 	{
 		for (int b = 0; b < _element_list[a]._massList.size(); b++)
 		{
-			_element_list[a]._massList[b].GetClosestPoint();
+			//_element_list[a]._massList[b].GetClosestPoint();
+			_element_list[a]._massList[b].GetClosestPoint3();
 		}
 
 	}
@@ -401,7 +515,7 @@ void StuffWorker::UpdateOgre3D()
 		//_element_list[a].UpdateMeshOgre3D();
 		//_element_list[a].UpdateSpringDisplayOgre3D();
 		_element_list[a].UpdateBoundaryDisplayOgre3D();
-		_element_list[a].UpdateDebug2Ogre3D();
+		/////_element_list[a].UpdateDebug2Ogre3D();
 		_element_list[a].UpdateDebug34Ogre3D();
 		//_element_list[a].UpdateClosestPtsDisplayOgre3D();
 	}

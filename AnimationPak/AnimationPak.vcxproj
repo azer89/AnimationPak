@@ -179,6 +179,7 @@
     <ClInclude Include="LuaScript.h" />
     <ClInclude Include="MyColor.h" />
     <ClInclude Include="NANOFLANNWrapper2D.h" />
+    <ClInclude Include="Octree.h" />
     <ClInclude Include="OpenCVWrapper.h" />
     <ClInclude Include="PointCloud2D.h" />
     <ClInclude Include="PoissonGenerator.h" />
@@ -203,6 +204,7 @@
     <ClCompile Include="LuaScript.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="NANOFLANNWrapper2D.cpp" />
+    <ClCompile Include="Octree.cpp" />
     <ClCompile Include="OpenCVWrapper.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

@@ -60,6 +60,8 @@ public:
 
 	A2DVector ClosestPtOnALayer(A2DVector pt, int layer_idx);
 
+	A3DVector ClosestPtOnTriSurface(std::vector<int>& massIndices, A3DVector pos);
+
 	void Grow(float growth_scale_iter, float dt);
 
 	void CalculateRestStructure();
@@ -149,7 +151,8 @@ public:
 	std::vector<std::vector<int>> _edgeToTri; // for aux edges, if -1 means time springs!!!
 	std::vector<AnIdxTriangle>    _triangles;
 
-	
+	std::vector<AnIdxTriangle>    _timeTriangles; // for 3D collision grid
+	std::vector<A3DVector>		  _tempTri3;
 
 	// ---------- Ogre 3D ----------
 	Ogre::SceneManager* _sceneMgr;

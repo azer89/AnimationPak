@@ -3,11 +3,13 @@
 #define __A_MASS_H__
 
 #include "A3DVector.h"
+#include "A3DObject.h"
 #include "AMass.h"
 
 #include "AnIdxTriangle.h"
 
 #include "CollisionGrid2D.h"
+#include "CollisionGrid3D.h"
 
 class AMass
 {
@@ -16,14 +18,13 @@ public:
 	float   _mass;    // is likely only one
 	A3DVector _pos;	  // current
 	A3DVector _velocity;
-
 	
-
 	int _self_idx; // for identification, not PER LAYER
 	int _parent_idx; // parent identification
 	int _layer_idx; // layer idx
 
-	CollisionGrid2D* _c_grid;
+	//CollisionGrid2D* _c_grid;
+	CollisionGrid3D* _c_grid_3d;
 
 	//bool _isInside;
 
@@ -33,31 +34,23 @@ public:
 
 	A3DVector _dockPoint; // you probably want the dockpoint be 2D?
 
-	float                _closestDist;
-	std::vector<int>     _closestGraphIndices;
-
-	std::vector<A2DVector> _closestPoints;
-	int _closestPt_actual_sz; // reserve for avoiding push_back, actual size of the vector
-	int _closestPt_fill_sz;   // reserve for avoiding push_back, filled size of the vector
-
-	
 	std::vector<AnIdxTriangle> _triangles; // for overlap force
 
-public:
-	//A3DVector _temp_pos; // for interpolation mode
-	//A3DVector _temp_velocity; // for interpolation mode
-	//bool _interpolation_mode; // for interpolation mode
+	std::vector<AnIdxTriangle>    _timeTriangles; // for 3D collision grid
 
-	//A2DVector _inter_dir; // for interpolation mode
-	//float _inter_dir_length; // for interpolation mode
+	float                _closestDist; // for stop growing??? need to check
 
-//public:
-//	void EnableInterpolationMode();
-//	void DisableInterpolationMode();
+public: // need to be public for debugging purpose
+	int _closestPt_actual_sz; // reserve for avoiding push_back, actual size of the vector
+	int _closestPt_fill_sz;   // reserve for avoiding push_back, filled size of the vector
+	std::vector<A2DVector> _closestPoints;
+	std::vector<A3DVector> _closestPoints3D;
+
+private:		
+	std::vector<int>     _closestGraphIndices;
 
 public:
 	AMass();
-
 	~AMass();
 
 	// Constructor
@@ -87,7 +80,13 @@ public:
 
 	void GetClosestPoint();
 
+	void GetClosestPoint2();
+
+	void GetClosestPoint3();
+
 	void Interp_GetClosestPoint();
+
+	A3DVector GetClosestPtFromArray(int elem_idx, std::vector<A3DObject>& tempClosestObj3D);
 
 	void Grow(float growth_scale_iter, float dt);
 

@@ -15,6 +15,7 @@ radhitya@uwaterloo.ca
 //#include "ABary.h"
 
 // forward declaration
+struct A3DVector;
 struct A2DVector;
 struct ALine;
 struct A2DRectangle;
@@ -41,6 +42,7 @@ public:
 	static float DistanceToClosedCurve(std::vector<A2DVector> polyline, A2DVector p);
 	static float DistanceToPolyline(const std::vector<A2DVector>& polyline, A2DVector p);
 	static float DistanceToFiniteLine(A2DVector v, A2DVector w, A2DVector p);
+	static float DistanceToBunchOfPoints(const std::vector<A3DVector>& points, A3DVector p);
 
 	// resample
 	static void UniformResample(std::vector<A2DVector> oriCurve, std::vector<A2DVector>& resampleCurve, float resampleGap);
@@ -55,6 +57,9 @@ public:
 	// translation
 	static std::vector<A2DVector> TranslatePoly(std::vector<A2DVector> poly, float x, float y);
 	static std::vector<A2DVector> MovePoly(std::vector<A2DVector> poly, A2DVector oldCenter, A2DVector newCenter);
+
+	// point to triangle
+	static A3DVector ClosestPointOnTriangle(std::vector<A3DVector>& triangle, A3DVector sourcePosition);
 };
 
 #endif

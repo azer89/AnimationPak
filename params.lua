@@ -23,7 +23,7 @@ _k_neg_space_edge      = 10;	--- edge force for springs
 _k_edge_small_factor   = 12;
 _k_repulsion           = 200;	--- 200 repulsion force
 _repulsion_soft_factor = 1.0;	--- soft factor for repulsion force
-_k_overlap             = 0.1;	--- overlap force
+_k_overlap             = 5;	--- overlap force
 _k_boundary            = 0.1;	--- 0.1 boundary force
 _k_rotate              = 1;		--- 1
 _k_dock                = 3.0;
@@ -33,14 +33,14 @@ _velocity_cap   = 10; -- [Do not edit]
 
 --- Grid for collision detection
 --- size of a cell
-_bin_square_size         = 125;
+_bin_square_size         = 50;
 --- cell gap for detection, 
 --- 1 means considering all cells that are 1 block away from the query (3x3)
 --- 2 means considering all cells that are 2 block away from the query (5x5)
 _collission_block_radius = 1;  
 
 --- for growing
-_growth_scale_iter     = 0.01; -- 0.005
+_growth_scale_iter     = 0.005; -- 0.005
 _element_initial_scale = 0.05; 
 _element_max_scale = 4.0;
 

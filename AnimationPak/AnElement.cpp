@@ -37,6 +37,10 @@ AnElement::AnElement()
 	this->_maxScale = SystemParams::_element_max_scale;
 	//this->_uniqueMaterial = false;
 	this->_predefined_time_path = false;
+
+	_tempTri3.push_back(A3DVector());
+	_tempTri3.push_back(A3DVector());
+	_tempTri3.push_back(A3DVector());
 }
 
 AnElement::~AnElement()
@@ -336,6 +340,9 @@ void AnElement::Triangularization(int self_idx)
 	}
 	// ----- interpolation triangles -----
 
+
+	
+
 	// z axis offset
 	float zOffset = -((float)SystemParams::_upscaleFactor) / ((float)SystemParams::_num_layer - 1);
 
@@ -425,6 +432,53 @@ void AnElement::Triangularization(int self_idx)
 	// ----- interpolation bending springs ----- 
 
 	//std::cout << "interp tri edge after = " << _interp_triEdges.size() << "\n\n";
+
+	// ----- time triangles -----
+	//
+	//
+	// ----- cur_2 ---- next_2     --> layer t+1
+	//        |*         |
+	//        | *        |
+	//        |  *       |
+	//        |   *      |
+	//        |    *     |
+	//        |     *    |
+	//        |      *   |
+	//        |       *  |
+	//        |        * |
+	//        |         *|
+	// ----- cur_1 ---- next_1     --> layer t
+	for (int a = 0; a < SystemParams::_num_layer - 1; a++)
+	{
+		int massIdxOffset1 = a * randomPoints.size();
+		int massIdxOffset2 = massIdxOffset1 + randomPoints.size();
+		for (int b = 0; b < _numBoundaryPointPerLayer; b++)
+		{
+			int cur_1 = b + massIdxOffset1; // layer t
+			int cur_2 = b + massIdxOffset2; // layer t + 1
+
+			int next_1 = b + 1 + massIdxOffset1; // layer t
+			int next_2 = b + 1 + massIdxOffset2; // layer t + 1
+
+			// cur_1 next_1 cur_2
+			AnIdxTriangle tri1(cur_1, next_1, cur_2);
+			_timeTriangles.push_back(tri1);
+			_massList[cur_1]._timeTriangles.push_back(tri1);
+			_massList[next_1]._timeTriangles.push_back(tri1);
+			_massList[cur_2]._timeTriangles.push_back(tri1);
+
+			// next_1 next_2 cur_2
+			AnIdxTriangle tri2(next_1, next_2, cur_2);
+			_timeTriangles.push_back(tri2);
+			_massList[next_1]._timeTriangles.push_back(tri2);
+			_massList[next_2]._timeTriangles.push_back(tri2);
+			_massList[cur_2]._timeTriangles.push_back(tri2);
+		}
+	}
+	// ----- time triangles -----
+
+	// ----- interpolation time triangles -----
+	// ----- interpolation time triangles -----
 
 	// 1-1 pattern
 	/*for (int a = 0; a < SystemParams::_num_layer - 1; a++)
@@ -773,47 +827,47 @@ void AnElement::InitMeshOgre3D(Ogre::SceneManager* sceneMgr,
 
 
 	// ---------- debug	----------
-	if (_dock_mass_idx.size() > 0)
-	{
-		Ogre::MaterialPtr line_material_2 = Ogre::MaterialManager::getSingleton().getByName("Examples/RedMat")->clone("DockLines" + std::to_string(_elem_idx));
-		line_material_2->getTechnique(0)->getPass(0)->setDiffuse(Ogre::ColourValue(1, 0, 0, 1));
-		_debug_lines_2 = new DynamicLines(line_material_2, Ogre::RenderOperation::OT_LINE_LIST);
+	/////if (_dock_mass_idx.size() > 0)
+	/////{
+	/////	Ogre::MaterialPtr line_material_2 = Ogre::MaterialManager::getSingleton().getByName("Examples/RedMat")->clone("DockLines" + std::to_string(_elem_idx));
+	/////	line_material_2->getTechnique(0)->getPass(0)->setDiffuse(Ogre::ColourValue(1, 0, 0, 1));
+	/////	_debug_lines_2 = new DynamicLines(line_material_2, Ogre::RenderOperation::OT_LINE_LIST);
 
-		for (int a = 0; a < _dock_mass_idx.size(); a++)
-		{
-			int massIdx = _dock_mass_idx[a];
-			_debug_lines_2->addPoint(Ogre::Vector3(_massList[massIdx]._pos._x, _massList[massIdx]._pos._y, _massList[massIdx]._pos._z));
-			_debug_lines_2->addPoint(Ogre::Vector3(_massList[massIdx]._dockPoint._x, _massList[massIdx]._dockPoint._y, _massList[massIdx]._dockPoint._z));
-		}
+	/////	for (int a = 0; a < _dock_mass_idx.size(); a++)
+	/////	{
+	/////		int massIdx = _dock_mass_idx[a];
+	/////		_debug_lines_2->addPoint(Ogre::Vector3(_massList[massIdx]._pos._x, _massList[massIdx]._pos._y, _massList[massIdx]._pos._z));
+	/////		_debug_lines_2->addPoint(Ogre::Vector3(_massList[massIdx]._dockPoint._x, _massList[massIdx]._dockPoint._y, _massList[massIdx]._dockPoint._z));
+	/////	}
 
-		_debug_lines_2->update();
-		_debugNode_2 = _sceneMgr->getRootSceneNode()->createChildSceneNode("debug_lines_2_" + std::to_string(_elem_idx));
-		_debugNode_2->attachObject(_debug_lines_2);
-	}
+	/////	_debug_lines_2->update();
+	/////	_debugNode_2 = _sceneMgr->getRootSceneNode()->createChildSceneNode("debug_lines_2_" + std::to_string(_elem_idx));
+	/////	_debugNode_2->attachObject(_debug_lines_2);
+	/////}
 
 	// ---------- debug	----------
-	Ogre::MaterialPtr line_material_3 = Ogre::MaterialManager::getSingleton().getByName("Examples/RedMat")->clone("InterpLines" + std::to_string(_elem_idx));
-	line_material_3->getTechnique(0)->getPass(0)->setDiffuse(Ogre::ColourValue(0, 0, 1, 1));
-	_debug_lines_3 = new DynamicLines(line_material_3, Ogre::RenderOperation::OT_LINE_LIST);
+	/////Ogre::MaterialPtr line_material_3 = Ogre::MaterialManager::getSingleton().getByName("Examples/RedMat")->clone("InterpLines" + std::to_string(_elem_idx));
+	/////line_material_3->getTechnique(0)->getPass(0)->setDiffuse(Ogre::ColourValue(0, 0, 1, 1));
+	/////_debug_lines_3 = new DynamicLines(line_material_3, Ogre::RenderOperation::OT_LINE_LIST);
 	
 	// boundary only
-	for (int l = 0; l < SystemParams::_interpolation_factor - 1; l++)
-	{
-		int layerOffset = l * _numPointPerLayer;
-		for (int b = 0; b < _numBoundaryPointPerLayer; b++)
-		{
-			int massIdx1 = b + layerOffset;
-			int massIdx2 = b + layerOffset + 1;
-			if (b == _numBoundaryPointPerLayer - 1)
-			{
-				massIdx2 = layerOffset;
-			}
-			A3DVector pt1 = _interp_massList[massIdx1]._pos;
-			A3DVector pt2 = _interp_massList[massIdx2]._pos;
-			_debug_lines_3->addPoint(Ogre::Vector3(pt1._x, pt1._y, pt1._z));
-			_debug_lines_3->addPoint(Ogre::Vector3(pt2._x, pt2._y, pt2._z));
-		}
-	}
+	/////for (int l = 0; l < SystemParams::_interpolation_factor - 1; l++)
+	/////{
+	/////	int layerOffset = l * _numPointPerLayer;
+	/////	for (int b = 0; b < _numBoundaryPointPerLayer; b++)
+	/////	{
+	/////		int massIdx1 = b + layerOffset;
+	/////		int massIdx2 = b + layerOffset + 1;
+	/////		if (b == _numBoundaryPointPerLayer - 1)
+	/////		{
+	/////			massIdx2 = layerOffset;
+	/////		}
+	/////		A3DVector pt1 = _interp_massList[massIdx1]._pos;
+	/////		A3DVector pt2 = _interp_massList[massIdx2]._pos;
+	/////		_debug_lines_3->addPoint(Ogre::Vector3(pt1._x, pt1._y, pt1._z));
+	/////		_debug_lines_3->addPoint(Ogre::Vector3(pt2._x, pt2._y, pt2._z));
+	/////	}
+	/////}
 
 	// mid
 	/*for (int a = 0; a < _interp_triEdges.size(); a++)
@@ -850,19 +904,36 @@ void AnElement::InitMeshOgre3D(Ogre::SceneManager* sceneMgr,
 		_debug_lines_3->addPoint(Ogre::Vector3(_interp_massList[idx1]._pos._x, _interp_massList[idx1]._pos._y, _interp_massList[idx1]._pos._z));
 		_debug_lines_3->addPoint(Ogre::Vector3(_massList[idx2]._pos._x, _massList[idx2]._pos._y, _massList[idx2]._pos._z));
 	}*/
-	_debug_lines_3->update();
-	_debugNode_3 = _sceneMgr->getRootSceneNode()->createChildSceneNode("debug_lines_3_" + std::to_string(_elem_idx));
-	_debugNode_3->attachObject(_debug_lines_3);
+	/////_debug_lines_3->update();
+	/////_debugNode_3 = _sceneMgr->getRootSceneNode()->createChildSceneNode("debug_lines_3_" + std::to_string(_elem_idx));
+	/////_debugNode_3->attachObject(_debug_lines_3);
 
 	// another debug
-	/*Ogre::MaterialPtr line_material_4 = Ogre::MaterialManager::getSingleton().getByName("Examples/RedMat")->clone("InterpClosestLines" + std::to_string(_elem_idx));
+	/*Ogre::MaterialPtr line_material_4 = Ogre::MaterialManager::getSingleton().getByName("Examples/RedMat")->clone("ClosestLines" + std::to_string(_elem_idx));
 	line_material_4->getTechnique(0)->getPass(0)->setDiffuse(Ogre::ColourValue(1, 0, 0, 1));
 	_debug_lines_4 = new DynamicLines(line_material_4, Ogre::RenderOperation::OT_LINE_LIST);
 
+	for (int b = 0; b < _timeTriangles.size(); b++)
+	{
+		std::vector<A3DVector> tri;
+		_tempTri3[0] = _massList[_timeTriangles[b].idx0]._pos;
+		_tempTri3[1] = _massList[_timeTriangles[b].idx1]._pos;
+		_tempTri3[2] = _massList[_timeTriangles[b].idx2]._pos;
+
+		_debug_lines_4->addPoint( Ogre::Vector3(_tempTri3[0]._x, _tempTri3[0]._x, _tempTri3[0]._z) );
+		_debug_lines_4->addPoint(Ogre::Vector3(_tempTri3[1]._x, _tempTri3[1]._x, _tempTri3[1]._z));
+
+		_debug_lines_4->addPoint(Ogre::Vector3(_tempTri3[1]._x, _tempTri3[1]._x, _tempTri3[1]._z));
+		_debug_lines_4->addPoint(Ogre::Vector3(_tempTri3[2]._x, _tempTri3[2]._x, _tempTri3[2]._z));
+
+		_debug_lines_4->addPoint(Ogre::Vector3(_tempTri3[2]._x, _tempTri3[2]._x, _tempTri3[2]._z));
+		_debug_lines_4->addPoint(Ogre::Vector3(_tempTri3[0]._x, _tempTri3[0]._x, _tempTri3[0]._z));
+		
+	}
 	_debug_lines_4->update();
 	_debugNode_4 = _sceneMgr->getRootSceneNode()->createChildSceneNode("debug_lines_4_" + std::to_string(_elem_idx));
 	_debugNode_4->attachObject(_debug_lines_4);*/
-		
+	
 }
 
 void AnElement::UpdateDebug2Ogre3D()
@@ -908,7 +979,7 @@ void AnElement::UpdateBoundaryDisplayOgre3D()
 
 void AnElement::UpdateDebug34Ogre3D()
 {
-	int idx = 0;
+	/*int idx = 0;*/
 
 	/*for (int a = 0; a < _interp_triEdges.size(); a++)
 	{
@@ -920,7 +991,7 @@ void AnElement::UpdateDebug34Ogre3D()
 		_debug_lines_3->setPoint(idx++, Ogre::Vector3(_interp_massList[idx2]._pos._x, _interp_massList[idx2]._pos._y, _interp_massList[idx2]._pos._z));
 	}*/
 
-	for (int l = 0; l < SystemParams::_interpolation_factor - 1; l++)
+	/*for (int l = 0; l < SystemParams::_interpolation_factor - 1; l++)
 	{
 		int layerOffset = l * _numPointPerLayer;
 		for (int b = 0; b < _numBoundaryPointPerLayer; b++)
@@ -936,7 +1007,7 @@ void AnElement::UpdateDebug34Ogre3D()
 			_debug_lines_3->setPoint(idx++, Ogre::Vector3(pt1._x, pt1._y, pt1._z));
 			_debug_lines_3->setPoint(idx++, Ogre::Vector3(pt2._x, pt2._y, pt2._z));
 		}
-	}
+	}*/
 
 	/*for (int a = 0; a < _interp_auxiliaryEdges.size(); a++)
 	{
@@ -965,23 +1036,43 @@ void AnElement::UpdateDebug34Ogre3D()
 	}*/
 
 
-	_debug_lines_3->update();
+	//_debug_lines_3->update();
 
 	
-	/*
+	
 	// 4
-	_debug_lines_4->clear();
-	for (int b = 0; b < _interp_massList.size(); b++)
+	/*_debug_lines_4->clear();
+	for (int b = 0; b < _massList.size(); b++)
 	{
-		for (int c = 0; c < _interp_massList[b]._closestPt_fill_sz; c++)
+		for (int c = 0; c < _massList[b]._closestPt_fill_sz; c++)
 		{
-			A3DVector pt1 = _interp_massList[b]._pos;
-			A2DVector pt22D = _interp_massList[b]._closestPoints[c];
+			A3DVector pt1 = _massList[b]._pos;
+			A2DVector pt22D = _massList[b]._closestPoints[c];
 			A3DVector pt2(pt22D.x, pt22D.y, pt1._z);
 
 			_debug_lines_4->addPoint(Ogre::Vector3(pt1._x, pt1._y, pt1._z));
 			_debug_lines_4->addPoint(Ogre::Vector3(pt2._x, pt2._y, pt2._z));
 		}
+	}
+	_debug_lines_4->update();*/
+
+	/*float iter = 0;
+	for (int b = 0; b < _timeTriangles.size(); b++)
+	{
+		std::vector<A3DVector> tri;
+		_tempTri3[0] = _massList[_timeTriangles[b].idx0]._pos;
+		_tempTri3[1] = _massList[_timeTriangles[b].idx1]._pos;
+		_tempTri3[2] = _massList[_timeTriangles[b].idx2]._pos;
+
+		_debug_lines_4->setPoint(iter++, Ogre::Vector3(_tempTri3[0]._x, _tempTri3[0]._y, _tempTri3[0]._z));
+		_debug_lines_4->setPoint(iter++, Ogre::Vector3(_tempTri3[1]._x, _tempTri3[1]._y, _tempTri3[1]._z));
+
+		_debug_lines_4->setPoint(iter++, Ogre::Vector3(_tempTri3[1]._x, _tempTri3[1]._y, _tempTri3[1]._z));
+		_debug_lines_4->setPoint(iter++, Ogre::Vector3(_tempTri3[2]._x, _tempTri3[2]._y, _tempTri3[2]._z));
+
+		_debug_lines_4->setPoint(iter++, Ogre::Vector3(_tempTri3[2]._x, _tempTri3[2]._y, _tempTri3[2]._z));
+		_debug_lines_4->setPoint(iter++, Ogre::Vector3(_tempTri3[0]._x, _tempTri3[0]._y, _tempTri3[0]._z));
+
 	}
 	_debug_lines_4->update();*/
 }
@@ -1482,6 +1573,33 @@ A2DVector  AnElement::Interp_ClosestPtOnALayer(A2DVector pt, int layer_idx)
 {
 	A2DVector closestPt;
 	closestPt = UtilityFunctions::GetClosestPtOnClosedCurve(_interp_per_layer_boundary[layer_idx], pt);
+
+	return closestPt;
+}
+
+A3DVector AnElement::ClosestPtOnTriSurface(std::vector<int>& massIndices, A3DVector pos)
+{
+	A3DVector closestPt;
+	float dist = 10000000000000;
+	for (int a = 0; a < massIndices.size(); a++)
+	{
+		int idx = massIndices[a];
+		for (int b = 0; b < _massList[idx]._timeTriangles.size(); b++)
+		{
+			std::vector<A3DVector> tri;
+			_tempTri3[0] = _massList[_massList[idx]._timeTriangles[b].idx0]._pos;
+			_tempTri3[1] = _massList[_massList[idx]._timeTriangles[b].idx1]._pos;
+			_tempTri3[2] = _massList[_massList[idx]._timeTriangles[b].idx2]._pos;
+
+			A3DVector cPt = UtilityFunctions::ClosestPointOnTriangle(_tempTri3, pos);
+			float d = cPt.Distance(pos);
+			if (d < dist)
+			{
+				dist = d;
+				closestPt = cPt;
+			}
+		}
+	}
 
 	return closestPt;
 }

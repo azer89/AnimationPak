@@ -71,6 +71,8 @@ void SystemParams::LoadParameters()
 	//std::cout << SystemParams::_window_title << "\n";
 	//std::cout << SystemParams::_save_folder << "\n";
 
+	std::cout << "SystemParams::LoadParameters done\n";
+
 }
 
 std::string SystemParams::_window_title = "";

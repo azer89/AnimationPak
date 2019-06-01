@@ -4,13 +4,18 @@
 
 CollisionGrid3D::CollisionGrid3D()
 {
+	// need to call init
+}
+
+void CollisionGrid3D::Init()
+{
 	_max_cell_length = SystemParams::_bin_square_size;
 
 	// create squares, the grid is a square too
 	_side_num = SystemParams::_upscaleFactor / _max_cell_length;
 
 	//
-	for(unsigned int z = 0; z < _side_num; z++) // fill the first layer...
+	for (unsigned int z = 0; z < _side_num; z++) // fill the first layer...
 	{
 		for (unsigned int a = 0; a < _side_num; a++) // x -  fill the first column... then next column... repeat
 		{
@@ -25,7 +30,7 @@ CollisionGrid3D::CollisionGrid3D()
 	}
 }
 
-CollisionGrid3D::CollisionGrid3D(float cellSize)
+/*CollisionGrid3D::CollisionGrid3D(float cellSize)
 {
 	_max_cell_length = cellSize;
 
@@ -46,7 +51,7 @@ CollisionGrid3D::CollisionGrid3D(float cellSize)
 			}
 		}
 	}
-}
+}*/
 
 CollisionGrid3D::~CollisionGrid3D()
 {
@@ -75,8 +80,127 @@ void CollisionGrid3D::GetCellPosition(int& xPos, int& yPos, int& zPos, float x, 
 	if (yPos < 0) { yPos = 0; }
 	else if (yPos >= _side_num) { yPos = _side_num - 1; }
 
-	if (zPos < 0) { yPos = 0; }
+	if (zPos < 0) { zPos = 0; }
 	else if (zPos >= _side_num) { zPos = _side_num - 1; }
+}
+
+void CollisionGrid3D::GetClosestPoints(float x, float y, float z, std::vector<A3DVector>& closestPoints)
+{
+	z = abs(z);
+
+	if (x < 0 || x > SystemParams::_upscaleFactor ||
+		y < 0 || y > SystemParams::_upscaleFactor ||
+		z < 0 || z > SystemParams::_upscaleFactor)
+	{
+		return;
+	}
+
+	int xPos;
+	int yPos;
+	int zPos;
+	GetCellPosition(xPos, yPos, zPos, x, y, z);
+
+	int offst = SystemParams::_collission_block_radius;
+
+	int xBegin = xPos - offst;
+	if (xBegin < 0) { xBegin = 0; }
+
+	int xEnd = xPos + offst;
+	if (xEnd >= _side_num) { xEnd = _side_num - 1; }
+
+	int yBegin = yPos - offst;
+	if (yBegin < 0) { yBegin = 0; }
+
+	int yEnd = yPos + offst;
+	if (yEnd >= _side_num) { yEnd = _side_num - 1; }
+
+	int zBegin = zPos - offst;
+	if (zBegin < 0) { zBegin = 0; }
+
+	int zEnd = zPos + offst;
+	if (zEnd >= _side_num) { zEnd = _side_num - 1; }
+
+	for (unsigned int zIter = zBegin; zIter <= xEnd; zIter++)
+	{
+		for (unsigned int xIter = xBegin; xIter <= xEnd; xIter++)
+		{
+			for (unsigned int yIter = yBegin; yIter <= yEnd; yIter++)
+			{
+				int idx = SquareIndex(xIter, yIter, zIter);
+
+				for (unsigned int a = 0; a < _squares[idx]->_objects.size(); a++)
+				{
+					closestPoints.push_back(A3DVector(_squares[idx]->_objects[a]->_x,
+						_squares[idx]->_objects[a]->_y,
+						_squares[idx]->_objects[a]->_z));
+				}
+			}
+		}
+	}
+}
+
+void CollisionGrid3D::GetClosestObjects(float x, float y, float z, std::vector<A3DObject>& closestObjects)
+{
+	//if (std::isnan(x) || std::isinf(x) || std::isnan(y) || std::isinf(y))
+	//{
+	//	return;
+	//}
+
+	z = abs(z);
+
+	if (x < 0 || x > SystemParams::_upscaleFactor || 
+		y < 0 || y > SystemParams::_upscaleFactor || 
+		z < 0 || z > SystemParams::_upscaleFactor)
+	{
+		return;
+	}
+
+	int xPos;
+	int yPos;
+	int zPos;
+	GetCellPosition(xPos, yPos, zPos, x, y, z);
+
+	int offst = SystemParams::_collission_block_radius;
+
+	int xBegin = xPos - offst;
+	if (xBegin < 0) { xBegin = 0; }
+
+	int xEnd = xPos + offst;
+	if (xEnd >= _side_num) { xEnd = _side_num - 1; }
+
+	int yBegin = yPos - offst;
+	if (yBegin < 0) { yBegin = 0; }
+
+	int yEnd = yPos + offst;
+	if (yEnd >= _side_num) { yEnd = _side_num - 1; }
+
+	int zBegin = zPos - offst;
+	if (zBegin < 0) { zBegin = 0; }
+
+	int zEnd = zPos + offst;
+	if (zEnd >= _side_num) { zEnd = _side_num - 1; }
+
+	for (unsigned int zIter = zBegin; zIter <= xEnd; zIter++)
+	{
+		for (unsigned int xIter = xBegin; xIter <= xEnd; xIter++)
+		{
+			for (unsigned int yIter = yBegin; yIter <= yEnd; yIter++)
+			{
+				int idx = SquareIndex(xIter, yIter, zIter);
+
+				for (unsigned int a = 0; a < _squares[idx]->_objects.size(); a++)
+				{
+					A3DObject obj3D(_squares[idx]->_objects[a]->_x, 
+						            _squares[idx]->_objects[a]->_y, 
+						            _squares[idx]->_objects[a]->_z, 
+									_squares[idx]->_objects[a]->_info1, 
+									_squares[idx]->_objects[a]->_info2);
+
+					closestObjects.push_back(obj3D);
+				}
+			}
+		}
+	}
 }
 
 
@@ -92,6 +216,15 @@ void CollisionGrid3D::GetGraphIndices2B(float x, float y, float z, std::vector<i
 	int idx = SquareIndex(xPos, yPos, zPos);
 
 	closestGraphIndices = _graphIndexArray[idx];
+}
+
+void CollisionGrid3D::SetPoint(int idx, A3DVector pos)
+{
+	pos._z = abs(pos._z);
+
+	_objects[idx]->_x = pos._x;
+	_objects[idx]->_y = pos._y;
+	_objects[idx]->_z = pos._z;
 }
 
 void CollisionGrid3D::InsertAPoint(float x, float y, float z, int info1, int info2)

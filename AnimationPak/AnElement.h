@@ -60,7 +60,7 @@ public:
 
 	A2DVector ClosestPtOnALayer(A2DVector pt, int layer_idx);
 
-	A3DVector ClosestPtOnTriSurface(std::vector<int>& massIndices, A3DVector pos);
+	A3DVector ClosestPtOnTriSurface(std::vector<int>& triIndices, A3DVector pos);
 
 	void Grow(float growth_scale_iter, float dt);
 

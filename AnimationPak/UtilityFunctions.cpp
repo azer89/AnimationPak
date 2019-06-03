@@ -346,6 +346,60 @@ float clip(float n, float lower, float upper) {
 	return std::max(lower, std::min(n, upper));
 }
 
+A3DVector UtilityFunctions::ClosestPointOnTriangle2(A3DVector p, A3DVector a, A3DVector b, A3DVector c)
+{
+	// Check if P in vertex region outside A
+	A3DVector ab = b - a;
+	A3DVector ac = c - a;
+	A3DVector ap = p - a;
+	float d1 = ab.Dot(ap);
+	float d2 = ac.Dot(ap);
+	if (d1 <= 0.0f && d2 <= 0.0f) return a; // barycentric coordinates (1, 0, 0)
+
+	// Check if P in vertex region outside B
+	A3DVector bp = p - b;
+	float d3 = ab.Dot(bp);
+	float d4 = ac.Dot(bp);
+	if (d3 >= 0.0f && d4 <= d3) return b; // barycentric coordinates (0, 1, 0)
+
+	// Check if P in edge region of AB, if so return projection of P onto AB
+	float vc = d1 * d4 - d3 * d2;
+	if (vc <= 0.0f && d1 >= 0.0f && d3 <= 0.0f)
+	{
+		float v = d1 / (d1 - d3);
+		return a + ab * v; // barycentric coordinates (1-v, v, 0)
+	}
+
+	// Check if P in vertex region outside C
+	A3DVector cp = p - c;
+	float d5 = ab.Dot(cp);
+	float d6 = ac.Dot(cp);
+	if (d6 >= 0.0f && d5 <= d6) return c; // barycentric coordinates (0, 0, 1)
+
+	// Check if P in edge region of AC, if so return projection of P onto AC
+	float vb = d5 * d2 - d1 * d6;
+	if (vb <= 0.0f && d2 >= 0.0f && d6 <= 0.0f)
+	{
+		float w = d2 / (d2 - d6);
+		return a + ac * w; // barycentric coordinates (1-w, 0, w)
+	}
+
+	// Check if P in edge region of BC, if so return projection of P onto BC
+	float va = d3 * d6 - d5 * d4;
+	if (va <= 0.0f && (d4 - d3) >= 0.0f && (d5 - d6) >= 0.0f)
+	{
+		float w = (d4 - d3) / ( (d4 - d3) + (d5 - d6) );
+		return b + (c - b) * w; // barycentric coordinates (0, 1-w, w)
+	}
+
+	// P inside face region. Computer Q through its barycentric coordinates (u, v, w)
+	float denom = 1.0f / (va + vb + vc);
+	float v = vb * denom;
+	float w = vc * denom;
+	return a + ab * v + ac * w; 
+
+}
+
 A3DVector UtilityFunctions::ClosestPointOnTriangle(std::vector<A3DVector>& triangle, A3DVector sourcePosition)
 {
 	A3DVector edge0 = triangle[1] - triangle[0];

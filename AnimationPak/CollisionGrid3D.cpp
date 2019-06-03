@@ -28,6 +28,10 @@ void CollisionGrid3D::Init()
 			}
 		}
 	}
+
+	// reserve
+	_graphIndexArray.reserve(_squares.size());
+	_triangleIndexArray.reserve(_squares.size());
 }
 
 /*CollisionGrid3D::CollisionGrid3D(float cellSize)
@@ -204,6 +208,20 @@ void CollisionGrid3D::GetClosestObjects(float x, float y, float z, std::vector<A
 }
 
 
+void CollisionGrid3D::GetTriangleIndices(float x, float y, float z, TriangleIndices& closestTriIndices)
+{
+	z = abs(z); // POSITIVE !!!
+
+	int xPos;
+	int yPos;
+	int zPos;
+	GetCellPosition(xPos, yPos, zPos, x, y, z);
+
+	int idx = SquareIndex(xPos, yPos, zPos);
+
+	closestTriIndices = _triangleIndexArray[idx];
+}
+
 void CollisionGrid3D::GetGraphIndices2B(float x, float y, float z, std::vector<int>& closestGraphIndices)
 {
 	z = abs(z); // POSITIVE !!!
@@ -243,7 +261,7 @@ void CollisionGrid3D::InsertAPoint(float x, float y, float z, int info1, int inf
 	_squares[sq_idx]->_objects.push_back(obj);
 }
 
-void CollisionGrid3D::PrecomputeGraphIndices()
+void CollisionGrid3D::PrecomputeClosestGraphsAndTriangles()
 {
 	_graphIndexArray.clear(); // std::vector<std::vector<int>>
 
@@ -251,7 +269,8 @@ void CollisionGrid3D::PrecomputeGraphIndices()
 
 	for (unsigned int iter = 0; iter < _squares.size(); iter++)
 	{
-		GraphIndices gIndices; // typedef std::vector<int> GraphIndices
+		GraphIndices gIndices;    // typedef std::vector<int> GraphIndices
+		TriangleIndices tIndices; // typedef std::vector<std::vector<int>> TriangleIndices
 
 		int zPos = iter / side_num_sq; // int division
 
@@ -289,17 +308,39 @@ void CollisionGrid3D::PrecomputeGraphIndices()
 					int idx = SquareIndex(xIter, yIter, zIter);
 					for (unsigned int a = 0; a < _squares[idx]->_objects.size(); a++)
 					{
-						int info1 = _squares[idx]->_objects[a]->_info1;
-						if (UtilityFunctions::GetIndexFromIntList(gIndices, info1) == -1)
+						// graph						
+						int info1 = _squares[idx]->_objects[a]->_info1;						
+						int idxidx = UtilityFunctions::GetIndexFromIntList(gIndices, info1);
+						if (idxidx == -1) // graph not found
 						{
+							// graph
 							gIndices.push_back(info1);
+							idxidx = gIndices.size() - 1;
+
+							// triangle
+							std::vector<int> tArray;
+							tIndices.push_back(tArray);
+							//tArray.push_back(info2); // don't assign now
+							
 						}
+
+						// triangle
+						int info2 = _squares[idx]->_objects[a]->_info2;
+						int idxidx2 = UtilityFunctions::GetIndexFromIntList(tIndices[idxidx], info2);
+						if (idxidx2 == -1)
+						{
+							tIndices[idxidx].push_back(info2);
+						}
+
+
 					}
 				}
 			}
 		}
 		_graphIndexArray.push_back(gIndices);
+		_triangleIndexArray.push_back(tIndices);
 	}
+	std::cout << "done\n";
 }
 
 void CollisionGrid3D::MovePoints()

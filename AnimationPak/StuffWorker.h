@@ -59,9 +59,9 @@ public:
 	AVideoCreator _video_creator;
 
 public:
-	/*
+	
 	// points-triangles debug
-	std::vector<std::vector<A3DVector>> _triangles;
+	/*std::vector<std::vector<A3DVector>> _triangles;
 
 	// points-triangles debug
 	DynamicLines*    _debug_lines_tri;

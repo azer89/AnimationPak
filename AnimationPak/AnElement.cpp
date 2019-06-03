@@ -475,6 +475,7 @@ void AnElement::Triangularization(int self_idx)
 			_massList[cur_2]._timeTriangles.push_back(tri2);
 		}
 	}
+	std::cout << "_timeTriangles size = " << _timeTriangles.size() << "\n";
 	// ----- time triangles -----
 
 	// ----- interpolation time triangles -----
@@ -909,11 +910,11 @@ void AnElement::InitMeshOgre3D(Ogre::SceneManager* sceneMgr,
 	/////_debugNode_3->attachObject(_debug_lines_3);
 
 	// another debug
-	/*Ogre::MaterialPtr line_material_4 = Ogre::MaterialManager::getSingleton().getByName("Examples/RedMat")->clone("ClosestLines" + std::to_string(_elem_idx));
+	Ogre::MaterialPtr line_material_4 = Ogre::MaterialManager::getSingleton().getByName("Examples/RedMat")->clone("ClosestLines" + std::to_string(_elem_idx));
 	line_material_4->getTechnique(0)->getPass(0)->setDiffuse(Ogre::ColourValue(1, 0, 0, 1));
 	_debug_lines_4 = new DynamicLines(line_material_4, Ogre::RenderOperation::OT_LINE_LIST);
 
-	for (int b = 0; b < _timeTriangles.size(); b++)
+	/*for (int b = 0; b < _timeTriangles.size(); b++)
 	{
 		std::vector<A3DVector> tri;
 		_tempTri3[0] = _massList[_timeTriangles[b].idx0]._pos;
@@ -929,10 +930,10 @@ void AnElement::InitMeshOgre3D(Ogre::SceneManager* sceneMgr,
 		_debug_lines_4->addPoint(Ogre::Vector3(_tempTri3[2]._x, _tempTri3[2]._x, _tempTri3[2]._z));
 		_debug_lines_4->addPoint(Ogre::Vector3(_tempTri3[0]._x, _tempTri3[0]._x, _tempTri3[0]._z));
 		
-	}
+	}*/
 	_debug_lines_4->update();
 	_debugNode_4 = _sceneMgr->getRootSceneNode()->createChildSceneNode("debug_lines_4_" + std::to_string(_elem_idx));
-	_debugNode_4->attachObject(_debug_lines_4);*/
+	_debugNode_4->attachObject(_debug_lines_4);
 	
 }
 
@@ -1041,20 +1042,20 @@ void AnElement::UpdateDebug34Ogre3D()
 	
 	
 	// 4
-	/*_debug_lines_4->clear();
+	_debug_lines_4->clear();
 	for (int b = 0; b < _massList.size(); b++)
 	{
-		for (int c = 0; c < _massList[b]._closestPt_fill_sz; c++)
+		for (int c = 0; c < _massList[b]._closestPoints3D.size(); c++)
 		{
 			A3DVector pt1 = _massList[b]._pos;
-			A2DVector pt22D = _massList[b]._closestPoints[c];
-			A3DVector pt2(pt22D.x, pt22D.y, pt1._z);
+			A3DVector pt2 = _massList[b]._closestPoints3D[c];
+			//A3DVector pt2(pt22D.x, pt22D.y, pt1._z);
 
 			_debug_lines_4->addPoint(Ogre::Vector3(pt1._x, pt1._y, pt1._z));
 			_debug_lines_4->addPoint(Ogre::Vector3(pt2._x, pt2._y, pt2._z));
 		}
 	}
-	_debug_lines_4->update();*/
+	_debug_lines_4->update();
 
 	/*float iter = 0;
 	for (int b = 0; b < _timeTriangles.size(); b++)
@@ -1577,29 +1578,30 @@ A2DVector  AnElement::Interp_ClosestPtOnALayer(A2DVector pt, int layer_idx)
 	return closestPt;
 }
 
-A3DVector AnElement::ClosestPtOnTriSurface(std::vector<int>& massIndices, A3DVector pos)
+A3DVector AnElement::ClosestPtOnTriSurface(std::vector<int>& triIndices, A3DVector pos)
 {
 	A3DVector closestPt;
 	float dist = 10000000000000;
-	for (int a = 0; a < massIndices.size(); a++)
+	//for (int a = 0; a < massIndices.size(); a++)
+	//{
+		//int idx = massIndices[a];
+	for (int b = 0; b < _timeTriangles.size(); b++)
 	{
-		int idx = massIndices[a];
-		for (int b = 0; b < _massList[idx]._timeTriangles.size(); b++)
-		{
-			std::vector<A3DVector> tri;
-			_tempTri3[0] = _massList[_massList[idx]._timeTriangles[b].idx0]._pos;
-			_tempTri3[1] = _massList[_massList[idx]._timeTriangles[b].idx1]._pos;
-			_tempTri3[2] = _massList[_massList[idx]._timeTriangles[b].idx2]._pos;
+		std::vector<A3DVector> tri;
+		_tempTri3[0] = _massList[_timeTriangles[b].idx0]._pos;
+		_tempTri3[1] = _massList[_timeTriangles[b].idx1]._pos;
+		_tempTri3[2] = _massList[_timeTriangles[b].idx2]._pos;
 
-			A3DVector cPt = UtilityFunctions::ClosestPointOnTriangle(_tempTri3, pos);
-			float d = cPt.Distance(pos);
-			if (d < dist)
-			{
-				dist = d;
-				closestPt = cPt;
-			}
+		//A3DVector cPt = UtilityFunctions::ClosestPointOnTriangle(_tempTri3, pos);
+		A3DVector cPt = UtilityFunctions::ClosestPointOnTriangle2(pos, _tempTri3[0], _tempTri3[1], _tempTri3[2]);
+		float d = cPt.DistanceSquared(pos);
+		if (d < dist)
+		{
+			dist = d;
+			closestPt = cPt;
 		}
 	}
+	//}
 
 	return closestPt;
 }

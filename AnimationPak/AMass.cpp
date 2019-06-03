@@ -73,7 +73,7 @@ void AMass::CallMeFromConstructor()
 
 	//_interpolation_mode = false;
 
-	
+	_closestPoints3D.reserve(5000);
 
 	Init();
 }
@@ -231,11 +231,18 @@ void AMass::GetClosestPoint3()
 	this->_closestPt_fill_sz = 0;
 	this->_is_inside = false;           // "inside" flag
 
+	// clear
+	_closestPoints3D.clear();
+
 	// _closestPoints3D <-- 3D closest point
 	_c_grid_3d->GetGraphIndices2B(_pos._x, _pos._y, _pos._z, _closestGraphIndices);
 	
 	if (_closestGraphIndices.size() > 0)
 	{
+		// tri
+		std::vector<std::vector<int>> closestTriIndices;
+		_c_grid_3d->GetTriangleIndices(_pos._x, _pos._y, _pos._z, closestTriIndices);
+
 		std::vector<bool> insideGraphFlags;
 		int sz = _closestGraphIndices.size();
 		for (unsigned int a = 0; a < sz; a++)
@@ -252,20 +259,20 @@ void AMass::GetClosestPoint3()
 			else
 			{
 				insideGraphFlags.push_back(false);
+
+				// tri
+				A3DVector pt = StuffWorker::_element_list[_closestGraphIndices[a]].ClosestPtOnTriSurface(closestTriIndices[a], _pos);
+				_closestPoints3D.push_back(pt);
 			}
 		}
 
 		// closest 3D points POINT TO TRI
-		_closestPoints3D.clear();
-		//std::vector<A3DObject> tempClosestObj3D;
-		_c_grid_3d->GetClosestPoints(_pos._x, _pos._y, _pos._z, _closestPoints3D);
+		//_closestPoints3D.clear();
+		//_c_grid_3d->GetClosestPoints(_pos._x, _pos._y, _pos._z, _closestPoints3D);
+
 	}
 
-	/*_closestDist =  std::numeric_limits<float>::max();
-	if (_closestPoints3D.size() > 0)
-	{
-		_closestDist = UtilityFunctions::DistanceToBunchOfPoints(_closestPoints3D, _pos);
-	}*/
+
 }
 
 void AMass::GetClosestPoint2()

@@ -98,7 +98,7 @@ void StuffWorker::InitElements(Ogre::SceneManager* scnMgr)
 	posArray.push_back(A2DVector(400, 0));
 	posArray.push_back(A2DVector(300, 30)); //
 	posArray.push_back(A2DVector(470, 100)); //
-	posArray.push_back(A2DVector(40, 240));
+	/*posArray.push_back(A2DVector(40, 240));
 	posArray.push_back(A2DVector(330, 140));
 	posArray.push_back(A2DVector(400, 250));
 	posArray.push_back(A2DVector(0, 180));
@@ -106,7 +106,7 @@ void StuffWorker::InitElements(Ogre::SceneManager* scnMgr)
 	posArray.push_back(A2DVector(170, 210));
 	posArray.push_back(A2DVector(320, 280));
 	posArray.push_back(A2DVector(350, 280));
-	posArray.push_back(A2DVector(350, 220));
+	posArray.push_back(A2DVector(350, 220));*/
 	
 	for (int a = 0; a < posArray.size(); a++)
 	{
@@ -230,7 +230,7 @@ void StuffWorker::InitElements(Ogre::SceneManager* scnMgr)
 	for (int a = 0; a < 100; a++)
 	{
 		A3DVector randPt(rand()% 500, rand() % 500, -(rand() % 500));
-		A3DVector closestPt = UtilityFunctions::ClosestPointOnTriangle(_triangles[0], randPt);
+		A3DVector closestPt = UtilityFunctions::ClosestPointOnTriangle2(randPt, _triangles[0][0], _triangles[0][1], _triangles[0][2]);
 
 		_debug_lines_tri->addPoint(Ogre::Vector3(randPt._x, randPt._y, randPt._z));
 		_debug_lines_tri->addPoint(Ogre::Vector3(closestPt._x, closestPt._y, closestPt._z));
@@ -374,7 +374,7 @@ void StuffWorker::Update()
 		}
 	}	
 	_c_grid_3d->MovePoints();
-	_c_grid_3d->PrecomputeGraphIndices();
+	_c_grid_3d->PrecomputeClosestGraphsAndTriangles();
 	
 	// ----- update closest points -----
 	// TODO
@@ -516,9 +516,11 @@ void StuffWorker::UpdateOgre3D()
 		//_element_list[a].UpdateSpringDisplayOgre3D();
 		_element_list[a].UpdateBoundaryDisplayOgre3D();
 		/////_element_list[a].UpdateDebug2Ogre3D();
-		_element_list[a].UpdateDebug34Ogre3D();
+		//_element_list[a].UpdateDebug34Ogre3D();
 		//_element_list[a].UpdateClosestPtsDisplayOgre3D();
 	}
+
+	//_element_list[0].UpdateDebug34Ogre3D();
 
 }
 

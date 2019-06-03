@@ -11,6 +11,7 @@
 #include <cmath>
 
 typedef std::vector<int> GraphIndices;
+typedef std::vector<std::vector<int>> TriangleIndices;
 
 class CollisionGrid3D
 {
@@ -20,7 +21,9 @@ private:
 public:
 	
 	std::vector<A3DSquare*>   _squares;
-	std::vector<GraphIndices> _graphIndexArray;
+
+	std::vector<GraphIndices> _graphIndexArray; // per squares
+	std::vector<TriangleIndices> _triangleIndexArray; // per squares
 
 	int   _side_num; // side length of the entire grid (unit: cell)
 	float _max_cell_length; // side length of a cell
@@ -43,7 +46,9 @@ public:
 
 	void GetGraphIndices2B(float x, float y, float z, std::vector<int>& closestGraphIndices);
 
-	void PrecomputeGraphIndices();
+	void GetTriangleIndices(float x, float y, float z, TriangleIndices& closestTriIndices);
+
+	void PrecomputeClosestGraphsAndTriangles();
 
 	void MovePoints();
 

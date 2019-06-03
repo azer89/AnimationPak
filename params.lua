@@ -33,7 +33,7 @@ _velocity_cap   = 10; -- [Do not edit]
 
 --- Grid for collision detection
 --- size of a cell
-_bin_square_size         = 50;
+_bin_square_size         = 100;
 --- cell gap for detection, 
 --- 1 means considering all cells that are 1 block away from the query (3x3)
 --- 2 means considering all cells that are 2 block away from the query (5x5)
@@ -44,14 +44,14 @@ _growth_scale_iter     = 0.005; -- 0.005
 _element_initial_scale = 0.05; 
 _element_max_scale = 4.0;
 
-_num_layer = 11;
+_num_layer = 6;
 
 
 _show_time_springs = true;
 
 --- density of random points inside the skin
 --- if the density is higher, you get more triangles
-_sampling_density               = 50;
+_sampling_density               = 100;
 --- uniform sampling on the skin
 _boundary_sampling_factor   = 1.2;  -- [Do not edit]
 

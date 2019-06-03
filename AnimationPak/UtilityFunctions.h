@@ -60,6 +60,7 @@ public:
 
 	// point to triangle
 	static A3DVector ClosestPointOnTriangle(std::vector<A3DVector>& triangle, A3DVector sourcePosition);
+	static A3DVector ClosestPointOnTriangle2(A3DVector p, A3DVector a, A3DVector b, A3DVector c);
 };
 
 #endif

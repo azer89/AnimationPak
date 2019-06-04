@@ -111,6 +111,12 @@
     <ClInclude Include="Octree.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="PathIO.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dirent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -171,6 +177,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Octree.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PathIO.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dirent.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

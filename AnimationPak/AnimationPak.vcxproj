@@ -173,6 +173,7 @@
     <ClInclude Include="CollisionGrid2D.h" />
     <ClInclude Include="CollisionGrid3D.h" />
     <ClInclude Include="ContainerWorker.h" />
+    <ClInclude Include="dirent.h" />
     <ClInclude Include="Display.h" />
     <ClInclude Include="DynamicLines.h" />
     <ClInclude Include="DynamicRenderable.h" />
@@ -181,6 +182,7 @@
     <ClInclude Include="NANOFLANNWrapper2D.h" />
     <ClInclude Include="Octree.h" />
     <ClInclude Include="OpenCVWrapper.h" />
+    <ClInclude Include="PathIO.h" />
     <ClInclude Include="PointCloud2D.h" />
     <ClInclude Include="PoissonGenerator.h" />
     <ClInclude Include="stdafx.h" />
@@ -198,6 +200,7 @@
     <ClCompile Include="CollisionGrid2D.cpp" />
     <ClCompile Include="CollisionGrid3D.cpp" />
     <ClCompile Include="ContainerWorker.cpp" />
+    <ClCompile Include="dirent.cpp" />
     <ClCompile Include="Display.cpp" />
     <ClCompile Include="DynamicLines.cpp" />
     <ClCompile Include="DynamicRenderable.cpp" />
@@ -206,6 +209,7 @@
     <ClCompile Include="NANOFLANNWrapper2D.cpp" />
     <ClCompile Include="Octree.cpp" />
     <ClCompile Include="OpenCVWrapper.cpp" />
+    <ClCompile Include="PathIO.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>

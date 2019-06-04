@@ -1,12 +1,13 @@
 
 #include "StuffWorker.h"
 #include "OpenCVWrapper.h"
-#include "TetWrapper.h"
+//#include "TetWrapper.h"
 #include "AVideoCreator.h"
-
 #include "ContainerWorker.h"
-
+#include "PathIO.h"
 #include "UtilityFunctions.h"
+
+#include "dirent.h" // external
 
 // static variables
 std::vector<AnElement>  StuffWorker::_element_list = std::vector<AnElement>();
@@ -55,14 +56,25 @@ StuffWorker::~StuffWorker()
 	//Ogre::MaterialManager::getSingleton().remove("Examples/TransparentTest2");
 }
 
+/*void StuffWorker::LoadElements()
+{
+	// TO DO: MULTIPLE ELEMENTS
+	PathIO pathIO;
+}*/
+
 void StuffWorker::InitElements(Ogre::SceneManager* scnMgr)
 {
+	// read from file
+	PathIO pathIO;
+	std::vector<A2DVector> element_path = pathIO.LoadElement(SystemParams::_element_file_name)[0];
+
+
 	float initialScale = SystemParams::_element_initial_scale; // 0.05
 
 	{
 		int idx = _element_list.size();
 		AnElement elem;
-		elem.Triangularization(idx);
+		elem.Triangularization(element_path, idx);
 		elem.ScaleXY(initialScale);
 		elem.TranslateXY(20, 20);
 		elem.AdjustEndPosition(A2DVector(490, 490));
@@ -112,7 +124,7 @@ void StuffWorker::InitElements(Ogre::SceneManager* scnMgr)
 	{
 		int idx = _element_list.size();
 		AnElement elem;
-		elem.Triangularization(idx);
+		elem.Triangularization(element_path, idx);
 		
 		// random rotation
 		float radAngle = float(rand() % 628) / 100.0;

@@ -44,7 +44,7 @@ public:
 	void DrawRandomPoints(std::vector<A2DVector> randomPoints); // debug
 
 	float GetMaxDistRandomPoints(const std::vector<A2DVector>& randomPoints);
-	void Triangularization(int self_idx);
+	void Triangularization(std::vector<A2DVector> element_path, int self_idx);
 	void CreateRandomPoints(std::vector<A2DVector> ornamentBoundary, // called from Tetrahedralization()
 							float img_length,
 							std::vector<A2DVector>& randomPoints,
@@ -123,7 +123,7 @@ public:
 	std::vector<std::vector<A2DVector>> _per_layer_boundary; // for closest point
 
 	MyColor _color; // drawing
-	A2DVector _layer_center; // star only, please delete me!
+	A2DVector _layer_center; // for some transformation
 
 private:
 	//std::vector<std::vector<A2DVector>> _temp_per_layer_boundary; // for interpolation mode	

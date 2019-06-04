@@ -46,6 +46,8 @@ public:
 	void EnableInterpolationMode();
 	void DisableInterpolationMode();
 
+	//void LoadElements();
+
 public:
 
 	ContainerWorker* _containerWorker;

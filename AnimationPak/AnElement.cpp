@@ -270,46 +270,47 @@ float AnElement::GetMaxDistRandomPoints(const std::vector<A2DVector>& randomPoin
 	return maxDist;
 }
 
-void AnElement::Triangularization(int self_idx)
+void AnElement::Triangularization(std::vector<A2DVector> element_path, int self_idx)
 {
 	// ----- element index -----
 	this->_elem_idx = self_idx;
 
 	// ----- define a star ----- 
-	std::vector<A2DVector> star_points_2d;	
+	/*std::vector<A2DVector> element_path;	
 
-	star_points_2d.push_back(A2DVector(125, 315)); // 10
-	star_points_2d.push_back(A2DVector(95, 487)); // 9
-	star_points_2d.push_back(A2DVector(250, 406)); // 8
-	star_points_2d.push_back(A2DVector(404, 487)); // 7
-	star_points_2d.push_back(A2DVector(375, 315)); // 6
-	star_points_2d.push_back(A2DVector(500, 193)); // 5
-	star_points_2d.push_back(A2DVector(327, 168)); // 4
-	star_points_2d.push_back(A2DVector(250, 12)); // 3
-	star_points_2d.push_back(A2DVector(172, 168)); // 2
-	star_points_2d.push_back(A2DVector(0, 193));   // 1
+	element_path.push_back(A2DVector(125, 315)); // 10
+	element_path.push_back(A2DVector(95, 487)); // 9
+	element_path.push_back(A2DVector(250, 406)); // 8
+	element_path.push_back(A2DVector(404, 487)); // 7
+	element_path.push_back(A2DVector(375, 315)); // 6
+	element_path.push_back(A2DVector(500, 193)); // 5
+	element_path.push_back(A2DVector(327, 168)); // 4
+	element_path.push_back(A2DVector(250, 12)); // 3
+	element_path.push_back(A2DVector(172, 168)); // 2
+	element_path.push_back(A2DVector(0, 193));   // 1*/
 	
 	// -----  why do we need bounding box? ----- 
-	A2DRectangle bb = UtilityFunctions::GetBoundingBox(star_points_2d);
+	A2DRectangle bb = UtilityFunctions::GetBoundingBox(element_path);
 	float img_length = bb.witdh;
 	if (bb.height > bb.witdh) { img_length = bb.height; }
 	A2DVector centerPt = bb.GetCenter();
+	_layer_center = centerPt; // assign !!!
 
 	// -----  moving to new center ----- 
 	img_length += 5.0f; // triangulation error without this ?
 	A2DVector newCenter = A2DVector((img_length / 2.0f), (img_length / 2.0f));
-	star_points_2d = UtilityFunctions::MovePoly(star_points_2d, centerPt, newCenter);
+	element_path = UtilityFunctions::MovePoly(element_path, centerPt, newCenter);
 
 	// -----  random points ----- 
 	std::vector<A2DVector> randomPoints;
-	CreateRandomPoints(star_points_2d, img_length, randomPoints, this->_numBoundaryPointPerLayer);
+	CreateRandomPoints(element_path, img_length, randomPoints, this->_numBoundaryPointPerLayer);
 	this->_numPointPerLayer = randomPoints.size(); // ASSIGN
 
 	
 	// -----  triangulation ----- 
 	OpenCVWrapper cvWrapper;
 	std::vector<AnIdxTriangle> tempTriangles;
-	cvWrapper.Triangulate(tempTriangles, randomPoints, star_points_2d, img_length);	
+	cvWrapper.Triangulate(tempTriangles, randomPoints, element_path, img_length);
 	// duplicate triangles
 	for (int a = 0; a < SystemParams::_num_layer; a++)
 	{
@@ -339,8 +340,6 @@ void AnElement::Triangularization(int self_idx)
 		}
 	}
 	// ----- interpolation triangles -----
-
-
 	
 
 	// z axis offset

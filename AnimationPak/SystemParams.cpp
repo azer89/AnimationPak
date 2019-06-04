@@ -26,6 +26,7 @@ void SystemParams::LoadParameters()
 
 	SystemParams::_window_title = script.get<std::string>("_window_title");
 	SystemParams::_save_folder = script.get<std::string>("_save_folder");
+	SystemParams::_element_file_name = script.get<std::string>("_element_file_name");
 
 	SystemParams::_upscaleFactor = script.get<float>("_upscaleFactor");
 	SystemParams::_downscaleFactor = script.get<float>("_downscaleFactor");
@@ -77,6 +78,7 @@ void SystemParams::LoadParameters()
 
 std::string SystemParams::_window_title = "";
 std::string SystemParams::_save_folder = "";
+std::string SystemParams::_element_file_name = "";
 
 float SystemParams::_upscaleFactor = 0.0f;
 float SystemParams::_downscaleFactor = 0.0f;

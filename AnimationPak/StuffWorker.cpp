@@ -117,7 +117,7 @@ void StuffWorker::InitElements(Ogre::SceneManager* scnMgr)
 	posArray.push_back(A2DVector(30, 180)); //
 	posArray.push_back(A2DVector(170, 210));
 	posArray.push_back(A2DVector(320, 280));
-	posArray.push_back(A2DVector(350, 280));
+	posArray.push_back(A2DVector(350, 280)); 
 	posArray.push_back(A2DVector(350, 220));*/
 	
 	for (int a = 0; a < posArray.size(); a++)

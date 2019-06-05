@@ -76,8 +76,13 @@ void StuffWorker::InitElements(Ogre::SceneManager* scnMgr)
 		AnElement elem;
 		elem.Triangularization(element_path, idx);
 		elem.ScaleXY(initialScale);
-		elem.TranslateXY(20, 20);
-		elem.AdjustEndPosition(A2DVector(490, 490));
+
+		// docking
+		A2DVector startPt(100, 100);
+		A2DVector endPt(400, 400);
+		elem.TranslateXY(startPt.x, startPt.y);
+		elem.DockEnds(startPt, endPt);
+		
 		elem.CalculateRestStructure();
 		Ogre::SceneNode* pNode = scnMgr->getRootSceneNode()->createChildSceneNode("TubeNode" + std::to_string(idx));
 		elem.InitMeshOgre3D(scnMgr, pNode, "StarTube" + std::to_string(idx), "Examples/TransparentTest2");
@@ -525,9 +530,9 @@ void StuffWorker::UpdateOgre3D()
 	for (int a = 0; a < _element_list.size(); a++)
 	{
 		//_element_list[a].UpdateMeshOgre3D();
-		//_element_list[a].UpdateSpringDisplayOgre3D();
+		_element_list[a].UpdateSpringDisplayOgre3D();
 		_element_list[a].UpdateBoundaryDisplayOgre3D();
-		/////_element_list[a].UpdateDebug2Ogre3D();
+		_element_list[a].UpdateDebug2Ogre3D();
 		//_element_list[a].UpdateDebug34Ogre3D();
 		//_element_list[a].UpdateClosestPtsDisplayOgre3D();
 	}

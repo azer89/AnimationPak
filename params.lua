@@ -6,6 +6,7 @@ _window_title = "1";
 _save_folder  = "C:\\Users\\azer\\OneDrive\\Images\\PhysicsPak_Snapshots_0" .. _window_title .. "\\";
 
 _element_file_name = "C:\\Users\\azer\\OneDrive\\Images\\_animation_pak_data\\cat.path";
+_container_file_name = "C:\\Users\\azer\\OneDrive\\Images\\_animation_pak_data\\container_hex.path";
 
 --- artboard dimension (do not edit this)
 --- the parameter below means the artboard size is 500x500
@@ -35,7 +36,7 @@ _velocity_cap   = 10; -- [Do not edit]
 
 --- Grid for collision detection
 --- size of a cell
-_bin_square_size         = 100;
+_bin_square_size         = 50;
 --- cell gap for detection, 
 --- 1 means considering all cells that are 1 block away from the query (3x3)
 --- 2 means considering all cells that are 2 block away from the query (5x5)
@@ -46,7 +47,7 @@ _growth_scale_iter     = 0.005; -- 0.005
 _element_initial_scale = 0.05; 
 _element_max_scale = 4.0;
 
-_num_layer = 6;
+_num_layer = 11;
 
 
 _show_time_springs = true;

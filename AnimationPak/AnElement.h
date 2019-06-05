@@ -56,7 +56,7 @@ public:
 	//void AdjustEnds(A2DVector startPt2D, A2DVector endPt2D, bool lockEnds = true);
 
 	void CreateDockPoint(A2DVector queryPos, A2DVector lockPos, int layer_idx);
-	void AdjustEndPosition(A2DVector endPt2D, bool lockEnds = true);
+	void DockEnds(A2DVector startPt2D, A2DVector endPt2D, bool lockEnds = true);
 
 	A2DVector ClosestPtOnALayer(A2DVector pt, int layer_idx);
 

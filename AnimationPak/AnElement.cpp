@@ -165,7 +165,7 @@ void AnElement::CreateDockPoint(A2DVector queryPos, A2DVector lockPos, int layer
 	//_debug_lines_2->addPoint(Ogre::Vector3(_massList[massListIdx]._dockPoint._x, _massList[massListIdx]._dockPoint._y, _massList[massListIdx]._dockPoint._z));
 }
 
-void AnElement::AdjustEndPosition(A2DVector endPt2D, bool lockEnds)
+void AnElement::DockEnds(A2DVector startPt2D, A2DVector endPt2D, bool lockEnds)
 {
 	// ----- stuff -----
 	float zGap = SystemParams::_upscaleFactor / (float)(SystemParams::_num_layer - 1);
@@ -185,7 +185,7 @@ void AnElement::AdjustEndPosition(A2DVector endPt2D, bool lockEnds)
 
 	if(lockEnds)
 	{
-		CreateDockPoint(A2DVector(-40, -40), A2DVector(5, 5), 0);
+		CreateDockPoint(startPt2D + A2DVector(-40, -40), startPt2D, 0);
 		CreateDockPoint(endPt2D + A2DVector(40, 40), endPt2D, (SystemParams::_num_layer - 1));
 	}
 
@@ -775,7 +775,7 @@ void AnElement::InitMeshOgre3D(Ogre::SceneManager* sceneMgr,
 	line_material->getTechnique(0)->getPass(0)->setDiffuse(Ogre::ColourValue(rVal, gVal, bVal, 1));
 	
 	// ---------- springs ----------
-	/*_spring_lines = new DynamicLines(line_material, Ogre::RenderOperation::OT_LINE_LIST);
+	_spring_lines = new DynamicLines(line_material, Ogre::RenderOperation::OT_LINE_LIST);
 	for (int a = 0; a < _triEdges.size(); a++)
 	{
 		AnIndexedLine ln = _triEdges[a];
@@ -797,7 +797,7 @@ void AnElement::InitMeshOgre3D(Ogre::SceneManager* sceneMgr,
 	}
 	_spring_lines->update();
 	_springNode = _sceneMgr->getRootSceneNode()->createChildSceneNode("SpringNode" + std::to_string(_elem_idx));
-	_springNode->attachObject(_spring_lines);*/
+	_springNode->attachObject(_spring_lines);
 	// ---------- springs ----------
 
 	// ---------- boundary ----------
@@ -827,23 +827,23 @@ void AnElement::InitMeshOgre3D(Ogre::SceneManager* sceneMgr,
 
 
 	// ---------- debug	----------
-	/////if (_dock_mass_idx.size() > 0)
-	/////{
-	/////	Ogre::MaterialPtr line_material_2 = Ogre::MaterialManager::getSingleton().getByName("Examples/RedMat")->clone("DockLines" + std::to_string(_elem_idx));
-	/////	line_material_2->getTechnique(0)->getPass(0)->setDiffuse(Ogre::ColourValue(1, 0, 0, 1));
-	/////	_debug_lines_2 = new DynamicLines(line_material_2, Ogre::RenderOperation::OT_LINE_LIST);
+	if (_dock_mass_idx.size() > 0)
+	{
+		Ogre::MaterialPtr line_material_2 = Ogre::MaterialManager::getSingleton().getByName("Examples/RedMat")->clone("DockLines" + std::to_string(_elem_idx));
+		line_material_2->getTechnique(0)->getPass(0)->setDiffuse(Ogre::ColourValue(1, 0, 0, 1));
+		_debug_lines_2 = new DynamicLines(line_material_2, Ogre::RenderOperation::OT_LINE_LIST);
 
-	/////	for (int a = 0; a < _dock_mass_idx.size(); a++)
-	/////	{
-	/////		int massIdx = _dock_mass_idx[a];
-	/////		_debug_lines_2->addPoint(Ogre::Vector3(_massList[massIdx]._pos._x, _massList[massIdx]._pos._y, _massList[massIdx]._pos._z));
-	/////		_debug_lines_2->addPoint(Ogre::Vector3(_massList[massIdx]._dockPoint._x, _massList[massIdx]._dockPoint._y, _massList[massIdx]._dockPoint._z));
-	/////	}
+		for (int a = 0; a < _dock_mass_idx.size(); a++)
+		{
+			int massIdx = _dock_mass_idx[a];
+			_debug_lines_2->addPoint(Ogre::Vector3(_massList[massIdx]._pos._x, _massList[massIdx]._pos._y, _massList[massIdx]._pos._z));
+			_debug_lines_2->addPoint(Ogre::Vector3(_massList[massIdx]._dockPoint._x, _massList[massIdx]._dockPoint._y, _massList[massIdx]._dockPoint._z));
+		}
 
-	/////	_debug_lines_2->update();
-	/////	_debugNode_2 = _sceneMgr->getRootSceneNode()->createChildSceneNode("debug_lines_2_" + std::to_string(_elem_idx));
-	/////	_debugNode_2->attachObject(_debug_lines_2);
-	/////}
+		_debug_lines_2->update();
+		_debugNode_2 = _sceneMgr->getRootSceneNode()->createChildSceneNode("debug_lines_2_" + std::to_string(_elem_idx));
+		_debugNode_2->attachObject(_debug_lines_2);
+	}
 
 	// ---------- debug	----------
 	/////Ogre::MaterialPtr line_material_3 = Ogre::MaterialManager::getSingleton().getByName("Examples/RedMat")->clone("InterpLines" + std::to_string(_elem_idx));

@@ -48,6 +48,8 @@ public:
 
 	void GetTriangleIndices(float x, float y, float z, TriangleIndices& closestTriIndices);
 
+	void PrecomputeClosestGraphsAndTriangles2();
+
 	void PrecomputeClosestGraphsAndTriangles();
 
 	void MovePoints();

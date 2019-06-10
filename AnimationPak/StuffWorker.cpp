@@ -104,12 +104,12 @@ void StuffWorker::InitElements(Ogre::SceneManager* scnMgr)
 		_element_list.push_back(elem);
 	}*/
 
-	std::vector<A2DVector> posArray;
+	//std::vector<A2DVector> posArray;
 
 	//posArray.push_back(A2DVector(50, 270));
 	//posArray.push_back(A2DVector(450, 220));
 
-	posArray.push_back(A2DVector(250, 0));
+	/*posArray.push_back(A2DVector(250, 0));
 	posArray.push_back(A2DVector(0, 350));
 	posArray.push_back(A2DVector(100, 400));
 	posArray.push_back(A2DVector(400, 0));
@@ -125,7 +125,7 @@ void StuffWorker::InitElements(Ogre::SceneManager* scnMgr)
 	posArray.push_back(A2DVector(350, 280)); 
 	posArray.push_back(A2DVector(350, 220));*/
 	
-	for (int a = 0; a < posArray.size(); a++)
+	for (int a = 0; a < _containerWorker->_randomPositions.size(); a++)
 	{
 		int idx = _element_list.size();
 		AnElement elem;
@@ -136,7 +136,7 @@ void StuffWorker::InitElements(Ogre::SceneManager* scnMgr)
 		elem.RotateXY(radAngle);
 
 		elem.ScaleXY(initialScale);
-		elem.TranslateXY(posArray[a].x, posArray[a].y);	
+		elem.TranslateXY(_containerWorker->_randomPositions[a].x, _containerWorker->_randomPositions[a].y);
 
 		elem.CalculateRestStructure();
 		Ogre::SceneNode* pNode = scnMgr->getRootSceneNode()->createChildSceneNode("TubeNode" + std::to_string(idx));
@@ -183,9 +183,11 @@ void StuffWorker::InitElements(Ogre::SceneManager* scnMgr)
 			A3DVector p2      = _element_list[a]._massList[tri.idx1]._pos;
 			A3DVector p3      = _element_list[a]._massList[tri.idx2]._pos;
 
-			_c_grid_3d->InsertAPoint(p1._x, p1._y, p1._z, a, b); // assign mass to grid		
-			_c_grid_3d->InsertAPoint(p2._x, p2._y, p2._z, a, b); // assign mass to grid		
-			_c_grid_3d->InsertAPoint(p3._x, p3._y, p3._z, a, b); // assign mass to grid		
+			_c_grid_3d->InsertAPoint( (p1._x + p2._x + p3._x) * 0.333,
+				                      (p1._y + p2._y + p3._y) * 0.333,
+				                      (p1._z + p2._z + p3._z) * 0.333,
+				                      a, 
+				                      b); // assign mass to grid		
 		}
 
 		// assign
@@ -385,9 +387,13 @@ void StuffWorker::Update()
 		for (int b = 0; b < _element_list[a]._timeTriangles.size(); b++)
 		{
 			AnIdxTriangle tri = _element_list[a]._timeTriangles[b];
-			_c_grid_3d->SetPoint(iter++, _element_list[a]._massList[tri.idx0]._pos);
-			_c_grid_3d->SetPoint(iter++, _element_list[a]._massList[tri.idx1]._pos);
-			_c_grid_3d->SetPoint(iter++, _element_list[a]._massList[tri.idx2]._pos);
+			A3DVector p1      = _element_list[a]._massList[tri.idx0]._pos;
+			A3DVector p2      = _element_list[a]._massList[tri.idx1]._pos;
+			A3DVector p3      = _element_list[a]._massList[tri.idx2]._pos;
+
+			_c_grid_3d->SetPoint(iter++, A3DVector((p1._x + p2._x + p3._x) * 0.333,
+				                                   (p1._y + p2._y + p3._y) * 0.333,
+				                                   (p1._z + p2._z + p3._z) * 0.333));		
 		}
 	}	
 	_c_grid_3d->MovePoints();
@@ -530,14 +536,14 @@ void StuffWorker::UpdateOgre3D()
 	for (int a = 0; a < _element_list.size(); a++)
 	{
 		//_element_list[a].UpdateMeshOgre3D();
-		_element_list[a].UpdateSpringDisplayOgre3D();
+		//_element_list[a].UpdateSpringDisplayOgre3D();
 		_element_list[a].UpdateBoundaryDisplayOgre3D();
-		_element_list[a].UpdateDebug2Ogre3D();
+		//_element_list[a].UpdateDebug2Ogre3D();
 		//_element_list[a].UpdateDebug34Ogre3D();
 		//_element_list[a].UpdateClosestPtsDisplayOgre3D();
 	}
 
-	//_element_list[0].UpdateDebug34Ogre3D();
+	_element_list[0].UpdateDebug34Ogre3D();
 
 }
 

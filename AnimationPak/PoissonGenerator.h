@@ -41,8 +41,8 @@ const auto Points = PoissonGenerator::GeneratePoissonPoints( NumPoints, PRNG );
 *		1.0		May  6, 2014
 */
 
-#ifndef POISSON_GENERATOR
-#define POISSON_GENERATOR
+#ifndef __POISSON_GENERATOR__
+#define __POISSON_GENERATOR__
 
 
 #include <vector>
@@ -292,4 +292,5 @@ namespace PoissonGenerator
 
 } // namespace PoissonGenerator
 
-#endif
+#endif 
+

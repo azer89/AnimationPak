@@ -261,6 +261,18 @@ void CollisionGrid3D::InsertAPoint(float x, float y, float z, int info1, int inf
 	_squares[sq_idx]->_objects.push_back(obj);
 }
 
+void CollisionGrid3D::PrecomputeClosestGraphsAndTriangles2()
+{
+	_graphIndexArray.clear(); // std::vector<std::vector<int>>
+
+	int side_num_sq = _side_num * _side_num;
+
+	for (unsigned int iter = 0; iter < _squares.size(); iter++)
+	{
+
+	}
+}
+
 void CollisionGrid3D::PrecomputeClosestGraphsAndTriangles()
 {
 	_graphIndexArray.clear(); // std::vector<std::vector<int>>
@@ -324,6 +336,7 @@ void CollisionGrid3D::PrecomputeClosestGraphsAndTriangles()
 							
 						}
 
+						// can be improved, put in an temp array
 						// triangle
 						int info2 = _squares[idx]->_objects[a]->_info2;
 						int idxidx2 = UtilityFunctions::GetIndexFromIntList(tIndices[idxidx], info2);

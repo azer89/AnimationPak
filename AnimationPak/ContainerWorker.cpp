@@ -2,6 +2,10 @@
 
 #include "ContainerWorker.h"
 #include "PathIO.h"
+#include "UtilityFunctions.h"
+
+// library
+#include "PoissonGenerator.h"
 
 // ogre
 #include <Ogre.h>
@@ -30,6 +34,28 @@ void ContainerWorker::LoadContainer()
 	_2d_container.push_back(A2DVector(0,   500));
 	_2d_container.push_back(A2DVector(500, 500));
 	_2d_container.push_back(A2DVector(500, 0));*/
+
+	int numPoints = SystemParams::_num_element_density;
+	PoissonGenerator::DefaultPRNG PRNG;
+	PRNG = PoissonGenerator::DefaultPRNG(SystemParams::_seed);
+	
+	const auto points = PoissonGenerator::GeneratePoissonPoints(numPoints, PRNG);
+
+	// ---------- iterate points ----------
+	float offst = std::sqrt(2.0f) * SystemParams::_upscaleFactor;
+	float shiftOffst = 0.5f * (offst - SystemParams::_upscaleFactor);
+	for (auto i = points.begin(); i != points.end(); i++)
+	{
+		A2DVector pt((i->x * offst) - shiftOffst, (i->y * offst) - shiftOffst);
+
+		bool isInside = UtilityFunctions::InsidePolygon(_2d_container, pt.x, pt.y); 
+
+		if (isInside)
+		{
+			_randomPositions.push_back(pt);
+		}
+
+	}
 }
 
 void ContainerWorker::CreateOgreContainer(Ogre::SceneManager* scnMgr)

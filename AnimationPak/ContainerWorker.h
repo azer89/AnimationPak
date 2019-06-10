@@ -19,6 +19,8 @@ public:
 	void CreateOgreContainer(Ogre::SceneManager* scnMgr);
 
 	std::vector<A2DVector> _2d_container;
+
+	std::vector<A2DVector> _randomPositions;  // for elements
 };
 
 #endif

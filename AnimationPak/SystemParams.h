@@ -58,6 +58,9 @@ public:
 	static float _boundary_sampling_factor;
 
 	static int _interpolation_factor;
+
+	static int _num_element_density;
+	static int _num_element_pos_limit;
 };
 
 #endif

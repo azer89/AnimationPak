@@ -775,7 +775,7 @@ void AnElement::InitMeshOgre3D(Ogre::SceneManager* sceneMgr,
 	line_material->getTechnique(0)->getPass(0)->setDiffuse(Ogre::ColourValue(rVal, gVal, bVal, 1));
 	
 	// ---------- springs ----------
-	_spring_lines = new DynamicLines(line_material, Ogre::RenderOperation::OT_LINE_LIST);
+	/*_spring_lines = new DynamicLines(line_material, Ogre::RenderOperation::OT_LINE_LIST);
 	for (int a = 0; a < _triEdges.size(); a++)
 	{
 		AnIndexedLine ln = _triEdges[a];
@@ -797,7 +797,7 @@ void AnElement::InitMeshOgre3D(Ogre::SceneManager* sceneMgr,
 	}
 	_spring_lines->update();
 	_springNode = _sceneMgr->getRootSceneNode()->createChildSceneNode("SpringNode" + std::to_string(_elem_idx));
-	_springNode->attachObject(_spring_lines);
+	_springNode->attachObject(_spring_lines);*/
 	// ---------- springs ----------
 
 	// ---------- boundary ----------

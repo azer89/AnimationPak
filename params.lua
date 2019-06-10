@@ -36,18 +36,18 @@ _velocity_cap   = 10; -- [Do not edit]
 
 --- Grid for collision detection
 --- size of a cell
-_bin_square_size         = 50;
+_bin_square_size         = 20;
 --- cell gap for detection, 
 --- 1 means considering all cells that are 1 block away from the query (3x3)
 --- 2 means considering all cells that are 2 block away from the query (5x5)
-_collission_block_radius = 1;  
+_collission_block_radius = 1;   -- one means checking 3x3 
 
 --- for growing
 _growth_scale_iter     = 0.005; -- 0.005
 _element_initial_scale = 0.05; 
 _element_max_scale = 4.0;
 
-_num_layer = 11;
+_num_layer = 21;
 
 
 _show_time_springs = true;
@@ -61,5 +61,8 @@ _boundary_sampling_factor   = 1.2;  -- [Do not edit]
 
 -- for frame rendering
 _interpolation_factor = 5; -- how many interpolation between two layers
+
+_num_element_density       = 1000;
+_num_element_pos_limit = 10;
 
 

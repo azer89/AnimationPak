@@ -25,6 +25,9 @@ public:
 	std::vector<GraphIndices> _graphIndexArray; // per squares
 	std::vector<TriangleIndices> _triangleIndexArray; // per squares
 
+	std::vector<GraphIndices> _approx_graphIndexArray; // per squares
+	std::vector<TriangleIndices> _approx_triangleIndexArray; // per squares
+
 	int   _side_num; // side length of the entire grid (unit: cell)
 	float _max_cell_length; // side length of a cell
 

@@ -6,6 +6,7 @@
 #include "CollisionGrid3D.h"
 #include "AVideoCreator.h"
 
+//#include "PoissonGenerator.h"
 //#include "ContainerWorker.h"
 
 #include <vector>
@@ -20,6 +21,10 @@ public:
 	~StuffWorker();
 
 	void InitElements(Ogre::SceneManager* scnMgr);
+	/*void CreateRandomElementPoints(std::vector<A2DVector> ornamentBoundary,
+									float img_length,
+									std::vector<A2DVector>& randomPoints,
+									int& boundaryPointNum);*/
 
 	void Interp_Update();
 	void Interp_Reset();          // reset forces to zero
@@ -53,6 +58,8 @@ public:
 	ContainerWorker* _containerWorker;
 
 	static std::vector<AnElement> _element_list;
+
+	//static PoissonGenerator::DefaultPRNG _PRNG;
 
 	
 	//static std::vector<CollisionGrid2D*> _c_grid_list; // collission grid 2D

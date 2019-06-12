@@ -50,82 +50,90 @@ const auto Points = PoissonGenerator::GeneratePoissonPoints( NumPoints, PRNG );
 #include <stdint.h>
 #include <time.h>
 
-namespace PoissonGenerator
+class DefaultPRNG
 {
-
-	const char* Version = "1.1.4 (19/10/2016)";
-
-	class DefaultPRNG
+public:
+	DefaultPRNG()
+		: m_Gen(std::random_device()())
+		, m_Dis(0.0f, 1.0f)
 	{
-	public:
-		DefaultPRNG()
-			: m_Gen(std::random_device()())
-			, m_Dis(0.0f, 1.0f)
-		{
-			// prepare PRNG
-			m_Gen.seed(time(nullptr));
-		}
+		// prepare PRNG
+		m_Gen.seed(time(nullptr));
+	}
 
-		explicit DefaultPRNG(uint32_t seed)
-			: m_Gen(seed)
-			, m_Dis(0.0f, 1.0f)
-		{
-		}
-
-		float RandomFloat()
-		{
-			return static_cast<float>(m_Dis(m_Gen));
-		}
-
-		int RandomInt(int Max)
-		{
-			std::uniform_int_distribution<> DisInt(0, Max);
-			return DisInt(m_Gen);
-		}
-
-	private:
-		std::mt19937 m_Gen;
-		std::uniform_real_distribution<float> m_Dis;
-	};
-
-	struct sPoint
+	explicit DefaultPRNG(uint32_t seed)
+		: m_Gen(seed)
+		, m_Dis(0.0f, 1.0f)
 	{
-		sPoint()
-			: x(0)
-			, y(0)
-			, m_Valid(false)
-		{}
-		sPoint(float X, float Y)
-			: x(X)
-			, y(Y)
-			, m_Valid(true)
-		{}
-		float x;
-		float y;
-		bool m_Valid;
-		//
-		bool IsInRectangle() const
-		{
-			return x >= 0 && y >= 0 && x <= 1 && y <= 1;
-		}
-		//
-		bool IsInCircle() const
-		{
-			float fx = x - 0.5f;
-			float fy = y - 0.5f;
-			return (fx*fx + fy * fy) <= 0.25f;
-		}
-	};
+	}
 
-	struct sGridPoint
+	float RandomFloat()
 	{
-		sGridPoint(int X, int Y)
-			: x(X)
-			, y(Y)
-		{}
-		int x;
-		int y;
-	};
+		return static_cast<float>(m_Dis(m_Gen));
+	}
+
+	int RandomInt(int Max)
+	{
+		std::uniform_int_distribution<> DisInt(0, Max);
+		return DisInt(m_Gen);
+	}
+
+private:
+	std::mt19937 m_Gen;
+	std::uniform_real_distribution<float> m_Dis;
+};
+
+struct sPoint
+{
+	sPoint()
+		: x(0)
+		, y(0)
+		, m_Valid(false)
+	{}
+	sPoint(float X, float Y)
+		: x(X)
+		, y(Y)
+		, m_Valid(true)
+	{}
+	float x;
+	float y;
+	bool m_Valid;
+	//
+	bool IsInRectangle() const
+	{
+		return x >= 0 && y >= 0 && x <= 1 && y <= 1;
+	}
+	//
+	bool IsInCircle() const
+	{
+		float fx = x - 0.5f;
+		float fy = y - 0.5f;
+		return (fx*fx + fy * fy) <= 0.25f;
+	}
+};
+
+struct sGridPoint
+{
+	sGridPoint(int X, int Y)
+		: x(X)
+		, y(Y)
+	{}
+	int x;
+	int y;
+};
+
+
+struct sGrid
+{
+	sGrid(int W, int H, float CellSize)
+		: m_W(W)
+		, m_H(H)
+		, m_CellSize(CellSize)
+	{
+		m_Grid.resize(m_H);
+
+		for (auto i = m_Grid.begin(); i != m_Grid.end(); i++) { i->resize(m_W); }
+	}
 
 	float GetDistance(const sPoint& P1, const sPoint& P2)
 	{
@@ -136,55 +144,54 @@ namespace PoissonGenerator
 	{
 		return sGridPoint((int)(P.x / CellSize), (int)(P.y / CellSize));
 	}
-
-	struct sGrid
+	
+	void Insert(const sPoint& P)
 	{
-		sGrid(int W, int H, float CellSize)
-			: m_W(W)
-			, m_H(H)
-			, m_CellSize(CellSize)
-		{
-			m_Grid.resize(m_H);
+		sGridPoint G = ImageToGrid(P, m_CellSize);
+		m_Grid[G.x][G.y] = P;
+	}
+	bool IsInNeighbourhood(sPoint Point, float MinDist, float CellSize)
+	{
+		sGridPoint G = ImageToGrid(Point, CellSize);
 
-			for (auto i = m_Grid.begin(); i != m_Grid.end(); i++) { i->resize(m_W); }
-		}
-		void Insert(const sPoint& P)
-		{
-			sGridPoint G = ImageToGrid(P, m_CellSize);
-			m_Grid[G.x][G.y] = P;
-		}
-		bool IsInNeighbourhood(sPoint Point, float MinDist, float CellSize)
-		{
-			sGridPoint G = ImageToGrid(Point, CellSize);
+		// number of adjucent cells to look for neighbour points
+		const int D = 5;
 
-			// number of adjucent cells to look for neighbour points
-			const int D = 5;
-
-			// scan the neighbourhood of the point in the grid
-			for (int i = G.x - D; i < G.x + D; i++)
+		// scan the neighbourhood of the point in the grid
+		for (int i = G.x - D; i < G.x + D; i++)
+		{
+			for (int j = G.y - D; j < G.y + D; j++)
 			{
-				for (int j = G.y - D; j < G.y + D; j++)
+				if (i >= 0 && i < m_W && j >= 0 && j < m_H)
 				{
-					if (i >= 0 && i < m_W && j >= 0 && j < m_H)
-					{
-						sPoint P = m_Grid[i][j];
+					sPoint P = m_Grid[i][j];
 
-						if (P.m_Valid && GetDistance(P, Point) < MinDist) { return true; }
-					}
+					if (P.m_Valid && GetDistance(P, Point) < MinDist) { return true; }
 				}
 			}
-
-
-			return false;
 		}
 
-	private:
-		int m_W;
-		int m_H;
-		float m_CellSize;
 
-		std::vector< std::vector<sPoint> > m_Grid;
-	};
+		return false;
+	}
+
+private:
+	int m_W;
+	int m_H;
+	float m_CellSize;
+
+	std::vector< std::vector<sPoint> > m_Grid;
+};
+
+
+class PoissonGenerator
+{
+public:
+
+	const char* Version = "1.1.4 (19/10/2016)";
+
+	
+	
 
 	template <typename PRNG>
 	sPoint PopRandom(std::vector<sPoint>& Points, PRNG& Generator)
@@ -290,7 +297,8 @@ namespace PoissonGenerator
 		return SamplePoints;
 	}
 
-} // namespace PoissonGenerator
+}; // namespace PoissonGenerator
+
 
 #endif 
 

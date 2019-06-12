@@ -36,10 +36,9 @@ void ContainerWorker::LoadContainer()
 	_2d_container.push_back(A2DVector(500, 0));*/
 
 	int numPoints = SystemParams::_num_element_density;
-	PoissonGenerator::DefaultPRNG PRNG;
-	PRNG = PoissonGenerator::DefaultPRNG(SystemParams::_seed);
-	
-	const auto points = PoissonGenerator::GeneratePoissonPoints(numPoints, PRNG);
+	DefaultPRNG PRNG(SystemParams::_seed);
+	PoissonGenerator pg;
+	const auto points = pg.GeneratePoissonPoints(numPoints, PRNG);
 
 	// ---------- iterate points ----------
 	float offst = std::sqrt(2.0f) * SystemParams::_upscaleFactor;
@@ -55,6 +54,16 @@ void ContainerWorker::LoadContainer()
 			_randomPositions.push_back(pt);
 		}
 
+	}
+	int num_pos_limit = SystemParams::_num_element_pos_limit;
+	if (num_pos_limit < _randomPositions.size())
+	{
+		while (_randomPositions.size() != num_pos_limit)
+		{
+			std::mt19937 g(SystemParams::_seed);
+			std::shuffle(_randomPositions.begin(), _randomPositions.end(), g);
+			_randomPositions.erase(_randomPositions.begin());
+		}
 	}
 }
 

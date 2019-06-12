@@ -6,6 +6,7 @@
 #include "ContainerWorker.h"
 #include "PathIO.h"
 #include "UtilityFunctions.h"
+#include "PoissonGenerator.h"
 
 #include "dirent.h" // external
 
@@ -13,7 +14,6 @@
 std::vector<AnElement>  StuffWorker::_element_list = std::vector<AnElement>();
 //std::vector<CollisionGrid2D*>  StuffWorker::_c_grid_list = std::vector< CollisionGrid2D * >();
 CollisionGrid3D* StuffWorker::_c_grid_3d = new CollisionGrid3D;
-
 // static variables for interpolation
 bool  StuffWorker::_interp_mode = false;
 int   StuffWorker::_interp_iter = 0;
@@ -348,30 +348,27 @@ void StuffWorker::Update()
 		_element_list[a].UpdateLayerBoundaries();
 	}
 
-	// ----- update collision grid 2D -----
-	/*std::vector<int> iters; // TODO can be better
-	for (int a = 0; a < _c_grid_list.size(); a++) { iters.push_back(0); }
-
+	// ----- update triangles -----
 	for (int a = 0; a < _element_list.size(); a++)
 	{
-		for (int b = 0; b < _element_list[a]._massList.size(); b++)
+		for (int b = 0; b < _element_list[a]._timeTriangles.size(); b++)
 		{
-			int c_grid_idx = _element_list[a]._massList[b]._layer_idx;
-			int layer_iter = iters[c_grid_idx]; // why is this called layer_iter?
-			A3DVector p1 = _element_list[a]._massList[b]._pos;
+			AnIdxTriangle tri = _element_list[a]._timeTriangles[b];
+			A3DVector p1 = _element_list[a]._massList[tri.idx0]._pos;
+			A3DVector p2 = _element_list[a]._massList[tri.idx1]._pos;
+			A3DVector p3 = _element_list[a]._massList[tri.idx2]._pos;
+			A3DVector midPt((p1._x + p2._x + p3._x) * 0.333,
+				            (p1._y + p2._y + p3._y) * 0.333,
+				            (p1._z + p2._z + p3._z) * 0.333);
 
-			// update pt
-			_c_grid_list[c_grid_idx]->_objects[layer_iter]->_x = p1._x;
-			_c_grid_list[c_grid_idx]->_objects[layer_iter]->_y = p1._y;
-
-			iters[c_grid_idx]++; // increment
+			_element_list[a]._timeTriangles[b]._temp_1_3d = p1;
+			_element_list[a]._timeTriangles[b]._temp_2_3d = p2;
+			_element_list[a]._timeTriangles[b]._temp_3_3d = p3;
+			_element_list[a]._timeTriangles[b]._temp_center_3d = midPt;
+			
 		}
 	}
-	for (int a = 0; a < _c_grid_list.size(); a++)
-	{
-		_c_grid_list[a]->MovePoints();
-		_c_grid_list[a]->PrecomputeGraphIndices();
-	}*/
+
 	float iter = 0;
 	/*for (int a = 0; a < _element_list.size(); a++)
 	{
@@ -386,14 +383,7 @@ void StuffWorker::Update()
 	{
 		for (int b = 0; b < _element_list[a]._timeTriangles.size(); b++)
 		{
-			AnIdxTriangle tri = _element_list[a]._timeTriangles[b];
-			A3DVector p1      = _element_list[a]._massList[tri.idx0]._pos;
-			A3DVector p2      = _element_list[a]._massList[tri.idx1]._pos;
-			A3DVector p3      = _element_list[a]._massList[tri.idx2]._pos;
-
-			_c_grid_3d->SetPoint(iter++, A3DVector((p1._x + p2._x + p3._x) * 0.333,
-				                                   (p1._y + p2._y + p3._y) * 0.333,
-				                                   (p1._z + p2._z + p3._z) * 0.333));		
+			_c_grid_3d->SetPoint(iter++, _element_list[a]._timeTriangles[b]._temp_center_3d);
 		}
 	}	
 	_c_grid_3d->MovePoints();
@@ -727,3 +717,59 @@ void StuffWorker::DisableInterpolationMode()
 //		_element_list[a].DisableInterpolationMode();
 //	}
 }
+
+/*void StuffWorker::CreateRandomElementPoints(std::vector<A2DVector> ornamentBoundary,
+									float img_length,
+									std::vector<A2DVector>& randomPoints,
+									int& boundaryPointNum)
+{
+	// how many points (really weird code...)
+	float fVal = img_length / SystemParams::_upscaleFactor;
+	fVal *= fVal;
+	int numPoints = SystemParams::_sampling_density * fVal;
+	float resamplingGap = std::sqrt(float(numPoints)) / float(numPoints) * img_length;
+
+	std::vector<A2DVector> resampledBoundary;
+
+	ornamentBoundary.push_back(ornamentBoundary[0]); // closed sampling
+	float rGap = (float)(resamplingGap * SystemParams::_boundary_sampling_factor);
+	UtilityFunctions::UniformResample(ornamentBoundary, resampledBoundary, rGap);
+	// bug !!! nasty code
+	if (resampledBoundary[resampledBoundary.size() - 1].Distance(resampledBoundary[0]) < rGap * 0.5) // r gap
+	{
+		resampledBoundary.pop_back();
+	}
+
+	PoissonGenerator::DefaultPRNG PRNG;
+	if (SystemParams::_seed > 0)
+	{
+		PRNG = PoissonGenerator::DefaultPRNG(SystemParams::_seed);
+	}
+	const auto points = PoissonGenerator::GeneratePoissonPoints(numPoints, PRNG);
+
+	randomPoints.insert(randomPoints.begin(), resampledBoundary.begin(), resampledBoundary.end());
+	boundaryPointNum = resampledBoundary.size();
+
+	float sc = img_length * std::sqrt(2.0f);
+	float ofVal = 0.5f * (sc - img_length);
+	//float ofVal = 0;
+	// ---------- iterate points ----------
+	for (auto i = points.begin(); i != points.end(); i++)
+	{
+		float x = (i->x * sc) - ofVal;
+		float y = (i->y * sc) - ofVal;
+		A2DVector pt(x, y);
+
+		if (UtilityFunctions::InsidePolygon(ornamentBoundary, pt.x, pt.y))
+		{
+			float d = UtilityFunctions::DistanceToClosedCurve(resampledBoundary, pt);
+			if (d > resamplingGap)
+			{
+				randomPoints.push_back(pt);
+			}
+			//AVector cPt = knn->GetClosestPoints(pt, 1)[0];
+			//if (cPt.Distance(pt) > resamplingGap)
+			//	{ randomPoints.push_back(pt); }
+		}
+	}
+}*/

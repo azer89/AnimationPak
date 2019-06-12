@@ -16,6 +16,7 @@
 
 #include "A2DVector.h"
 
+#include "A3DVector.h"
 
 struct AnIdxTriangle
 {
@@ -28,6 +29,11 @@ public:
 
 	// third index
 	int idx2;
+
+	A3DVector _temp_1_3d; // temporary
+	A3DVector _temp_2_3d; // temporary
+	A3DVector _temp_3_3d; // temporary
+	A3DVector _temp_center_3d; // temporary
 
 	// type of the triangle (black, white, and screentone)
 	//TriangleType tri_type;

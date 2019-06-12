@@ -3,8 +3,8 @@
 #include "SystemParams.h"
 #include "A2DRectangle.h"
 #include "UtilityFunctions.h"
-
 #include "PoissonGenerator.h"
+
 
 #include "OpenCVWrapper.h"
 #include "TetWrapper.h"
@@ -706,12 +706,13 @@ void AnElement::CreateRandomPoints(std::vector<A2DVector> ornamentBoundary,
 		resampledBoundary.pop_back();
 	}
 	
-	PoissonGenerator::DefaultPRNG PRNG;
+	DefaultPRNG PRNG;
 	if (SystemParams::_seed > 0)
 	{
-		PRNG = PoissonGenerator::DefaultPRNG(SystemParams::_seed);
+		PRNG = DefaultPRNG(SystemParams::_seed);
 	}
-	const auto points = PoissonGenerator::GeneratePoissonPoints(numPoints, PRNG);
+	PoissonGenerator pg;
+	const auto points = pg.GeneratePoissonPoints(numPoints, PRNG);
 
 	randomPoints.insert(randomPoints.begin(), resampledBoundary.begin(), resampledBoundary.end());
 	boundaryPointNum = resampledBoundary.size();

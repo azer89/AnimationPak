@@ -102,6 +102,19 @@ public:
 		return false;
 	}
 
+	// combine Norm() and Distance()
+	void GetUnitAndDist(A3DVector& unitVec, float& dist)
+	{
+		dist = std::sqrt(_x * _x + _y * _y + _z * _z);
+
+		//if (vlength == 0) { std::cout << "div by zero duh\n"; }
+		//if (dist == 0) { return A3DVector(0, 0, 0); }
+
+		unitVec =  A3DVector(this->_x / dist,
+			this->_y / dist,
+			this->_z / dist);
+	}
+
 	// Normalize
 	A3DVector Norm() // get the unit vector
 	{

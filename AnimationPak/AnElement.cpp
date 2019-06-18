@@ -1833,13 +1833,11 @@ void AnElement::SolveForSprings3D()
 	A3DVector pt0;
 	A3DVector pt1;
 	A3DVector dir;
+	A3DVector unit_dir;
 	A3DVector eForce;
 	float dist = 0;
 	float diff = 0;
 	float k = 0;
-
-	// PLEASE UNCOMMENT ME
-	// PLEASE FIX ME
 
 	for (unsigned int a = 0; a < _triEdges.size(); a++)
 	{
@@ -1848,15 +1846,6 @@ void AnElement::SolveForSprings3D()
 
 		pt0 = _massList[idx0]._pos;
 		pt1 = _massList[idx1]._pos;
-
-		//if (_triEdges[a]._isLayer2Layer)
-		/*{
-		k = SystemParams::_k_time_edge;
-		dist = pt0.Distance(pt1);
-		dir = pt0.DirectionTo(pt1).Norm();
-		diff = dist - _triEdges[a]._dist;
-		}*/
-		//else
 
 		if (_triEdges[a]._isLayer2Layer)
 		{
@@ -1870,25 +1859,13 @@ void AnElement::SolveForSprings3D()
 		//{
 
 		dir = pt0.DirectionTo(pt1);
-		//dir._z = 0;
-		dir = dir.Norm();
-		dist = pt0.Distance(pt1);
+		//dir = dir.Norm();
+		//dist = pt0.Distance(pt1);
+		dir.GetUnitAndDist(unit_dir, dist);
+
 		diff = dist - _triEdges[a]._dist;
-		//}
 
-		/*float signVal = 1;
-		if (diff < 0) { signVal = -1; }
-		eForce = (dir * k *  signVal * diff * diff);
-		*/
-
-		eForce = dir * k *  diff;
-
-		// 2D
-		/*if(_triEdges[a]._isLayer2Layer)
-		{
-		//eForce._z = 0;
-		//eForce = eForce.Norm();
-		}*/
+		eForce = unit_dir * k *  diff;
 		if (!eForce.IsBad())
 		{
 			_massList[idx0]._edgeForce += eForce;	// _massList[idx0]._distToBoundary;

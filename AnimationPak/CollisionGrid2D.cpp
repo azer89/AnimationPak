@@ -107,7 +107,7 @@ void CollisionGrid2D::PrecomputeGraphIndices()
 		int xPos = iter / _numColumn;
 		int yPos = iter - (xPos * _numColumn);
 
-		int offst = SystemParams::_collission_block_radius;
+		int offst = SystemParams::_grid_radius_1;
 
 		int xBegin = xPos - offst;
 		if (xBegin < 0) { xBegin = 0; }
@@ -197,7 +197,7 @@ void CollisionGrid2D::GetGraphIndices1(float x, float y, std::vector<int>& close
 	int yPos;
 	GetCellPosition(xPos, yPos, x, y);
 
-	int offst = SystemParams::_collission_block_radius;
+	int offst = SystemParams::_grid_radius_1;
 
 	int xBegin = xPos - offst;
 	if (xBegin < 0) { xBegin = 0; }
@@ -243,7 +243,7 @@ void CollisionGrid2D::GetGraphIndices2(float x, float y, int parentGraphIndex, s
 	GetCellPosition(xPos, yPos, x, y);
 
 
-	int offst = SystemParams::_collission_block_radius;
+	int offst = SystemParams::_grid_radius_1;
 
 	int xBegin = xPos - offst;
 	if (xBegin < 0) { xBegin = 0; }
@@ -296,7 +296,7 @@ void  CollisionGrid2D::GetClosestPoints(float x, float y, std::vector<A2DVector>
 	int yPos;
 	GetCellPosition(xPos, yPos, x, y);
 
-	int offst = SystemParams::_collission_block_radius;
+	int offst = SystemParams::_grid_radius_1;
 
 	int xBegin = xPos - offst;
 	if (xBegin < 0) { xBegin = 0; }
@@ -353,7 +353,7 @@ void CollisionGrid2D::GetData(float x, float y, int parentGraphIndex, std::vecto
 	int yPos;
 	GetCellPosition(xPos, yPos, x, y);
 
-	int offst = SystemParams::_collission_block_radius;
+	int offst = SystemParams::_grid_radius_1;
 
 	int xBegin = xPos - offst;
 	if (xBegin < 0) { xBegin = 0; }
@@ -419,7 +419,7 @@ std::vector<A2DObject*> CollisionGrid2D::GetObjects(float x, float y)
 	int yPos;
 	GetCellPosition(xPos, yPos, x, y);
 
-	int offst = SystemParams::_collission_block_radius;
+	int offst = SystemParams::_grid_radius_1;
 
 	int xBegin = xPos - offst;
 	if (xBegin < 0) { xBegin = 0; }

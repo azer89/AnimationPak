@@ -9,6 +9,7 @@
 
 AMass::AMass()
 {
+	//this->_closestPoints3D = 0;
 	//this->_m     = 0;             // mass is always one
 	this->_pos = A3DVector(0, 0, 0);
 	this->_self_idx = -1;
@@ -20,6 +21,7 @@ AMass::AMass()
 // Constructor
 AMass::AMass(float x, float y, float z)
 {
+	//this->_closestPoints3D = 0;
 	this->_pos = A3DVector(x, y, z);
 	this->_self_idx = -1;
 
@@ -35,6 +37,7 @@ AMass::AMass(float x,
 	         int debug_which_layer,
 			 bool is_boundary)
 {
+	//this->_closestPoints3D = 0;
 	this->_pos               = A3DVector(x, y, z);
 	this->_layer_idx = debug_which_layer;
 	this->_self_idx          = self_idx;
@@ -48,6 +51,7 @@ AMass::AMass(float x,
 // Constructor
 AMass::AMass(A3DVector pos)
 {
+	//this->_closestPoints3D = 0;
 	this->_pos = pos;
 	this->_self_idx = -1;
 
@@ -56,6 +60,10 @@ AMass::AMass(A3DVector pos)
 
 AMass::~AMass()
 {
+	/*if(_closestPoints3D)
+	{
+		delete[] _closestPoints3D;
+	}*/
 }
 
 void AMass::CallMeFromConstructor()
@@ -63,9 +71,9 @@ void AMass::CallMeFromConstructor()
 	_velocity = A3DVector(0, 0, 0);
 
 	// hard parameter for closest pt search
-	_closestPt_fill_sz = 0;
-	_closestPt_actual_sz = 150; // BE CAREFUL HARD CODED PARAM!!!
-	_closestPoints = std::vector <A2DVector>(_closestPt_actual_sz);
+	//_closestPt_fill_sz = 0;
+	//_closestPt_actual_sz = 150; // BE CAREFUL HARD CODED PARAM!!!
+	//_closestPoints = std::vector <A2DVector>(_closestPt_actual_sz);
 
 	_is_inside = false;
 
@@ -73,7 +81,11 @@ void AMass::CallMeFromConstructor()
 
 	//_interpolation_mode = false;
 
-	_closestPoints3D.reserve(5000);
+	//_closestPoints3D.reserve(5000);
+	_closest_pd_actual_len = 0;
+	_closest_pd_max_len = SystemParams::_max_exact_array_len + SystemParams::_max_approx_array_len;
+	_closestPoints3D = std::vector<A3DVector>(_closest_pd_max_len, A3DVector(0,0,0));
+	//_closestPoints3D = new A3DVector[_closest_pd_max_len];
 
 	Init();
 }
@@ -222,7 +234,43 @@ A3DVector AMass::GetClosestPtFromArray(int elem_idx, std::vector<A3DObject>& tem
 	}
 }*/
 
-void AMass::GetClosestPoint3()
+void AMass::GetClosestPoint4()
+{
+	if (!_is_boundary) { return; }
+	if (_parent_idx < 0 || _parent_idx >= StuffWorker::_element_list.size()) { return; } // why???
+
+	//this->_closestGraphIndices.clear();
+	//this->_closestPt_fill_sz = 0;
+	this->_is_inside = false;           // "inside" flag
+
+	// clear
+	_closest_pd_actual_len = 0;
+	//_closestPoints3D.clear();
+
+	// 1 which element 2 which triangle
+	//PairData exact_pd;
+	//PairData approx_pd;
+	//_c_grid_3d->GetPairData(_pos._x, _pos._y, _pos._z, exact_pd, approx_pd);
+	int square_idx = _c_grid_3d->GetSquareIndexFromFloat(_pos._x, _pos._y, _pos._z);
+
+	//for (unsigned int a = 0; a < exact_pd.size(); a++)
+	A3DSquare* sq = _c_grid_3d->_squares[square_idx];
+	for (unsigned int a = 0; a < sq->_pd_actual_size; a++)
+	{
+		if (sq->_pd[a].first == _parent_idx) { continue; }
+		A3DVector pt = StuffWorker::_element_list[sq->_pd[a].first].ClosestPtOnATriSurface(sq->_pd[a].second, _pos);
+		_closestPoints3D[_closest_pd_actual_len++] = pt;
+	}
+
+	for (unsigned int a = 0; a < sq->_approx_pd_actual_size; a++)
+	{
+		if (sq->_approx_pd[a].first == _parent_idx) { continue; }
+		A3DVector pt = StuffWorker::_element_list[sq->_approx_pd[a].first]._timeTriangles[sq->_approx_pd[a].second]._temp_center_3d; // ugly code
+		_closestPoints3D[_closest_pd_actual_len++] = pt;
+	}
+}
+
+/*void AMass::GetClosestPoint3()
 {
 	if (!_is_boundary) { return; }
 	if (_parent_idx < 0 || _parent_idx >= StuffWorker::_element_list.size()) { return; } // why???
@@ -261,7 +309,7 @@ void AMass::GetClosestPoint3()
 				insideGraphFlags.push_back(false);
 
 				// tri
-				A3DVector pt = StuffWorker::_element_list[_closestGraphIndices[a]].ClosestPtOnTriSurface(closestTriIndices[a], _pos);
+				A3DVector pt = StuffWorker::_element_list[_closestGraphIndices[a]].ClosestPtOnTriSurfaces(closestTriIndices[a], _pos);
 				_closestPoints3D.push_back(pt);
 			}
 		}
@@ -274,8 +322,9 @@ void AMass::GetClosestPoint3()
 
 
 }
+*/
 
-void AMass::GetClosestPoint2()
+/*void AMass::GetClosestPoint2()
 {
 	if (!_is_boundary) { return; }
 	if (_parent_idx < 0 || _parent_idx >= StuffWorker::_element_list.size()) { return; } // why???
@@ -295,7 +344,6 @@ void AMass::GetClosestPoint2()
 			// uncomment me
 			if (_closestGraphIndices[a] == _parent_idx) { insideGraphFlags.push_back(true); continue; }
 
-			/*if (UtilityFunctions::InsidePolygon(StuffWorker::_graphs[_closestGraphIndices[a]]._skin, _pos.x, _pos.y))*/
 			if (UtilityFunctions::InsidePolygon(StuffWorker::_element_list[_closestGraphIndices[a]]._per_layer_boundary[_layer_idx], _pos._x, _pos._y))
 			{
 				insideGraphFlags.push_back(true);
@@ -332,11 +380,11 @@ void AMass::GetClosestPoint2()
 		}
 	}
 	_closestDist = std::sqrt(_closestDist); // SQRT
-}
+}*/
 
-void AMass::GetClosestPoint()
+/*void AMass::GetClosestPoint()
 {
-	/*if (!_is_boundary) { return; }
+	if (!_is_boundary) { return; }
 	if (_parent_idx < 0 || _parent_idx >= StuffWorker::_element_list.size()) { return; } // why???
 	//if (this->_idx >= StuffWorker::_graphs[parentGraphIndex]._skinPointNum) { return; } // uncomment me
 
@@ -390,8 +438,8 @@ void AMass::GetClosestPoint()
 			_closestDist = d;
 		}
 	}
-	_closestDist = std::sqrt(_closestDist); // SQRT*/
-}
+	_closestDist = std::sqrt(_closestDist); // SQRT
+}*/
 
 void AMass::Grow(float growth_scale_iter, float dt)
 {
@@ -402,9 +450,9 @@ void AMass::Solve(const std::vector<A2DVector>& container)
 {
 	if (_self_idx % StuffWorker::_element_list[_parent_idx]._numPointPerLayer <  StuffWorker::_element_list[_parent_idx]._numBoundaryPointPerLayer)
 	{
-		if (_closestGraphIndices.size() > 0)
+		//if (_closestGraphIndices.size() > 0)
 		{
-			if (_is_inside)
+			/*if (_is_inside)
 			{
 				//std::cout << "overlap force\n";
 				// ---------- OVERLAP FORCE ----------
@@ -423,7 +471,7 @@ void AMass::Solve(const std::vector<A2DVector>& container)
 				sumO *= SystemParams::_k_overlap;
 				if (!sumO.IsBad()) { this->_overlapForce += A3DVector(sumO.x, sumO.y, 0); }
 			}
-			else
+			else*/
 			{
 				// ---------- REPULSION FORCE ----------
 				//std::cout << _closestPt_fill_sz << " ";
@@ -435,11 +483,15 @@ void AMass::Solve(const std::vector<A2DVector>& container)
 					float dist = dir.Length(); // distance
 					sumR += (dir.Norm() / (SystemParams::_repulsion_soft_factor + std::pow(dist, 2)));
 				}*/
-				for (int a = 0; a < _closestPoints3D.size(); a++)
+				//for (int a = 0; a < _closestPoints3D.size(); a++)
+				for (int a = 0; a < _closest_pd_actual_len; a++)
 				{
 					dir = _closestPoints3D[a].DirectionTo(_pos); // direction
-					float dist = dir.Length(); // distance
-					sumR += (dir.Norm() / (SystemParams::_repulsion_soft_factor + std::pow(dist, 2)));
+					//float dist = dir.Length(); // distance
+					//sumR += (dir.Norm() / (SystemParams::_repulsion_soft_factor + std::pow(dist, 2)));
+					// modified
+					float distSq = dir.LengthSquared(); // distance
+					sumR += (dir.Norm() / (SystemParams::_repulsion_soft_factor + distSq));
 				}
 				sumR *= SystemParams::_k_repulsion;
 				if (!sumR.IsBad())

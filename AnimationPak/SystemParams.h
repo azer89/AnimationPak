@@ -42,12 +42,18 @@ public:
 	static float _velocity_cap;
 
 	static float _bin_square_size;
-	static int   _collission_block_radius;
+	//static int   _collission_block_radius;
+	static int _grid_radius_1;
+	static int _grid_radius_2;
+
+	static int _max_exact_array_len;
+	static int _max_approx_array_len;
+
 
 	// temp
 	static int _num_layer; // plus one
 
-	static bool _show_time_springs;
+	//static bool _show_time_springs;
 
 	static float _growth_scale_iter;
 	static float _element_max_scale;
@@ -61,6 +67,10 @@ public:
 
 	static int _num_element_density;
 	static int _num_element_pos_limit;
+
+	// viz
+	static bool _show_collision_grid;
+	static bool _show_time_springs;
 };
 
 #endif

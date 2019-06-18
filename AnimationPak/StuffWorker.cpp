@@ -70,7 +70,6 @@ void StuffWorker::InitElements(Ogre::SceneManager* scnMgr)
 
 
 	float initialScale = SystemParams::_element_initial_scale; // 0.05
-
 	{
 		int idx = _element_list.size();
 		AnElement elem;
@@ -78,8 +77,8 @@ void StuffWorker::InitElements(Ogre::SceneManager* scnMgr)
 		elem.ScaleXY(initialScale);
 
 		// docking
-		A2DVector startPt(100, 100);
-		A2DVector endPt(400, 400);
+		A2DVector startPt(80, 80);
+		A2DVector endPt(410, 410);
 		elem.TranslateXY(startPt.x, startPt.y);
 		elem.DockEnds(startPt, endPt);
 		
@@ -89,42 +88,6 @@ void StuffWorker::InitElements(Ogre::SceneManager* scnMgr)
 		_element_list.push_back(elem);
 	}
 
-	
-	/*{
-	// don't use this
-		AnElement elem;
-		elem.CreateStarTube(1);
-		elem.ScaleXY(initialScale);
-		elem.TranslateXY(450, 450);
-		elem.AdjustEnds(A2DVector(475, 475), A2DVector(35, 35));
-		//elem.TranslateXY(250, 400);
-		//elem.ResetSpringRestLengths();
-		Ogre::SceneNode* pNode = scnMgr->getRootSceneNode()->createChildSceneNode("TubeNode1");
-		elem.InitMesh(scnMgr, pNode, "StarTube1", "Examples/TransparentTest2");
-		_element_list.push_back(elem);
-	}*/
-
-	//std::vector<A2DVector> posArray;
-
-	//posArray.push_back(A2DVector(50, 270));
-	//posArray.push_back(A2DVector(450, 220));
-
-	/*posArray.push_back(A2DVector(250, 0));
-	posArray.push_back(A2DVector(0, 350));
-	posArray.push_back(A2DVector(100, 400));
-	posArray.push_back(A2DVector(400, 0));
-	posArray.push_back(A2DVector(300, 30)); //
-	posArray.push_back(A2DVector(470, 100)); //
-	/*posArray.push_back(A2DVector(40, 240));
-	posArray.push_back(A2DVector(330, 140));
-	posArray.push_back(A2DVector(400, 250));
-	posArray.push_back(A2DVector(0, 180));
-	posArray.push_back(A2DVector(30, 180)); //
-	posArray.push_back(A2DVector(170, 210));
-	posArray.push_back(A2DVector(320, 280));
-	posArray.push_back(A2DVector(350, 280)); 
-	posArray.push_back(A2DVector(350, 220));*/
-	
 	for (int a = 0; a < _containerWorker->_randomPositions.size(); a++)
 	{
 		int idx = _element_list.size();
@@ -143,38 +106,13 @@ void StuffWorker::InitElements(Ogre::SceneManager* scnMgr)
 		elem.InitMeshOgre3D(scnMgr, pNode, "StarTube" + std::to_string(idx), "Examples/TransparentTest2");
 		_element_list.push_back(elem);			
 	}
-
-	// ----- Collision grid 2D -----
-	//for(int a = 0; a < SystemParams::_num_layer; a++)
-	//{ _c_grid_list.push_back(new CollisionGrid2D); }
-
+	
 	// ----- Collision grid 3D -----
 	StuffWorker::_c_grid_3d->Init();
-
-	// ----- Assign to collision grid 2D-----
-	/*for (int a = 0; a < _element_list.size(); a++)
-	{
-		for (int b = 0; b < _element_list[a]._massList.size(); b++)
-		{
-			int c_grid_idx = _element_list[a]._massList[b]._layer_idx;
-			A3DVector p1 = _element_list[a]._massList[b]._pos;
-
-			
-			_c_grid_list[c_grid_idx]->InsertAPoint(p1._x, p1._y, a, b); // assign mass to grid			
-			_element_list[a]._massList[b]._c_grid = _c_grid_list[c_grid_idx]; // assign grid to mass
-		}
-	}*/
-
+	StuffWorker::_c_grid_3d->InitOgre3D(scnMgr);
 	// ---------- Assign to collision grid 3D ----------
 	for (int a = 0; a < _element_list.size(); a++)
 	{
-		/*for (int b = 0; b < _element_list[a]._massList.size(); b++)
-		{
-			A3DVector p1 = _element_list[a]._massList[b]._pos;
-			_c_grid_3d->InsertAPoint(p1._x, p1._y, p1._z, a, b); // assign mass to grid			
-			_element_list[a]._massList[b]._c_grid_3d = _c_grid_3d; // assign grid to mass
-		}*/
-
 		// time triangle
 		for (int b = 0; b < _element_list[a]._timeTriangles.size(); b++)
 		{
@@ -387,7 +325,7 @@ void StuffWorker::Update()
 		}
 	}	
 	_c_grid_3d->MovePoints();
-	_c_grid_3d->PrecomputeClosestGraphsAndTriangles();
+	_c_grid_3d->PrecomputePairData();
 	
 	// ----- update closest points -----
 	// TODO
@@ -396,7 +334,7 @@ void StuffWorker::Update()
 		for (int b = 0; b < _element_list[a]._massList.size(); b++)
 		{
 			//_element_list[a]._massList[b].GetClosestPoint();
-			_element_list[a]._massList[b].GetClosestPoint3();
+			_element_list[a]._massList[b].GetClosestPoint4();
 		}
 
 	}
@@ -528,12 +466,13 @@ void StuffWorker::UpdateOgre3D()
 		//_element_list[a].UpdateMeshOgre3D();
 		//_element_list[a].UpdateSpringDisplayOgre3D();
 		_element_list[a].UpdateBoundaryDisplayOgre3D();
-		//_element_list[a].UpdateDebug2Ogre3D();
-		//_element_list[a].UpdateDebug34Ogre3D();
+		_element_list[a].UpdateDebug2Ogre3D();
+		_element_list[a].UpdateDebug34Ogre3D();
 		//_element_list[a].UpdateClosestPtsDisplayOgre3D();
 	}
 
-	_element_list[0].UpdateDebug34Ogre3D();
+	StuffWorker::_c_grid_3d->UpdateOgre3D();
+	//_element_list[0].UpdateDebug34Ogre3D();
 
 }
 

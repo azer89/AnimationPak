@@ -50,14 +50,18 @@ void SystemParams::LoadParameters()
 	SystemParams::_k_dock = script.get<float>("_k_dock");
 
 	SystemParams::_bin_square_size = script.get<float>("_bin_square_size");
-	SystemParams::_collission_block_radius = script.get<int>("_collission_block_radius");
+	SystemParams::_grid_radius_1 = script.get<int>("_grid_radius_1");
+	SystemParams::_grid_radius_2 = script.get<int>("_grid_radius_2");
+	SystemParams::_max_exact_array_len = script.get<int>("_max_exact_array_len");
+	SystemParams::_max_approx_array_len = script.get<int>("_max_approx_array_len");
+	//SystemParams::_collission_block_radius = script.get<int>("_collission_block_radius");
 
 	SystemParams::_velocity_cap = script.get<float>("_velocity_cap");
 
 	// temp
 	//SystemParams::_cube_length = 500.0f;
 	SystemParams::_num_layer = script.get<int>("_num_layer"); // plus one
-	SystemParams::_show_time_springs = script.get<bool>("_show_time_springs");
+	//SystemParams::_show_time_springs = script.get<bool>("_show_time_springs");
 	SystemParams::_growth_scale_iter = script.get<float>("_growth_scale_iter");
 	SystemParams::_element_max_scale = script.get<float>("_element_max_scale");
 	SystemParams::_element_initial_scale = script.get<float>("_element_initial_scale");
@@ -106,12 +110,18 @@ float SystemParams::_k_dock = 0.0f;
 float SystemParams::_velocity_cap = 0.0f;
 
 float SystemParams::_bin_square_size = 0.0f;
-int   SystemParams::_collission_block_radius = 0;
+int SystemParams::_grid_radius_1 = 0;
+int SystemParams::_grid_radius_2 = 0;
+int SystemParams::_max_exact_array_len = 0;
+int SystemParams::_max_approx_array_len = 0;
+//int   SystemParams::_collission_block_radius = 0;
+
+
 
 // temp
 int SystemParams::_num_layer = 0.0f; // plus one
 
-bool  SystemParams::_show_time_springs = false;
+//bool  SystemParams::_show_time_springs = false;
 
 float SystemParams::_growth_scale_iter = 0.0f;
 float SystemParams::_element_max_scale = 0.0f;
@@ -124,3 +134,7 @@ int SystemParams::_interpolation_factor = 0;
 
 int SystemParams::_num_element_density = 0;
 int SystemParams::_num_element_pos_limit = 0;
+
+// viz
+bool SystemParams::_show_collision_grid = false;
+bool SystemParams::_show_time_springs = false;

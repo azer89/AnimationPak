@@ -66,9 +66,6 @@ public:
 	Ogre::SceneManager* _scnMgr;
 
 	StuffWorker* _sWorker; // GOD class
-
-	
-
 	//cube
 	//int _maxDebugLines; // TODO
 	//std::deque<Ogre::Vector3> _debug_points;

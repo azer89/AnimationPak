@@ -10,7 +10,7 @@
 
 #include "OpenCVWrapper.h"
 
-// ogre
+// Ogre
 #include <Ogre.h>
 #include <OgreApplicationContext.h>
 #include <OgrePrerequisites.h>
@@ -60,7 +60,8 @@ public:
 
 	A2DVector ClosestPtOnALayer(A2DVector pt, int layer_idx);
 
-	A3DVector ClosestPtOnTriSurface(std::vector<int>& triIndices, A3DVector pos);
+	A3DVector ClosestPtOnTriSurfaces(std::vector<int>& triIndices, A3DVector pos);
+	A3DVector ClosestPtOnATriSurface(int triIdx, A3DVector pos);
 
 	void Grow(float growth_scale_iter, float dt);
 
@@ -133,6 +134,8 @@ public:
 	//void EnableInterpolationMode();  // for interpolation mode	
 	//void DisableInterpolationMode(); // for interpolation mode	
 
+	void ShowTimeSprings(bool yesno);
+
 public:
 	int _numPointPerLayer;
 	int _numBoundaryPointPerLayer;
@@ -172,12 +175,16 @@ public:
 	std::vector<int> _dock_mass_idx;
 
 	// testing time edges of interpolation 
-	DynamicLines*    _debug_lines_3;
-	Ogre::SceneNode* _debugNode_3;
+	DynamicLines*    _time_springs_debug_lines;
+	Ogre::SceneNode* _time_springs_debug_node;
+	//DynamicLines*    _debug_lines_3;
+	//Ogre::SceneNode* _debugNode_3;
 
 	// testing closest points of interpolation 
-	DynamicLines*    _debug_lines_4;
-	Ogre::SceneNode* _debugNode_4;
+	//DynamicLines*    _debug_lines_4;
+	//Ogre::SceneNode* _debugNode_4;
+
+	
 };
 
 #endif

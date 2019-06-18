@@ -41,10 +41,15 @@ public:
 	float                _closestDist; // for stop growing??? need to check
 
 public: // need to be public for debugging purpose
-	int _closestPt_actual_sz; // reserve for avoiding push_back, actual size of the vector
-	int _closestPt_fill_sz;   // reserve for avoiding push_back, filled size of the vector
-	std::vector<A2DVector> _closestPoints;
+	//int _closestPt_actual_sz; // reserve for avoiding push_back, actual size of the vector
+	//int _closestPt_fill_sz;   // reserve for avoiding push_back, filled size of the vector
+	//std::vector<A2DVector> _closestPoints;
+
+
 	std::vector<A3DVector> _closestPoints3D;
+	//A3DVector* _closestPoints3D;
+	int _closest_pd_actual_len;
+	int _closest_pd_max_len;
 
 private:		
 	std::vector<int>     _closestGraphIndices;
@@ -78,11 +83,13 @@ public:
 
 	void ImposeConstraints();
 
-	void GetClosestPoint();
+	//void GetClosestPoint();
 
-	void GetClosestPoint2();
+	//void GetClosestPoint2();
 
-	void GetClosestPoint3();
+	//void GetClosestPoint3();
+
+	void GetClosestPoint4();
 
 	void Interp_GetClosestPoint();
 

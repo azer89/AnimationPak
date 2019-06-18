@@ -66,7 +66,7 @@ void Display::shutdown()
 bool Display::frameStarted(const Ogre::FrameEvent& evt)
 {
 	OgreBites::ApplicationContext::frameStarted(evt);
-
+	
 	Ogre::ImguiManager::getSingleton().newFrame(
 		evt.timeSinceLastFrame,
 		Ogre::Rect(0, 0, getRenderWindow()->getWidth(), getRenderWindow()->getHeight()));
@@ -112,6 +112,8 @@ bool Display::frameStarted(const Ogre::FrameEvent& evt)
 	ImGuiWindowFlags window_flags = 0;
 	ImGui::Begin("AnimationPak", p_open, window_flags);
 
+	// interpolation
+	/*
 	std::string interp_str = " ";
 	if (StuffWorker::_interp_mode)
 	{
@@ -127,26 +129,36 @@ bool Display::frameStarted(const Ogre::FrameEvent& evt)
 		{
 			_sWorker->EnableInterpolationMode();
 		}
-		/*if(StuffWorker::_interpolation_mode)
-			std::cout << "active\n";
-		else
-			std::cout << "not\n";*/
 	}
+	*/
+	if (evt.timeSinceLastFrame > 0) { ImGui::Text(("FPS: " + std::to_string(1.0f / evt.timeSinceLastFrame)).c_str()); }
+	else { ImGui::Text("FPS : -"); }
+
+	ImGui::Text(("Scale = " + std::to_string(_sWorker->_element_list[0]._scale)).c_str());
 
 
 	if (ImGui::Button("Save Frames")) { _sWorker->SaveFrames(); }
 	//if (ImGui::Button("Button B")) {}
 	//if (ImGui::Button("Button C")) {}
 
-	ImGui::Text(("Scale = " + std::to_string(_sWorker->_element_list[0]._scale)).c_str());
+	
+
+	ImGui::Checkbox("Show grid", &SystemParams::_show_collision_grid);
+	if (ImGui::Checkbox("Show time springs", &SystemParams::_show_time_springs))
+	{
+		for (int a = 0; a < _sWorker->_element_list.size(); a++)
+		{
+			_sWorker->_element_list[a].ShowTimeSprings(SystemParams::_show_time_springs);
+		}
+	}
 
 	ImGui::Text("Press C to activate or deactivate camera");
 
-	Ogre::Vector3 camPos = _cameraNode->getPosition();
+	/*Ogre::Vector3 camPos = _cameraNode->getPosition();
 	ImGui::Text("Camera position = ");
 	ImGui::Text( (std::to_string(camPos.x)).c_str());
 	ImGui::Text((std::to_string(camPos.y)).c_str());
-	ImGui::Text((std::to_string(camPos.z)).c_str());
+	ImGui::Text((std::to_string(camPos.z)).c_str());*/
 	//ImGui::Text( ("Camera position = " + std::to_string(camPos.x) + ", " + std::to_string(camPos.y) + ", " + std::to_string(camPos.z)).c_str()  );
 	// //Ogre::Vector3 camPos = _cameraNode->getPosition();
 	

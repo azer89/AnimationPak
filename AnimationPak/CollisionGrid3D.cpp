@@ -368,9 +368,10 @@ void CollisionGrid3D::PrecomputePairData()
 							cur_sq->_pd_actual_size++;
 						}
 					}
-					else if (abs(xIter - xPos) <= SystemParams::_grid_radius_2 &&
-						     abs(yIter - yPos) <= SystemParams::_grid_radius_2 &&
-						     abs(zIter - zPos) <= SystemParams::_grid_radius_2)
+					//else if (abs(xIter - xPos) <= SystemParams::_grid_radius_2 &&
+					//	     abs(yIter - yPos) <= SystemParams::_grid_radius_2 &&
+					//	     abs(zIter - zPos) <= SystemParams::_grid_radius_2)
+					else // it is ok, no need to check
 					{
 						// duplicate code						
 						for (unsigned int a = 0; a < neighbor_sq->_objects.size(); a++)

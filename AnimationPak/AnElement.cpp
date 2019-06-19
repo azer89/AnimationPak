@@ -978,7 +978,7 @@ void AnElement::InitMeshOgre3D(Ogre::SceneManager* sceneMgr,
 	// debug closest slice
 	/*DynamicLines*    _closest_slice_lines;
 	Ogre::SceneNode* _closest_slice_node;*/
-	Ogre::MaterialPtr line_material_asdf = Ogre::MaterialManager::getSingleton().getByName("Examples/RedMat")->clone("ElementLines" + std::to_string(_elem_idx));
+	Ogre::MaterialPtr line_material_asdf = Ogre::MaterialManager::getSingleton().getByName("Examples/RedMat")->clone("line_material_asdf" + std::to_string(_elem_idx));
 	line_material_asdf->getTechnique(0)->getPass(0)->setDiffuse(Ogre::ColourValue(1, 0, 0, 1));
 
 	_closest_slice_lines = new DynamicLines(line_material_asdf, Ogre::RenderOperation::OT_LINE_LIST);
@@ -1011,8 +1011,8 @@ void AnElement::UpdateClosestSliceOgre3D()
 					next_i = 0;
 				}
 
-				_closest_slice_lines->addPoint(Ogre::Vector3(slice_array[i].x, slice_array[i].x, z_pos));
-				_closest_slice_lines->addPoint(Ogre::Vector3(slice_array[next_i].x, slice_array[next_i].x, z_pos));
+				_closest_slice_lines->addPoint(Ogre::Vector3(slice_array[i].x, slice_array[i].y, z_pos));
+				_closest_slice_lines->addPoint(Ogre::Vector3(slice_array[next_i].x, slice_array[next_i].y, z_pos));
 			}
 
 		}

@@ -23,6 +23,19 @@
 
 #include "StuffWorker.h"
 
+template <typename T>
+inline const T&
+min_of(const T& a, const T& b) {
+	return std::min(a, b);
+}
+
+template <typename T, typename ...Args>
+inline const T&
+min_of(const T& a, const T& b, const Args& ...args) 
+{
+	return min_of(std::min(a, b), args...);
+}
+
 
 AnElement::AnElement()
 {
@@ -270,24 +283,36 @@ float AnElement::GetMaxDistRandomPoints(const std::vector<A2DVector>& randomPoin
 	return maxDist;
 }
 
+bool AnElement::IsInside(int layer_idx, A3DVector pos, std::vector<A2DVector>& boundary_slice)
+{
+	int next_layer_idx = layer_idx + 1; // guaranteed exists
+
+	float z_1 = _per_layer_boundary[layer_idx][0]._z;
+	float z_2 = _per_layer_boundary[next_layer_idx][0]._z;
+	float z_length = z_2 - z_1;
+	float z_length_a = pos._z - z_1;
+	float interVal = z_length_a / z_length;
+
+	for (int a = 0; a < _numBoundaryPointPerLayer; a++)
+	{
+		A3DVector pt1 = _per_layer_boundary[layer_idx][a];
+		A3DVector pt1_next = _per_layer_boundary[next_layer_idx][a];
+		A3DVector dir1 = pt1.DirectionTo(pt1_next);
+		A3DVector dir1_unit;
+		float dir1_len;
+		dir1.GetUnitAndDist(dir1_unit, dir1_len);
+		_a_layer_boundary[a] = (pt1 + (dir1_unit * dir1_len * interVal)).GetA2DVector();
+	}
+
+	boundary_slice = _a_layer_boundary;
+	return UtilityFunctions::InsidePolygon(_a_layer_boundary, pos._x, pos._y);
+}
+
+
 void AnElement::Triangularization(std::vector<A2DVector> element_path, int self_idx)
 {
 	// ----- element index -----
 	this->_elem_idx = self_idx;
-
-	// ----- define a star ----- 
-	/*std::vector<A2DVector> element_path;	
-
-	element_path.push_back(A2DVector(125, 315)); // 10
-	element_path.push_back(A2DVector(95, 487)); // 9
-	element_path.push_back(A2DVector(250, 406)); // 8
-	element_path.push_back(A2DVector(404, 487)); // 7
-	element_path.push_back(A2DVector(375, 315)); // 6
-	element_path.push_back(A2DVector(500, 193)); // 5
-	element_path.push_back(A2DVector(327, 168)); // 4
-	element_path.push_back(A2DVector(250, 12)); // 3
-	element_path.push_back(A2DVector(172, 168)); // 2
-	element_path.push_back(A2DVector(0, 193));   // 1*/
 	
 	// -----  why do we need bounding box? ----- 
 	A2DRectangle bb = UtilityFunctions::GetBoundingBox(element_path);
@@ -424,8 +449,6 @@ void AnElement::Triangularization(std::vector<A2DVector> element_path, int self_
 	_auxiliaryEdges = CreateBendingSprings(_massList, _triangles, _triEdges, _edgeToTri);
 	// ----- bending springs ----- 
 
-	//std::cout << "interp tri edge before = " << _interp_triEdges.size() << "\n";
-
 	// ----- interpolation bending springs ----- 
 	_interp_auxiliaryEdges = CreateBendingSprings(_interp_massList, _interp_triangles, _interp_triEdges, _interp_edgeToTri);
 	// ----- interpolation bending springs ----- 
@@ -459,15 +482,21 @@ void AnElement::Triangularization(std::vector<A2DVector> element_path, int self_
 			int next_1 = b + 1 + massIdxOffset1; // layer t
 			int next_2 = b + 1 + massIdxOffset2; // layer t + 1
 
+			// layer_idx --> you want to know which layer a triangle belongs to
+			int layer_idx = min_of(_massList[cur_1]._layer_idx, 
+				                   _massList[cur_2]._layer_idx, 
+				                   _massList[next_1]._layer_idx, 
+				                   _massList[next_2]._layer_idx);
+
 			// cur_1 next_1 cur_2
-			AnIdxTriangle tri1(cur_1, next_1, cur_2);
+			AnIdxTriangle tri1(cur_1, next_1, cur_2, layer_idx);
 			_timeTriangles.push_back(tri1);
 			_massList[cur_1]._timeTriangles.push_back(tri1);
 			_massList[next_1]._timeTriangles.push_back(tri1);
 			_massList[cur_2]._timeTriangles.push_back(tri1);
 
 			// next_1 next_2 cur_2
-			AnIdxTriangle tri2(next_1, next_2, cur_2);
+			AnIdxTriangle tri2(next_1, next_2, cur_2, layer_idx);
 			_timeTriangles.push_back(tri2);
 			_massList[next_1]._timeTriangles.push_back(tri2);
 			_massList[next_2]._timeTriangles.push_back(tri2);
@@ -476,9 +505,6 @@ void AnElement::Triangularization(std::vector<A2DVector> element_path, int self_
 	}
 	std::cout << "_timeTriangles size = " << _timeTriangles.size() << "\n";
 	// ----- time triangles -----
-
-	// ----- interpolation time triangles -----
-	// ----- interpolation time triangles -----
 
 	// 1-1 pattern
 	/*for (int a = 0; a < SystemParams::_num_layer - 1; a++)
@@ -596,7 +622,7 @@ void AnElement::Triangularization(std::vector<A2DVector> element_path, int self_
 	// ----- some precomputation ----- 
 	for (int a = 0; a < SystemParams::_num_layer; a++)
 	{
-		_per_layer_boundary.push_back(std::vector<A2DVector>());
+		_per_layer_boundary.push_back(std::vector<A3DVector>());
 	}
 	for (int a = 0; a < _massList.size(); a++)
 	{
@@ -604,8 +630,14 @@ void AnElement::Triangularization(std::vector<A2DVector> element_path, int self_
 		if (perLayerIdx < _numBoundaryPointPerLayer)
 		{
 			int layerIdx = _massList[a]._layer_idx;
-			_per_layer_boundary[layerIdx].push_back ( _massList[a]._pos.GetA2DVector() );
+			_per_layer_boundary[layerIdx].push_back ( _massList[a]._pos );
 		}
+	}
+
+	// for closest point
+	for (int a = 0; a < _numBoundaryPointPerLayer; a++)
+	{
+		_a_layer_boundary.push_back(A2DVector());
 	}
 
 	// ----- some precomputation or interpolation ----- 
@@ -622,7 +654,6 @@ void AnElement::Triangularization(std::vector<A2DVector> element_path, int self_
 			_interp_per_layer_boundary[layerIdx].push_back(_interp_massList[a]._pos.GetA2DVector());
 		}
 	}
-
 }
 
 void AnElement::CalculateRestStructure()
@@ -941,9 +972,56 @@ void AnElement::InitMeshOgre3D(Ogre::SceneManager* sceneMgr,
 	_time_springs_debug_node = _sceneMgr->getRootSceneNode()->createChildSceneNode("_time_springs_debug_lines_" + std::to_string(_elem_idx));
 	_time_springs_debug_node->attachObject(_time_springs_debug_lines);
 	_time_springs_debug_lines->setVisible(SystemParams::_show_time_springs);
+
+
+
+	// debug closest slice
+	/*DynamicLines*    _closest_slice_lines;
+	Ogre::SceneNode* _closest_slice_node;*/
+	Ogre::MaterialPtr line_material_asdf = Ogre::MaterialManager::getSingleton().getByName("Examples/RedMat")->clone("ElementLines" + std::to_string(_elem_idx));
+	line_material_asdf->getTechnique(0)->getPass(0)->setDiffuse(Ogre::ColourValue(1, 0, 0, 1));
+
+	_closest_slice_lines = new DynamicLines(line_material_asdf, Ogre::RenderOperation::OT_LINE_LIST);
+
+	_closest_slice_lines->update();
+	_closest_slice_node = _sceneMgr->getRootSceneNode()->createChildSceneNode("_closest_slice_lines_" + std::to_string(_elem_idx));
+	_closest_slice_node->attachObject(_closest_slice_lines);
 }
 
-void AnElement::UpdateDebug2Ogre3D()
+void AnElement::UpdateClosestSliceOgre3D()
+{
+	// debug closest slice
+	/*DynamicLines*    _closest_slice_lines;
+	Ogre::SceneNode* _closest_slice_node;*/
+
+	_closest_slice_lines->clear();
+
+	for (int a = 0; a < _massList.size(); a++)
+	{
+		if (_massList[a]._is_boundary && _massList[a]._is_inside)
+		{
+			std::vector<A2DVector> slice_array = _massList[a]._closest_boundary_slice;
+			float z_pos = _massList[a]._pos._z;
+
+			for (int i = 0; i < slice_array.size(); i++)
+			{
+				int next_i = i + 1;
+				if (i == slice_array.size() - 1)
+				{
+					next_i = 0;
+				}
+
+				_closest_slice_lines->addPoint(Ogre::Vector3(slice_array[i].x, slice_array[i].x, z_pos));
+				_closest_slice_lines->addPoint(Ogre::Vector3(slice_array[next_i].x, slice_array[next_i].x, z_pos));
+			}
+
+		}
+	}
+
+	_closest_slice_lines->update();
+}
+
+void AnElement::UpdateDockLinesOgre3D()
 {
 	if (_dock_mass_idx.size() == 0) { return; }
 
@@ -1381,7 +1459,7 @@ void AnElement::UpdateLayerBoundaries()
 		if (perLayerIdx < _numBoundaryPointPerLayer)
 		{
 			int layerIdx = _massList[a]._layer_idx;
-			_per_layer_boundary[layerIdx][perLayerIdx] = _massList[a]._pos.GetA2DVector();
+			_per_layer_boundary[layerIdx][perLayerIdx] = _massList[a]._pos;
 		}
 	}
 }
@@ -1639,14 +1717,12 @@ A3DVector AnElement::ClosestPtOnTriSurfaces(std::vector<int>& triIndices, A3DVec
 	return closestPt;
 }
 
-A2DVector AnElement::ClosestPtOnALayer(A2DVector pt, int layer_idx)
+/*A2DVector AnElement::ClosestPtOnALayer(A2DVector pt, int layer_idx)
 {
-	//float dist = 10000000000000;
 	A2DVector closestPt;
 	closestPt = UtilityFunctions::GetClosestPtOnClosedCurve(_per_layer_boundary[layer_idx], pt);
-
 	return closestPt;
-}
+}*/
 
 void AnElement::Interp_SolveForSprings2D()
 {
@@ -1893,18 +1969,18 @@ void AnElement::UpdatePerLayerBoundaryOgre3D()
 		{
 			if (c == 0)
 			{
-				A2DVector pt1 = _per_layer_boundary[b][boundary_sz - 1];
-				A2DVector pt2 = _per_layer_boundary[b][c];
-				_debug_lines->addPoint(Ogre::Vector3(pt1.x, pt1.y, zPos));
-				_debug_lines->addPoint(Ogre::Vector3(pt2.x, pt2.y, zPos));
+				A3DVector pt1 = _per_layer_boundary[b][boundary_sz - 1];
+				A3DVector pt2 = _per_layer_boundary[b][c];
+				_debug_lines->addPoint(Ogre::Vector3(pt1._x, pt1._y, pt1._z));
+				_debug_lines->addPoint(Ogre::Vector3(pt2._x, pt2._y, pt2._z));
 
 				continue;
 			}
 
-			A2DVector pt1 = _per_layer_boundary[b][c - 1];
-			A2DVector pt2 = _per_layer_boundary[b][c];
-			_debug_lines->addPoint(Ogre::Vector3(pt1.x, pt1.y, zPos));
-			_debug_lines->addPoint(Ogre::Vector3(pt2.x, pt2.y, zPos));
+			A3DVector pt1 = _per_layer_boundary[b][c - 1];
+			A3DVector pt2 = _per_layer_boundary[b][c];
+			_debug_lines->addPoint(Ogre::Vector3(pt1._x, pt1._y, pt1._z));
+			_debug_lines->addPoint(Ogre::Vector3(pt2._x, pt2._y, pt2._z));
 		}
 
 	}

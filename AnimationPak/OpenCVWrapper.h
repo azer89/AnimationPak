@@ -332,6 +332,7 @@ public:
 	float GetSignedDistance(const std::vector<std::vector<cv::Point>>& contours, int x, int y);
 
 	// center
+	A2DVector GetCenter(const std::vector<A3DVector>& polygon);
 	A2DVector GetCenter(const std::vector<A2DVector>& polygon);
 
 	// ---------- conves hull ----------

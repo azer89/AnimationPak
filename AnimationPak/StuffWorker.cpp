@@ -124,8 +124,8 @@ void StuffWorker::InitElements(Ogre::SceneManager* scnMgr)
 			_c_grid_3d->InsertAPoint( (p1._x + p2._x + p3._x) * 0.333,
 				                      (p1._y + p2._y + p3._y) * 0.333,
 				                      (p1._z + p2._z + p3._z) * 0.333,
-				                      a, 
-				                      b); // assign mass to grid		
+				                      a,  // which element
+				                      b); // which triangle		
 		}
 
 		// assign
@@ -466,13 +466,14 @@ void StuffWorker::UpdateOgre3D()
 		//_element_list[a].UpdateMeshOgre3D();
 		//_element_list[a].UpdateSpringDisplayOgre3D();
 		_element_list[a].UpdateBoundaryDisplayOgre3D();
-		_element_list[a].UpdateDebug2Ogre3D();
+		_element_list[a].UpdateDockLinesOgre3D();
 		_element_list[a].UpdateDebug34Ogre3D();
 		//_element_list[a].UpdateClosestPtsDisplayOgre3D();
 	}
 
 	StuffWorker::_c_grid_3d->UpdateOgre3D();
 	//_element_list[0].UpdateDebug34Ogre3D();
+	_element_list[0].UpdateClosestSliceOgre3D();
 
 }
 

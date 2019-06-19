@@ -3,6 +3,7 @@
 
 #include "OpenCVWrapper.h"
 #include "A2DVector.h"
+#include "A3DVector.h"
 
 //#include "ARectangle.h"
 //#include "UtilityFunctions.h"
@@ -350,6 +351,20 @@ float OpenCVWrapper::GetSignedDistance(const std::vector<std::vector<cv::Point>>
 		if (d < dist) { dist = d; }
 	}
 	return dist;
+}
+
+/*================================================================================
+================================================================================*/
+A2DVector OpenCVWrapper::GetCenter(const std::vector<A3DVector>& polygon)
+{
+	//std::vector<cv::Point2f> cvPolygon = ConvertList<A3DVector, cv::Point2f>(polygon);
+	
+	std::vector<cv::Point2f> cvPolygon;
+	for (int a = 0; a < polygon.size(); a++)
+		{ cvPolygon.push_back(cv::Point2f(polygon[a]._x, polygon[a]._y)); }
+	
+	cv::Moments mu = cv::moments(cvPolygon, false);
+	return A2DVector(mu.m10 / mu.m00, mu.m01 / mu.m00);
 }
 
 /*================================================================================

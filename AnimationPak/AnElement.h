@@ -38,7 +38,7 @@ public:
 	void SolveForSprings3D();
 	void SolveForSprings2D();
 
-	
+	bool IsInside(int layer_idx, A3DVector pos, std::vector<A2DVector>& boundary_slice);
 	
 		
 	void DrawRandomPoints(std::vector<A2DVector> randomPoints); // debug
@@ -58,7 +58,7 @@ public:
 	void CreateDockPoint(A2DVector queryPos, A2DVector lockPos, int layer_idx);
 	void DockEnds(A2DVector startPt2D, A2DVector endPt2D, bool lockEnds = true);
 
-	A2DVector ClosestPtOnALayer(A2DVector pt, int layer_idx);
+	//A2DVector ClosestPtOnALayer(A2DVector pt, int layer_idx);
 
 	A3DVector ClosestPtOnTriSurfaces(std::vector<int>& triIndices, A3DVector pos);
 	A3DVector ClosestPtOnATriSurface(int triIdx, A3DVector pos);
@@ -78,6 +78,8 @@ public:
 	int GetUnsharedVertexIndex(AnIdxTriangle tri, AnIndexedLine edge);
 	void DrawEdges();
 
+	
+
 	// ---------- Ogre 3D ----------
 	void InitMeshOgre3D(Ogre::SceneManager* sceneMgr,
 						Ogre::SceneNode* sceneNode,
@@ -88,7 +90,8 @@ public:
 	void UpdatePerLayerBoundaryOgre3D();
 	void UpdateSpringDisplayOgre3D();
 	void UpdateBoundaryDisplayOgre3D();
-	void UpdateDebug2Ogre3D();
+	void UpdateDockLinesOgre3D();
+	void UpdateClosestSliceOgre3D();
 	void UpdateDebug34Ogre3D();
 	// ---------- Ogre 3D ----------
 
@@ -121,7 +124,9 @@ public:
 
 	bool _predefined_time_path; // time path isn't straight
 
-	std::vector<std::vector<A2DVector>> _per_layer_boundary; // for closest point
+	std::vector<std::vector<A3DVector>> _per_layer_boundary; // for closest point
+	std::vector<A2DVector> _a_layer_boundary;// for closest point
+	//std::vector<float> _per_layer_boundary_z_pos;
 
 	MyColor _color; // drawing
 	A2DVector _layer_center; // for some transformation
@@ -179,6 +184,10 @@ public:
 	Ogre::SceneNode* _time_springs_debug_node;
 	//DynamicLines*    _debug_lines_3;
 	//Ogre::SceneNode* _debugNode_3;
+
+	// testing closest slice
+	DynamicLines*    _closest_slice_lines;
+	Ogre::SceneNode* _closest_slice_node;
 
 	// testing closest points of interpolation 
 	//DynamicLines*    _debug_lines_4;

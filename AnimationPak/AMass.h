@@ -30,6 +30,7 @@ public:
 
 	bool _isDocked;
 	bool _is_inside;
+	std::vector<A2DVector> _closest_boundary_slice;
 	bool _is_boundary;
 
 	A3DVector _dockPoint; // you probably want the dockpoint be 2D?

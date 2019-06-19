@@ -254,12 +254,31 @@ void AMass::GetClosestPoint4()
 	int square_idx = _c_grid_3d->GetSquareIndexFromFloat(_pos._x, _pos._y, _pos._z);
 
 	//for (unsigned int a = 0; a < exact_pd.size(); a++)
+	float closest_dist = 10000000000;
+	float closest_elem_idx = -1;
+	float closest_tri_idx = -1;
 	A3DSquare* sq = _c_grid_3d->_squares[square_idx];
 	for (unsigned int a = 0; a < sq->_pd_actual_size; a++)
 	{
 		if (sq->_pd[a].first == _parent_idx) { continue; }
 		A3DVector pt = StuffWorker::_element_list[sq->_pd[a].first].ClosestPtOnATriSurface(sq->_pd[a].second, _pos);
 		_closestPoints3D[_closest_pd_actual_len++] = pt;
+
+		// closest element
+		float distSq = pt.DistanceSquared(_pos);
+		if (distSq < closest_dist)
+		{
+			closest_dist = distSq;
+			closest_elem_idx = sq->_pd[a].first;
+			closest_tri_idx = sq->_pd[a].second;
+		}
+	}
+
+	// woooh
+	if (closest_elem_idx != -1)
+	{
+		int layer_idx = StuffWorker::_element_list[closest_elem_idx]._timeTriangles[closest_tri_idx]._layer_idx;
+		_is_inside = StuffWorker::_element_list[closest_elem_idx].IsInside(layer_idx, _pos, _closest_boundary_slice);
 	}
 
 	for (unsigned int a = 0; a < sq->_approx_pd_actual_size; a++)

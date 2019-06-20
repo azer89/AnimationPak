@@ -34,6 +34,7 @@ public:
 	void UpdateLayerBoundaries();
 	//void UpdateSpringLengths();
 	void UpdateInterpMasses();
+	void UpdateZConstraint();
 
 	void SolveForSprings3D();
 	void SolveForSprings2D();
@@ -130,6 +131,8 @@ public:
 
 	MyColor _color; // drawing
 	A2DVector _layer_center; // for some transformation
+
+	std::vector<float> _z_pos_array; // for UpdateZConstaint();
 
 private:
 	//std::vector<std::vector<A2DVector>> _temp_per_layer_boundary; // for interpolation mode	

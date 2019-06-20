@@ -68,6 +68,8 @@ AMass::~AMass()
 
 void AMass::CallMeFromConstructor()
 {
+	_ori_z_pos = _pos._z;
+
 	_velocity = A3DVector(0, 0, 0);
 
 	// hard parameter for closest pt search
@@ -94,6 +96,7 @@ void AMass::Init()
 {
 	//_attractionForce = AVector(0, 0);
 	this->_edgeForce      = A3DVector(0, 0, 0);
+	this->_zForce = A3DVector(0, 0, 0);
 	this->_repulsionForce = A3DVector(0, 0, 0);
 	this->_boundaryForce  = A3DVector(0, 0, 0);
 	this->_overlapForce   = A3DVector(0, 0, 0);
@@ -104,6 +107,7 @@ void AMass::Init()
 void AMass::Interp_Simulate(float dt)
 {
 	_velocity += ((_edgeForce +
+		_zForce +
 		_repulsionForce +
 		_boundaryForce +
 		_overlapForce +
@@ -126,6 +130,7 @@ void AMass::Simulate(float dt)
 
 	// oiler
 	_velocity += ((_edgeForce +
+		_zForce +
 		_repulsionForce +
 		_boundaryForce +
 		_overlapForce +
@@ -285,7 +290,12 @@ void AMass::GetClosestPoint4()
 	{
 		if (sq->_approx_pd[a].first == _parent_idx) { continue; }
 		A3DVector pt = StuffWorker::_element_list[sq->_approx_pd[a].first]._timeTriangles[sq->_approx_pd[a].second]._temp_center_3d; // ugly code
-		_closestPoints3D[_closest_pd_actual_len++] = pt;
+		//_closestPoints3D[_closest_pd_actual_len++] = pt;
+		_closestPoints3D[_closest_pd_actual_len++].SetPosition(pt);
+		/*_closestPoints3D[_closest_pd_actual_len]._x = pt._x;
+		_closestPoints3D[_closest_pd_actual_len]._y = pt._y;
+		_closestPoints3D[_closest_pd_actual_len]._z = pt._z;
+		_closest_pd_actual_len++;*/
 	}
 }
 
@@ -467,57 +477,34 @@ void AMass::Grow(float growth_scale_iter, float dt)
 
 void AMass::Solve(const std::vector<A2DVector>& container)
 {
-	if (_self_idx % StuffWorker::_element_list[_parent_idx]._numPointPerLayer <  StuffWorker::_element_list[_parent_idx]._numBoundaryPointPerLayer)
+	//if (_self_idx % StuffWorker::_element_list[_parent_idx]._numPointPerLayer <  StuffWorker::_element_list[_parent_idx]._numBoundaryPointPerLayer)
+	if(_is_boundary && !_is_inside)
 	{
-		//if (_closestGraphIndices.size() > 0)
+		// ---------- REPULSION FORCE ----------
+		//std::cout << _closestPt_fill_sz << " ";
+		A3DVector sumR(0, 0, 0);
+		A3DVector dir;
+		/*for (int a = 0; a < _closestPt_fill_sz; a++)
 		{
-			/*if (_is_inside)
-			{
-				//std::cout << "overlap force\n";
-				// ---------- OVERLAP FORCE ----------
-				A2DVector sumO(0, 0);
-				A2DVector ctrPt;
-				A2DVector dir;
-				for (unsigned int a = 0; a < _triangles.size(); a++)
-				{
-					ctrPt = (StuffWorker::_element_list[_parent_idx]._massList[_triangles[a].idx0]._pos.GetA2DVector() +        // triangle vertex
-						     StuffWorker::_element_list[_parent_idx]._massList[_triangles[a].idx1]._pos.GetA2DVector() +        // triangle vertex
-						     StuffWorker::_element_list[_parent_idx]._massList[_triangles[a].idx2]._pos.GetA2DVector()) / 3.0f; // triangle vertex
-
-					dir = _pos.GetA2DVector().DirectionTo(ctrPt);
-					sumO += dir;
-				}
-				sumO *= SystemParams::_k_overlap;
-				if (!sumO.IsBad()) { this->_overlapForce += A3DVector(sumO.x, sumO.y, 0); }
-			}
-			else*/
-			{
-				// ---------- REPULSION FORCE ----------
-				//std::cout << _closestPt_fill_sz << " ";
-				A3DVector sumR(0, 0, 0);
-				A3DVector dir;
-				/*for (int a = 0; a < _closestPt_fill_sz; a++)
-				{
-					dir = _closestPoints[a].DirectionTo(_pos.GetA2DVector()); // direction
-					float dist = dir.Length(); // distance
-					sumR += (dir.Norm() / (SystemParams::_repulsion_soft_factor + std::pow(dist, 2)));
-				}*/
-				//for (int a = 0; a < _closestPoints3D.size(); a++)
-				for (int a = 0; a < _closest_pd_actual_len; a++)
-				{
-					dir = _closestPoints3D[a].DirectionTo(_pos); // direction
-					//float dist = dir.Length(); // distance
-					//sumR += (dir.Norm() / (SystemParams::_repulsion_soft_factor + std::pow(dist, 2)));
-					// modified
-					float distSq = dir.LengthSquared(); // distance
-					sumR += (dir.Norm() / (SystemParams::_repulsion_soft_factor + distSq));
-				}
-				sumR *= SystemParams::_k_repulsion;
-				if (!sumR.IsBad())
-				{
-					this->_repulsionForce += A3DVector(sumR._x, sumR._y, 0); // z is always 0 !!!
-				}
-			}
+			dir = _closestPoints[a].DirectionTo(_pos.GetA2DVector()); // direction
+			float dist = dir.Length(); // distance
+			sumR += (dir.Norm() / (SystemParams::_repulsion_soft_factor + std::pow(dist, 2)));
+		}*/
+		//for (int a = 0; a < _closestPoints3D.size(); a++)
+		for (int a = 0; a < _closest_pd_actual_len; a++)
+		{
+			dir = _closestPoints3D[a].DirectionTo(_pos); // direction
+			//float dist = dir.Length(); // distance
+			//sumR += (dir.Norm() / (SystemParams::_repulsion_soft_factor + std::pow(dist, 2)));
+			// modified
+			float distSq = dir.LengthSquared(); // distance
+			sumR += (dir.Norm() / (SystemParams::_repulsion_soft_factor + distSq));
+		}
+		sumR *= SystemParams::_k_repulsion;
+		if (!sumR.IsBad())
+		{
+			//this->_repulsionForce += A3DVector(sumR._x, sumR._y, sumR._z); // z is always 0 !!!
+			this->_repulsionForce += A3DVector(sumR._x, sumR._y, sumR._z);
 		}
 	}
 
@@ -545,6 +532,12 @@ void AMass::Solve(const std::vector<A2DVector>& container)
 			_edgeForce += eForce;	
 		}
 	}
+
+	// --------- Z FORCE
+	float k_z = SystemParams::_k_z;
+	float z_dist = _ori_z_pos - _pos._z;
+	_zForce = A3DVector(0, 0, z_dist) * k_z;
+
 }
 
 /*void AMass::EnableInterpolationMode()

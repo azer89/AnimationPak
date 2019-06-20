@@ -54,6 +54,8 @@ AnElement::AnElement()
 	_tempTri3.push_back(A3DVector());
 	_tempTri3.push_back(A3DVector());
 	_tempTri3.push_back(A3DVector());
+
+	_z_pos_array = std::vector<float>(SystemParams::_num_layer, 0);
 }
 
 AnElement::~AnElement()
@@ -87,6 +89,30 @@ AnElement::~AnElement()
 	_sceneNode = 0;
 	}*/
 
+}
+
+void AnElement::UpdateZConstraint()
+{
+	// reset
+	std::fill(_z_pos_array.begin(), _z_pos_array.end(), 0);
+
+	for (int a = 0; a < _massList.size(); a++)
+	{
+		int layer_idx = _massList[a]._layer_idx;
+		_z_pos_array[layer_idx] += _massList[a]._pos._z;
+	}
+
+	float numPt = _numPointPerLayer;
+	for (int a = 0; a < SystemParams::_num_layer; a++)
+	{
+		_z_pos_array[a] /= numPt;
+	}
+
+	for (int a = 0; a < _massList.size(); a++)
+	{
+		int layer_idx = _massList[a]._layer_idx;
+		_massList[a]._pos._z = _z_pos_array[layer_idx];
+	}
 }
 
 void  AnElement::RotateXY(float radAngle)
@@ -1010,7 +1036,6 @@ void AnElement::UpdateClosestSliceOgre3D()
 				{
 					next_i = 0;
 				}
-
 				_closest_slice_lines->addPoint(Ogre::Vector3(slice_array[i].x, slice_array[i].y, z_pos));
 				_closest_slice_lines->addPoint(Ogre::Vector3(slice_array[next_i].x, slice_array[next_i].y, z_pos));
 			}
@@ -1670,6 +1695,11 @@ void AnElement::ResetSpringRestLengths()
 		A2DVector p1 = _massList[_auxiliaryEdges[a]._index0]._pos.GetA2DVector();
 		A2DVector p2 = _massList[_auxiliaryEdges[a]._index1]._pos.GetA2DVector();
 		_auxiliaryEdges[a].SetActualOriDistance(p1.Distance(p2));
+	}
+
+	for (int a = 0; a < _massList.size(); a++)
+	{
+		_massList[a]._ori_z_pos = _massList[a]._pos._z;
 	}
 	
 	

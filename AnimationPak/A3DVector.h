@@ -115,6 +115,14 @@ public:
 			this->_z / dist);
 	}
 
+	void SetPosition(const A3DVector& otherPt)
+	{
+
+		this->_x = otherPt._x;
+		this->_y = otherPt._y;
+		this->_z = otherPt._z;
+	}
+
 	// Normalize
 	A3DVector Norm() // get the unit vector
 	{

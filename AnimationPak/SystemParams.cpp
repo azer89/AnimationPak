@@ -39,6 +39,7 @@ void SystemParams::LoadParameters()
 	SystemParams::_seed = script.get<int>("_seed");
 
 	SystemParams::_k_edge = script.get<float>("_k_edge");
+	SystemParams::_k_z = script.get<float>("_k_z");
 	SystemParams::_k_time_edge = script.get<float>("_k_time_edge");
 	SystemParams::_k_neg_space_edge = script.get<float>("_k_neg_space_edge");
 	SystemParams::_k_edge_small_factor = script.get<float>("_k_edge_small_factor");
@@ -97,6 +98,7 @@ float SystemParams::_dt = 0.0f;
 int SystemParams::_seed = 0;
 
 float SystemParams::_k_edge = 0.0f;
+float SystemParams::_k_z = 0.0f;
 float SystemParams::_k_time_edge = 0.0f;
 float SystemParams::_k_neg_space_edge = 0.0f;
 float SystemParams::_k_edge_small_factor = 0.0f;

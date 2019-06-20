@@ -67,9 +67,9 @@ public:
 
 	void GetTriangleIndices(float x, float y, float z, TriangleIndices& closestTriIndices);
 
-	void GetPairData(float x, float y, float z, PairData& pair_data_array, PairData& approx_pair_data_array);
+	void GetData(float x, float y, float z, PairData& pair_data_array, PairData& approx_pair_data_array);
 
-	void PrecomputePairData();
+	void PrecomputeData();
 
 	void PrecomputeClosestGraphsAndTriangles();
 

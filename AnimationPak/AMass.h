@@ -16,6 +16,7 @@ class AMass
 public:
 
 	float   _mass;    // is likely only one
+	float _ori_z_pos;
 	A3DVector _pos;	  // current
 	A3DVector _velocity;
 	
@@ -105,6 +106,7 @@ public:
 
 public:
 	A3DVector _edgeForce;
+	A3DVector _zForce;
 	A3DVector _repulsionForce;
 	A3DVector _boundaryForce;
 	A3DVector _overlapForce;

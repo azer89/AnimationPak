@@ -29,6 +29,7 @@ public:
 	static int _seed;
 
 	static float _k_edge;
+	static float _k_z;
 	static float _k_time_edge;
 	static float _k_neg_space_edge;
 	static float _k_edge_small_factor;

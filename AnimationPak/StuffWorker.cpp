@@ -87,6 +87,8 @@ void StuffWorker::InitElements(Ogre::SceneManager* scnMgr)
 		elem.InitMeshOgre3D(scnMgr, pNode, "StarTube" + std::to_string(idx), "Examples/TransparentTest2");
 		_element_list.push_back(elem);
 	}
+	
+	//_containerWorker->_randomPositions.push_back(A2DVector(250, 250));
 
 	for (int a = 0; a < _containerWorker->_randomPositions.size(); a++)
 	{
@@ -325,7 +327,7 @@ void StuffWorker::Update()
 		}
 	}	
 	_c_grid_3d->MovePoints();
-	_c_grid_3d->PrecomputePairData();
+	_c_grid_3d->PrecomputeData();
 	
 	// ----- update closest points -----
 	// TODO
@@ -346,11 +348,15 @@ void StuffWorker::Update()
 	}
 
 
+
+
 	// ----- interpolation -----
-	for (int a = 0; a < _element_list.size(); a++)
+	/*for (int a = 0; a < _element_list.size(); a++)
 	{
 		_element_list[a].UpdateInterpMasses();
-	}
+	}*/
+
+
 }
 
 void StuffWorker::Interp_Reset()
@@ -452,11 +458,18 @@ void StuffWorker::ImposeConstraints()
 {
 	for (int a = 0; a < _element_list.size(); a++)
 	{
+		_element_list[a].UpdateZConstraint();
+	}
+
+	for (int a = 0; a < _element_list.size(); a++)
+	{
 		for (int b = 0; b < _element_list[a]._massList.size(); b++)
 		{
 			_element_list[a]._massList[b].ImposeConstraints();
 		}
 	}
+
+	
 }
 
 void StuffWorker::UpdateOgre3D()
@@ -473,7 +486,7 @@ void StuffWorker::UpdateOgre3D()
 
 	StuffWorker::_c_grid_3d->UpdateOgre3D();
 	//_element_list[0].UpdateDebug34Ogre3D();
-	_element_list[0].UpdateClosestSliceOgre3D();
+	//_element_list[0].UpdateClosestSliceOgre3D();
 
 }
 

@@ -246,7 +246,7 @@ int CollisionGrid3D::GetSquareIndexFromFloat(float x, float y, float z)
 	return SquareIndex(xPos, yPos, zPos);
 }
 
-void CollisionGrid3D::GetPairData(float x, float y, float z, PairData& pair_data_array, PairData& approx_pair_data_array)
+void CollisionGrid3D::GetData(float x, float y, float z, PairData& pair_data_array, PairData& approx_pair_data_array)
 {
 	z = abs(z); // POSITIVE !!!
 
@@ -303,7 +303,7 @@ void CollisionGrid3D::InsertAPoint(float x, float y, float z, int info1, int inf
 	_squares[sq_idx]->_objects.push_back(obj);
 }
 
-void CollisionGrid3D::PrecomputePairData()
+void CollisionGrid3D::PrecomputeData()
 {
 	//_pair_data_array.clear();
 	//_approx_pair_data_array.clear();
@@ -363,8 +363,9 @@ void CollisionGrid3D::PrecomputePairData()
 						// duplicate code
 						for (unsigned int a = 0; a < neighbor_sq->_objects.size(); a++)
 						{ 
-							cur_sq->_pd[cur_sq->_pd_actual_size].first = neighbor_sq->_objects[a]->_info1;
-							cur_sq->_pd[cur_sq->_pd_actual_size].second = neighbor_sq->_objects[a]->_info2;
+							//cur_sq->_pd[cur_sq->_pd_actual_size].first = neighbor_sq->_objects[a]->_info1;
+							//cur_sq->_pd[cur_sq->_pd_actual_size].second = neighbor_sq->_objects[a]->_info2;
+							cur_sq->_pd[cur_sq->_pd_actual_size] = std::pair<int, int>(neighbor_sq->_objects[a]->_info1, neighbor_sq->_objects[a]->_info2);
 							cur_sq->_pd_actual_size++;
 						}
 					}
@@ -376,8 +377,9 @@ void CollisionGrid3D::PrecomputePairData()
 						// duplicate code						
 						for (unsigned int a = 0; a < neighbor_sq->_objects.size(); a++)
 						{
-							cur_sq->_approx_pd[cur_sq->_approx_pd_actual_size].first = neighbor_sq->_objects[a]->_info1;
-							cur_sq->_approx_pd[cur_sq->_approx_pd_actual_size].second = neighbor_sq->_objects[a]->_info2;
+							//cur_sq->_approx_pd[cur_sq->_approx_pd_actual_size].first = neighbor_sq->_objects[a]->_info1;
+							//cur_sq->_approx_pd[cur_sq->_approx_pd_actual_size].second = neighbor_sq->_objects[a]->_info2;
+							cur_sq->_approx_pd[cur_sq->_approx_pd_actual_size] = std::pair<int, int>(neighbor_sq->_objects[a]->_info1, neighbor_sq->_objects[a]->_info2);
 							cur_sq->_approx_pd_actual_size++;
 						}
 					}					

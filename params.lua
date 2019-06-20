@@ -14,13 +14,14 @@ _upscaleFactor   = 500.0;
 _downscaleFactor = 1.0 / _upscaleFactor;
 
 --- Time step for numerical integration (euler method)
-_dt = 0.05;   --- do not set this higher than 0.1
+_dt = 0.1;   --- do not set this higher than 0.1
 
 --- random seed
 _seed = -1; --- negative means random
 
 --- Force parameters
 _k_edge                = 1.0;	--- 0.5 edge force for filling elements
+_k_z                   = 0.1;
 _k_time_edge           = 0.001;
 _k_neg_space_edge      = 10;	--- edge force for springs
 _k_edge_small_factor   = 12;
@@ -47,14 +48,14 @@ _grid_radius_2 = 3;
 -- check A3DSquare.h and Mass.cpp
 -- if error, use Demug mode to detect array out of bound
 _max_exact_array_len = 1000; 
-_max_approx_array_len = 5000;
+_max_approx_array_len = 7000;
 
 --- for growing
 _growth_scale_iter     = 0.001; -- 0.005
 _element_initial_scale = 0.05; 
 _element_max_scale = 5.0;
 
-_num_layer = 6;
+_num_layer = 7;
 
 
 ---_show_time_springs = true;

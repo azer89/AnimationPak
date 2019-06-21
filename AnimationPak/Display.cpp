@@ -137,7 +137,7 @@ bool Display::frameStarted(const Ogre::FrameEvent& evt)
 	ImGui::Text(("Scale = " + std::to_string(_sWorker->_element_list[0]._scale)).c_str());
 
 
-	if (ImGui::Button("Save Frames")) { _sWorker->SaveFrames(); }
+	if (ImGui::Button("Save Frames")) { _sWorker->SaveFrames2(); }
 	//if (ImGui::Button("Button B")) {}
 	//if (ImGui::Button("Button C")) {}
 

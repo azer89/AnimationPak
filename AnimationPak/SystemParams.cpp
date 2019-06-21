@@ -71,6 +71,7 @@ void SystemParams::LoadParameters()
 	SystemParams::_boundary_sampling_factor = script.get<float>("_boundary_sampling_factor");
 
 	SystemParams::_interpolation_factor = script.get<int>("_interpolation_factor");
+	SystemParams::_num_png_frame = script.get<int>("_num_png_frame");
 
 	SystemParams::_num_element_density = script.get<int>("_num_element_density");
 	SystemParams::_num_element_pos_limit = script.get<int>("_num_element_pos_limit");
@@ -133,6 +134,7 @@ float SystemParams::_sampling_density = 0.0f;
 float SystemParams::_boundary_sampling_factor = 0.0f;
 
 int SystemParams::_interpolation_factor = 0;
+int SystemParams::_num_png_frame = 0;
 
 int SystemParams::_num_element_density = 0;
 int SystemParams::_num_element_pos_limit = 0;

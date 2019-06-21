@@ -537,6 +537,42 @@ void StuffWorker::Interp_SaveFrames()
 	}
 }
 
+void StuffWorker::SaveFrames2()
+{
+	for (int a = 0; a < _element_list.size(); a++)
+	{
+		_element_list[a].CalculateLayerBoundaries_Drawing();
+	}
+
+	AVideoCreator vCreator;
+	vCreator.Init(SystemParams::_num_png_frame);
+
+	for (int l = 0; l < SystemParams::_num_png_frame; l++)
+	{
+		std::cout << l << "\n";
+		for (int a = 0; a < _element_list.size(); a++)
+		{
+			for (int b = 0; b < _element_list[a]._numBoundaryPointPerLayer; b++)
+			{
+				int massIdx1 = b;
+				int massIdx2 = b + 1;
+
+				if (massIdx2 == _element_list[a]._numBoundaryPointPerLayer)
+				{
+					massIdx2 = 0;
+				}
+				A2DVector pt1 = _element_list[a]._per_layer_boundary_drawing[l][massIdx1].GetA2DVector();
+				A2DVector pt2 = _element_list[a]._per_layer_boundary_drawing[l][massIdx2].GetA2DVector();
+				vCreator.DrawLine(pt1, pt2, _element_list[a]._color, l);
+			}
+		}
+	}
+
+	std::stringstream ss;
+	ss << SystemParams::_save_folder << "PNG\\";
+	vCreator.Save(ss.str());
+}
+
 void StuffWorker::SaveFrames()
 {
 

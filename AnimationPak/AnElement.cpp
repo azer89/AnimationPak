@@ -649,6 +649,7 @@ void AnElement::Triangularization(std::vector<A2DVector> element_path, int self_
 	for (int a = 0; a < SystemParams::_num_layer; a++)
 	{
 		_per_layer_boundary.push_back(std::vector<A3DVector>());
+		//_per_layer_boundary_drawing.push_back(std::vector<A3DVector>());
 	}
 	for (int a = 0; a < _massList.size(); a++)
 	{
@@ -657,6 +658,7 @@ void AnElement::Triangularization(std::vector<A2DVector> element_path, int self_
 		{
 			int layerIdx = _massList[a]._layer_idx;
 			_per_layer_boundary[layerIdx].push_back ( _massList[a]._pos );
+			//_per_layer_boundary_drawing[layerIdx].push_back(_massList[a]._pos);
 		}
 	}
 
@@ -1472,6 +1474,79 @@ void AnElement::Interp_UpdateLayerBoundaries()
 			_interp_per_layer_boundary[layerIdx][perLayerIdx] = _interp_massList[a]._pos.GetA2DVector();
 		}
 	}
+}
+
+void AnElement::BiliniearInterpolation(std::vector<A3DVector>& boundaryA, std::vector<A3DVector>& boundaryB, std::vector<A3DVector>& boundaryInterp, float interVal)
+{
+	for (int b = 0; b < _numBoundaryPointPerLayer; b++)
+	{
+		A3DVector pt1 = boundaryA[b];
+		A3DVector pt1_next = boundaryB[b];
+		A3DVector dir1 = pt1.DirectionTo(pt1_next);
+		float dir1_len;
+		A3DVector dir1_unit;
+		dir1.GetUnitAndDist(dir1_unit, dir1_len);
+		boundaryInterp[b] = pt1 + (dir1_unit * dir1_len * interVal);
+	}
+}
+
+void AnElement::CalculateLayerBoundaries_Drawing()
+{	
+	_per_layer_boundary_drawing.clear();
+	std::vector<A3DVector> a_layer_boundary_temp(_numBoundaryPointPerLayer, A3DVector()); // temporary
+
+	// ----- iter variables -----
+	float z_iter = 0;        // negative
+	int png_iter = 0;      // frames (png)
+	int tube_layer_iter = 0; // layers of the tube
+	
+	// ----- stuff -----
+	int max_num_png = SystemParams::_num_png_frame;
+	float z_step = SystemParams::_upscaleFactor / ((float)max_num_png);
+
+	// ----- first one -----
+	_per_layer_boundary_drawing.push_back(_per_layer_boundary[0]);
+	z_iter -= z_step;
+	png_iter++;
+	//tube_layer_iter++; we are not sure to move onto the next one
+
+	float min_upscale_factor = -SystemParams::_upscaleFactor;
+	int max_layer_iter = SystemParams::_num_layer - 1;
+	while (z_iter > min_upscale_factor && tube_layer_iter < max_layer_iter && png_iter < max_num_png) // todo: FIX ME
+	{
+		float cur_layer_z_pos  = _per_layer_boundary[tube_layer_iter][0]._z;     // negative
+		float next_layer_z_pos = _per_layer_boundary[tube_layer_iter + 1][0]._z; // negative
+		
+		if (z_iter < cur_layer_z_pos && z_iter > next_layer_z_pos)
+		{
+			// create a new frame!
+			float l_2_l = -(next_layer_z_pos - cur_layer_z_pos); // positive, layer to layer dist
+			float p_2_l = -(z_iter - cur_layer_z_pos); // positive, png to layer dist
+			float interp_ratio = p_2_l / l_2_l;
+
+			BiliniearInterpolation(_per_layer_boundary[tube_layer_iter], 
+				                   _per_layer_boundary[tube_layer_iter + 1], 
+				                   a_layer_boundary_temp, 
+				                   interp_ratio);
+			_per_layer_boundary_drawing.push_back(a_layer_boundary_temp);
+
+			// move on	
+			z_iter -= z_step;
+			png_iter++;
+
+		}
+		else if (z_iter < next_layer_z_pos)
+		{
+			// move on			
+			tube_layer_iter++;
+
+		}
+		// else ???
+		
+	}
+
+	// ----- last one -----
+	_per_layer_boundary_drawing.push_back(_per_layer_boundary[SystemParams::_num_layer - 1]);
 }
 
 // ORIGINAL

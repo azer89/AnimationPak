@@ -31,6 +31,8 @@ public:
 	void CreateHelix();
 	void RandomizeLayerSize();
 	
+	void BiliniearInterpolation(std::vector<A3DVector>& boundaryA, std::vector<A3DVector>& boundaryB, std::vector<A3DVector>& boundaryInterp, float interVal);
+	void CalculateLayerBoundaries_Drawing();
 	void UpdateLayerBoundaries();
 	//void UpdateSpringLengths();
 	void UpdateInterpMasses();
@@ -125,8 +127,9 @@ public:
 
 	bool _predefined_time_path; // time path isn't straight
 
-	std::vector<std::vector<A3DVector>> _per_layer_boundary; // for closest point
+	std::vector<std::vector<A3DVector>> _per_layer_boundary; // for closest point and Ogre3D
 	std::vector<A2DVector> _a_layer_boundary;// for closest point
+	std::vector<std::vector<A3DVector>> _per_layer_boundary_drawing;
 	//std::vector<float> _per_layer_boundary_z_pos;
 
 	MyColor _color; // drawing

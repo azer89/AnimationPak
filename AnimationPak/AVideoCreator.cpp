@@ -13,7 +13,7 @@ AVideoCreator::~AVideoCreator()
 
 void AVideoCreator::Init(int numInterpolation)
 {
-	_num_frame = numInterpolation * SystemParams::_num_layer;
+	_num_frame = numInterpolation;
 	for (int a = 0; a < _num_frame; a++)
 	{
 		CVImg img;

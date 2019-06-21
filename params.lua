@@ -25,19 +25,19 @@ _k_z                   = 0.1;
 _k_time_edge           = 0.001;
 _k_neg_space_edge      = 10;	--- edge force for springs
 _k_edge_small_factor   = 12;
-_k_repulsion           = 50;	--- 10 repulsion force
+_k_repulsion           = 10;	--- 10 repulsion force
 _repulsion_soft_factor = 1.0;	--- soft factor for repulsion force
 _k_overlap             = 5;	--- overlap force
-_k_boundary            = 0.1;	--- 0.1 boundary force
+_k_boundary            = 0.5;	--- 0.1 boundary force
 _k_rotate              = 1;		--- 1
-_k_dock                = 0.5;
+_k_dock                = 1.0;
 
 --- capping the velocity
 _velocity_cap   = 10; -- [Do not edit]
 
 --- Grid for collision detection
 --- size of a cell
-_bin_square_size         = 50; -- 25
+_bin_square_size         = 25; -- 25
 --- cell gap for detection, 
 --- 1 means considering all cells that are 1 block away from the query (3x3)
 --- 2 means considering all cells that are 2 block away from the query (5x5)
@@ -48,14 +48,14 @@ _grid_radius_2 = 3;
 -- check A3DSquare.h and Mass.cpp
 -- if error, use Demug mode to detect array out of bound
 _max_exact_array_len = 1000; 
-_max_approx_array_len = 7000;
+_max_approx_array_len = 10000;
 
 --- for growing
-_growth_scale_iter     = 0.001; -- 0.005
+_growth_scale_iter     = 0.002; -- 0.005
 _element_initial_scale = 0.05; 
 _element_max_scale = 5.0;
 
-_num_layer = 7;
+_num_layer = 20;
 
 
 ---_show_time_springs = true;
@@ -69,6 +69,7 @@ _boundary_sampling_factor   = 1.2;  -- [Do not edit]
 
 -- for frame rendering
 _interpolation_factor = 5; -- how many interpolation between two layers
+_num_png_frame = 100;
 
 _num_element_density       = 1000;
 _num_element_pos_limit = 10;

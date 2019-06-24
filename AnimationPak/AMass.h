@@ -48,10 +48,15 @@ public: // need to be public for debugging purpose
 	//std::vector<A2DVector> _closestPoints;
 
 
-	std::vector<A3DVector> _closestPoints3D;
-	//A3DVector* _closestPoints3D;
-	int _closest_pd_actual_len;
-	int _closest_pd_max_len;
+	// closest points (exact measurements)
+	std::vector<A3DVector> _c_pts;	
+	int _c_pts_fill_size;	
+	int _c_pts_max_size;
+
+	// closest points (approx measurement)
+	std::vector<std::pair<A3DVector, int>> _c_pts_approx; // barnes hut: (1) center of square (2) num points in that square
+	int _c_pts_approx_fill_size;
+	int _c_pts_approx_max_size;
 
 private:		
 	std::vector<int>     _closestGraphIndices;
@@ -95,7 +100,7 @@ public:
 
 	void Interp_GetClosestPoint();
 
-	A3DVector GetClosestPtFromArray(int elem_idx, std::vector<A3DObject>& tempClosestObj3D);
+	//A3DVector GetClosestPtFromArray(int elem_idx, std::vector<A3DObject>& tempClosestObj3D);
 
 	void Grow(float growth_scale_iter, float dt);
 

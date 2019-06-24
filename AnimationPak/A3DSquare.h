@@ -10,7 +10,8 @@
 #include <vector>
 
 
-typedef std::vector<std::pair<int, int>> PairData; // 1 which element 2 which triangle
+typedef std::vector<std::pair<int, int>> PairData; // (1) which element (2) which triangle
+                                                   // (1) which element (2) which square
 
 
 // The name 
@@ -23,19 +24,16 @@ public:
 		_z(z),
 		_length(length)
 	{
-		int sz = 5000;
-		//_pd = PairData(sz, std::pair<int, int>(0, 0));
-		//_approx_pd = PairData(sz, std::pair<int, int>(0, 0));
-		_pd = new std::pair<int, int>[SystemParams::_max_exact_array_len];
-		_approx_pd = new std::pair<int, int>[SystemParams::_max_approx_array_len];
-		_pd_actual_size = 0;
-		_approx_pd_actual_size = 0;
+		//int sz = 5000;
+		_c_pt = new std::pair<int, int>[SystemParams::_max_exact_array_len];		
+		_c_pt_fill_size = 0;
 
-		//float offVal = 1.0f;
-		//_x1 = _x + offVal;
-		//_y1 = _y + offVal;
-		//_x2 = _x - offVal + _length;
-		//_y2 = _y - offVal + _length;
+		_c_pt_approx = new std::pair<int, int>[SystemParams::_max_approx_array_len];
+		_c_pt_approx_fill_size = 0;
+		/*
+		std::vector< std::vector<int> > _approx_pd_actual_sizes;
+	    std::vector<std::vector<std::pair<int, int>>> _approx_pds;
+		*/
 
 		_xCenter = _x + (_length * 0.5);
 		_yCenter = _y + (_length * 0.5);
@@ -69,8 +67,8 @@ public:
 
 	~A3DSquare()
 	{
-		delete[] _pd;
-		delete[] _approx_pd;
+		delete[] _c_pt;
+		delete[] _c_pt_approx;
 	}
 
 public:
@@ -121,11 +119,15 @@ public:
 	//float _x2;
 	//float _y2;
 
-	// temp
-	int _pd_actual_size;
-	int _approx_pd_actual_size;
-	std::pair<int, int>* _pd; //  std::vector<std::pair<int, int>>
-	std::pair<int, int>*  _approx_pd; //  std::vector<std::pair<int, int>>
+	// (1) which element (2) which triangle
+	int _c_pt_fill_size;
+	std::pair<int, int>* _c_pt; //  std::vector<std::pair<int, int>>
+	
+	// (1) which element (2) which square
+	int _c_pt_approx_fill_size;
+	std::pair<int, int>*  _c_pt_approx; 
+	//std::vector< std::vector<int> > _approx_pd_actual_sizes;
+	//std::vector<std::vector<std::pair<int, int>>> _approx_pds;
 
 	std::vector<A3DObject*>	_objects;
 

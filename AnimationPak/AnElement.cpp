@@ -886,8 +886,11 @@ void AnElement::InitMeshOgre3D(Ogre::SceneManager* sceneMgr,
 	// ---------- boundary ----------
 
 
-
-
+	// closest point debug
+	_closet_pt_debug_lines = new DynamicLines(line_material, Ogre::RenderOperation::OT_LINE_LIST);
+	_closet_pt_debug_lines->update();
+	_closet_pt_debug_node = _sceneMgr->getRootSceneNode()->createChildSceneNode("closest_point_debug_lines_" + std::to_string(_elem_idx));
+	_closet_pt_debug_node->attachObject(_closet_pt_debug_lines);
 
 	// ---------- debug	----------
 	if (_dock_mass_idx.size() > 0)
@@ -2095,12 +2098,12 @@ void AnElement::UpdatePerLayerBoundaryOgre3D()
 
 void AnElement::UpdateClosestPtsDisplayOgre3D()
 {
-	//_debug_points.clear();
-	_debug_lines->clear();
+	//DynamicLines*    _closet_pt_debug_lines;
+	//Ogre::SceneNode* _closet_pt_debug_node;
 
-	/*for (int b = 0; b < _massList.size(); b++)
+	for (int b = 0; b < _massList.size(); b++)
 	{
-		for (int c = 0; c < _massList[b]._closestPt_fill_sz; c++)
+		/*for (int c = 0; c < _massList[b]._closestPt_fill_sz; c++)
 		{
 			A3DVector pt1 = _massList[b]._pos;
 			A2DVector pt22D = _massList[b]._closestPoints[c];
@@ -2108,8 +2111,25 @@ void AnElement::UpdateClosestPtsDisplayOgre3D()
 
 			_debug_lines->addPoint(Ogre::Vector3(pt1._x, pt1._y, pt1._z));
 			_debug_lines->addPoint(Ogre::Vector3(pt2._x, pt2._y, pt2._z));
+		}*/
+		if (_massList[b]._layer_idx == 0)
+		{
+			A3DVector pt1 = _massList[b]._pos;
+			for (int c = 0; c < _massList[b]._c_pts_fill_size; c++)
+			{
+				A3DVector pt2(_massList[b]._c_pts[c]._x, _massList[b]._c_pts[c]._y, _massList[b]._c_pts[c]._z);
+				_closet_pt_debug_lines->addPoint(Ogre::Vector3(pt1._x, pt1._y, pt1._z));
+				_closet_pt_debug_lines->addPoint(Ogre::Vector3(pt2._x, pt2._y, pt2._z));
+			}
+
+			for (int c = 0; c < _massList[b]._c_pts_approx_fill_size; c++)
+			{
+				A3DVector pt2(_massList[b]._c_pts_approx[c].first._x, _massList[b]._c_pts_approx[c].first._y, _massList[b]._c_pts_approx[c].first._z);
+				_closet_pt_debug_lines->addPoint(Ogre::Vector3(pt1._x, pt1._y, pt1._z));
+				_closet_pt_debug_lines->addPoint(Ogre::Vector3(pt2._x, pt2._y, pt2._z));
+			}
 		}
-	}*/
+	}
 
 
 	//for (int i = 0; i < _debug_points.size(); i++) 
@@ -2117,7 +2137,7 @@ void AnElement::UpdateClosestPtsDisplayOgre3D()
 	//	_debug_lines->addPoint(_debug_points[i]);
 	//}
 
-	_debug_lines->update();
+	_closet_pt_debug_lines->update();
 }
 
 int AnElement::GetUnsharedVertexIndex(AnIdxTriangle tri, AnIndexedLine edge)

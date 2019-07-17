@@ -485,7 +485,7 @@ void StuffWorker::UpdateOgre3D()
 	}
 
 	StuffWorker::_c_grid_3d->UpdateOgre3D();
-	//_element_list[0].UpdateDebug34Ogre3D();
+	_element_list[0].UpdateClosestPtsDisplayOgre3D();
 	//_element_list[0].UpdateClosestSliceOgre3D();
 
 }

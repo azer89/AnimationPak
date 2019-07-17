@@ -499,29 +499,29 @@ void AMass::Solve(const std::vector<A2DVector>& container)
 	if(_is_boundary && !_is_inside)
 	{
 		// ---------- REPULSION FORCE ----------
-		//std::cout << _closestPt_fill_sz << " ";
+
 		A3DVector sumR(0, 0, 0);
 		A3DVector dir;
-		/*for (int a = 0; a < _closestPt_fill_sz; a++)
-		{
-			dir = _closestPoints[a].DirectionTo(_pos.GetA2DVector()); // direction
-			float dist = dir.Length(); // distance
-			sumR += (dir.Norm() / (SystemParams::_repulsion_soft_factor + std::pow(dist, 2)));
-		}*/
-		//for (int a = 0; a < _closestPoints3D.size(); a++)
+
 		for (int a = 0; a < _c_pts_fill_size; a++)
 		{
-			dir = _closestPoints3D[a].DirectionTo(_pos); // direction
-			//float dist = dir.Length(); // distance
-			//sumR += (dir.Norm() / (SystemParams::_repulsion_soft_factor + std::pow(dist, 2)));
-			// modified
+			dir = _c_pts[a].DirectionTo(_pos); // direction
+
 			float distSq = dir.LengthSquared(); // distance
 			sumR += (dir.Norm() / (SystemParams::_repulsion_soft_factor + distSq));
 		}
+		
+		/*
+		for (int a = 0; a < _c_pts_approx_fill_size; a++)
+		{
+			dir = _c_pts_approx[a].first.DirectionTo(_pos); // direction
+			float distSq = dir.LengthSquared(); // distance
+			sumR += (dir.Norm() *_c_pts_approx[a].second / (SystemParams::_repulsion_soft_factor + distSq));
+		}
+		*/
 		sumR *= SystemParams::_k_repulsion;
 		if (!sumR.IsBad())
 		{
-			//this->_repulsionForce += A3DVector(sumR._x, sumR._y, sumR._z); // z is always 0 !!!
 			this->_repulsionForce += A3DVector(sumR._x, sumR._y, sumR._z);
 		}
 	}

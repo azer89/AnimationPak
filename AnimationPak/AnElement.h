@@ -196,8 +196,8 @@ public:
 	Ogre::SceneNode* _closest_slice_node;
 
 	// testing closest points of interpolation 
-	//DynamicLines*    _debug_lines_4;
-	//Ogre::SceneNode* _debugNode_4;
+	DynamicLines*    _closet_pt_debug_lines;
+	Ogre::SceneNode* _closet_pt_debug_node;
 
 	
 };

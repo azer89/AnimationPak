@@ -2108,46 +2108,32 @@ void AnElement::UpdatePerLayerBoundaryOgre3D()
 
 void AnElement::UpdateClosestPtsDisplayOgre3D()
 {
-	//DynamicLines*    _closet_pt_debug_lines;
-	//Ogre::SceneNode* _closet_pt_debug_node;
 	_closet_pt_lines->clear();
 	_closet_pt_approx_lines->clear();
 
-	for (int b = 0; b < _massList.size(); b++)
+	if(SystemParams::_show_repulsion_forces)
 	{
-		/*for (int c = 0; c < _massList[b]._closestPt_fill_sz; c++)
+		for (int b = 0; b < _massList.size(); b++)
 		{
-			A3DVector pt1 = _massList[b]._pos;
-			A2DVector pt22D = _massList[b]._closestPoints[c];
-			A3DVector pt2(pt22D.x, pt22D.y, pt1._z);
 
-			_debug_lines->addPoint(Ogre::Vector3(pt1._x, pt1._y, pt1._z));
-			_debug_lines->addPoint(Ogre::Vector3(pt2._x, pt2._y, pt2._z));
-		}*/
-		//if (_massList[b]._layer_idx == 0)
-		{
-			A3DVector pt1 = _massList[b]._pos;
-			for (int c = 0; c < _massList[b]._c_pts_fill_size; c++)
 			{
-				A3DVector pt2(_massList[b]._c_pts[c]._x, _massList[b]._c_pts[c]._y, _massList[b]._c_pts[c]._z);
-				_closet_pt_lines->addPoint(Ogre::Vector3(pt1._x, pt1._y, pt1._z));
-				_closet_pt_lines->addPoint(Ogre::Vector3(pt2._x, pt2._y, pt2._z));
-			}
+				A3DVector pt1 = _massList[b]._pos;
+				for (int c = 0; c < _massList[b]._c_pts_fill_size; c++)
+				{
+					A3DVector pt2(_massList[b]._c_pts[c]._x, _massList[b]._c_pts[c]._y, _massList[b]._c_pts[c]._z);
+					_closet_pt_lines->addPoint(Ogre::Vector3(pt1._x, pt1._y, pt1._z));
+					_closet_pt_lines->addPoint(Ogre::Vector3(pt2._x, pt2._y, pt2._z));
+				}
 
-			for (int c = 0; c < _massList[b]._c_pts_approx_fill_size; c++)
-			{
-				A3DVector pt2(_massList[b]._c_pts_approx[c].first._x, _massList[b]._c_pts_approx[c].first._y, _massList[b]._c_pts_approx[c].first._z);
-				_closet_pt_approx_lines->addPoint(Ogre::Vector3(pt1._x, pt1._y, pt1._z));
-				_closet_pt_approx_lines->addPoint(Ogre::Vector3(pt2._x, pt2._y, pt2._z));
+				for (int c = 0; c < _massList[b]._c_pts_approx_fill_size; c++)
+				{
+					A3DVector pt2(_massList[b]._c_pts_approx[c].first._x, _massList[b]._c_pts_approx[c].first._y, _massList[b]._c_pts_approx[c].first._z);
+					_closet_pt_approx_lines->addPoint(Ogre::Vector3(pt1._x, pt1._y, pt1._z));
+					_closet_pt_approx_lines->addPoint(Ogre::Vector3(pt2._x, pt2._y, pt2._z));
+				}
 			}
 		}
 	}
-
-
-	//for (int i = 0; i < _debug_points.size(); i++) 
-	//{
-	//	_debug_lines->addPoint(_debug_points[i]);
-	//}
 
 	_closet_pt_lines->update();
 	_closet_pt_approx_lines->update();

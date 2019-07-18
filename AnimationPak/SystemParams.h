@@ -71,6 +71,7 @@ public:
 	static int _num_element_pos_limit;
 
 	// viz
+	static bool _show_repulsion_forces;
 	static bool _show_collision_grid;
 	static bool _show_time_springs;
 };

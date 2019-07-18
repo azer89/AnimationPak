@@ -885,12 +885,22 @@ void AnElement::InitMeshOgre3D(Ogre::SceneManager* sceneMgr,
 	_debugNode->attachObject(_debug_lines);
 	// ---------- boundary ----------
 
+	// closest point approx debug
+	Ogre::MaterialPtr line_material_c_pt_approx = Ogre::MaterialManager::getSingleton().getByName("Examples/RedMat")->clone("ClosestPtApproxMat" + std::to_string(_elem_idx));
+	line_material_c_pt_approx->getTechnique(0)->getPass(0)->setDiffuse(Ogre::ColourValue(1, 0, 0, 1));
+	_closet_pt_approx_lines = new DynamicLines(line_material_c_pt_approx, Ogre::RenderOperation::OT_LINE_LIST);
+	_closet_pt_approx_lines->update();
+	_closet_pt_approx_node = _sceneMgr->getRootSceneNode()->createChildSceneNode("closest_point_approx_lines_" + std::to_string(_elem_idx));
+	_closet_pt_approx_node->attachObject(_closet_pt_approx_lines);
+
 
 	// closest point debug
-	_closet_pt_debug_lines = new DynamicLines(line_material, Ogre::RenderOperation::OT_LINE_LIST);
-	_closet_pt_debug_lines->update();
-	_closet_pt_debug_node = _sceneMgr->getRootSceneNode()->createChildSceneNode("closest_point_debug_lines_" + std::to_string(_elem_idx));
-	_closet_pt_debug_node->attachObject(_closet_pt_debug_lines);
+	Ogre::MaterialPtr line_material_c_pt = Ogre::MaterialManager::getSingleton().getByName("Examples/RedMat")->clone("ClosestPtMat" + std::to_string(_elem_idx));
+	line_material_c_pt->getTechnique(0)->getPass(0)->setDiffuse(Ogre::ColourValue(0, 0, 1, 1));
+	_closet_pt_lines = new DynamicLines(line_material_c_pt, Ogre::RenderOperation::OT_LINE_LIST);
+	_closet_pt_lines->update();
+	_closet_pt_node = _sceneMgr->getRootSceneNode()->createChildSceneNode("closest_point_debug_lines_" + std::to_string(_elem_idx));
+	_closet_pt_node->attachObject(_closet_pt_lines);
 
 	// ---------- debug	----------
 	if (_dock_mass_idx.size() > 0)
@@ -2100,6 +2110,8 @@ void AnElement::UpdateClosestPtsDisplayOgre3D()
 {
 	//DynamicLines*    _closet_pt_debug_lines;
 	//Ogre::SceneNode* _closet_pt_debug_node;
+	_closet_pt_lines->clear();
+	_closet_pt_approx_lines->clear();
 
 	for (int b = 0; b < _massList.size(); b++)
 	{
@@ -2112,21 +2124,21 @@ void AnElement::UpdateClosestPtsDisplayOgre3D()
 			_debug_lines->addPoint(Ogre::Vector3(pt1._x, pt1._y, pt1._z));
 			_debug_lines->addPoint(Ogre::Vector3(pt2._x, pt2._y, pt2._z));
 		}*/
-		if (_massList[b]._layer_idx == 0)
+		//if (_massList[b]._layer_idx == 0)
 		{
 			A3DVector pt1 = _massList[b]._pos;
 			for (int c = 0; c < _massList[b]._c_pts_fill_size; c++)
 			{
 				A3DVector pt2(_massList[b]._c_pts[c]._x, _massList[b]._c_pts[c]._y, _massList[b]._c_pts[c]._z);
-				_closet_pt_debug_lines->addPoint(Ogre::Vector3(pt1._x, pt1._y, pt1._z));
-				_closet_pt_debug_lines->addPoint(Ogre::Vector3(pt2._x, pt2._y, pt2._z));
+				_closet_pt_lines->addPoint(Ogre::Vector3(pt1._x, pt1._y, pt1._z));
+				_closet_pt_lines->addPoint(Ogre::Vector3(pt2._x, pt2._y, pt2._z));
 			}
 
 			for (int c = 0; c < _massList[b]._c_pts_approx_fill_size; c++)
 			{
 				A3DVector pt2(_massList[b]._c_pts_approx[c].first._x, _massList[b]._c_pts_approx[c].first._y, _massList[b]._c_pts_approx[c].first._z);
-				_closet_pt_debug_lines->addPoint(Ogre::Vector3(pt1._x, pt1._y, pt1._z));
-				_closet_pt_debug_lines->addPoint(Ogre::Vector3(pt2._x, pt2._y, pt2._z));
+				_closet_pt_approx_lines->addPoint(Ogre::Vector3(pt1._x, pt1._y, pt1._z));
+				_closet_pt_approx_lines->addPoint(Ogre::Vector3(pt2._x, pt2._y, pt2._z));
 			}
 		}
 	}
@@ -2137,7 +2149,8 @@ void AnElement::UpdateClosestPtsDisplayOgre3D()
 	//	_debug_lines->addPoint(_debug_points[i]);
 	//}
 
-	_closet_pt_debug_lines->update();
+	_closet_pt_lines->update();
+	_closet_pt_approx_lines->update();
 }
 
 int AnElement::GetUnsharedVertexIndex(AnIdxTriangle tri, AnIndexedLine edge)

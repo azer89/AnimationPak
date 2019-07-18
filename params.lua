@@ -25,7 +25,7 @@ _k_z                   = 0.1;
 _k_time_edge           = 0.001;
 _k_neg_space_edge      = 10;	--- edge force for springs
 _k_edge_small_factor   = 12;
-_k_repulsion           = 0.1;	--- 10 repulsion force
+_k_repulsion           = 1;	--- 10 repulsion force
 _repulsion_soft_factor = 1.0;	--- soft factor for repulsion force
 _k_overlap             = 5;	--- overlap force
 _k_boundary            = 0.5;	--- 0.1 boundary force
@@ -52,7 +52,7 @@ _max_approx_array_len = 10000;
 
 --- for growing
 _growth_scale_iter     = 0.001; -- 0.005
-_element_initial_scale = 0.05; 
+_element_initial_scale = 0.1; 
 _element_max_scale = 5.0;
 
 _num_layer = 20;
@@ -72,6 +72,6 @@ _interpolation_factor = 5; -- how many interpolation between two layers
 _num_png_frame = 100;
 
 _num_element_density       = 50;
-_num_element_pos_limit = 10;
+_num_element_pos_limit = 3;
 
 

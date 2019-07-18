@@ -93,6 +93,9 @@ public:
 	DynamicLines*    _filled_lines;
 	Ogre::SceneNode* _filled_node;
 
+	DynamicLines*    _plus_lines;
+	Ogre::SceneNode* _plus_node;
+
 	void InitOgre3D(Ogre::SceneManager* sceneMgr);
 	void UpdateOgre3D();
 

@@ -288,31 +288,25 @@ void AMass::GetClosestPoint4()
 	int current_sq_idx = -1;
 	for (unsigned int a = 0; a < sq->_c_pt_approx_fill_size; a++)
 	{
-		/*
-		if (sq->_approx_pd[a].first == _parent_idx) { continue; }
-		A3DVector pt = StuffWorker::_element_list[sq->_approx_pd[a].first]._timeTriangles[sq->_approx_pd[a].second]._temp_center_3d; // ugly code
-		_closestPoints3D[_closest_pd_actual_len++].SetPosition(pt);
-		*/
 		int p_idx = sq->_c_pt_approx[a].first;
 		if (p_idx == _parent_idx) { continue; }
 
-		int temp_sq_idx = sq->_c_pt_approx[a].second;
+		int temp_sq_idx = sq->_c_pt_approx[a].second; // square idx
 
-		/*
-		_c_pts_approx_fill_len = 0;
-		_c_pts_approx_max_len = SystemParams::_max_exact_array_len; // to do: rename _max_exact_array_len
-		_c_pts_approx = std::vector<std::pair<A3DVector, int>>(_c_pts_approx_max_len, std::pair<A3DVector, int>(A3DVector(0, 0, 0), 0)); // very complicated
-		*/
 		if (temp_sq_idx == current_sq_idx) // same
 		{
 			_c_pts_approx[_c_pts_approx_fill_size].second++;
 		}
 		else // new one
 		{
-			current_sq_idx = temp_sq_idx;
+			current_sq_idx = temp_sq_idx;	
+
+			A3DVector sq_pt( _c_grid_3d->_squares[current_sq_idx]->_xCenter, 
+				             _c_grid_3d->_squares[current_sq_idx]->_yCenter, 
+				            -_c_grid_3d->_squares[current_sq_idx]->_zCenter);
+			_c_pts_approx[_c_pts_approx_fill_size].first = A3DVector(sq_pt._x, sq_pt._y, sq_pt._z);
+			_c_pts_approx[_c_pts_approx_fill_size].second = 1;
 			_c_pts_approx_fill_size++;
-			_c_pts_approx[_c_pts_approx_fill_size].first = A3DVector(sq->_xCenter, sq->_yCenter, sq->_zCenter);
-			_c_pts_approx[_c_pts_approx_fill_size].second++;
 		}
 	}
 }

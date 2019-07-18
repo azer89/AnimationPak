@@ -280,7 +280,7 @@ void CollisionGrid3D::GetGraphIndices2B(float x, float y, float z, std::vector<i
 
 void CollisionGrid3D::SetPoint(int idx, A3DVector pos)
 {
-	pos._z = abs(pos._z);
+	pos._z = abs(pos._z); // positive
 
 	_objects[idx]->_x = pos._x;
 	_objects[idx]->_y = pos._y;
@@ -519,33 +519,37 @@ void CollisionGrid3D::InitOgre3D(Ogre::SceneManager* sceneMgr)
 	//Ogre::MaterialPtr empty_material = Ogre::MaterialManager::getSingleton().getByName("Examples/RedMat")->clone("EmptyCCLines");
 	//empty_material->getTechnique(0)->getPass(0)->setDiffuse(Ogre::ColourValue(0, 0, 0, 1));
 
-	// material
-	Ogre::MaterialPtr filled_material = Ogre::MaterialManager::getSingleton().getByName("Examples/RedMat")->clone("FilledCCLines");
+	// object viz
+	Ogre::MaterialPtr plus_material = Ogre::MaterialManager::getSingleton().getByName("Examples/RedMat")->clone("PlusColissionGridLines");
+	plus_material->getTechnique(0)->getPass(0)->setDiffuse(Ogre::ColourValue(0, 0, 0, 1));
+	_plus_lines = new DynamicLines(plus_material, Ogre::RenderOperation::OT_LINE_LIST);
+	_plus_lines->update();
+	_plus_node = sceneMgr->getRootSceneNode()->createChildSceneNode("plus_lines_node");
+	_plus_node->attachObject(_plus_lines);
+
+	// box viz
+	Ogre::MaterialPtr filled_material = Ogre::MaterialManager::getSingleton().getByName("Examples/RedMat")->clone("FilledColissionGridLines");
 	filled_material->getTechnique(0)->getPass(0)->setDiffuse(Ogre::ColourValue(1, 0, 0, 1));
-	
-	/*
-	DynamicLines*    _empty_lines;
-	Ogre::SceneNode* _empty_node;
-	*/
-	//_empty_lines = new DynamicLines(empty_material, Ogre::RenderOperation::OT_LINE_LIST);
-	//_empty_lines->update();
-	//_empty_node = sceneMgr->getRootSceneNode()->createChildSceneNode("empty_lines_node");
-	//_empty_node->attachObject(_empty_lines);
-	
-	/*
-	DynamicLines*    _filled_lines;
-	Ogre::SceneNode* _filled_node;
-	*/
 	_filled_lines = new DynamicLines(filled_material, Ogre::RenderOperation::OT_LINE_LIST);
 	_filled_lines->update();
 	_filled_node = sceneMgr->getRootSceneNode()->createChildSceneNode("filled_lines_node");
 	_filled_node->attachObject(_filled_lines);
+
+
+	//_plus_lines->setBoundingBox(Ogre::AxisAlignedBox(-1000000, -1000000, -1000000, 1000000, 1000000, 1000000));
+	//_filled_lines->setBoundingBox(Ogre::AxisAlignedBox(-1000000, -1000000, -1000000, 1000000, 1000000, 1000000));
+	// ::EXTENT_INFINITE
+	_plus_lines->setBoundingBox(Ogre::AxisAlignedBox::EXTENT_INFINITE);
+	_filled_lines->setBoundingBox(Ogre::AxisAlignedBox::EXTENT_INFINITE);
+	
 }
 
 void CollisionGrid3D::UpdateOgre3D()
 {
-	//_empty_lines->clear();
+	_plus_lines->clear();
 	_filled_lines->clear();
+
+	float plus_offset = 0.5;
 
 	// do something
 	//int empty_iter = 0;
@@ -584,10 +588,22 @@ void CollisionGrid3D::UpdateOgre3D()
 				_filled_lines->addPoint(Ogre::Vector3(_squares[a]->_draw_pt8._x, _squares[a]->_draw_pt8._y, -_squares[a]->_draw_pt8._z));
 				_filled_lines->addPoint(Ogre::Vector3(_squares[a]->_draw_pt3._x, _squares[a]->_draw_pt3._y, -_squares[a]->_draw_pt3._z));//
 				_filled_lines->addPoint(Ogre::Vector3(_squares[a]->_draw_pt7._x, _squares[a]->_draw_pt7._y, -_squares[a]->_draw_pt7._z));
+			
+			
+				for (unsigned int b = 0; b < _squares[a]->_objects.size(); b++)
+				{
+					A3DVector pos(_squares[a]->_objects[b]->_x, _squares[a]->_objects[b]->_y, -_squares[a]->_objects[b]->_z);
+					
+					_plus_lines->addPoint(pos._x - plus_offset, pos._y, pos._z);
+					_plus_lines->addPoint(pos._x + plus_offset, pos._y, pos._z);
+					_plus_lines->addPoint(pos._x, pos._y - plus_offset, pos._z);
+					_plus_lines->addPoint(pos._x, pos._y + plus_offset, pos._z);
+				}
 			}
+
 		}
 
 	}
-	//_empty_lines->update();
+	_plus_lines->update();
 	_filled_lines->update();
 }

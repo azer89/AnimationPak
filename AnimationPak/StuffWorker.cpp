@@ -310,15 +310,6 @@ void StuffWorker::Update()
 	}
 
 	float iter = 0;
-	/*for (int a = 0; a < _element_list.size(); a++)
-	{
-		for (int b = 0; b < _element_list[a]._massList.size(); b++)
-		{
-			A3DVector p1 = _element_list[a]._massList[b]._pos;
-
-			_c_grid_3d->SetPoint(iter++, p1);
-		}
-	}*/
 	for (int a = 0; a < _element_list.size(); a++)
 	{
 		for (int b = 0; b < _element_list[a]._timeTriangles.size(); b++)
@@ -335,7 +326,6 @@ void StuffWorker::Update()
 	{
 		for (int b = 0; b < _element_list[a]._massList.size(); b++)
 		{
-			//_element_list[a]._massList[b].GetClosestPoint();
 			_element_list[a]._massList[b].GetClosestPoint4();
 		}
 
@@ -481,11 +471,11 @@ void StuffWorker::UpdateOgre3D()
 		_element_list[a].UpdateBoundaryDisplayOgre3D();
 		_element_list[a].UpdateDockLinesOgre3D();
 		_element_list[a].UpdateDebug34Ogre3D();
-		//_element_list[a].UpdateClosestPtsDisplayOgre3D();
+		_element_list[a].UpdateClosestPtsDisplayOgre3D();
 	}
 
 	StuffWorker::_c_grid_3d->UpdateOgre3D();
-	_element_list[0].UpdateClosestPtsDisplayOgre3D();
+	//_element_list[0].UpdateClosestPtsDisplayOgre3D();
 	//_element_list[0].UpdateClosestSliceOgre3D();
 
 }

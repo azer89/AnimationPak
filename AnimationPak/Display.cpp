@@ -142,6 +142,7 @@ bool Display::frameStarted(const Ogre::FrameEvent& evt)
 	//if (ImGui::Button("Button C")) {}
 
 	
+	ImGui::Checkbox("Show element boundaries", &SystemParams::_show_element_boundaries);
 	ImGui::Checkbox("Show repulsion forces", &SystemParams::_show_repulsion_forces);
 	ImGui::Checkbox("Show grid", &SystemParams::_show_collision_grid);
 	if (ImGui::Checkbox("Show time springs", &SystemParams::_show_time_springs))

@@ -1079,27 +1079,35 @@ void AnElement::UpdateDockLinesOgre3D()
 
 void AnElement::UpdateBoundaryDisplayOgre3D()
 {
-	int idx = 0;
-
-	for (int l = 0; l < SystemParams::_num_layer; l++)
+	if(SystemParams::_show_element_boundaries)
 	{
-		int layerOffset = l * _numPointPerLayer;
-		for (int b = 0; b < _numBoundaryPointPerLayer; b++)
-		{
-			int massIdx1 = b + layerOffset;
-			int massIdx2 = b + layerOffset + 1;
-			if (b == _numBoundaryPointPerLayer - 1)
-			{
-				massIdx2 = layerOffset;
-			}
-			A3DVector pt1 = _massList[massIdx1]._pos;
-			A3DVector pt2 = _massList[massIdx2]._pos;
-			_debug_lines->setPoint(idx++, Ogre::Vector3(pt1._x, pt1._y, pt1._z));
-			_debug_lines->setPoint(idx++, Ogre::Vector3(pt2._x, pt2._y, pt2._z));
-		}
-	}
+		_debugNode->setVisible(true);
+		int idx = 0;
 
-	_debug_lines->update();
+		for (int l = 0; l < SystemParams::_num_layer; l++)
+		{
+			int layerOffset = l * _numPointPerLayer;
+			for (int b = 0; b < _numBoundaryPointPerLayer; b++)
+			{
+				int massIdx1 = b + layerOffset;
+				int massIdx2 = b + layerOffset + 1;
+				if (b == _numBoundaryPointPerLayer - 1)
+				{
+					massIdx2 = layerOffset;
+				}
+				A3DVector pt1 = _massList[massIdx1]._pos;
+				A3DVector pt2 = _massList[massIdx2]._pos;
+				_debug_lines->setPoint(idx++, Ogre::Vector3(pt1._x, pt1._y, pt1._z));
+				_debug_lines->setPoint(idx++, Ogre::Vector3(pt2._x, pt2._y, pt2._z));
+			}
+		}
+
+		_debug_lines->update();
+	}
+	else
+	{
+		_debugNode->setVisible(false);
+	}
 
 	/*idx = 0;
 	for (int a = 0; a < _dock_mass_idx.size(); a++)

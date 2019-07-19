@@ -143,15 +143,17 @@ bool Display::frameStarted(const Ogre::FrameEvent& evt)
 
 	
 	ImGui::Checkbox("Show element boundaries", &SystemParams::_show_element_boundaries);
-	ImGui::Checkbox("Show repulsion forces", &SystemParams::_show_repulsion_forces);
+	ImGui::Checkbox("Show exact repulsion forces", &SystemParams::_show_exact_repulsion_forces);
+	ImGui::Checkbox("Show approx repulsion forces", &SystemParams::_show_approx_repulsion_forces);
 	ImGui::Checkbox("Show grid", &SystemParams::_show_collision_grid);
-	if (ImGui::Checkbox("Show time springs", &SystemParams::_show_time_springs))
+	ImGui::Checkbox("Show time triangles", &SystemParams::_show_time_springs);
+	/*if (ImGui::Checkbox("Show time springs", &SystemParams::_show_time_springs))
 	{
 		for (int a = 0; a < _sWorker->_element_list.size(); a++)
 		{
 			_sWorker->_element_list[a].ShowTimeSprings(SystemParams::_show_time_springs);
 		}
-	}
+	}*/
 
 	ImGui::Text("Press C to activate or deactivate camera");
 
@@ -217,7 +219,7 @@ void Display::setup()
 	//_cameraNode->lookAt(Ogre::Vector3(250, 250, -250), Ogre::Node::TS_PARENT);
 
 	Ogre::Camera* cam = _scnMgr->createCamera("myCam");
-	cam->setNearClipDistance(5); // specific to this sample
+	cam->setNearClipDistance(0.1); // specific to this sample
 	cam->setAutoAspectRatio(true);
 	_cameraNode->attachObject(cam);
 	Ogre::Viewport* vp = getRenderWindow()->addViewport(cam);

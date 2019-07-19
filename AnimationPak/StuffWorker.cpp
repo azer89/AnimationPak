@@ -392,7 +392,7 @@ void StuffWorker::Solve()
 {
 	for (int a = 0; a < _element_list.size(); a++)
 	{
-		_element_list[a].SolveForSprings2D();
+		_element_list[a].SolveForSprings3D();
 
 		for (int b = 0; b < _element_list[a]._massList.size(); b++)
 		{
@@ -470,7 +470,7 @@ void StuffWorker::UpdateOgre3D()
 		//_element_list[a].UpdateSpringDisplayOgre3D();
 		_element_list[a].UpdateBoundaryDisplayOgre3D();
 		_element_list[a].UpdateDockLinesOgre3D();
-		_element_list[a].UpdateDebug34Ogre3D();
+		_element_list[a].UpdateTimeTriangleOgre3D();
 		_element_list[a].UpdateClosestPtsDisplayOgre3D();
 	}
 

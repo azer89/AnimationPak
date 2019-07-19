@@ -43,7 +43,7 @@ _bin_square_size         = 25; -- 25
 --- 2 means considering all cells that are 2 block away from the query (5x5)
 --_collission_block_radius = 1;   -- one means checking 3x3 
 _grid_radius_1 = 1;
-_grid_radius_2 = 3;
+_grid_radius_2 = 2;
 
 -- check A3DSquare.h and Mass.cpp
 -- if error, use Demug mode to detect array out of bound

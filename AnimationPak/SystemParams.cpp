@@ -141,6 +141,7 @@ int SystemParams::_num_element_pos_limit = 0;
 
 // viz
 bool SystemParams::_show_element_boundaries = true;
-bool SystemParams::_show_repulsion_forces = false;
+bool SystemParams::_show_exact_repulsion_forces = false;
+bool SystemParams::_show_approx_repulsion_forces = false;
 bool SystemParams::_show_collision_grid = false;
 bool SystemParams::_show_time_springs = false;

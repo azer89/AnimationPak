@@ -862,7 +862,7 @@ void AnElement::InitMeshOgre3D(Ogre::SceneManager* sceneMgr,
 
 	// ---------- boundary ----------
 	//In the initialization somewhere, create the initial lines object :
-	_debug_lines = new DynamicLines(line_material, Ogre::RenderOperation::OT_LINE_LIST);
+	_boundary_lines = new DynamicLines(line_material, Ogre::RenderOperation::OT_LINE_LIST);
 	for (int l = 0; l < SystemParams::_num_layer; l++)
 	{
 		int layerOffset = l * _numPointPerLayer;
@@ -876,13 +876,13 @@ void AnElement::InitMeshOgre3D(Ogre::SceneManager* sceneMgr,
 			}
 			A3DVector pt1 = _massList[massIdx1]._pos;
 			A3DVector pt2 = _massList[massIdx2]._pos;
-			_debug_lines->addPoint(Ogre::Vector3(pt1._x, pt1._y, pt1._z));
-			_debug_lines->addPoint(Ogre::Vector3(pt2._x, pt2._y, pt2._z));
+			_boundary_lines->addPoint(Ogre::Vector3(pt1._x, pt1._y, pt1._z));
+			_boundary_lines->addPoint(Ogre::Vector3(pt2._x, pt2._y, pt2._z));
 		}
 	}	
-	_debug_lines->update();
-	_debugNode = _sceneMgr->getRootSceneNode()->createChildSceneNode("debug_lines_" + std::to_string(_elem_idx));
-	_debugNode->attachObject(_debug_lines);
+	_boundary_lines->update();
+	_boundary_node = _sceneMgr->getRootSceneNode()->createChildSceneNode("debug_lines_" + std::to_string(_elem_idx));
+	_boundary_node->attachObject(_boundary_lines);
 	// ---------- boundary ----------
 
 	// closest point approx debug
@@ -907,18 +907,18 @@ void AnElement::InitMeshOgre3D(Ogre::SceneManager* sceneMgr,
 	{
 		Ogre::MaterialPtr line_material_2 = Ogre::MaterialManager::getSingleton().getByName("Examples/RedMat")->clone("DockLines" + std::to_string(_elem_idx));
 		line_material_2->getTechnique(0)->getPass(0)->setDiffuse(Ogre::ColourValue(1, 0, 0, 1));
-		_debug_lines_2 = new DynamicLines(line_material_2, Ogre::RenderOperation::OT_LINE_LIST);
+		_dock_lines = new DynamicLines(line_material_2, Ogre::RenderOperation::OT_LINE_LIST);
 
 		for (int a = 0; a < _dock_mass_idx.size(); a++)
 		{
 			int massIdx = _dock_mass_idx[a];
-			_debug_lines_2->addPoint(Ogre::Vector3(_massList[massIdx]._pos._x, _massList[massIdx]._pos._y, _massList[massIdx]._pos._z));
-			_debug_lines_2->addPoint(Ogre::Vector3(_massList[massIdx]._dockPoint._x, _massList[massIdx]._dockPoint._y, _massList[massIdx]._dockPoint._z));
+			_dock_lines->addPoint(Ogre::Vector3(_massList[massIdx]._pos._x, _massList[massIdx]._pos._y, _massList[massIdx]._pos._z));
+			_dock_lines->addPoint(Ogre::Vector3(_massList[massIdx]._dockPoint._x, _massList[massIdx]._dockPoint._y, _massList[massIdx]._dockPoint._z));
 		}
 
-		_debug_lines_2->update();
-		_debugNode_2 = _sceneMgr->getRootSceneNode()->createChildSceneNode("debug_lines_2_" + std::to_string(_elem_idx));
-		_debugNode_2->attachObject(_debug_lines_2);
+		_dock_lines->update();
+		_dock_node = _sceneMgr->getRootSceneNode()->createChildSceneNode("debug_lines_2_" + std::to_string(_elem_idx));
+		_dock_node->attachObject(_dock_lines);
 	}
 
 	// ---------- debug	----------
@@ -990,7 +990,7 @@ void AnElement::InitMeshOgre3D(Ogre::SceneManager* sceneMgr,
 	// another debug
 	//Ogre::MaterialPtr line_material_4 = Ogre::MaterialManager::getSingleton().getByName("Examples/RedMat")->clone("ClosestLines" + std::to_string(_elem_idx));
 	//line_material_4->getTechnique(0)->getPass(0)->setDiffuse(Ogre::ColourValue(1, 0, 0, 1));
-	_time_springs_debug_lines = new DynamicLines(line_material, Ogre::RenderOperation::OT_LINE_LIST);
+	_time_springs_lines = new DynamicLines(line_material, Ogre::RenderOperation::OT_LINE_LIST);
 
 	for (int b = 0; b < _timeTriangles.size(); b++)
 	{
@@ -999,20 +999,20 @@ void AnElement::InitMeshOgre3D(Ogre::SceneManager* sceneMgr,
 		_tempTri3[1] = _massList[_timeTriangles[b].idx1]._pos;
 		_tempTri3[2] = _massList[_timeTriangles[b].idx2]._pos;
 
-		_time_springs_debug_lines->addPoint( Ogre::Vector3(_tempTri3[0]._x, _tempTri3[0]._y, _tempTri3[0]._z) );
-		_time_springs_debug_lines->addPoint(Ogre::Vector3(_tempTri3[1]._x, _tempTri3[1]._y, _tempTri3[1]._z));
+		_time_springs_lines->addPoint( Ogre::Vector3(_tempTri3[0]._x, _tempTri3[0]._y, _tempTri3[0]._z) );
+		_time_springs_lines->addPoint(Ogre::Vector3(_tempTri3[1]._x, _tempTri3[1]._y, _tempTri3[1]._z));
 
-		_time_springs_debug_lines->addPoint(Ogre::Vector3(_tempTri3[1]._x, _tempTri3[1]._y, _tempTri3[1]._z));
-		_time_springs_debug_lines->addPoint(Ogre::Vector3(_tempTri3[2]._x, _tempTri3[2]._y, _tempTri3[2]._z));
+		_time_springs_lines->addPoint(Ogre::Vector3(_tempTri3[1]._x, _tempTri3[1]._y, _tempTri3[1]._z));
+		_time_springs_lines->addPoint(Ogre::Vector3(_tempTri3[2]._x, _tempTri3[2]._y, _tempTri3[2]._z));
 
-		_time_springs_debug_lines->addPoint(Ogre::Vector3(_tempTri3[2]._x, _tempTri3[2]._y, _tempTri3[2]._z));
-		_time_springs_debug_lines->addPoint(Ogre::Vector3(_tempTri3[0]._x, _tempTri3[0]._y, _tempTri3[0]._z));
+		_time_springs_lines->addPoint(Ogre::Vector3(_tempTri3[2]._x, _tempTri3[2]._y, _tempTri3[2]._z));
+		_time_springs_lines->addPoint(Ogre::Vector3(_tempTri3[0]._x, _tempTri3[0]._y, _tempTri3[0]._z));
 		
 	}
-	_time_springs_debug_lines->update();
-	_time_springs_debug_node = _sceneMgr->getRootSceneNode()->createChildSceneNode("_time_springs_debug_lines_" + std::to_string(_elem_idx));
-	_time_springs_debug_node->attachObject(_time_springs_debug_lines);
-	_time_springs_debug_lines->setVisible(SystemParams::_show_time_springs);
+	_time_springs_lines->update();
+	_time_springs_node = _sceneMgr->getRootSceneNode()->createChildSceneNode("_time_springs_debug_lines_" + std::to_string(_elem_idx));
+	_time_springs_node->attachObject(_time_springs_lines);
+	_time_springs_lines->setVisible(SystemParams::_show_time_springs);
 
 
 
@@ -1070,18 +1070,18 @@ void AnElement::UpdateDockLinesOgre3D()
 		int idx1 = a * 2;
 		int idx2 = idx1 + 1;
 		int massIdx = _dock_mass_idx[a];
-		_debug_lines_2->setPoint(idx1, Ogre::Vector3(_massList[massIdx]._pos._x, _massList[massIdx]._pos._y, _massList[massIdx]._pos._z));
-		_debug_lines_2->setPoint(idx2, Ogre::Vector3(_massList[massIdx]._dockPoint._x, _massList[massIdx]._dockPoint._y, _massList[massIdx]._dockPoint._z));
+		_dock_lines->setPoint(idx1, Ogre::Vector3(_massList[massIdx]._pos._x, _massList[massIdx]._pos._y, _massList[massIdx]._pos._z));
+		_dock_lines->setPoint(idx2, Ogre::Vector3(_massList[massIdx]._dockPoint._x, _massList[massIdx]._dockPoint._y, _massList[massIdx]._dockPoint._z));
 	}
 
-	_debug_lines_2->update();
+	_dock_lines->update();
 }
 
 void AnElement::UpdateBoundaryDisplayOgre3D()
 {
 	if(SystemParams::_show_element_boundaries)
 	{
-		_debugNode->setVisible(true);
+		_boundary_node->setVisible(true);
 		int idx = 0;
 
 		for (int l = 0; l < SystemParams::_num_layer; l++)
@@ -1097,51 +1097,29 @@ void AnElement::UpdateBoundaryDisplayOgre3D()
 				}
 				A3DVector pt1 = _massList[massIdx1]._pos;
 				A3DVector pt2 = _massList[massIdx2]._pos;
-				_debug_lines->setPoint(idx++, Ogre::Vector3(pt1._x, pt1._y, pt1._z));
-				_debug_lines->setPoint(idx++, Ogre::Vector3(pt2._x, pt2._y, pt2._z));
+				_boundary_lines->setPoint(idx++, Ogre::Vector3(pt1._x, pt1._y, pt1._z));
+				_boundary_lines->setPoint(idx++, Ogre::Vector3(pt2._x, pt2._y, pt2._z));
 			}
 		}
 
-		_debug_lines->update();
+		_boundary_lines->update();
 	}
 	else
 	{
-		_debugNode->setVisible(false);
+		_boundary_node->setVisible(false);
 	}
-
-	/*idx = 0;
-	for (int a = 0; a < _dock_mass_idx.size(); a++)
-	{
-		int massIdx = _dock_mass_idx[a];
-		_debug_lines_2->setPoint(idx++, Ogre::Vector3(_massList[massIdx]._pos._x, _massList[massIdx]._pos._y, _massList[massIdx]._pos._z));
-		_debug_lines_2->setPoint(idx++, Ogre::Vector3(_massList[massIdx]._dockPoint._x, _massList[massIdx]._dockPoint._y, _massList[massIdx]._dockPoint._z));
-	}
-
-	_debug_lines_2->update();*/
 }
 
 void AnElement::ShowTimeSprings(bool yesno)
 {
-	_time_springs_debug_node->setVisible(yesno);
+	_time_springs_node->setVisible(yesno);
 }
 
-void AnElement::UpdateDebug34Ogre3D()
-{
-	/*int idx = 0;*/
-
-	/*for (int a = 0; a < _interp_triEdges.size(); a++)
-	{
-		if (_interp_triEdges[a]._isLayer2Layer) { continue; }
-
-		int idx1 = _interp_triEdges[a]._index0;
-		int idx2 = _interp_triEdges[a]._index1;
-		_debug_lines_3->setPoint(idx++, Ogre::Vector3(_interp_massList[idx1]._pos._x, _interp_massList[idx1]._pos._y, _interp_massList[idx1]._pos._z));
-		_debug_lines_3->setPoint(idx++, Ogre::Vector3(_interp_massList[idx2]._pos._x, _interp_massList[idx2]._pos._y, _interp_massList[idx2]._pos._z));
-	}*/
-
-	
+void AnElement::UpdateTimeTriangleOgre3D()
+{	
 	if(SystemParams::_show_time_springs)
 	{
+		_time_springs_node->setVisible(true);
 		int idx = 0;
 		for (int b = 0; b < _timeTriangles.size(); b++)
 		{
@@ -1150,85 +1128,22 @@ void AnElement::UpdateDebug34Ogre3D()
 			_tempTri3[1] = _massList[_timeTriangles[b].idx1]._pos;
 			_tempTri3[2] = _massList[_timeTriangles[b].idx2]._pos;
 
-			_time_springs_debug_lines->setPoint(idx++, Ogre::Vector3(_tempTri3[0]._x, _tempTri3[0]._y, _tempTri3[0]._z));
-			_time_springs_debug_lines->setPoint(idx++, Ogre::Vector3(_tempTri3[1]._x, _tempTri3[1]._y, _tempTri3[1]._z));
+			_time_springs_lines->setPoint(idx++, Ogre::Vector3(_tempTri3[0]._x, _tempTri3[0]._y, _tempTri3[0]._z));
+			_time_springs_lines->setPoint(idx++, Ogre::Vector3(_tempTri3[1]._x, _tempTri3[1]._y, _tempTri3[1]._z));
 
-			_time_springs_debug_lines->setPoint(idx++, Ogre::Vector3(_tempTri3[1]._x, _tempTri3[1]._y, _tempTri3[1]._z));
-			_time_springs_debug_lines->setPoint(idx++, Ogre::Vector3(_tempTri3[2]._x, _tempTri3[2]._y, _tempTri3[2]._z));
+			_time_springs_lines->setPoint(idx++, Ogre::Vector3(_tempTri3[1]._x, _tempTri3[1]._y, _tempTri3[1]._z));
+			_time_springs_lines->setPoint(idx++, Ogre::Vector3(_tempTri3[2]._x, _tempTri3[2]._y, _tempTri3[2]._z));
 
-			_time_springs_debug_lines->setPoint(idx++, Ogre::Vector3(_tempTri3[2]._x, _tempTri3[2]._y, _tempTri3[2]._z));
-			_time_springs_debug_lines->setPoint(idx++, Ogre::Vector3(_tempTri3[0]._x, _tempTri3[0]._y, _tempTri3[0]._z));
+			_time_springs_lines->setPoint(idx++, Ogre::Vector3(_tempTri3[2]._x, _tempTri3[2]._y, _tempTri3[2]._z));
+			_time_springs_lines->setPoint(idx++, Ogre::Vector3(_tempTri3[0]._x, _tempTri3[0]._y, _tempTri3[0]._z));
 		}
-		_time_springs_debug_lines->update();
+		_time_springs_lines->update();
 	}
-
-	/*for (int a = 0; a < _interp_auxiliaryEdges.size(); a++)
+	else
 	{
-		int idx1 = _interp_auxiliaryEdges[a]._index0;
-		int idx2 = _interp_auxiliaryEdges[a]._index1;
-		_debug_lines_3->setPoint(idx++, Ogre::Vector3(_interp_massList[idx1]._pos._x, _interp_massList[idx1]._pos._y, _interp_massList[idx1]._pos._z));
-		_debug_lines_3->setPoint(idx++, Ogre::Vector3(_interp_massList[idx2]._pos._x, _interp_massList[idx2]._pos._y, _interp_massList[idx2]._pos._z));
-	}*/
-	// first 
-	// first index is from original, second index is from interpolation
-	/*for (int a = 0; a < _timeEdgesA.size(); a++)
-	{
-		int idx1 = _timeEdgesA[a]._index0;
-		int idx2 = _timeEdgesA[a]._index1;
-		_debug_lines_3->setPoint(idx++, Ogre::Vector3(_massList[idx1]._pos._x, _massList[idx1]._pos._y, _massList[idx1]._pos._z));
-		_debug_lines_3->setPoint(idx++, Ogre::Vector3(_interp_massList[idx2]._pos._x, _interp_massList[idx2]._pos._y, _interp_massList[idx2]._pos._z));
+		_time_springs_node->setVisible(false);
 	}
-	// last
-	// first index is from interpolation, second index is from original
-	for (int a = 0; a < _timeEdgesB.size(); a++)
-	{
-		int idx1 = _timeEdgesB[a]._index0;
-		int idx2 = _timeEdgesB[a]._index1;
-		_debug_lines_3->setPoint(idx++, Ogre::Vector3(_interp_massList[idx1]._pos._x, _interp_massList[idx1]._pos._y, _interp_massList[idx1]._pos._z));
-		_debug_lines_3->setPoint(idx++, Ogre::Vector3(_massList[idx2]._pos._x, _massList[idx2]._pos._y, _massList[idx2]._pos._z));
-	}*/
-
-
-	//_debug_lines_3->update();
-
 	
-	
-	// 4
-	/*_debug_lines_4->clear();
-	for (int b = 0; b < _massList.size(); b++)
-	{
-		for (int c = 0; c < _massList[b]._closestPoints3D.size(); c++)
-		{
-			A3DVector pt1 = _massList[b]._pos;
-			A3DVector pt2 = _massList[b]._closestPoints3D[c];
-			//A3DVector pt2(pt22D.x, pt22D.y, pt1._z);
-
-			_debug_lines_4->addPoint(Ogre::Vector3(pt1._x, pt1._y, pt1._z));
-			_debug_lines_4->addPoint(Ogre::Vector3(pt2._x, pt2._y, pt2._z));
-		}
-	}
-	_debug_lines_4->update();
-	*/
-
-	/*float iter = 0;
-	for (int b = 0; b < _timeTriangles.size(); b++)
-	{
-		std::vector<A3DVector> tri;
-		_tempTri3[0] = _massList[_timeTriangles[b].idx0]._pos;
-		_tempTri3[1] = _massList[_timeTriangles[b].idx1]._pos;
-		_tempTri3[2] = _massList[_timeTriangles[b].idx2]._pos;
-
-		_debug_lines_4->setPoint(iter++, Ogre::Vector3(_tempTri3[0]._x, _tempTri3[0]._y, _tempTri3[0]._z));
-		_debug_lines_4->setPoint(iter++, Ogre::Vector3(_tempTri3[1]._x, _tempTri3[1]._y, _tempTri3[1]._z));
-
-		_debug_lines_4->setPoint(iter++, Ogre::Vector3(_tempTri3[1]._x, _tempTri3[1]._y, _tempTri3[1]._z));
-		_debug_lines_4->setPoint(iter++, Ogre::Vector3(_tempTri3[2]._x, _tempTri3[2]._y, _tempTri3[2]._z));
-
-		_debug_lines_4->setPoint(iter++, Ogre::Vector3(_tempTri3[2]._x, _tempTri3[2]._y, _tempTri3[2]._z));
-		_debug_lines_4->setPoint(iter++, Ogre::Vector3(_tempTri3[0]._x, _tempTri3[0]._y, _tempTri3[0]._z));
-
-	}
-	_debug_lines_4->update();*/
 }
 
 void AnElement::UpdateSpringDisplayOgre3D()
@@ -1913,10 +1828,9 @@ void AnElement::Interp_SolveForSprings2D()
 	}
 }
 
+// 22222222222222222222222222222222
 void AnElement::SolveForSprings2D()
 {
-	//float k_edge = SystemParams::_k_edge;
-
 	A2DVector pt0;
 	A2DVector pt1;
 	A2DVector dir;
@@ -1925,9 +1839,7 @@ void AnElement::SolveForSprings2D()
 	float diff = 0;
 	float k = 0;
 
-	// PLEASE UNCOMMENT ME
-	// PLEASE FIX ME
-
+	// 222222222222222222222222222222222222222222222222
 	for (unsigned int a = 0; a < _triEdges.size(); a++)
 	{
 		int idx0 = _triEdges[a]._index0;
@@ -1935,61 +1847,33 @@ void AnElement::SolveForSprings2D()
 
 		pt0 = _massList[idx0]._pos.GetA2DVector();
 		pt1 = _massList[idx1]._pos.GetA2DVector();
-				
-		//if (_triEdges[a]._isLayer2Layer)
-		/*{
-			k = SystemParams::_k_time_edge;
-			dist = pt0.Distance(pt1);
-			dir = pt0.DirectionTo(pt1).Norm();
-			diff = dist - _triEdges[a]._dist;
-		}*/
-		//else
+
 
 		if (_triEdges[a]._isLayer2Layer)
 		{
 			k = SystemParams::_k_time_edge;
-			//std::cout << ">";
-			//if (_predefined_time_path)
-			//{
-			//	k *= 200;
-			//}
-			//else if (_scale > 3.0f)
-			//{
-			//	k *= 0.25;
-			//}
 		}
 		else
 		{
 			k = SystemParams::_k_edge;
 
+
+			// TODO: Nasty code here
 			if (_scale < 3.0f)
 			{
 				k *= 50;
 			}
 		}
-
-		//{
 			
 		dir = pt0.DirectionTo(pt1);
-		//dir._z = 0;
+
 		dir = dir.Norm();
 		dist = pt0.Distance(pt1);
 		diff = dist - _triEdges[a]._dist;
-		//}
-		
-		/*float signVal = 1;
-		if (diff < 0) { signVal = -1; }
-		eForce = (dir * k *  signVal * diff * diff);
-		*/
+
 
 		eForce = dir * k *  diff;
 
-		// 2D
-		/*if(_triEdges[a]._isLayer2Layer)
-		{
-			//eForce._z = 0;
-			//eForce = eForce.Norm();
-		}*/
 		if (!eForce.IsBad())
 		{
 			_massList[idx0]._edgeForce += A3DVector(eForce.x, eForce.y, 0);	// _massList[idx0]._distToBoundary;
@@ -1997,6 +1881,7 @@ void AnElement::SolveForSprings2D()
 		}
 	}
 
+	// 222222222222222222222222222222222222222222222222222222
 	for (unsigned int a = 0; a < _auxiliaryEdges.size(); a++)
 	{
 		int idx0 = _auxiliaryEdges[a]._index0;
@@ -2008,6 +1893,7 @@ void AnElement::SolveForSprings2D()
 		
 		k = SystemParams::_k_edge;
 
+		// TODO: Nasty code here
 		if (_scale < 3.0f)
 		{
 			k *= 5;
@@ -2028,19 +1914,22 @@ void AnElement::SolveForSprings2D()
 	}
 }
 
+// 33333333333333333333333333333333
 void AnElement::SolveForSprings3D()
 {
-	//float k_edge = SystemParams::_k_edge;
-
 	A3DVector pt0;
 	A3DVector pt1;
 	A3DVector dir;
-	A3DVector unit_dir;
 	A3DVector eForce;
 	float dist = 0;
 	float diff = 0;
 	float k = 0;
 
+	// TODO: Nasty code here
+	float small_scale = 3.0f;
+	float small_factor = 10.0f;
+
+	// 333333333333333333333333333333333333333333333333
 	for (unsigned int a = 0; a < _triEdges.size(); a++)
 	{
 		int idx0 = _triEdges[a]._index0;
@@ -2049,6 +1938,7 @@ void AnElement::SolveForSprings3D()
 		pt0 = _massList[idx0]._pos;
 		pt1 = _massList[idx1]._pos;
 
+
 		if (_triEdges[a]._isLayer2Layer)
 		{
 			k = SystemParams::_k_time_edge;
@@ -2056,36 +1946,71 @@ void AnElement::SolveForSprings3D()
 		else
 		{
 			k = SystemParams::_k_edge;
+
+
+			// TODO: Nasty code here
+			if (_scale < small_scale)
+			{
+				k *= small_factor;
+			}
 		}
 
-		//{
-
 		dir = pt0.DirectionTo(pt1);
-		//dir = dir.Norm();
-		//dist = pt0.Distance(pt1);
-		dir.GetUnitAndDist(unit_dir, dist);
 
+		dir = dir.Norm();
+		dist = pt0.Distance(pt1);
 		diff = dist - _triEdges[a]._dist;
 
-		eForce = unit_dir * k *  diff;
+
+		eForce = dir * k *  diff;
+
 		if (!eForce.IsBad())
 		{
-			_massList[idx0]._edgeForce += eForce;	// _massList[idx0]._distToBoundary;
-			_massList[idx1]._edgeForce -= eForce;	// _massList[idx1]._distToBoundary;
+			_massList[idx0]._edgeForce += eForce;	
+			_massList[idx1]._edgeForce -= eForce;
+		}
+	}
+
+	// 333333333333333333333333333333333333333333333333333333
+	for (unsigned int a = 0; a < _auxiliaryEdges.size(); a++)
+	{
+		int idx0 = _auxiliaryEdges[a]._index0;
+		int idx1 = _auxiliaryEdges[a]._index1;
+
+		pt0 = _massList[idx0]._pos;
+		pt1 = _massList[idx1]._pos;
+
+
+		k = SystemParams::_k_edge;
+
+		// TODO: Nasty code here
+		if (_scale < small_scale)
+		{
+			k *= small_factor;
+		}
+
+		dir = pt0.DirectionTo(pt1);
+		dir = dir.Norm();
+		dist = pt0.Distance(pt1);
+		diff = dist - _auxiliaryEdges[a]._dist;
+
+		eForce = dir * k *  diff;
+
+		if (!eForce.IsBad())
+		{
+			_massList[idx0]._edgeForce += eForce;	
+			_massList[idx1]._edgeForce -= eForce;	
 		}
 	}
 }
 
 
-void AnElement::UpdatePerLayerBoundaryOgre3D()
+/*void AnElement::UpdatePerLayerBoundaryOgre3D()
 {
-	//_debug_points.clear();
 	_debug_lines->clear();
 
 	float zOffset = -(SystemParams::_upscaleFactor / (SystemParams::_num_layer - 1));
-	//int elem_sz = _sWorker->_element_list.size();
-	//for (int a = 0; a < elem_sz; a++) // iterate element
-	//{
+
 	for (int b = 0; b < SystemParams::_num_layer; b++) // iterate layer
 	{
 		float zPos = b * zOffset;
@@ -2112,33 +2037,37 @@ void AnElement::UpdatePerLayerBoundaryOgre3D()
 	}
 	//}
 	_debug_lines->update();
-}
+}*/
 
 void AnElement::UpdateClosestPtsDisplayOgre3D()
 {
 	_closet_pt_lines->clear();
 	_closet_pt_approx_lines->clear();
 
-	if(SystemParams::_show_repulsion_forces)
+	if(SystemParams::_show_exact_repulsion_forces)
 	{
 		for (int b = 0; b < _massList.size(); b++)
 		{
-
+			A3DVector pt1 = _massList[b]._pos;
+			for (int c = 0; c < _massList[b]._c_pts_fill_size; c++)
 			{
-				A3DVector pt1 = _massList[b]._pos;
-				for (int c = 0; c < _massList[b]._c_pts_fill_size; c++)
-				{
-					A3DVector pt2(_massList[b]._c_pts[c]._x, _massList[b]._c_pts[c]._y, _massList[b]._c_pts[c]._z);
-					_closet_pt_lines->addPoint(Ogre::Vector3(pt1._x, pt1._y, pt1._z));
-					_closet_pt_lines->addPoint(Ogre::Vector3(pt2._x, pt2._y, pt2._z));
-				}
+				A3DVector pt2(_massList[b]._c_pts[c]._x, _massList[b]._c_pts[c]._y, _massList[b]._c_pts[c]._z);
+				_closet_pt_lines->addPoint(Ogre::Vector3(pt1._x, pt1._y, pt1._z));
+				_closet_pt_lines->addPoint(Ogre::Vector3(pt2._x, pt2._y, pt2._z));
+			}
+		}
+	}
 
-				for (int c = 0; c < _massList[b]._c_pts_approx_fill_size; c++)
-				{
-					A3DVector pt2(_massList[b]._c_pts_approx[c].first._x, _massList[b]._c_pts_approx[c].first._y, _massList[b]._c_pts_approx[c].first._z);
-					_closet_pt_approx_lines->addPoint(Ogre::Vector3(pt1._x, pt1._y, pt1._z));
-					_closet_pt_approx_lines->addPoint(Ogre::Vector3(pt2._x, pt2._y, pt2._z));
-				}
+	if (SystemParams::_show_approx_repulsion_forces)
+	{
+		for (int b = 0; b < _massList.size(); b++)
+		{
+			A3DVector pt1 = _massList[b]._pos;
+			for (int c = 0; c < _massList[b]._c_pts_approx_fill_size; c++)
+			{
+				A3DVector pt2(_massList[b]._c_pts_approx[c].first._x, _massList[b]._c_pts_approx[c].first._y, _massList[b]._c_pts_approx[c].first._z);
+				_closet_pt_approx_lines->addPoint(Ogre::Vector3(pt1._x, pt1._y, pt1._z));
+				_closet_pt_approx_lines->addPoint(Ogre::Vector3(pt2._x, pt2._y, pt2._z));
 			}
 		}
 	}

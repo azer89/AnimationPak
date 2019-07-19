@@ -72,7 +72,8 @@ public:
 
 	// viz
 	static bool _show_element_boundaries;
-	static bool _show_repulsion_forces;
+	static bool _show_exact_repulsion_forces;
+	static bool _show_approx_repulsion_forces;
 	static bool _show_collision_grid;
 	static bool _show_time_springs;
 };

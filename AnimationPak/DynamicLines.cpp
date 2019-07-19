@@ -99,6 +99,7 @@ void DynamicLines::fillHardwareBuffers()
 
 	if (!size) {
 		mBox.setExtents(Vector3::ZERO, Vector3::ZERO);
+		mBox.setExtents(Vector3(-10000, -10000, -10000), Vector3(10000, 10000, 10000));  // Reza's hack to prevent cutting
 		mDirty = false;
 		return;
 	}
@@ -135,6 +136,8 @@ void DynamicLines::fillHardwareBuffers()
 	vbuf->unlock();
 
 	mBox.setExtents(vaabMin, vaabMax);
+	//mBox.setExtents(Vector3(0, 0, 0), Vector3(5, 5, 5));
+	mBox.setExtents(Vector3(-10000, -10000, -10000), Vector3(10000, 10000, 10000)); // Reza's hack to prevent cutting
 
 	mDirty = false;
 }

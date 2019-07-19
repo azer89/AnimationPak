@@ -90,12 +90,12 @@ public:
 						const Ogre::String& materialName);	
 	void UpdateMeshOgre3D();
 	void UpdateClosestPtsDisplayOgre3D();
-	void UpdatePerLayerBoundaryOgre3D();
+	//void UpdatePerLayerBoundaryOgre3D();
 	void UpdateSpringDisplayOgre3D();
 	void UpdateBoundaryDisplayOgre3D();
 	void UpdateDockLinesOgre3D();
 	void UpdateClosestSliceOgre3D();
-	void UpdateDebug34Ogre3D();
+	void UpdateTimeTriangleOgre3D();
 	// ---------- Ogre 3D ----------
 
 	// ----- interpolation ----- 
@@ -178,16 +178,16 @@ public:
 	DynamicLines*    _spring_lines;
 	Ogre::SceneNode* _springNode;
 
-	DynamicLines*    _debug_lines;
-	Ogre::SceneNode* _debugNode;
+	DynamicLines*    _boundary_lines;
+	Ogre::SceneNode* _boundary_node;
 
-	DynamicLines*    _debug_lines_2;
-	Ogre::SceneNode* _debugNode_2;
+	DynamicLines*    _dock_lines;
+	Ogre::SceneNode* _dock_node;
 	std::vector<int> _dock_mass_idx;
 
 	// testing time edges of interpolation 
-	DynamicLines*    _time_springs_debug_lines;
-	Ogre::SceneNode* _time_springs_debug_node;
+	DynamicLines*    _time_springs_lines;
+	Ogre::SceneNode* _time_springs_node;
 	//DynamicLines*    _debug_lines_3;
 	//Ogre::SceneNode* _debugNode_3;
 

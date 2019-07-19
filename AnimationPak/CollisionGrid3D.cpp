@@ -515,32 +515,47 @@ void CollisionGrid3D::MovePoints()
 
 void CollisionGrid3D::InitOgre3D(Ogre::SceneManager* sceneMgr)
 {
-	// material
-	//Ogre::MaterialPtr empty_material = Ogre::MaterialManager::getSingleton().getByName("Examples/RedMat")->clone("EmptyCCLines");
-	//empty_material->getTechnique(0)->getPass(0)->setDiffuse(Ogre::ColourValue(0, 0, 0, 1));
-
 	// object viz
 	Ogre::MaterialPtr plus_material = Ogre::MaterialManager::getSingleton().getByName("Examples/RedMat")->clone("PlusColissionGridLines");
-	plus_material->getTechnique(0)->getPass(0)->setDiffuse(Ogre::ColourValue(0, 0, 0, 1));
+	plus_material->getTechnique(0)->getPass(0)->setDiffuse(Ogre::ColourValue(1, 0, 0, 1));
 	_plus_lines = new DynamicLines(plus_material, Ogre::RenderOperation::OT_LINE_LIST);
+	/*for (unsigned int a = 0; a < _squares.size(); a++)
+	{
+		if (_squares[a]->_objects.size() > 0)
+		{
+			for (unsigned int b = 0; b < _squares[a]->_objects.size(); b++)
+			{
+				A3DVector pos(_squares[a]->_objects[b]->_x, _squares[a]->_objects[b]->_y, -_squares[a]->_objects[b]->_z);
+
+				_plus_lines->addPoint(pos._x - 0.5, pos._y, pos._z);
+				_plus_lines->addPoint(pos._x + 0.5, pos._y, pos._z);
+				_plus_lines->addPoint(pos._x, pos._y - 0.5, pos._z);
+				_plus_lines->addPoint(pos._x, pos._y + 0.5, pos._z);
+			}
+		}
+	}*/
 	_plus_lines->update();
 	_plus_node = sceneMgr->getRootSceneNode()->createChildSceneNode("plus_lines_node");
 	_plus_node->attachObject(_plus_lines);
 
 	// box viz
 	Ogre::MaterialPtr filled_material = Ogre::MaterialManager::getSingleton().getByName("Examples/RedMat")->clone("FilledColissionGridLines");
-	filled_material->getTechnique(0)->getPass(0)->setDiffuse(Ogre::ColourValue(1, 0, 0, 1));
+	filled_material->getTechnique(0)->getPass(0)->setDiffuse(Ogre::ColourValue(0, 1, 0, 1));
 	_filled_lines = new DynamicLines(filled_material, Ogre::RenderOperation::OT_LINE_LIST);
 	_filled_lines->update();
 	_filled_node = sceneMgr->getRootSceneNode()->createChildSceneNode("filled_lines_node");
 	_filled_node->attachObject(_filled_lines);
 
 
+	//_plus_node->showBoundingBox(true);
+	//_filled_node->showBoundingBox(true);
 	//_plus_lines->setBoundingBox(Ogre::AxisAlignedBox(-1000000, -1000000, -1000000, 1000000, 1000000, 1000000));
 	//_filled_lines->setBoundingBox(Ogre::AxisAlignedBox(-1000000, -1000000, -1000000, 1000000, 1000000, 1000000));
+	_plus_lines->setBoundingBox(Ogre::AxisAlignedBox(0, 0, 0, 1, 1, 1));
+	_filled_lines->setBoundingBox(Ogre::AxisAlignedBox(0, 0, 0, 1, 1, 1));
 	// ::EXTENT_INFINITE
-	_plus_lines->setBoundingBox(Ogre::AxisAlignedBox::EXTENT_INFINITE);
-	_filled_lines->setBoundingBox(Ogre::AxisAlignedBox::EXTENT_INFINITE);
+	//_plus_lines->setBoundingBox(Ogre::AxisAlignedBox::EXTENT_INFINITE);
+	//_filled_lines->setBoundingBox(Ogre::AxisAlignedBox::EXTENT_INFINITE);
 	
 }
 
@@ -550,6 +565,7 @@ void CollisionGrid3D::UpdateOgre3D()
 	_filled_lines->clear();
 
 	float plus_offset = 0.5;
+	//int plus_iter = 0;
 
 	// do something
 	//int empty_iter = 0;
@@ -557,7 +573,8 @@ void CollisionGrid3D::UpdateOgre3D()
 
 	if (SystemParams::_show_collision_grid)
 	{
-
+		//_plus_node->setVisible(true);
+		//_filled_node->setVisible(true);
 		for (unsigned int a = 0; a < _squares.size(); a++)
 		{
 			if (_squares[a]->_objects.size() > 0)
@@ -598,11 +615,21 @@ void CollisionGrid3D::UpdateOgre3D()
 					_plus_lines->addPoint(pos._x + plus_offset, pos._y, pos._z);
 					_plus_lines->addPoint(pos._x, pos._y - plus_offset, pos._z);
 					_plus_lines->addPoint(pos._x, pos._y + plus_offset, pos._z);
+
+					/*_plus_lines->setPoint(plus_iter++, Ogre::Vector3(pos._x - plus_offset, pos._y, pos._z));
+					_plus_lines->setPoint(plus_iter++, Ogre::Vector3(pos._x + plus_offset, pos._y, pos._z));
+					_plus_lines->setPoint(plus_iter++, Ogre::Vector3(pos._x, pos._y - plus_offset, pos._z));
+					_plus_lines->setPoint(plus_iter++, Ogre::Vector3(pos._x, pos._y + plus_offset, pos._z));*/
 				}
 			}
 
 		}
 
+	}
+	else
+	{
+		//_plus_node->setVisible(false);
+		//_filled_node->setVisible(false);
 	}
 	_plus_lines->update();
 	_filled_lines->update();

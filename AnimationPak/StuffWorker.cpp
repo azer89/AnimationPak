@@ -377,7 +377,7 @@ void StuffWorker::Reset()
 
 void StuffWorker::Interp_Solve()
 {
-	for (int a = 0; a < _element_list.size(); a++)
+	/*for (int a = 0; a < _element_list.size(); a++)
 	{
 		_element_list[a].Interp_SolveForSprings2D();
 
@@ -385,7 +385,7 @@ void StuffWorker::Interp_Solve()
 		{
 			_element_list[a]._interp_massList[b].Solve(_containerWorker->_2d_container);
 		}
-	}
+	}*/
 }
 
 void StuffWorker::Solve()
@@ -396,7 +396,7 @@ void StuffWorker::Solve()
 
 		for (int b = 0; b < _element_list[a]._massList.size(); b++)
 		{
-			_element_list[a]._massList[b].Solve(_containerWorker->_2d_container);
+			_element_list[a]._massList[b].Solve(_containerWorker->_2d_container, _element_list[a]);
 		}
 	}
 }
@@ -472,6 +472,7 @@ void StuffWorker::UpdateOgre3D()
 		_element_list[a].UpdateDockLinesOgre3D();
 		_element_list[a].UpdateTimeTriangleOgre3D();
 		_element_list[a].UpdateClosestPtsDisplayOgre3D();
+		_element_list[a].UpdateOverlapOgre3D();
 	}
 
 	StuffWorker::_c_grid_3d->UpdateOgre3D();

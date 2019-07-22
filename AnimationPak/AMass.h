@@ -11,6 +11,8 @@
 #include "CollisionGrid2D.h"
 #include "CollisionGrid3D.h"
 
+class AnElement;
+
 class AMass
 {
 public:
@@ -86,7 +88,7 @@ public:
 	void Init(); // reset forces to zero
 	void Simulate(float dt);
 	void Interp_Simulate(float dt); // debug delete me...
-	void Solve(const std::vector<A2DVector>& container);
+	void Solve(const std::vector<A2DVector>& container, AnElement& parentElem);
 
 	void ImposeConstraints();
 

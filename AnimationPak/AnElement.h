@@ -96,6 +96,7 @@ public:
 	void UpdateDockLinesOgre3D();
 	void UpdateClosestSliceOgre3D();
 	void UpdateTimeTriangleOgre3D();
+	void UpdateOverlapOgre3D();
 	// ---------- Ogre 3D ----------
 
 	// ----- interpolation ----- 
@@ -201,6 +202,11 @@ public:
 
 	DynamicLines*    _closet_pt_approx_lines;
 	Ogre::SceneNode* _closet_pt_approx_node;
+
+
+	// testing overlap
+	DynamicLines*    _overlap_lines;
+	Ogre::SceneNode* _overlap_node;
 
 	
 };

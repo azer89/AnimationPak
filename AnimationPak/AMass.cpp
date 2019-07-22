@@ -282,6 +282,11 @@ void AMass::GetClosestPoint4()
 	{
 		int layer_idx = StuffWorker::_element_list[closest_elem_idx]._timeTriangles[closest_tri_idx]._layer_idx;
 		_is_inside = StuffWorker::_element_list[closest_elem_idx].IsInside(layer_idx, _pos, _closest_boundary_slice);
+
+		/*if (_is_inside)
+		{
+			std::cout << "nooooo\n";
+		}*/
 	}
 
 	// ----- approx closest point -----
@@ -487,37 +492,57 @@ void AMass::Grow(float growth_scale_iter, float dt)
 	// nothing happens
 }
 
-void AMass::Solve(const std::vector<A2DVector>& container)
+void AMass::Solve(const std::vector<A2DVector>& container, AnElement& parentElem)
 {
-	//if (_self_idx % StuffWorker::_element_list[_parent_idx]._numPointPerLayer <  StuffWorker::_element_list[_parent_idx]._numBoundaryPointPerLayer)
-	if(_is_boundary && !_is_inside)
+	if(_is_boundary)
 	{
-		// ---------- REPULSION FORCE ----------
-
-		A3DVector sumR(0, 0, 0);
-		A3DVector dir;
-
-		for (int a = 0; a < _c_pts_fill_size; a++)
+		if (_is_inside)
 		{
-			dir = _c_pts[a].DirectionTo(_pos); // direction
+			// ---------- OVERLAP FORCE ----------
+			A3DVector sumO(0, 0, 0);
+			A3DVector ctrPt;
+			A3DVector dir;
+			for (unsigned int a = 0; a < _triangles.size(); a++)
+			{
+				ctrPt = (parentElem._massList[_triangles[a].idx0]._pos +        // triangle vertex
+						 parentElem._massList[_triangles[a].idx1]._pos +        // triangle vertex
+						 parentElem._massList[_triangles[a].idx2]._pos) / 3.0f; // triangle vertex
 
-			float distSq = dir.LengthSquared(); // distance
-			sumR += (dir.Norm() / (SystemParams::_repulsion_soft_factor + distSq));
+				dir = _pos.DirectionTo(ctrPt);
+				sumO += dir;
+			}
+			sumO *= SystemParams::_k_overlap;
+			if (!sumO.IsBad()) { this->_overlapForce += sumO; }
+		}
+		else
+		{
+			// ---------- REPULSION FORCE ----------
+			A3DVector sumR(0, 0, 0);
+			A3DVector dir;
+
+			for (int a = 0; a < _c_pts_fill_size; a++)
+			{
+				dir = _c_pts[a].DirectionTo(_pos); // direction
+
+				float distSq = dir.LengthSquared(); // distance
+				sumR += (dir.Norm() / (SystemParams::_repulsion_soft_factor + distSq));
+			}
+
+
+			for (int a = 0; a < _c_pts_approx_fill_size; a++)
+			{
+				dir = _c_pts_approx[a].first.DirectionTo(_pos); // direction
+				float distSq = dir.LengthSquared(); // distance
+				sumR += (dir.Norm() *_c_pts_approx[a].second / (SystemParams::_repulsion_soft_factor + distSq));
+			}
+
+			sumR *= SystemParams::_k_repulsion;
+			if (!sumR.IsBad())
+			{
+				this->_repulsionForce += A3DVector(sumR._x, sumR._y, sumR._z);
+			}
 		}
 		
-		/*
-		for (int a = 0; a < _c_pts_approx_fill_size; a++)
-		{
-			dir = _c_pts_approx[a].first.DirectionTo(_pos); // direction
-			float distSq = dir.LengthSquared(); // distance
-			sumR += (dir.Norm() *_c_pts_approx[a].second / (SystemParams::_repulsion_soft_factor + distSq));
-		}
-		*/
-		sumR *= SystemParams::_k_repulsion;
-		if (!sumR.IsBad())
-		{
-			this->_repulsionForce += A3DVector(sumR._x, sumR._y, sumR._z);
-		}
 	}
 
 	// ---------- BOUNDARY FORCE ----------

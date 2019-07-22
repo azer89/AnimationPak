@@ -815,53 +815,14 @@ void AnElement::InitMeshOgre3D(Ogre::SceneManager* sceneMgr,
 	float gVal = (float)(rand() % 255) / 255.0f;
 	float bVal = (float)(rand() % 255) / 255.0f;
 
-	_color = MyColor(rVal * 255, gVal * 255, bVal * 255);
+	this->_color = MyColor(rVal * 255, gVal * 255, bVal * 255);
 
-	/*_material = Ogre::MaterialManager::getSingleton().getByName(materialName)->clone(materialName + std::to_string(_self_idx));
-	_material->getTechnique(0)->getPass(0)->setDiffuse(Ogre::ColourValue(rVal, gVal, bVal, 1));
-
-	// clone material
-	//_material = Ogre::MaterialManager::getSingleton().getByName(materialName)->clone(materialName + std::to_string(_self_idx));
-	_tubeObject = _sceneMgr->createManualObject(name);
-	_tubeObject->setDynamic(true);
-
-	UpdateMeshOgre3D();
-
-	if (_sceneNode) _sceneNode->attachObject(_tubeObject);
-	else std::cout << "_sceneNode is null\n";*/
-
-	// material
+	
+	// ---------- material ----------
 	Ogre::MaterialPtr line_material = Ogre::MaterialManager::getSingleton().getByName("Examples/RedMat")->clone("ElementLines" + std::to_string(_elem_idx));	
 	line_material->getTechnique(0)->getPass(0)->setDiffuse(Ogre::ColourValue(rVal, gVal, bVal, 1));
 	
-	// ---------- springs ----------
-	/*_spring_lines = new DynamicLines(line_material, Ogre::RenderOperation::OT_LINE_LIST);
-	for (int a = 0; a < _triEdges.size(); a++)
-	{
-		AnIndexedLine ln = _triEdges[a];
-		//if (ln._isLayer2Layer) { continue; }
-
-		A3DVector pt1 = _massList[ln._index0]._pos;
-		A3DVector pt2 = _massList[ln._index1]._pos;
-		_spring_lines->addPoint(Ogre::Vector3(pt1._x, pt1._y, pt1._z));
-		_spring_lines->addPoint(Ogre::Vector3(pt2._x, pt2._y, pt2._z));
-	}
-	for (int a = 0; a < _auxiliaryEdges.size(); a++)
-	{
-		AnIndexedLine ln = _auxiliaryEdges[a];
-		
-		A3DVector pt1 = _massList[ln._index0]._pos;
-		A3DVector pt2 = _massList[ln._index1]._pos;
-		_spring_lines->addPoint(Ogre::Vector3(pt1._x, pt1._y, pt1._z));
-		_spring_lines->addPoint(Ogre::Vector3(pt2._x, pt2._y, pt2._z));
-	}
-	_spring_lines->update();
-	_springNode = _sceneMgr->getRootSceneNode()->createChildSceneNode("SpringNode" + std::to_string(_elem_idx));
-	_springNode->attachObject(_spring_lines);*/
-	// ---------- springs ----------
-
 	// ---------- boundary ----------
-	//In the initialization somewhere, create the initial lines object :
 	_boundary_lines = new DynamicLines(line_material, Ogre::RenderOperation::OT_LINE_LIST);
 	for (int l = 0; l < SystemParams::_num_layer; l++)
 	{
@@ -883,9 +844,32 @@ void AnElement::InitMeshOgre3D(Ogre::SceneManager* sceneMgr,
 	_boundary_lines->update();
 	_boundary_node = _sceneMgr->getRootSceneNode()->createChildSceneNode("debug_lines_" + std::to_string(_elem_idx));
 	_boundary_node->attachObject(_boundary_lines);
-	// ---------- boundary ----------
 
-	// closest point approx debug
+	// ---------- time triangles ----------
+	_time_springs_lines = new DynamicLines(line_material, Ogre::RenderOperation::OT_LINE_LIST);
+	for (int b = 0; b < _timeTriangles.size(); b++)
+	{
+		std::vector<A3DVector> tri;
+		_tempTri3[0] = _massList[_timeTriangles[b].idx0]._pos;
+		_tempTri3[1] = _massList[_timeTriangles[b].idx1]._pos;
+		_tempTri3[2] = _massList[_timeTriangles[b].idx2]._pos;
+
+		_time_springs_lines->addPoint(Ogre::Vector3(_tempTri3[0]._x, _tempTri3[0]._y, _tempTri3[0]._z));
+		_time_springs_lines->addPoint(Ogre::Vector3(_tempTri3[1]._x, _tempTri3[1]._y, _tempTri3[1]._z));
+
+		_time_springs_lines->addPoint(Ogre::Vector3(_tempTri3[1]._x, _tempTri3[1]._y, _tempTri3[1]._z));
+		_time_springs_lines->addPoint(Ogre::Vector3(_tempTri3[2]._x, _tempTri3[2]._y, _tempTri3[2]._z));
+
+		_time_springs_lines->addPoint(Ogre::Vector3(_tempTri3[2]._x, _tempTri3[2]._y, _tempTri3[2]._z));
+		_time_springs_lines->addPoint(Ogre::Vector3(_tempTri3[0]._x, _tempTri3[0]._y, _tempTri3[0]._z));
+
+	}
+	_time_springs_lines->update();
+	_time_springs_node = _sceneMgr->getRootSceneNode()->createChildSceneNode("_time_springs_debug_lines_" + std::to_string(_elem_idx));
+	_time_springs_node->attachObject(_time_springs_lines);
+	_time_springs_lines->setVisible(SystemParams::_show_time_springs);
+
+	// ---------- closest point approx debug ----------
 	Ogre::MaterialPtr line_material_c_pt_approx = Ogre::MaterialManager::getSingleton().getByName("Examples/RedMat")->clone("ClosestPtApproxMat" + std::to_string(_elem_idx));
 	line_material_c_pt_approx->getTechnique(0)->getPass(0)->setDiffuse(Ogre::ColourValue(1, 0, 0, 1));
 	_closet_pt_approx_lines = new DynamicLines(line_material_c_pt_approx, Ogre::RenderOperation::OT_LINE_LIST);
@@ -894,7 +878,7 @@ void AnElement::InitMeshOgre3D(Ogre::SceneManager* sceneMgr,
 	_closet_pt_approx_node->attachObject(_closet_pt_approx_lines);
 
 
-	// closest point debug
+	// ---------- closest point debug ----------
 	Ogre::MaterialPtr line_material_c_pt = Ogre::MaterialManager::getSingleton().getByName("Examples/RedMat")->clone("ClosestPtMat" + std::to_string(_elem_idx));
 	line_material_c_pt->getTechnique(0)->getPass(0)->setDiffuse(Ogre::ColourValue(0, 0, 1, 1));
 	_closet_pt_lines = new DynamicLines(line_material_c_pt, Ogre::RenderOperation::OT_LINE_LIST);
@@ -902,7 +886,7 @@ void AnElement::InitMeshOgre3D(Ogre::SceneManager* sceneMgr,
 	_closet_pt_node = _sceneMgr->getRootSceneNode()->createChildSceneNode("closest_point_debug_lines_" + std::to_string(_elem_idx));
 	_closet_pt_node->attachObject(_closet_pt_lines);
 
-	// ---------- debug	----------
+	// ---------- dock debug ----------
 	if (_dock_mass_idx.size() > 0)
 	{
 		Ogre::MaterialPtr line_material_2 = Ogre::MaterialManager::getSingleton().getByName("Examples/RedMat")->clone("DockLines" + std::to_string(_elem_idx));
@@ -919,106 +903,9 @@ void AnElement::InitMeshOgre3D(Ogre::SceneManager* sceneMgr,
 		_dock_lines->update();
 		_dock_node = _sceneMgr->getRootSceneNode()->createChildSceneNode("debug_lines_2_" + std::to_string(_elem_idx));
 		_dock_node->attachObject(_dock_lines);
-	}
-
-	// ---------- debug	----------
-	/////Ogre::MaterialPtr line_material_3 = Ogre::MaterialManager::getSingleton().getByName("Examples/RedMat")->clone("InterpLines" + std::to_string(_elem_idx));
-	/////line_material_3->getTechnique(0)->getPass(0)->setDiffuse(Ogre::ColourValue(0, 0, 1, 1));
-	/////_debug_lines_3 = new DynamicLines(line_material_3, Ogre::RenderOperation::OT_LINE_LIST);
-	/*_time_springs_debug_lines = new DynamicLines(line_material, Ogre::RenderOperation::OT_LINE_LIST);
-	// boundary only
-	for (int l = 0; l < SystemParams::_interpolation_factor - 1; l++)
-	{
-		int layerOffset = l * _numPointPerLayer;
-		for (int b = 0; b < _numBoundaryPointPerLayer; b++)
-		{
-			int massIdx1 = b + layerOffset;
-			int massIdx2 = b + layerOffset + 1;
-			if (b == _numBoundaryPointPerLayer - 1)
-			{
-				massIdx2 = layerOffset;
-			}
-			A3DVector pt1 = _interp_massList[massIdx1]._pos;
-			A3DVector pt2 = _interp_massList[massIdx2]._pos;
-			_time_springs_debug_lines->addPoint(Ogre::Vector3(pt1._x, pt1._y, pt1._z));
-			_time_springs_debug_lines->addPoint(Ogre::Vector3(pt2._x, pt2._y, pt2._z));
-		}
-	}
-	_time_springs_debug_lines->update();
-	_time_springs_debug_node = _sceneMgr->getRootSceneNode()->createChildSceneNode("_time_springs_debug_node_" + std::to_string(_elem_idx));
-	_time_springs_debug_node->attachObject(_time_springs_debug_lines);*/
-
-	// mid
-	/*for (int a = 0; a < _interp_triEdges.size(); a++)
-	{
-		if (_interp_triEdges[a]._isLayer2Layer) { continue; }
-
-		int idx1 = _interp_triEdges[a]._index0;
-		int idx2 = _interp_triEdges[a]._index1;
-		_debug_lines_3->addPoint(Ogre::Vector3(_interp_massList[idx1]._pos._x, _interp_massList[idx1]._pos._y, _interp_massList[idx1]._pos._z));
-		_debug_lines_3->addPoint(Ogre::Vector3(_interp_massList[idx2]._pos._x, _interp_massList[idx2]._pos._y, _interp_massList[idx2]._pos._z));
-	}*/
-	/*for (int a = 0; a < _interp_auxiliaryEdges.size(); a++)
-	{
-		int idx1 = _interp_auxiliaryEdges[a]._index0;
-		int idx2 = _interp_auxiliaryEdges[a]._index1;
-		_debug_lines_3->addPoint(Ogre::Vector3(_interp_massList[idx1]._pos._x, _interp_massList[idx1]._pos._y, _interp_massList[idx1]._pos._z));
-		_debug_lines_3->addPoint(Ogre::Vector3(_interp_massList[idx2]._pos._x, _interp_massList[idx2]._pos._y, _interp_massList[idx2]._pos._z));
-	}*/
-	// first 
-	// first index is from original, second index is from interpolation
-	/*for (int a = 0; a < _timeEdgesA.size(); a++)
-	{
-		int idx1 = _timeEdgesA[a]._index0;
-		int idx2 = _timeEdgesA[a]._index1;
-		_debug_lines_3->addPoint(Ogre::Vector3(_massList[idx1]._pos._x, _massList[idx1]._pos._y, _massList[idx1]._pos._z));
-		_debug_lines_3->addPoint(Ogre::Vector3(_interp_massList[idx2]._pos._x, _interp_massList[idx2]._pos._y, _interp_massList[idx2]._pos._z));
-	}
-	// last
-	// first index is from interpolation, second index is from original
-	for (int a = 0; a < _timeEdgesB.size(); a++)
-	{
-		int idx1 = _timeEdgesB[a]._index0;
-		int idx2 = _timeEdgesB[a]._index1;
-		_debug_lines_3->addPoint(Ogre::Vector3(_interp_massList[idx1]._pos._x, _interp_massList[idx1]._pos._y, _interp_massList[idx1]._pos._z));
-		_debug_lines_3->addPoint(Ogre::Vector3(_massList[idx2]._pos._x, _massList[idx2]._pos._y, _massList[idx2]._pos._z));
-	}*/
-	/////_debug_lines_3->update();
-	/////_debugNode_3 = _sceneMgr->getRootSceneNode()->createChildSceneNode("debug_lines_3_" + std::to_string(_elem_idx));
-	/////_debugNode_3->attachObject(_debug_lines_3);
-
-	// another debug
-	//Ogre::MaterialPtr line_material_4 = Ogre::MaterialManager::getSingleton().getByName("Examples/RedMat")->clone("ClosestLines" + std::to_string(_elem_idx));
-	//line_material_4->getTechnique(0)->getPass(0)->setDiffuse(Ogre::ColourValue(1, 0, 0, 1));
-	_time_springs_lines = new DynamicLines(line_material, Ogre::RenderOperation::OT_LINE_LIST);
-
-	for (int b = 0; b < _timeTriangles.size(); b++)
-	{
-		std::vector<A3DVector> tri;
-		_tempTri3[0] = _massList[_timeTriangles[b].idx0]._pos;
-		_tempTri3[1] = _massList[_timeTriangles[b].idx1]._pos;
-		_tempTri3[2] = _massList[_timeTriangles[b].idx2]._pos;
-
-		_time_springs_lines->addPoint( Ogre::Vector3(_tempTri3[0]._x, _tempTri3[0]._y, _tempTri3[0]._z) );
-		_time_springs_lines->addPoint(Ogre::Vector3(_tempTri3[1]._x, _tempTri3[1]._y, _tempTri3[1]._z));
-
-		_time_springs_lines->addPoint(Ogre::Vector3(_tempTri3[1]._x, _tempTri3[1]._y, _tempTri3[1]._z));
-		_time_springs_lines->addPoint(Ogre::Vector3(_tempTri3[2]._x, _tempTri3[2]._y, _tempTri3[2]._z));
-
-		_time_springs_lines->addPoint(Ogre::Vector3(_tempTri3[2]._x, _tempTri3[2]._y, _tempTri3[2]._z));
-		_time_springs_lines->addPoint(Ogre::Vector3(_tempTri3[0]._x, _tempTri3[0]._y, _tempTri3[0]._z));
-		
-	}
-	_time_springs_lines->update();
-	_time_springs_node = _sceneMgr->getRootSceneNode()->createChildSceneNode("_time_springs_debug_lines_" + std::to_string(_elem_idx));
-	_time_springs_node->attachObject(_time_springs_lines);
-	_time_springs_lines->setVisible(SystemParams::_show_time_springs);
-
-
-
-	// debug closest slice
-	/*DynamicLines*    _closest_slice_lines;
-	Ogre::SceneNode* _closest_slice_node;*/
+	}	
+	   
+	// ---------- debug closest slice ----------
 	Ogre::MaterialPtr line_material_asdf = Ogre::MaterialManager::getSingleton().getByName("Examples/RedMat")->clone("line_material_asdf" + std::to_string(_elem_idx));
 	line_material_asdf->getTechnique(0)->getPass(0)->setDiffuse(Ogre::ColourValue(1, 0, 0, 1));
 
@@ -1027,6 +914,14 @@ void AnElement::InitMeshOgre3D(Ogre::SceneManager* sceneMgr,
 	_closest_slice_lines->update();
 	_closest_slice_node = _sceneMgr->getRootSceneNode()->createChildSceneNode("_closest_slice_lines_" + std::to_string(_elem_idx));
 	_closest_slice_node->attachObject(_closest_slice_lines);
+
+	// ---------- Overlap debug! ----------
+	Ogre::MaterialPtr line_material_ovlp = Ogre::MaterialManager::getSingleton().getByName("Examples/RedMat")->clone("line_material_ovlp" + std::to_string(_elem_idx));
+	line_material_ovlp->getTechnique(0)->getPass(0)->setDiffuse(Ogre::ColourValue(0, 0, 0, 1));
+	_overlap_lines = new DynamicLines(line_material_ovlp, Ogre::RenderOperation::OT_LINE_LIST);
+	_overlap_lines->update();
+	_overlap_node = _sceneMgr->getRootSceneNode()->createChildSceneNode("_overlap_lines_" + std::to_string(_elem_idx));
+	_overlap_node->attachObject(_overlap_lines);
 }
 
 void AnElement::UpdateClosestSliceOgre3D()
@@ -1144,6 +1039,28 @@ void AnElement::UpdateTimeTriangleOgre3D()
 		_time_springs_node->setVisible(false);
 	}
 	
+}
+
+void AnElement::UpdateOverlapOgre3D()
+{
+	float plus_offset = 20;
+
+	_overlap_lines->clear();
+
+	for (int a = 0; a < _massList.size(); a++)
+	{
+		if (_massList[a]._is_boundary && _massList[a]._is_inside)
+		{
+			A3DVector massPos = _massList[a]._pos;
+
+			_overlap_lines->addPoint(massPos._x - plus_offset, massPos._y, massPos._z);
+			_overlap_lines->addPoint(massPos._x + plus_offset, massPos._y, massPos._z);
+			_overlap_lines->addPoint(massPos._x, massPos._y - plus_offset, massPos._z);
+			_overlap_lines->addPoint(massPos._x, massPos._y + plus_offset, massPos._z);
+		}
+	}
+
+	_overlap_lines->update();
 }
 
 void AnElement::UpdateSpringDisplayOgre3D()

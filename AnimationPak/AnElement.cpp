@@ -865,9 +865,26 @@ void AnElement::InitMeshOgre3D(Ogre::SceneManager* sceneMgr,
 
 	}
 	_time_springs_lines->update();
-	_time_springs_node = _sceneMgr->getRootSceneNode()->createChildSceneNode("_time_springs_debug_lines_" + std::to_string(_elem_idx));
+	_time_springs_node = _sceneMgr->getRootSceneNode()->createChildSceneNode("_time_springs_debug_lines_back_" + std::to_string(_elem_idx));
 	_time_springs_node->attachObject(_time_springs_lines);
 	_time_springs_lines->setVisible(SystemParams::_show_time_springs);
+
+	// ---------- closest point approx debug  BACK ----------
+	Ogre::MaterialPtr line_material_c_pt_approx_back = Ogre::MaterialManager::getSingleton().getByName("Examples/RedMat")->clone("ClosestPtApproxMatback_" + std::to_string(_elem_idx));
+	line_material_c_pt_approx_back->getTechnique(0)->getPass(0)->setDiffuse(Ogre::ColourValue(0, 0, 1, 1));
+	_closet_pt_approx_lines_back = new DynamicLines(line_material_c_pt_approx_back, Ogre::RenderOperation::OT_LINE_LIST);
+	_closet_pt_approx_lines_back->update();
+	_closet_pt_approx_node_back = _sceneMgr->getRootSceneNode()->createChildSceneNode("closest_point_approx_lines_back_" + std::to_string(_elem_idx));
+	_closet_pt_approx_node_back->attachObject(_closet_pt_approx_lines_back);
+
+
+	// ---------- closest point debug BACK ----------
+	Ogre::MaterialPtr line_material_c_pt_back = Ogre::MaterialManager::getSingleton().getByName("Examples/RedMat")->clone("ClosestPtMatback_" + std::to_string(_elem_idx));
+	line_material_c_pt_back->getTechnique(0)->getPass(0)->setDiffuse(Ogre::ColourValue(1, 0, 0, 1));
+	_closet_pt_lines_back = new DynamicLines(line_material_c_pt_back, Ogre::RenderOperation::OT_LINE_LIST);
+	_closet_pt_lines_back->update();
+	_closet_pt_node_back = _sceneMgr->getRootSceneNode()->createChildSceneNode("closest_point_debug_lines_back_" + std::to_string(_elem_idx));
+	_closet_pt_node_back->attachObject(_closet_pt_lines_back);
 
 	// ---------- closest point approx debug ----------
 	Ogre::MaterialPtr line_material_c_pt_approx = Ogre::MaterialManager::getSingleton().getByName("Examples/RedMat")->clone("ClosestPtApproxMat" + std::to_string(_elem_idx));
@@ -1837,6 +1854,7 @@ void AnElement::SolveForSprings3D()
 	A3DVector pt0;
 	A3DVector pt1;
 	A3DVector dir;
+	A3DVector dir_not_unit;
 	A3DVector eForce;
 	float dist = 0;
 	float diff = 0;
@@ -1872,10 +1890,14 @@ void AnElement::SolveForSprings3D()
 			}
 		}
 
-		dir = pt0.DirectionTo(pt1);
-
-		dir = dir.Norm();
+		dir_not_unit = pt0.DirectionTo(pt1);
+		dir_not_unit.GetUnitAndDist(dir, dist);
+		/*		
+		dir = dir_not_unit.Norm();
 		dist = pt0.Distance(pt1);
+		*/
+
+
 		diff = dist - _triEdges[a]._dist;
 
 
@@ -1961,16 +1983,33 @@ void AnElement::UpdateClosestPtsDisplayOgre3D()
 	_closet_pt_lines->clear();
 	_closet_pt_approx_lines->clear();
 
+	_closet_pt_lines_back->clear();
+	_closet_pt_approx_lines_back->clear();
+
+	int layerStop = SystemParams::_num_layer / 2; // delete
+	//if (layerStop < 0) { layerStop = 0; } // delete
+
 	if(SystemParams::_show_exact_repulsion_forces)
 	{
 		for (int b = 0; b < _massList.size(); b++)
 		{
+			//if (_massList[b]._layer_idx > layerStop) { continue; } // delete
+
 			A3DVector pt1 = _massList[b]._pos;
 			for (int c = 0; c < _massList[b]._c_pts_fill_size; c++)
 			{
 				A3DVector pt2(_massList[b]._c_pts[c]._x, _massList[b]._c_pts[c]._y, _massList[b]._c_pts[c]._z);
-				_closet_pt_lines->addPoint(Ogre::Vector3(pt1._x, pt1._y, pt1._z));
-				_closet_pt_lines->addPoint(Ogre::Vector3(pt2._x, pt2._y, pt2._z));
+
+				if (_massList[b]._layer_idx > layerStop)
+				{
+					_closet_pt_lines_back->addPoint(Ogre::Vector3(pt1._x, pt1._y, pt1._z));
+					_closet_pt_lines_back->addPoint(Ogre::Vector3(pt2._x, pt2._y, pt2._z));
+				}
+				else
+				{
+					_closet_pt_lines->addPoint(Ogre::Vector3(pt1._x, pt1._y, pt1._z));
+					_closet_pt_lines->addPoint(Ogre::Vector3(pt2._x, pt2._y, pt2._z));
+				}				
 			}
 		}
 	}
@@ -1979,18 +2018,32 @@ void AnElement::UpdateClosestPtsDisplayOgre3D()
 	{
 		for (int b = 0; b < _massList.size(); b++)
 		{
+			//if (_massList[b]._layer_idx > layerStop) { continue; } // delete
+
 			A3DVector pt1 = _massList[b]._pos;
 			for (int c = 0; c < _massList[b]._c_pts_approx_fill_size; c++)
 			{
 				A3DVector pt2(_massList[b]._c_pts_approx[c].first._x, _massList[b]._c_pts_approx[c].first._y, _massList[b]._c_pts_approx[c].first._z);
-				_closet_pt_approx_lines->addPoint(Ogre::Vector3(pt1._x, pt1._y, pt1._z));
-				_closet_pt_approx_lines->addPoint(Ogre::Vector3(pt2._x, pt2._y, pt2._z));
+
+				if (_massList[b]._layer_idx > layerStop)
+				{
+					_closet_pt_approx_lines_back->addPoint(Ogre::Vector3(pt1._x, pt1._y, pt1._z));
+					_closet_pt_approx_lines_back->addPoint(Ogre::Vector3(pt2._x, pt2._y, pt2._z));
+				}
+				else
+				{
+					_closet_pt_approx_lines->addPoint(Ogre::Vector3(pt1._x, pt1._y, pt1._z));
+					_closet_pt_approx_lines->addPoint(Ogre::Vector3(pt2._x, pt2._y, pt2._z));
+				}
 			}
 		}
 	}
 
 	_closet_pt_lines->update();
 	_closet_pt_approx_lines->update();
+
+	_closet_pt_lines_back->update();
+	_closet_pt_approx_lines_back->update();
 }
 
 int AnElement::GetUnsharedVertexIndex(AnIdxTriangle tri, AnIndexedLine edge)

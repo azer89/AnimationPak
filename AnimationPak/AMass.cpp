@@ -282,11 +282,6 @@ void AMass::GetClosestPoint4()
 	{
 		int layer_idx = StuffWorker::_element_list[closest_elem_idx]._timeTriangles[closest_tri_idx]._layer_idx;
 		_is_inside = StuffWorker::_element_list[closest_elem_idx].IsInside(layer_idx, _pos, _closest_boundary_slice);
-
-		/*if (_is_inside)
-		{
-			std::cout << "nooooo\n";
-		}*/
 	}
 
 	// ----- approx closest point -----
@@ -296,7 +291,7 @@ void AMass::GetClosestPoint4()
 		int p_idx = sq->_c_pt_approx[a].first;
 		if (p_idx == _parent_idx) { continue; }
 
-		int temp_sq_idx = sq->_c_pt_approx[a].second; // square idx
+		int temp_sq_idx = sq->_c_pt_approx[a].second; // square idx, assume they're on the same segments.
 
 		if (temp_sq_idx == current_sq_idx) // same
 		{

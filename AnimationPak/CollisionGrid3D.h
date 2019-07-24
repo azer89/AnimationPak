@@ -96,6 +96,14 @@ public:
 	DynamicLines*    _plus_lines;
 	Ogre::SceneNode* _plus_node;
 
+	// showing the amount of c_pt in each square
+	DynamicLines*    _c_pt_lines;
+	Ogre::SceneNode* _c_pt_node;
+
+	// showing the amount of c_pt_approx in each square
+	DynamicLines*    _c_pt_approx_lines;
+	Ogre::SceneNode* _c_pt_approx_node;
+
 	void InitOgre3D(Ogre::SceneManager* sceneMgr);
 	void UpdateOgre3D();
 

@@ -365,6 +365,11 @@ void CollisionGrid3D::PrecomputeData()
 							// (1) which element (2) which triangle
 							cur_sq->_c_pt[cur_sq->_c_pt_fill_size] = std::pair<int, int>(neighbor_sq->_objects[a]->_info1, neighbor_sq->_objects[a]->_info2);
 							cur_sq->_c_pt_fill_size++;
+
+							/*if (cur_sq->_c_pt_fill_size > SystemParams::_max_exact_array_len)
+							{
+								std::cout << "e";
+							}*/
 						}
 					}
 					//else if (abs(xIter - xPos) <= SystemParams::_grid_radius_2 &&
@@ -378,6 +383,11 @@ void CollisionGrid3D::PrecomputeData()
 							cur_sq->_c_pt_approx[cur_sq->_c_pt_approx_fill_size] = std::pair<int, int>(neighbor_sq->_objects[a]->_info1,
 								                                                                 s_idx);
 							cur_sq->_c_pt_approx_fill_size++;
+
+							/*if (cur_sq->_c_pt_approx_fill_size > SystemParams::_max_approx_array_len)
+							{
+								std::cout << "a";
+							}*/
 						}
 					}					
 				}
@@ -515,6 +525,23 @@ void CollisionGrid3D::MovePoints()
 
 void CollisionGrid3D::InitOgre3D(Ogre::SceneManager* sceneMgr)
 {
+	// showing the amount of c_pt_approx in each square
+	//DynamicLines*    _c_pt_approx_lines;
+	//Ogre::SceneNode* _c_pt_approx_node;
+
+
+	// showing the amount of c_pt in each square
+	//DynamicLines*    _c_pt_lines;
+	//Ogre::SceneNode* _c_pt_node;
+	Ogre::MaterialPtr c_pt_material = Ogre::MaterialManager::getSingleton().getByName("Examples/RedMat")->clone("CGCPT");
+	c_pt_material->getTechnique(0)->getPass(0)->setDiffuse(Ogre::ColourValue(0, 0, 1, 1));
+	_c_pt_lines = new DynamicLines(c_pt_material, Ogre::RenderOperation::OT_LINE_LIST);
+	_c_pt_lines->update();
+	_c_pt_node = sceneMgr->getRootSceneNode()->createChildSceneNode("c_pt_cg_node");
+	_c_pt_node->attachObject(_c_pt_lines);
+
+	
+
 	// object viz
 	Ogre::MaterialPtr plus_material = Ogre::MaterialManager::getSingleton().getByName("Examples/RedMat")->clone("PlusColissionGridLines");
 	plus_material->getTechnique(0)->getPass(0)->setDiffuse(Ogre::ColourValue(1, 0, 0, 1));
@@ -556,6 +583,7 @@ void CollisionGrid3D::InitOgre3D(Ogre::SceneManager* sceneMgr)
 	// ::EXTENT_INFINITE
 	//_plus_lines->setBoundingBox(Ogre::AxisAlignedBox::EXTENT_INFINITE);
 	//_filled_lines->setBoundingBox(Ogre::AxisAlignedBox::EXTENT_INFINITE);
+	
 	
 }
 

@@ -105,14 +105,21 @@ public:
 	// combine Norm() and Distance()
 	void GetUnitAndDist(A3DVector& unitVec, float& dist)
 	{
-		dist = std::sqrt(_x * _x + _y * _y + _z * _z);
+		float isqrt = inv_sqrt(_x * _x + _y * _y + _z * _z);
+		dist = 1.0 / isqrt;
+		unitVec = A3DVector(this->_x * isqrt,
+			this->_y * isqrt,
+			this->_z * isqrt);
+		
 
-		//if (vlength == 0) { std::cout << "div by zero duh\n"; }
-		//if (dist == 0) { return A3DVector(0, 0, 0); }
+		// original
+		
+		/*dist = std::sqrt(_x * _x + _y * _y + _z * _z);
 
 		unitVec =  A3DVector(this->_x / dist,
 			this->_y / dist,
 			this->_z / dist);
+		*/
 	}
 
 	void SetPosition(const A3DVector& otherPt)
@@ -303,6 +310,39 @@ public:
 	{
 		std::cout << "(" << _x << ", " << _y << ", " << _z << ")\n";
 	}
+
+private:
+	// the fuck http_//h14s.p5r.org/2012/09/0x5f3759df.html?mwh=1
+	float inv_sqrt(float number)
+	{
+		/*
+		long i;
+		float x2, y;
+		const float threehalfs = 1.5F;
+
+		x2 = number * 0.5F;
+		y = number;
+		i = *(long *)&y;                       // evil floating point bit level hacking
+		i = 0x5f3759df - (i >> 1);               // what the fuck? 
+		y = *(float *)&i;
+		y = y * (threehalfs - (x2 * y * y));   // 1st iteration
+		//	y  = y * ( threehalfs - ( x2 * y * y ) );   // 2nd iteration, this can be removed
+
+		return y;
+		*/
+
+		const float x2 = number * 0.5F;
+		const float threehalfs = 1.5F;
+
+		union {
+			float f;
+			uint32_t i;
+		} conv = { number }; // member 'f' set to value of 'number'.
+		conv.i = 0x5f3759df - (conv.i >> 1);
+		conv.f *= (threehalfs - (x2 * conv.f * conv.f));
+		return conv.f;
+	}
+
 };
 
 //typedef std::vector<std::vector<AVector>> GraphArt;

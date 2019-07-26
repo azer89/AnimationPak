@@ -528,14 +528,43 @@ void CollisionGrid3D::InitOgre3D(Ogre::SceneManager* sceneMgr)
 	// showing the amount of c_pt_approx in each square
 	//DynamicLines*    _c_pt_approx_lines;
 	//Ogre::SceneNode* _c_pt_approx_node;
+	Ogre::MaterialPtr c_pt_approx_material = Ogre::MaterialManager::getSingleton().getByName("Examples/RedMat")->clone("CGCPT-Approx");
+	c_pt_approx_material->getTechnique(0)->getPass(0)->setDiffuse(Ogre::ColourValue(0, 0, 1, 1));
+	_c_pt_approx_lines = new DynamicLines(c_pt_approx_material, Ogre::RenderOperation::OT_LINE_LIST);
+	/*for (unsigned int a = 0; a < _squares.size(); a++)
+	{
+		if (_squares[a]->_objects.size() > 0)
+		{
+			A3DVector pos(_squares[a]->_xCenter, _squares[a]->_yCenter, -_squares[a]->_zCenter);
 
+			_c_pt_approx_lines->addPoint(pos._x - 0, pos._y, pos._z);
+			_c_pt_approx_lines->addPoint(pos._x + 0, pos._y, pos._z);
+			_c_pt_approx_lines->addPoint(pos._x, pos._y - 0, pos._z);
+			_c_pt_approx_lines->addPoint(pos._x, pos._y + 0, pos._z);
+		}
+	}*/
+	_c_pt_approx_lines->update();
+	_c_pt_approx_node = sceneMgr->getRootSceneNode()->createChildSceneNode("c_pt_approx_cg_node");
+	_c_pt_approx_node->attachObject(_c_pt_approx_lines);
 
 	// showing the amount of c_pt in each square
 	//DynamicLines*    _c_pt_lines;
 	//Ogre::SceneNode* _c_pt_node;
 	Ogre::MaterialPtr c_pt_material = Ogre::MaterialManager::getSingleton().getByName("Examples/RedMat")->clone("CGCPT");
-	c_pt_material->getTechnique(0)->getPass(0)->setDiffuse(Ogre::ColourValue(0, 0, 1, 1));
+	c_pt_material->getTechnique(0)->getPass(0)->setDiffuse(Ogre::ColourValue(1, 0, 0, 1));
 	_c_pt_lines = new DynamicLines(c_pt_material, Ogre::RenderOperation::OT_LINE_LIST);
+	/*for (unsigned int a = 0; a < _squares.size(); a++)
+	{
+		if (_squares[a]->_objects.size() > 0)
+		{
+			A3DVector pos(_squares[a]->_xCenter, _squares[a]->_yCenter, -_squares[a]->_zCenter);
+
+			_c_pt_lines->addPoint(pos._x - 0, pos._y, pos._z);
+			_c_pt_lines->addPoint(pos._x + 0, pos._y, pos._z);
+			_c_pt_lines->addPoint(pos._x, pos._y - 0, pos._z);
+			_c_pt_lines->addPoint(pos._x, pos._y + 0, pos._z);
+		}
+	}*/
 	_c_pt_lines->update();
 	_c_pt_node = sceneMgr->getRootSceneNode()->createChildSceneNode("c_pt_cg_node");
 	_c_pt_node->attachObject(_c_pt_lines);
@@ -592,12 +621,39 @@ void CollisionGrid3D::UpdateOgre3D()
 	_plus_lines->clear();
 	_filled_lines->clear();
 
+	_c_pt_approx_lines->clear();
+	_c_pt_lines->clear();
+
 	float plus_offset = 0.5;
 	//int plus_iter = 0;
 
 	// do something
 	//int empty_iter = 0;
 	//int filled_iter = 0;
+	if (SystemParams::_show_collision_grid_object)
+	{
+		for (unsigned int a = 0; a < _squares.size(); a++)
+		{
+			if (_squares[a]->_objects.size() > 0)
+			{
+				for (unsigned int b = 0; b < _squares[a]->_objects.size(); b++)
+				{
+					A3DVector pos(_squares[a]->_objects[b]->_x, _squares[a]->_objects[b]->_y, -_squares[a]->_objects[b]->_z);
+
+					_plus_lines->addPoint(pos._x - plus_offset, pos._y, pos._z);
+					_plus_lines->addPoint(pos._x + plus_offset, pos._y, pos._z);
+					_plus_lines->addPoint(pos._x, pos._y - plus_offset, pos._z);
+					_plus_lines->addPoint(pos._x, pos._y + plus_offset, pos._z);
+
+					/*_plus_lines->setPoint(plus_iter++, Ogre::Vector3(pos._x - plus_offset, pos._y, pos._z));
+					_plus_lines->setPoint(plus_iter++, Ogre::Vector3(pos._x + plus_offset, pos._y, pos._z));
+					_plus_lines->setPoint(plus_iter++, Ogre::Vector3(pos._x, pos._y - plus_offset, pos._z));
+					_plus_lines->setPoint(plus_iter++, Ogre::Vector3(pos._x, pos._y + plus_offset, pos._z));*/
+				}
+			}
+		}
+	}
+
 
 	if (SystemParams::_show_collision_grid)
 	{
@@ -635,30 +691,53 @@ void CollisionGrid3D::UpdateOgre3D()
 				_filled_lines->addPoint(Ogre::Vector3(_squares[a]->_draw_pt7._x, _squares[a]->_draw_pt7._y, -_squares[a]->_draw_pt7._z));
 			
 			
-				for (unsigned int b = 0; b < _squares[a]->_objects.size(); b++)
-				{
-					A3DVector pos(_squares[a]->_objects[b]->_x, _squares[a]->_objects[b]->_y, -_squares[a]->_objects[b]->_z);
-					
-					_plus_lines->addPoint(pos._x - plus_offset, pos._y, pos._z);
-					_plus_lines->addPoint(pos._x + plus_offset, pos._y, pos._z);
-					_plus_lines->addPoint(pos._x, pos._y - plus_offset, pos._z);
-					_plus_lines->addPoint(pos._x, pos._y + plus_offset, pos._z);
-
-					/*_plus_lines->setPoint(plus_iter++, Ogre::Vector3(pos._x - plus_offset, pos._y, pos._z));
-					_plus_lines->setPoint(plus_iter++, Ogre::Vector3(pos._x + plus_offset, pos._y, pos._z));
-					_plus_lines->setPoint(plus_iter++, Ogre::Vector3(pos._x, pos._y - plus_offset, pos._z));
-					_plus_lines->setPoint(plus_iter++, Ogre::Vector3(pos._x, pos._y + plus_offset, pos._z));*/
-				}
+				
 			}
 
 		}
 
 	}
-	else
+
+	if (SystemParams::_show_c_pt_cg)
 	{
-		//_plus_node->setVisible(false);
-		//_filled_node->setVisible(false);
+		for (unsigned int a = 0; a < _squares.size(); a++)
+		{
+			if (_squares[a]->_objects.size() > 0)
+			{
+				float offsetVal = _squares[a]->_length * 0.5 * (float)_squares[a]->_c_pt_fill_size / (float)SystemParams::_max_exact_array_len;
+
+				A3DVector pos(_squares[a]->_xCenter, _squares[a]->_yCenter, -_squares[a]->_zCenter);
+
+				_c_pt_lines->addPoint(Ogre::Vector3(pos._x - offsetVal, pos._y, pos._z));
+				_c_pt_lines->addPoint(Ogre::Vector3(pos._x + offsetVal, pos._y, pos._z));
+				_c_pt_lines->addPoint(Ogre::Vector3(pos._x, pos._y - offsetVal, pos._z));
+				_c_pt_lines->addPoint(Ogre::Vector3(pos._x, pos._y + offsetVal, pos._z));
+			}
+		}
 	}
+
+	if (SystemParams::_show_c_pt_approx_cg)
+	{
+		for (unsigned int a = 0; a < _squares.size(); a++)
+		{
+			if (_squares[a]->_objects.size() > 0)
+			{
+				float offsetVal = _squares[a]->_length * 0.5 * (float)_squares[a]->_c_pt_approx_fill_size / (float)SystemParams::_max_exact_array_len;
+
+				A3DVector pos(_squares[a]->_xCenter, _squares[a]->_yCenter, -_squares[a]->_zCenter);
+
+				_c_pt_approx_lines->addPoint(Ogre::Vector3(pos._x - offsetVal, pos._y, pos._z));
+				_c_pt_approx_lines->addPoint(Ogre::Vector3(pos._x + offsetVal, pos._y, pos._z));
+				_c_pt_approx_lines->addPoint(Ogre::Vector3(pos._x, pos._y - offsetVal, pos._z));
+				_c_pt_approx_lines->addPoint(Ogre::Vector3(pos._x, pos._y + offsetVal, pos._z));
+			}
+		}
+	}
+
 	_plus_lines->update();
 	_filled_lines->update();
+
+
+	_c_pt_lines->update();
+	_c_pt_approx_lines->update();
 }

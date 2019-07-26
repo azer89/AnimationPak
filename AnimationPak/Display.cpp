@@ -107,7 +107,7 @@ bool Display::frameStarted(const Ogre::FrameEvent& evt)
 	//bool show_another_window = false;
 	//ImGui::Begin("AnimationPak", &show_another_window, ImVec2(240, 540));
 	ImGui::SetNextWindowPos(ImVec2(5, 5), ImGuiCond_Always);
-	ImGui::SetNextWindowSize(ImVec2(300, 300), ImGuiCond_Always);
+	ImGui::SetNextWindowSize(ImVec2(300, 500), ImGuiCond_Always);
 	bool* p_open = NULL;
 	ImGuiWindowFlags window_flags = 0;
 	ImGui::Begin("AnimationPak", p_open, window_flags);
@@ -147,6 +147,9 @@ bool Display::frameStarted(const Ogre::FrameEvent& evt)
 	ImGui::Checkbox("Show exact repulsion forces", &SystemParams::_show_exact_repulsion_forces);
 	ImGui::Checkbox("Show approx repulsion forces", &SystemParams::_show_approx_repulsion_forces);
 	ImGui::Checkbox("Show grid", &SystemParams::_show_collision_grid);
+	ImGui::Checkbox("Show grid objects", &SystemParams::_show_collision_grid_object);
+	ImGui::Checkbox("Show c_pt_cg (debug)", &SystemParams::_show_c_pt_cg);
+	ImGui::Checkbox("Show c_pt_approx_cg (debug)", &SystemParams::_show_c_pt_approx_cg);
 	ImGui::Checkbox("Show time triangles", &SystemParams::_show_time_springs);
 	/*if (ImGui::Checkbox("Show time springs", &SystemParams::_show_time_springs))
 	{

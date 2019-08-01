@@ -21,10 +21,10 @@ void CollisionGrid3D::Init()
 	{
 		for (unsigned int a = 0; a < _side_num; a++) // x -  fill the first column... then next column... repeat
 		{
-			for (unsigned int b = 0; b < _side_num; b++) // y - go down  // y filled first
+			for (unsigned int b = 0; b < _side_num; b++) // y - go down
 			{
 				float x_pos = a * _max_cell_length;
-				float y_pos = b * _max_cell_length; // y filled first
+				float y_pos = b * _max_cell_length;
 				float z_pos = z * _max_cell_length; // z is negative !!!
 				_squares.push_back(new A3DSquare(x_pos, y_pos, z_pos, _max_cell_length));
 			}
@@ -37,7 +37,36 @@ void CollisionGrid3D::Init()
 	_approx_graph_idx_array.reserve(_squares.size());
 	_approx_triangle_idx_array.reserve(_squares.size());
 
+
+	// pair data
+	//_pair_data_array.reserve(_squares.size());
+	//_approx_pair_data_array.reserve(_squares.size());
+	//_pd.reserve(_squares.size());
+	//_approx_pd.reserve(_squares.size());
 }
+
+/*CollisionGrid3D::CollisionGrid3D(float cellSize)
+{
+	_max_cell_length = cellSize;
+
+	// create squares, the grid is a square too
+	_side_num = SystemParams::_upscaleFactor / _max_cell_length;
+
+	//
+	for (unsigned int z = 0; z < _side_num; z++) // fill the first layer...
+	{
+		for (unsigned int a = 0; a < _side_num; a++) // x -  fill the first column... then next column... repeat
+		{
+			for (unsigned int b = 0; b < _side_num; b++) // y - go down
+			{
+				float x_pos = a * _max_cell_length;
+				float y_pos = b * _max_cell_length;
+				float z_pos = z * _max_cell_length; // z is negative !!!
+				_squares.push_back(new A3DSquare(x_pos, y_pos, z_pos, _max_cell_length));
+			}
+		}
+	}
+}*/
 
 CollisionGrid3D::~CollisionGrid3D()
 {
@@ -51,7 +80,7 @@ CollisionGrid3D::~CollisionGrid3D()
 
 int CollisionGrid3D::SquareIndex(int xPos, int yPos, int zPos)
 {
-	return (zPos * _side_num * _side_num) + (xPos * _side_num) + yPos; // y filled first
+	return (zPos * _side_num * _side_num) + (xPos * _side_num) + yPos;
 }
 
 void CollisionGrid3D::GetCellPosition(int& xPos, int& yPos, int& zPos, float x, float y, float z)
@@ -106,7 +135,6 @@ void CollisionGrid3D::GetClosestPoints(float x, float y, float z, std::vector<A3
 	int zEnd = zPos + offst;
 	if (zEnd >= _side_num) { zEnd = _side_num - 1; }
 
-	A3DObject* obj;
 	for (unsigned int zIter = zBegin; zIter <= xEnd; zIter++)
 	{
 		for (unsigned int xIter = xBegin; xIter <= xEnd; xIter++)
@@ -115,25 +143,17 @@ void CollisionGrid3D::GetClosestPoints(float x, float y, float z, std::vector<A3
 			{
 				int idx = SquareIndex(xIter, yIter, zIter);
 
-				/*for (unsigned int a = 0; a < _squares[idx]->_objects.size(); a++)
+				for (unsigned int a = 0; a < _squares[idx]->_objects.size(); a++)
 				{
 					closestPoints.push_back(A3DVector(_squares[idx]->_objects[a]->_x,
 						_squares[idx]->_objects[a]->_y,
 						_squares[idx]->_objects[a]->_z));
-				}*/
-				for (unsigned int a = 0; a < _squares[idx]->_object_idx_array.size(); a++)
-				{
-					obj = _objects[_squares[idx]->_object_idx_array[a]];
-					closestPoints.push_back(A3DVector(obj->_x, obj->_y, obj->_z));
 				}
-
 			}
 		}
 	}
-	obj = 0;
 }
 
-// NOT USED
 void CollisionGrid3D::GetClosestObjects(float x, float y, float z, std::vector<A3DObject>& closestObjects)
 {
 	//if (std::isnan(x) || std::isinf(x) || std::isnan(y) || std::isinf(y))
@@ -175,7 +195,6 @@ void CollisionGrid3D::GetClosestObjects(float x, float y, float z, std::vector<A
 	int zEnd = zPos + offst;
 	if (zEnd >= _side_num) { zEnd = _side_num - 1; }
 
-	A3DObject* obj;
 	for (unsigned int zIter = zBegin; zIter <= xEnd; zIter++)
 	{
 		for (unsigned int xIter = xBegin; xIter <= xEnd; xIter++)
@@ -184,32 +203,19 @@ void CollisionGrid3D::GetClosestObjects(float x, float y, float z, std::vector<A
 			{
 				int idx = SquareIndex(xIter, yIter, zIter);
 
-				/*for (unsigned int a = 0; a < _squares[idx]->_objects.size(); a++)
+				for (unsigned int a = 0; a < _squares[idx]->_objects.size(); a++)
 				{
 					A3DObject obj3D(_squares[idx]->_objects[a]->_x,
-									_squares[idx]->_objects[a]->_y,
-									_squares[idx]->_objects[a]->_z,
-									_squares[idx]->_objects[a]->_info1,
-									_squares[idx]->_objects[a]->_info2);
+						_squares[idx]->_objects[a]->_y,
+						_squares[idx]->_objects[a]->_z,
+						_squares[idx]->_objects[a]->_info1,
+						_squares[idx]->_objects[a]->_info2);
 
 					closestObjects.push_back(obj3D);
-				}*/
-				for (unsigned int a = 0; a < _squares[idx]->_object_idx_array.size(); a++)
-				{
-					obj = _objects[_squares[idx]->_object_idx_array[a]];
-					A3DObject obj3D(obj->_x,
-						obj->_y,
-						obj->_z,
-						obj->_info1,
-						obj->_info2);
-
-					closestObjects.push_back(obj3D);
-					
 				}
 			}
 		}
 	}
-	obj = 0;
 }
 
 
@@ -252,6 +258,9 @@ void CollisionGrid3D::GetData(float x, float y, float z, PairData& pair_data_arr
 	int idx = SquareIndex(xPos, yPos, zPos);
 
 	std::cout << "error!";
+	// _idx_array
+	//pair_data_array = _pair_data_array[idx];
+	//approx_pair_data_array = _approx_pair_data_array[idx];
 }
 
 void CollisionGrid3D::GetGraphIndices2B(float x, float y, float z, std::vector<int>& closestGraphIndices)
@@ -291,59 +300,55 @@ void CollisionGrid3D::InsertAPoint(float x, float y, float z, int info1, int inf
 
 	int sq_idx = SquareIndex(xPos, yPos, zPos);
 
-	//_squares[sq_idx]->_objects.push_back(obj);
-	_squares[sq_idx]->_object_idx_array.push_back(_objects.size() - 1);
+	_squares[sq_idx]->_objects.push_back(obj);
 }
 
 void CollisionGrid3D::PrecomputeData()
 {
-
+	//_pair_data_array.clear();
+	//_approx_pair_data_array.clear();
+//
 	int side_num_sq = _side_num * _side_num;
 	int offst = SystemParams::_grid_radius_2;
 
 	A3DSquare* cur_sq;
 	A3DSquare* neighbor_sq;
-	A3DObject* obj;
 
-	int xPos, yPos, zPos, left_over;
-	int xBegin, xEnd, yBegin, yEnd, zBegin, zEnd;
 	for (unsigned int iter = 0; iter < _squares.size(); iter++)
 	{
 		cur_sq = _squares[iter];
 
-		//if (cur_sq->_objects.size() == 0) {continue;} // should we comment this ???
-		if (cur_sq->_object_idx_array.size() == 0) { continue; } // should we comment this ???
+		if (cur_sq->_objects.size() == 0) { continue; }
 
 		cur_sq->_c_pt_fill_size = 0;        // reset
 		cur_sq->_c_pt_approx_fill_size = 0; // reset
 
-		zPos = iter / side_num_sq; // int division
+		int zPos = iter / side_num_sq; // int division
 
-		left_over = iter - (zPos * side_num_sq);
+		int left_over = iter - (zPos * side_num_sq);
 
-		xPos = left_over / _side_num;          // current position
-		yPos = left_over - (xPos * _side_num); // current position // y is filled first
+		int xPos = left_over / _side_num;          // current position
+		int yPos = left_over - (xPos * _side_num); // current position
 
-		xBegin = xPos - offst;
+		int xBegin = xPos - offst;
 		if (xBegin < 0) { xBegin = 0; }
 
-		xEnd = xPos + offst;
+		int xEnd = xPos + offst;
 		if (xEnd >= _side_num) { xEnd = _side_num - 1; }
 
-		yBegin = yPos - offst;
+		int yBegin = yPos - offst;
 		if (yBegin < 0) { yBegin = 0; }
 
-		yEnd = yPos + offst;
+		int yEnd = yPos + offst;
 		if (yEnd >= _side_num) { yEnd = _side_num - 1; }
 
-		zBegin = zPos - offst;
+		int zBegin = zPos - offst;
 		if (zBegin < 0) { zBegin = 0; }
 
-		zEnd = zPos + offst;
+		int zEnd = zPos + offst;
 		if (zEnd >= _side_num) { zEnd = _side_num - 1; }
 
-		
-		for (int zIter = zBegin; zIter <= zEnd; zIter++)
+		for (int zIter = zBegin; zIter <= xEnd; zIter++)
 		{
 			for (int xIter = xBegin; xIter <= xEnd; xIter++)
 			{
@@ -355,16 +360,16 @@ void CollisionGrid3D::PrecomputeData()
 						abs(yIter - yPos) <= SystemParams::_grid_radius_1 &&
 						abs(zIter - zPos) <= SystemParams::_grid_radius_1)
 					{
-						/*for (unsigned int a = 0; a < neighbor_sq->_objects.size(); a++)
+						for (unsigned int a = 0; a < neighbor_sq->_objects.size(); a++)
 						{
 							// (1) which element (2) which triangle
-							cur_sq->_c_pt[cur_sq->_c_pt_fill_size++] = std::pair<int, int>(neighbor_sq->_objects[a]->_info1, neighbor_sq->_objects[a]->_info2);
-						}*/
-						for (unsigned int a = 0; a < neighbor_sq->_object_idx_array.size(); a++)
-						{
-							// (1) which element (2) which triangle
-							obj = _objects[neighbor_sq->_object_idx_array[a]];
-							cur_sq->_c_pt[cur_sq->_c_pt_fill_size++] = std::pair<int, int>(obj->_info1, obj->_info2);
+							cur_sq->_c_pt[cur_sq->_c_pt_fill_size] = std::pair<int, int>(neighbor_sq->_objects[a]->_info1, neighbor_sq->_objects[a]->_info2);
+							cur_sq->_c_pt_fill_size++;
+
+							/*if (cur_sq->_c_pt_fill_size > SystemParams::_max_exact_array_len)
+							{
+								std::cout << "e";
+							}*/
 						}
 					}
 					//else if (abs(xIter - xPos) <= SystemParams::_grid_radius_2 &&
@@ -372,30 +377,30 @@ void CollisionGrid3D::PrecomputeData()
 					//	     abs(zIter - zPos) <= SystemParams::_grid_radius_2)
 					else // it is ok, no need to check
 					{
-						/*for (unsigned int a = 0; a < neighbor_sq->_objects.size(); a++)
+						for (unsigned int a = 0; a < neighbor_sq->_objects.size(); a++)
 						{
 							// (1) which element (2) which square
-							cur_sq->_c_pt_approx[cur_sq->_c_pt_approx_fill_size++] = std::pair<int, int>(neighbor_sq->_objects[a]->_info1, s_idx);
-						}
-						*/
-						for (unsigned int a = 0; a < neighbor_sq->_object_idx_array.size(); a++)
-						{
-							// (1) which element (2) which square
-							obj = _objects[neighbor_sq->_object_idx_array[a]];
-							cur_sq->_c_pt_approx[cur_sq->_c_pt_approx_fill_size++] = std::pair<int, int>(obj->_info1, s_idx);
+							cur_sq->_c_pt_approx[cur_sq->_c_pt_approx_fill_size] = std::pair<int, int>(neighbor_sq->_objects[a]->_info1,
+								s_idx);
+							cur_sq->_c_pt_approx_fill_size++;
+
+							/*if (cur_sq->_c_pt_approx_fill_size > SystemParams::_max_approx_array_len)
+							{
+								std::cout << "a";
+							}*/
 						}
 					}
 				}
 			}
 		}
+		//std::cout << cur_sq->_pd_actual_size << " -- " << cur_sq->_approx_pd_actual_size << "\n";
+		//_pair_data_array.push_back(_pd);
+		//_approx_pair_data_array.push_back(_approx_pd);
+		//_graph_idx_array.push_back(gIndices);
+		//_triangle_idx_array.push_back(tIndices);
 	}
-
-	cur_sq = 0;
-	neighbor_sq = 0;
-	obj = 0;
 }
 
-// NOT USED
 void CollisionGrid3D::PrecomputeClosestGraphsAndTriangles()
 {
 	_graph_idx_array.clear(); // std::vector<std::vector<int>>
@@ -442,12 +447,10 @@ void CollisionGrid3D::PrecomputeClosestGraphsAndTriangles()
 				for (unsigned int yIter = yBegin; yIter <= yEnd; yIter++)
 				{
 					int idx = SquareIndex(xIter, yIter, zIter);
-					//for (unsigned int a = 0; a < _squares[idx]->_objects.size(); a++)
-					for (unsigned int a = 0; a < _squares[idx]->_object_idx_array.size(); a++)
+					for (unsigned int a = 0; a < _squares[idx]->_objects.size(); a++)
 					{
 						// graph						
-						//int info1 = _squares[idx]->_objects[a]->_info1;						
-						int info1 = _objects[_squares[idx]->_object_idx_array[a]]->_info1;
+						int info1 = _squares[idx]->_objects[a]->_info1;
 						int idxidx = UtilityFunctions::GetIndexFromIntList(gIndices, info1);
 						if (idxidx == -1) // graph not found
 						{
@@ -464,8 +467,7 @@ void CollisionGrid3D::PrecomputeClosestGraphsAndTriangles()
 
 						// can be improved, put in an temp array
 						// triangle
-						//int info2 = _squares[idx]->_objects[a]->_info2;
-						int info2 = _objects[_squares[idx]->_object_idx_array[a]]->_info2;
+						int info2 = _squares[idx]->_objects[a]->_info2;
 						int idxidx2 = UtilityFunctions::GetIndexFromIntList(tIndices[idxidx], info2); // actually they don't have duplicates
 						if (idxidx2 == -1)
 						{
@@ -485,32 +487,25 @@ void CollisionGrid3D::PrecomputeClosestGraphsAndTriangles()
 
 void CollisionGrid3D::MovePoints()
 {
-	//std::vector<A3DObject*> invalidObjects;
-	std::vector<int> invalid_obj_idx_array;
+	std::vector<A3DObject*> invalidObjects;
 	for (unsigned int a = 0; a < _squares.size(); a++)
 	{
-		//for (int b = _squares[a]->_objects.size() - 1; b >= 0; b--) // should be signed
-		for (int b = _squares[a]->_object_idx_array.size() - 1; b >= 0; b--) // should be signed
+		for (int b = _squares[a]->_objects.size() - 1; b >= 0; b--) // should be signed
 		{
-			/*if (!_squares[a]->Contains(_squares[a]->_objects[b]))
+			if (!_squares[a]->Contains(_squares[a]->_objects[b]))
 			{
 				invalidObjects.push_back(_squares[a]->_objects[b]);
 				_squares[a]->_objects.erase(_squares[a]->_objects.begin() + b);
-			}*/
-			if (!_squares[a]->Contains(_objects[_squares[a]->_object_idx_array[b]]))
-			{
-				invalid_obj_idx_array.push_back(_squares[a]->_object_idx_array[b]);
-				_squares[a]->_object_idx_array.erase(_squares[a]->_object_idx_array.begin() + b);
 			}
 		}
 	}
 
-	A3DObject* obj;
-	int xPos, yPos, zPos, idx;
-	for (unsigned int a = 0; a < invalid_obj_idx_array.size(); a++)
+	for (unsigned int a = 0; a < invalidObjects.size(); a++)
 	{
-		obj = _objects[invalid_obj_idx_array[a]];
-		GetCellPosition(xPos, yPos, zPos, obj->_x, obj->_y, obj->_z);		
+		int xPos;
+		int yPos;
+		int zPos;
+		GetCellPosition(xPos, yPos, zPos, invalidObjects[a]->_x, invalidObjects[a]->_y, invalidObjects[a]->_z);
 
 		// avoiding runtime error
 		if (xPos < 0) { xPos = 0; }
@@ -522,13 +517,10 @@ void CollisionGrid3D::MovePoints()
 		if (zPos < 0) { zPos = 0; }
 		if (zPos == _side_num) { zPos = _side_num - 1; }
 
-		idx = SquareIndex(xPos, yPos, zPos);
-		//_squares[idx]->_objects.push_back(invalidObjects[a]);
-		_squares[idx]->_object_idx_array.push_back(invalid_obj_idx_array[a]);
+		int idx = SquareIndex(xPos, yPos, zPos);
+		_squares[idx]->_objects.push_back(invalidObjects[a]);
 	}
-	invalid_obj_idx_array.clear(); // HUH?? NEED TO CHECK WHETHER IT's ZERO OR NOT
-
-	obj = 0;
+	invalidObjects.clear();
 }
 
 void CollisionGrid3D::InitOgre3D(Ogre::SceneManager* sceneMgr)
@@ -638,17 +630,15 @@ void CollisionGrid3D::UpdateOgre3D()
 	// do something
 	//int empty_iter = 0;
 	//int filled_iter = 0;
-	A3DObject* obj;
 	if (SystemParams::_show_collision_grid_object)
 	{
 		for (unsigned int a = 0; a < _squares.size(); a++)
 		{
-			if (_squares[a]->_object_idx_array.size() > 0)
+			if (_squares[a]->_objects.size() > 0)
 			{
-				for (unsigned int b = 0; b < _squares[a]->_object_idx_array.size(); b++)
+				for (unsigned int b = 0; b < _squares[a]->_objects.size(); b++)
 				{
-					obj = _objects[_squares[a]->_object_idx_array[b]];
-					A3DVector pos(obj->_x, obj->_y, -obj->_z);
+					A3DVector pos(_squares[a]->_objects[b]->_x, _squares[a]->_objects[b]->_y, -_squares[a]->_objects[b]->_z);
 
 					_plus_lines->addPoint(pos._x - plus_offset, pos._y, pos._z);
 					_plus_lines->addPoint(pos._x + plus_offset, pos._y, pos._z);
@@ -663,13 +653,15 @@ void CollisionGrid3D::UpdateOgre3D()
 			}
 		}
 	}
-	obj = 0;
+
 
 	if (SystemParams::_show_collision_grid)
 	{
+		//_plus_node->setVisible(true);
+		//_filled_node->setVisible(true);
 		for (unsigned int a = 0; a < _squares.size(); a++)
 		{
-			if (_squares[a]->_object_idx_array.size() > 0)
+			if (_squares[a]->_objects.size() > 0)
 			{
 				_filled_lines->addPoint(Ogre::Vector3(_squares[a]->_draw_pt1._x, _squares[a]->_draw_pt1._y, -_squares[a]->_draw_pt1._z));//
 				_filled_lines->addPoint(Ogre::Vector3(_squares[a]->_draw_pt2._x, _squares[a]->_draw_pt2._y, -_squares[a]->_draw_pt2._z));
@@ -697,18 +689,20 @@ void CollisionGrid3D::UpdateOgre3D()
 				_filled_lines->addPoint(Ogre::Vector3(_squares[a]->_draw_pt8._x, _squares[a]->_draw_pt8._y, -_squares[a]->_draw_pt8._z));
 				_filled_lines->addPoint(Ogre::Vector3(_squares[a]->_draw_pt3._x, _squares[a]->_draw_pt3._y, -_squares[a]->_draw_pt3._z));//
 				_filled_lines->addPoint(Ogre::Vector3(_squares[a]->_draw_pt7._x, _squares[a]->_draw_pt7._y, -_squares[a]->_draw_pt7._z));
+
+
+
 			}
 
 		}
 
 	}
 
-	// exact
 	if (SystemParams::_show_c_pt_cg)
 	{
 		for (unsigned int a = 0; a < _squares.size(); a++)
 		{
-			if (_squares[a]->_object_idx_array.size() > 0)
+			if (_squares[a]->_objects.size() > 0)
 			{
 				float offsetVal = _squares[a]->_length * 0.5 * (float)_squares[a]->_c_pt_fill_size / (float)SystemParams::_max_exact_array_len;
 
@@ -722,12 +716,11 @@ void CollisionGrid3D::UpdateOgre3D()
 		}
 	}
 
-	// approx
 	if (SystemParams::_show_c_pt_approx_cg)
 	{
 		for (unsigned int a = 0; a < _squares.size(); a++)
 		{
-			if (_squares[a]->_object_idx_array.size() > 0)
+			if (_squares[a]->_objects.size() > 0)
 			{
 				float offsetVal = _squares[a]->_length * 0.5 * (float)_squares[a]->_c_pt_approx_fill_size / (float)SystemParams::_max_exact_array_len;
 

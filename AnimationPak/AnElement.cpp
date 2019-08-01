@@ -1729,7 +1729,7 @@ void AnElement::Interp_SolveForSprings2D()
 
 		eForce = dir * k *  diff;
 
-		if (!eForce.IsBad())
+		/*if (!eForce.IsBad())*/
 		{
 			_interp_massList[idx0]._edgeForce += A3DVector(eForce.x, eForce.y, 0);	// _massList[idx0]._distToBoundary;
 			_interp_massList[idx1]._edgeForce -= A3DVector(eForce.x, eForce.y, 0);	// _massList[idx1]._distToBoundary;
@@ -1754,7 +1754,7 @@ void AnElement::Interp_SolveForSprings2D()
 
 		eForce = dir * k *  diff;
 
-		if (!eForce.IsBad())
+		/*if (!eForce.IsBad())*/
 		{
 			_interp_massList[idx0]._edgeForce += A3DVector(eForce.x, eForce.y, 0);	// _massList[idx0]._distToBoundary;
 			_interp_massList[idx1]._edgeForce -= A3DVector(eForce.x, eForce.y, 0);	// _massList[idx1]._distToBoundary;
@@ -1903,7 +1903,7 @@ void AnElement::SolveForSprings3D()
 
 		eForce = dir * k *  diff;
 
-		if (!eForce.IsBad())
+		//if (!eForce.IsBad())
 		{
 			_massList[idx0]._edgeForce += eForce;	
 			_massList[idx1]._edgeForce -= eForce;
@@ -1935,7 +1935,7 @@ void AnElement::SolveForSprings3D()
 
 		eForce = dir * k *  diff;
 
-		if (!eForce.IsBad())
+		//if (!eForce.IsBad())
 		{
 			_massList[idx0]._edgeForce += eForce;	
 			_massList[idx1]._edgeForce -= eForce;	

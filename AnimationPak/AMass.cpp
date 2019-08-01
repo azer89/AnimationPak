@@ -301,10 +301,9 @@ void AMass::GetClosestPoint4()
 		{
 			current_sq_idx = temp_sq_idx;	
 
-			A3DVector sq_pt( _c_grid_3d->_squares[current_sq_idx]->_xCenter, 
-				             _c_grid_3d->_squares[current_sq_idx]->_yCenter, 
-				            -_c_grid_3d->_squares[current_sq_idx]->_zCenter);
-			_c_pts_approx[_c_pts_approx_fill_size].first = A3DVector(sq_pt._x, sq_pt._y, sq_pt._z);
+			_c_pts_approx[_c_pts_approx_fill_size].first = A3DVector(_c_grid_3d->_squares[current_sq_idx]->_xCenter,
+				                                                     _c_grid_3d->_squares[current_sq_idx]->_yCenter, 
+				                                                     -_c_grid_3d->_squares[current_sq_idx]->_zCenter); // negative
 			_c_pts_approx[_c_pts_approx_fill_size].second = 1;
 			_c_pts_approx_fill_size++;
 		}
@@ -507,7 +506,8 @@ void AMass::Solve(const std::vector<A2DVector>& container, AnElement& parentElem
 				sumO += dir;
 			}
 			sumO *= SystemParams::_k_overlap;
-			if (!sumO.IsBad()) { this->_overlapForce += sumO; }
+			/*if (!sumO.IsBad())*/ 
+			{ this->_overlapForce += sumO; }
 		}
 		else
 		{
@@ -532,7 +532,7 @@ void AMass::Solve(const std::vector<A2DVector>& container, AnElement& parentElem
 			}
 
 			sumR *= SystemParams::_k_repulsion;
-			if (!sumR.IsBad())
+			/*if (!sumR.IsBad())*/
 			{
 				this->_repulsionForce += A3DVector(sumR._x, sumR._y, sumR._z);
 			}
@@ -548,7 +548,8 @@ void AMass::Solve(const std::vector<A2DVector>& container, AnElement& parentElem
 		A2DVector cPt = UtilityFunctions::GetClosestPtOnClosedCurve(container, pos2D);
 		A2DVector dirDist = pos2D.DirectionTo(cPt); // not normalized
 		A2DVector bForce = dirDist * k_boundary;
-		if (!bForce.IsBad()) { this->_boundaryForce += A3DVector(bForce.x, bForce.y, 0); } // z is always 0 !!!
+		/*if (!bForce.IsBad())*/ 
+		{ this->_boundaryForce += A3DVector(bForce.x, bForce.y, 0); } // z is always 0 !!!
 	}
 
 	// --------- DOCKING FORCE	
@@ -559,7 +560,7 @@ void AMass::Solve(const std::vector<A2DVector>& container, AnElement& parentElem
 		float dist = dir.Length();
 		dir = dir.Norm();
 		A3DVector eForce = (dir * SystemParams::_k_dock * dist);
-		if (!eForce.IsBad())
+		/*if (!eForce.IsBad())*/
 		{
 			_edgeForce += eForce;	
 		}

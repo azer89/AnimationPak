@@ -129,7 +129,8 @@ public:
 	//std::vector< std::vector<int> > _approx_pd_actual_sizes;
 	//std::vector<std::vector<std::pair<int, int>>> _approx_pds;
 
-	std::vector<A3DObject*>	_objects;
+	//std::vector<A3DObject*>	_objects;
+	std::vector<int> _object_idx_array;
 
 	inline bool Contains(A3DObject* obj)
 	{
@@ -143,7 +144,8 @@ public:
 
 	void Clear()
 	{
-		this->_objects.clear();
+		//this->_objects.clear();
+		this->_object_idx_array.clear();
 	}
 
 };

@@ -870,7 +870,7 @@ std::vector<std::vector<cv::Point>> OpenCVWrapper::GetCVContours(const std::vect
 
 
 void OpenCVWrapper::Triangulate(std::vector<AnIdxTriangle>& myTriangles,
-	//std::vector<AnIndexedLine>& negSpaceEdges,
+	std::vector<AnIndexedLine>& negSpaceEdges,
 	const std::vector<A2DVector>& randomPoints,
 	const std::vector<A2DVector>& boundary,
 	float img_length/*,
@@ -922,9 +922,6 @@ void OpenCVWrapper::Triangulate(std::vector<AnIdxTriangle>& myTriangles,
 		A2DVector centerPt = (pt1 + pt2 + pt3) / 3.0f;
 		if (cv::pointPolygonTest(cvBoundary, cv::Point2f(centerPt.x, centerPt.y), true) < 0)
 		{
-			/*A2DVector cPt;
-			float d;
-
 			// 1 & 2
 			if (std::abs(idx1 - idx2) > 2)
 			{
@@ -941,7 +938,7 @@ void OpenCVWrapper::Triangulate(std::vector<AnIdxTriangle>& myTriangles,
 			if (std::abs(idx3 - idx1) > 2)
 			{
 				negSpaceEdges.push_back(AnIndexedLine(idx3, idx1));
-			}*/
+			}
 
 			continue;
 		}

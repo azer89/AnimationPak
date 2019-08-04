@@ -361,7 +361,8 @@ void AnElement::Triangularization(std::vector<A2DVector> element_path, int self_
 	// -----  triangulation ----- 
 	OpenCVWrapper cvWrapper;
 	std::vector<AnIdxTriangle> tempTriangles;
-	cvWrapper.Triangulate(tempTriangles, randomPoints, element_path, img_length);
+	std::vector<AnIndexedLine> negSpaceEdges;
+	cvWrapper.Triangulate(tempTriangles, negSpaceEdges, randomPoints, element_path, img_length);
 	// duplicate triangles
 	for (int a = 0; a < SystemParams::_num_layer; a++)
 	{

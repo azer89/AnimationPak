@@ -500,7 +500,7 @@ public:
 						float img_length,
 						const std::vector<std::vector<A2DVector>>& arts);*/
 	void Triangulate(std::vector<AnIdxTriangle>& myTriangles,
-						//std::vector<AnIndexedLine>& negSpaceEdges,
+						std::vector<AnIndexedLine>& negSpaceEdges,
 						const std::vector<A2DVector>& randomPoints,
 						const std::vector<A2DVector>& boundary,
 						float img_length/*,

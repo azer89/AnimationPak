@@ -473,6 +473,7 @@ void StuffWorker::UpdateOgre3D()
 		_element_list[a].UpdateTimeTriangleOgre3D();
 		_element_list[a].UpdateClosestPtsDisplayOgre3D();
 		_element_list[a].UpdateOverlapOgre3D();
+		_element_list[a].UpdateNegSpaceEdgeOgre3D();
 	}
 
 	StuffWorker::_c_grid_3d->UpdateOgre3D();

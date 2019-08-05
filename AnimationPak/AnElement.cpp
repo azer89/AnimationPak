@@ -361,8 +361,8 @@ void AnElement::Triangularization(std::vector<A2DVector> element_path, int self_
 	// -----  triangulation ----- 
 	OpenCVWrapper cvWrapper;
 	std::vector<AnIdxTriangle> tempTriangles;
-	std::vector<AnIndexedLine> negSpaceEdges;
-	cvWrapper.Triangulate(tempTriangles, negSpaceEdges, randomPoints, element_path, img_length);
+	std::vector<AnIndexedLine> temp_negSpaceEdges;
+	cvWrapper.Triangulate(tempTriangles, temp_negSpaceEdges, randomPoints, element_path, img_length);
 	// duplicate triangles
 	for (int a = 0; a < SystemParams::_num_layer; a++)
 	{
@@ -374,6 +374,17 @@ void AnElement::Triangularization(std::vector<A2DVector> element_path, int self_
 			int idx2 = tempTriangles[b].idx2 + massIdxOffset;
 			AnIdxTriangle tri(idx0, idx1, idx2);
 			_triangles.push_back(tri);
+		}
+	}
+	// duplicate neg space edge
+	for (int a = 0; a < SystemParams::_num_layer; a++)
+	{
+		float massIdxOffset = a * _numPointPerLayer;
+		for (unsigned int b = 0; b < temp_negSpaceEdges.size(); b++)
+		{
+			int idx0 = temp_negSpaceEdges[b]._index0 + massIdxOffset;
+			int idx1 = temp_negSpaceEdges[b]._index1 + massIdxOffset;
+			_negSpaceEdges.push_back(AnIndexedLine(idx0, idx1));
 		}
 	}
 	// -----  triangulation ----- 
@@ -742,6 +753,13 @@ void AnElement::Grow(float growth_scale_iter, float dt)
 		A2DVector p2 = _rest_mass_pos_array[_auxiliaryEdges[a]._index1].GetA2DVector();
 		_auxiliaryEdges[a].SetActualOriDistance(p1.Distance(p2));
 	}
+
+	for (unsigned int a = 0; a < _negSpaceEdges.size(); a++)
+	{
+		A2DVector p1 = _rest_mass_pos_array[_negSpaceEdges[a]._index0].GetA2DVector();
+		A2DVector p2 = _rest_mass_pos_array[_negSpaceEdges[a]._index1].GetA2DVector();
+		_negSpaceEdges[a].SetActualOriDistance(p1.Distance(p2));
+	}
 }
 
 void AnElement::CreateRandomPoints(std::vector<A2DVector> ornamentBoundary,
@@ -818,6 +836,21 @@ void AnElement::InitMeshOgre3D(Ogre::SceneManager* sceneMgr,
 
 	this->_color = MyColor(rVal * 255, gVal * 255, bVal * 255);
 
+	// ---------- neg_space ----------
+	Ogre::MaterialPtr neg_sp_line_material = Ogre::MaterialManager::getSingleton().getByName("Examples/RedMat")->clone("neg_sp_line_material" + std::to_string(_elem_idx));
+	neg_sp_line_material->getTechnique(0)->getPass(0)->setDiffuse(Ogre::ColourValue(rVal, gVal, bVal, 1));
+	_neg_space_edge_lines = new DynamicLines(neg_sp_line_material, Ogre::RenderOperation::OT_LINE_LIST);
+	for (int l = 0; l < _negSpaceEdges.size(); l++)
+	{
+		A3DVector pt1 = _massList[_negSpaceEdges[l]._index0]._pos;
+		A3DVector pt2 = _massList[_negSpaceEdges[l]._index1]._pos;
+		_neg_space_edge_lines->addPoint(Ogre::Vector3(pt1._x, pt1._y, pt1._z));
+		_neg_space_edge_lines->addPoint(Ogre::Vector3(pt2._x, pt2._y, pt2._z));
+	}
+	_neg_space_edge_lines->update();
+	_neg_space_edge_node = _sceneMgr->getRootSceneNode()->createChildSceneNode("_neg_space_edge_lines_" + std::to_string(_elem_idx));
+	_neg_space_edge_node->attachObject(_neg_space_edge_lines);
+
 	
 	// ---------- material ----------
 	Ogre::MaterialPtr line_material = Ogre::MaterialManager::getSingleton().getByName("Examples/RedMat")->clone("ElementLines" + std::to_string(_elem_idx));	
@@ -845,6 +878,8 @@ void AnElement::InitMeshOgre3D(Ogre::SceneManager* sceneMgr,
 	_boundary_lines->update();
 	_boundary_node = _sceneMgr->getRootSceneNode()->createChildSceneNode("debug_lines_" + std::to_string(_elem_idx));
 	_boundary_node->attachObject(_boundary_lines);
+
+	
 
 	// ---------- time triangles ----------
 	_time_springs_lines = new DynamicLines(line_material, Ogre::RenderOperation::OT_LINE_LIST);
@@ -940,6 +975,8 @@ void AnElement::InitMeshOgre3D(Ogre::SceneManager* sceneMgr,
 	_overlap_lines->update();
 	_overlap_node = _sceneMgr->getRootSceneNode()->createChildSceneNode("_overlap_lines_" + std::to_string(_elem_idx));
 	_overlap_node->attachObject(_overlap_lines);
+
+	
 }
 
 void AnElement::UpdateClosestSliceOgre3D()
@@ -988,6 +1025,28 @@ void AnElement::UpdateDockLinesOgre3D()
 	}
 
 	_dock_lines->update();
+}
+
+void AnElement::UpdateNegSpaceEdgeOgre3D()
+{
+	if(SystemParams::_show_negative_space_springs)
+	{
+		_neg_space_edge_node->setVisible(true);
+		int idx = 0;
+
+		for (int l = 0; l < _negSpaceEdges.size(); l++)
+		{
+			A3DVector pt1 = _massList[_negSpaceEdges[l]._index0]._pos;
+			A3DVector pt2 = _massList[_negSpaceEdges[l]._index1]._pos;
+			_neg_space_edge_lines->setPoint(idx++, Ogre::Vector3(pt1._x, pt1._y, pt1._z));
+			_neg_space_edge_lines->setPoint(idx++, Ogre::Vector3(pt2._x, pt2._y, pt2._z));
+		}
+		_neg_space_edge_lines->update();
+	}
+	else
+	{
+		_neg_space_edge_node->setVisible(false);
+	}
 }
 
 void AnElement::UpdateBoundaryDisplayOgre3D()

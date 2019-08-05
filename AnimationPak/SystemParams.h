@@ -77,6 +77,7 @@ public:
 	static bool _show_collision_grid;
 	static bool _show_collision_grid_object;
 	static bool _show_time_springs;
+	static bool _show_negative_space_springs;
 
 	static bool _show_c_pt_cg;
 	static bool _show_c_pt_approx_cg;

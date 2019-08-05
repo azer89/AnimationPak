@@ -151,6 +151,7 @@ bool Display::frameStarted(const Ogre::FrameEvent& evt)
 	ImGui::Checkbox("Show c_pt_cg (debug)", &SystemParams::_show_c_pt_cg);
 	ImGui::Checkbox("Show c_pt_approx_cg (debug)", &SystemParams::_show_c_pt_approx_cg);
 	ImGui::Checkbox("Show time triangles", &SystemParams::_show_time_springs);
+	ImGui::Checkbox("Show negative space springs", &SystemParams::_show_negative_space_springs);
 	/*if (ImGui::Checkbox("Show time springs", &SystemParams::_show_time_springs))
 	{
 		for (int a = 0; a < _sWorker->_element_list.size(); a++)

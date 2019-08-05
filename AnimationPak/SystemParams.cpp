@@ -146,6 +146,7 @@ bool SystemParams::_show_approx_repulsion_forces = false;
 bool SystemParams::_show_collision_grid = false;
 bool SystemParams::_show_collision_grid_object = false;
 bool SystemParams::_show_time_springs = false;
+bool SystemParams::_show_negative_space_springs = false;
 
 bool SystemParams::_show_c_pt_cg = false;
 bool SystemParams::_show_c_pt_approx_cg = false;

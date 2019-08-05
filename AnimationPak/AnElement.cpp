@@ -1921,7 +1921,7 @@ void AnElement::SolveForSprings3D()
 	float k = 0;
 
 	// TODO: Nasty code here
-	float small_scale = 3.0f;
+	float small_scale = 1.0f;
 	float small_factor = 10.0f;
 
 	// 333333333333333333333333333333333333333333333333
@@ -1999,6 +1999,38 @@ void AnElement::SolveForSprings3D()
 		{
 			_massList[idx0]._edgeForce += eForce;	
 			_massList[idx1]._edgeForce -= eForce;	
+		}
+	}
+
+	// 333333333333333333333333333333333333333333333333333333
+	for (unsigned int a = 0; a < _negSpaceEdges.size(); a++)
+	{
+		int idx0 = _negSpaceEdges[a]._index0;
+		int idx1 = _negSpaceEdges[a]._index1;
+
+		pt0 = _massList[idx0]._pos;
+		pt1 = _massList[idx1]._pos;
+
+
+		k = SystemParams::_k_neg_space_edge;
+
+		// TODO: Nasty code here
+		if (_scale < small_scale)
+		{
+			k *= small_factor;
+		}
+
+		dir = pt0.DirectionTo(pt1);
+		dir = dir.Norm();
+		dist = pt0.Distance(pt1);
+		diff = dist - _auxiliaryEdges[a]._dist;
+
+		eForce = dir * k *  diff;
+
+		//if (!eForce.IsBad())
+		{
+			_massList[idx0]._edgeForce += eForce;
+			_massList[idx1]._edgeForce -= eForce;
 		}
 	}
 }

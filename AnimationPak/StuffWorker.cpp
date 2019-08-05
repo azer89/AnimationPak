@@ -70,7 +70,7 @@ void StuffWorker::InitElements(Ogre::SceneManager* scnMgr)
 
 
 	float initialScale = SystemParams::_element_initial_scale; // 0.05
-	/*{
+	{
 		int idx = _element_list.size();
 		AnElement elem;
 		elem.Triangularization(element_path, idx);
@@ -86,7 +86,7 @@ void StuffWorker::InitElements(Ogre::SceneManager* scnMgr)
 		Ogre::SceneNode* pNode = scnMgr->getRootSceneNode()->createChildSceneNode("TubeNode" + std::to_string(idx));
 		elem.InitMeshOgre3D(scnMgr, pNode, "StarTube" + std::to_string(idx), "Examples/TransparentTest2");
 		_element_list.push_back(elem);
-	}*/
+	}
 	
 	//_containerWorker->_randomPositions.push_back(A2DVector(250, 250));
 

@@ -21,11 +21,11 @@ _seed = -1; --- negative means random
 
 --- Force parameters
 _k_edge                = 1;	--- 0.5 edge force for filling elements
-_k_z                   = 1;   --- preventing layers to stray away in z direction
-_k_time_edge           = 0.001;
-_k_neg_space_edge      = 10;	--- edge force for springs
+_k_z                   = 0.5;   --- preventing layers to stray away in z direction
+_k_time_edge           = 0.0001;
+_k_neg_space_edge      = 0.0001;	--- edge force for springs
 _k_edge_small_factor   = 12;
-_k_repulsion           = 1;	--- 10 repulsion force
+_k_repulsion           = 5;	--- 10 repulsion force
 _repulsion_soft_factor = 1.0;	--- soft factor for repulsion force
 _k_overlap             = 2;	    --- overlap force
 _k_boundary            = 0.5;	--- 0.1 boundary force

@@ -64,16 +64,28 @@ StuffWorker::~StuffWorker()
 
 void StuffWorker::InitElements(Ogre::SceneManager* scnMgr)
 {
-	// read from file
-	PathIO pathIO;
-	std::vector<A2DVector> element_path = pathIO.LoadElement(SystemParams::_element_file_name)[0];
+	// element files
+	PathIO pathIO;	
+	std::vector<std::string> some_files = pathIO.LoadFiles(SystemParams::_element_folder); ////
+	std::vector<std::vector<std::vector<A2DVector>>> art_paths;
+	for (unsigned int a = 0; a < some_files.size(); a++)
+	{
+		// is path valid?
+		if (some_files[a] == "." || some_files[a] == "..") { continue; }
+		if (!UtilityFunctions::HasEnding(some_files[a], ".path")) { continue; }
 
+		art_paths.push_back(pathIO.LoadElement(SystemParams::_element_folder + some_files[a]));
+	}
+	//std::vector<A2DVector> element_path = pathIO.LoadElement(SystemParams::_element_file_name)[0];
 
+	int elem_iter = 0;
+	int elem_sz = art_paths.size();
 	float initialScale = SystemParams::_element_initial_scale; // 0.05
 	{
 		int idx = _element_list.size();
 		AnElement elem;
-		elem.Triangularization(element_path, idx);
+		elem.Triangularization(art_paths[elem_iter++ % elem_sz], idx);
+		elem.ComputeBary();
 		elem.ScaleXY(initialScale);
 
 		// docking
@@ -94,8 +106,8 @@ void StuffWorker::InitElements(Ogre::SceneManager* scnMgr)
 	{
 		int idx = _element_list.size();
 		AnElement elem;
-		elem.Triangularization(element_path, idx);
-		
+		elem.Triangularization(art_paths[elem_iter++ % elem_sz], idx);
+		elem.ComputeBary();
 		// random rotation
 		float radAngle = float(rand() % 628) / 100.0;
 		elem.RotateXY(radAngle);
@@ -526,6 +538,14 @@ void StuffWorker::Interp_SaveFrames()
 
 			}
 		}
+	}
+}
+
+void StuffWorker::SaveFrames3()
+{
+	for (int a = 0; a < _element_list.size(); a++)
+	{
+		_element_list[a].CalculateLayerTriangles_Drawing();
 	}
 }
 

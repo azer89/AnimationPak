@@ -20,6 +20,8 @@
 
 #include "DynamicLines.h"
 
+#include "ABary.h"
+
 class AnElement
 {
 public:
@@ -31,8 +33,16 @@ public:
 	void CreateHelix();
 	void RandomizeLayerSize();
 	
-	void BiliniearInterpolation(std::vector<A3DVector>& boundaryA, std::vector<A3DVector>& boundaryB, std::vector<A3DVector>& boundaryInterp, float interVal);
+	void BiliniearInterpolation(std::vector<A3DVector>& boundaryA, 
+		                        std::vector<A3DVector>& boundaryB, 
+		                        std::vector<A3DVector>& boundaryInterp, 
+		                        float interVal);
+	void BiliniearInterpolationTriangle(std::vector<std::vector<A3DVector>>& triangleA,
+		                                std::vector<std::vector<A3DVector>>& triangleB,
+		                                std::vector<std::vector<A2DVector>>& triangleInterp,
+		                                float interVal);
 	void CalculateLayerBoundaries_Drawing();
+	void CalculateLayerTriangles_Drawing();
 	void UpdateLayerBoundaries();
 	//void UpdateSpringLengths();
 	void UpdateInterpMasses();
@@ -47,7 +57,8 @@ public:
 	void DrawRandomPoints(std::vector<A2DVector> randomPoints); // debug
 
 	float GetMaxDistRandomPoints(const std::vector<A2DVector>& randomPoints);
-	void Triangularization(std::vector<A2DVector> element_path, int self_idx);
+	void ComputeBary();
+	void Triangularization(std::vector<std::vector<A2DVector>> art_path, int self_idx);
 	void CreateRandomPoints(std::vector<A2DVector> ornamentBoundary, // called from Tetrahedralization()
 							float img_length,
 							std::vector<A2DVector>& randomPoints,
@@ -132,6 +143,7 @@ public:
 	std::vector<std::vector<A3DVector>> _per_layer_boundary; // for closest point and Ogre3D
 	std::vector<A2DVector> _a_layer_boundary;// for closest point
 	std::vector<std::vector<A3DVector>> _per_layer_boundary_drawing;
+	std::vector<std::vector<std::vector<A2DVector>>> _per_layer_triangle_drawing;
 	//std::vector<float> _per_layer_boundary_z_pos;
 
 	MyColor _color; // drawing
@@ -221,8 +233,11 @@ public:
 	DynamicLines*    _overlap_lines;
 	Ogre::SceneNode* _overlap_node;
 
-
-	
+	//
+	int                                 _numTrianglePerLayer;  // number of triangle in just one layer
+	std::vector<std::vector<A2DVector>> _arts;                 // vector graphics
+	std::vector<std::vector<int>>       _arts2Triangles;       // mapping vector graphics to triangles
+	std::vector<std::vector<ABary>>     _baryCoords;           // barycentric coordinates
 };
 
 #endif

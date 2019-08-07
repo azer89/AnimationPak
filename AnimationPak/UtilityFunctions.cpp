@@ -7,6 +7,7 @@
 #include "A3DVector.h"
 //#include "ALine.h"
 #include "A2DRectangle.h"
+#include "ABary.h"
 
 #include <sstream>
 
@@ -539,4 +540,32 @@ std::vector<std::string> UtilityFunctions::Split(const std::string &s, char deli
 	std::vector<std::string> elems;
 	UtilityFunctions::Split(s, delim, elems);
 	return elems;
+}
+
+/*
+================================================================================
+================================================================================
+*/
+ABary UtilityFunctions::Barycentric(A2DVector p, A2DVector A, A2DVector B, A2DVector C)
+{
+	ABary bary;
+
+	A2DVector v0 = B - A;
+	A2DVector v1 = C - A;
+	A2DVector v2 = p - A;
+	float d00 = v0.Dot(v0);
+	float d01 = v0.Dot(v1);
+	float d11 = v1.Dot(v1);
+	float d20 = v2.Dot(v0);
+	float d21 = v2.Dot(v1);
+	float denom = d00 * d11 - d01 * d01;
+	bary._v = (d11 * d20 - d01 * d21) / denom;
+	bary._w = (d00 * d21 - d01 * d20) / denom;
+	bary._u = 1.0 - bary._v - bary._w;
+
+	//if (bary._v < 0 || bary._v > 1.0) { std::cout << "bary._v : " << bary._v << "\n"; }
+	//if (bary._w < 0 || bary._w > 1.0) { std::cout << "bary._w : " << bary._w << "\n"; }
+	//if (bary._u < 0 || bary._u > 1.0) { std::cout << "bary._u : " << bary._u << "\n"; }
+
+	return bary;
 }

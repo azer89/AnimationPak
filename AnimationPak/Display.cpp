@@ -91,8 +91,6 @@ bool Display::frameStarted(const Ogre::FrameEvent& evt)
 		_sWorker->Solve();
 		_sWorker->Simulate();	
 		_sWorker->ImposeConstraints();
-
-		
 	}
 	_sWorker->UpdateOgre3D();
 	//UpdateSpringDisplay(); // init CreateSpringLines()
@@ -138,10 +136,9 @@ bool Display::frameStarted(const Ogre::FrameEvent& evt)
 
 
 	if (ImGui::Button("Reload parameters")) { SystemParams::LoadParameters(); }
-	if (ImGui::Button("Save Frames")) { _sWorker->SaveFrames2(); }
+	if (ImGui::Button("Save Frames")) { _sWorker->SaveFrames3(); }
 	//if (ImGui::Button("Button B")) {}
 	//if (ImGui::Button("Button C")) {}
-
 	
 	ImGui::Checkbox("Show element boundaries", &SystemParams::_show_element_boundaries);
 	ImGui::Checkbox("Show exact repulsion forces", &SystemParams::_show_exact_repulsion_forces);
@@ -159,7 +156,6 @@ bool Display::frameStarted(const Ogre::FrameEvent& evt)
 			_sWorker->_element_list[a].ShowTimeSprings(SystemParams::_show_time_springs);
 		}
 	}*/
-
 	ImGui::Text("Press C to activate or deactivate camera");
 
 	/*Ogre::Vector3 camPos = _cameraNode->getPosition();

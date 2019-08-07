@@ -164,6 +164,7 @@
     <ClInclude Include="A3DObject.h" />
     <ClInclude Include="A3DSquare.h" />
     <ClInclude Include="A3DVector.h" />
+    <ClInclude Include="ABary.h" />
     <ClInclude Include="AMass.h" />
     <ClInclude Include="AnElement.h" />
     <ClInclude Include="AnIdxTriangle.h" />

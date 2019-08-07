@@ -334,9 +334,77 @@ bool AnElement::IsInside(int layer_idx, A3DVector pos, std::vector<A2DVector>& b
 	return UtilityFunctions::InsidePolygon(_a_layer_boundary, pos._x, pos._y);
 }
 
-
-void AnElement::Triangularization(std::vector<A2DVector> element_path, int self_idx)
+void AnElement::ComputeBary()
 {
+	// calculate triangles
+	std::vector<std::vector<A2DVector>> actualTriangles;
+	for (unsigned int c = 0; c < _numTrianglePerLayer; c++) // first layer only
+	{
+		std::vector<A2DVector> tri(3);
+		tri[0] = _massList[_triangles[c].idx0]._pos.GetA2DVector();
+		tri[1] = _massList[_triangles[c].idx1]._pos.GetA2DVector();
+		tri[2] = _massList[_triangles[c].idx2]._pos.GetA2DVector();
+		actualTriangles.push_back(tri);
+	}
+
+	//  ================================================  
+	// arts
+	_arts2Triangles.clear();
+	_baryCoords.clear();
+	for (unsigned int a = 0; a < _arts.size(); a++)
+	{
+		std::vector<int> a2t;
+		std::vector<ABary> bCoords;
+		for (unsigned int b = 0; b < _arts[a].size(); b++)
+		{
+			int triIdx = -1;
+			ABary bary;
+			for (unsigned int c = 0; c < _numTrianglePerLayer; c++)  // first layer only
+			{
+				if (UtilityFunctions::InsidePolygon(actualTriangles[c], _arts[a][b].x, _arts[a][b].y))
+				{
+					triIdx = c;
+					break;
+				}
+			}
+
+			if (triIdx == -1)
+			{
+				std::cout << "art error !!!\n";
+
+				triIdx = -1;
+				float dist = 100000000;
+				for (unsigned int c = 0; c < _numTrianglePerLayer; c++)  // first layer only
+				{
+					float d = UtilityFunctions::DistanceToClosedCurve(actualTriangles[c], _arts[a][b]);
+					if (d < dist)
+					{
+						dist = d;
+						triIdx = c;
+					}
+				}
+			}
+
+			//else
+			{
+				bary = UtilityFunctions::Barycentric(_arts[a][b],
+					actualTriangles[triIdx][0],
+					actualTriangles[triIdx][1],
+					actualTriangles[triIdx][2]);
+			}
+			bCoords.push_back(bary);
+			a2t.push_back(triIdx);
+		}
+		_baryCoords.push_back(bCoords);
+		_arts2Triangles.push_back(a2t);
+	}
+}
+
+void AnElement::Triangularization(std::vector<std::vector<A2DVector>> art_path, int self_idx)
+{
+	// TODO calculate uniArt
+	std::vector<A2DVector> element_path = art_path[0];
+
 	// ----- element index -----
 	this->_elem_idx = self_idx;
 	
@@ -345,12 +413,17 @@ void AnElement::Triangularization(std::vector<A2DVector> element_path, int self_
 	float img_length = bb.witdh;
 	if (bb.height > bb.witdh) { img_length = bb.height; }
 	A2DVector centerPt = bb.GetCenter();
-	_layer_center = centerPt; // assign !!!
+	//_layer_center = centerPt; // wrong !!!
 
 	// -----  moving to new center ----- 
 	img_length += 5.0f; // triangulation error without this ?
 	A2DVector newCenter = A2DVector((img_length / 2.0f), (img_length / 2.0f));
 	element_path = UtilityFunctions::MovePoly(element_path, centerPt, newCenter);
+	for (int a = 0; a < art_path.size(); a++)                                                          // moveee
+			{ art_path[a] = UtilityFunctions::MovePoly(art_path[a], centerPt, newCenter); }     // moveee
+	_arts = art_path;
+
+	_layer_center = newCenter;
 
 	// -----  random points ----- 
 	std::vector<A2DVector> randomPoints;
@@ -363,6 +436,7 @@ void AnElement::Triangularization(std::vector<A2DVector> element_path, int self_
 	std::vector<AnIdxTriangle> tempTriangles;
 	std::vector<AnIndexedLine> temp_negSpaceEdges;
 	cvWrapper.Triangulate(tempTriangles, temp_negSpaceEdges, randomPoints, element_path, img_length);
+	_numTrianglePerLayer = tempTriangles.size(); // number of triangle per layer
 	// duplicate triangles
 	for (int a = 0; a < SystemParams::_num_layer; a++)
 	{
@@ -1406,6 +1480,28 @@ void AnElement::Interp_UpdateLayerBoundaries()
 	}
 }
 
+void AnElement::BiliniearInterpolationTriangle(std::vector<std::vector<A3DVector>>& triangleA,      // 3D
+											   std::vector<std::vector<A3DVector>>& triangleB,      // 3D
+											   std::vector<std::vector<A2DVector>>& triangleInterp, // 2D
+											   float interVal)
+{
+	for (unsigned int a = 0; a < _numTrianglePerLayer; a++)
+	{
+		std::vector<A2DVector> aTri2D;
+		for (unsigned int b = 0; b < 3; b++)
+		{
+			A3DVector pt1      = triangleA[a][b];
+			A3DVector pt1_next = triangleB[a][b];
+			A3DVector dir1     = pt1.DirectionTo(pt1_next);
+			float dir1_len;
+			A3DVector dir1_unit;
+			dir1.GetUnitAndDist(dir1_unit, dir1_len);
+			aTri2D.push_back( (pt1 + (dir1_unit * dir1_len * interVal)).GetA2DVector() );
+		}
+		triangleInterp.push_back(aTri2D);
+	}
+}
+
 void AnElement::BiliniearInterpolation(std::vector<A3DVector>& boundaryA, std::vector<A3DVector>& boundaryB, std::vector<A3DVector>& boundaryInterp, float interVal)
 {
 	for (int b = 0; b < _numBoundaryPointPerLayer; b++)
@@ -1417,6 +1513,96 @@ void AnElement::BiliniearInterpolation(std::vector<A3DVector>& boundaryA, std::v
 		A3DVector dir1_unit;
 		dir1.GetUnitAndDist(dir1_unit, dir1_len);
 		boundaryInterp[b] = pt1 + (dir1_unit * dir1_len * interVal);
+	}
+}
+
+void AnElement::CalculateLayerTriangles_Drawing()
+{
+	// clear
+	_per_layer_triangle_drawing.clear();
+	
+	// all actual triangles;
+	std::vector<std::vector<A3DVector>> allActualTriangles3D;
+	for (unsigned int a = 0; a < _triangles.size(); a++)
+	{
+		std::vector<A3DVector> tri;
+		tri.push_back( _massList[_triangles[a].idx0]._pos );
+		tri.push_back( _massList[_triangles[a].idx1]._pos );
+		tri.push_back( _massList[_triangles[a].idx2]._pos );
+		allActualTriangles3D.push_back(tri);
+	}
+	
+	// ----- iter variables -----
+	float z_iter = 0;        // negative
+	int png_iter = 0;        // frames (png)
+	int tube_layer_iter = 0; // layers of the tube
+
+	// ----- stuff -----
+	int max_num_png = SystemParams::_num_png_frame;
+	float z_step = SystemParams::_upscaleFactor / ((float)max_num_png);
+
+	// first one
+	{
+		std::vector<std::vector<A2DVector>> first_layer_tri;
+		for (unsigned int a = 0; a < _numTrianglePerLayer; a++)
+		{
+			std::vector<A2DVector> tri;
+			tri.push_back(allActualTriangles3D[a][0].GetA2DVector());
+			tri.push_back(allActualTriangles3D[a][1].GetA2DVector());
+			tri.push_back(allActualTriangles3D[a][2].GetA2DVector());
+			first_layer_tri.push_back(tri);
+		}
+		_per_layer_triangle_drawing.push_back(first_layer_tri);
+	}
+	z_iter -= z_step;
+	png_iter++;
+
+	float min_upscale_factor = -SystemParams::_upscaleFactor;
+	int max_layer_iter = SystemParams::_num_layer - 1;
+	std::vector<std::vector<A2DVector>> a_layer_triangle_temp = _arts; // temporary?
+	while (z_iter > min_upscale_factor && tube_layer_iter < max_layer_iter && png_iter < max_num_png) // todo: FIX ME
+	{
+		float cur_layer_z_pos = _per_layer_boundary[tube_layer_iter][0]._z;     // negative
+		float next_layer_z_pos = _per_layer_boundary[tube_layer_iter + 1][0]._z; // negative
+
+		if (z_iter < cur_layer_z_pos && z_iter > next_layer_z_pos)
+		{
+			// create a new frame!
+			float l_2_l = -(next_layer_z_pos - cur_layer_z_pos); // positive, layer to layer dist
+			float p_2_l = -(z_iter - cur_layer_z_pos);           // positive, png to layer dist
+			float interp_ratio = p_2_l / l_2_l;
+
+			// interpolation code here
+			// dammi* the wost code I've ever had
+			std::vector<std::vector<A3DVector>> triangleA(&allActualTriangles3D[(tube_layer_iter) * _numTrianglePerLayer],     &allActualTriangles3D[(tube_layer_iter + 1) * _numTrianglePerLayer]); // 3D, tube_layer_iter
+			std::vector<std::vector<A3DVector>> triangleB(&allActualTriangles3D[(tube_layer_iter + 1) * _numTrianglePerLayer], &allActualTriangles3D[(tube_layer_iter + 2) * _numTrianglePerLayer]); // 3D, tube_layer_iter + 1
+			BiliniearInterpolationTriangle(triangleA, triangleB, a_layer_triangle_temp, interp_ratio);
+			_per_layer_triangle_drawing.push_back(a_layer_triangle_temp);
+
+			// move on	
+			z_iter -= z_step;
+			png_iter++;
+		}
+		else if (z_iter < next_layer_z_pos)
+		{
+			// move on			
+			tube_layer_iter++;
+		}
+	}
+
+	// last one
+	{
+		std::vector<std::vector<A2DVector>> last_layer_tri;
+		int startIdx = _triangles.size() - _numTrianglePerLayer;
+		for (unsigned int a = startIdx; a < _triangles.size(); a++)
+		{
+			std::vector<A2DVector> tri;
+			tri.push_back(allActualTriangles3D[a][0].GetA2DVector());
+			tri.push_back(allActualTriangles3D[a][1].GetA2DVector());
+			tri.push_back(allActualTriangles3D[a][2].GetA2DVector());
+			last_layer_tri.push_back(tri);
+		}
+		_per_layer_triangle_drawing.push_back(last_layer_tri);
 	}
 }
 
@@ -1919,21 +2105,19 @@ void AnElement::SolveForSprings3D()
 	float dist = 0;
 	float diff = 0;
 	float k = 0;
+	int idx0, idx1;
 
 	// TODO: Nasty code here
-	float small_scale = 1.0f;
-	float small_factor = 10.0f;
+	float scale_threshold = 2.0f;
+	float magic_number = 10.0f;
 
 	// 333333333333333333333333333333333333333333333333
-	for (unsigned int a = 0; a < _triEdges.size(); a++)
+	int tr_sz = _triEdges.size();
+	for (unsigned int a = 0; a < tr_sz; a++)
 	{
-		int idx0 = _triEdges[a]._index0;
-		int idx1 = _triEdges[a]._index1;
-
-		pt0 = _massList[idx0]._pos;
-		pt1 = _massList[idx1]._pos;
-
-
+		idx0 = _triEdges[a]._index0;
+		idx1 = _triEdges[a]._index1;
+		
 		if (_triEdges[a]._isLayer2Layer)
 		{
 			k = SystemParams::_k_time_edge;
@@ -1944,53 +2128,42 @@ void AnElement::SolveForSprings3D()
 
 
 			// TODO: Nasty code here
-			if (_scale < small_scale)
+			if (_scale < scale_threshold)
 			{
-				k *= small_factor;
+				k *= magic_number;
 			}
 		}
 
-		dir_not_unit = pt0.DirectionTo(pt1);
+		dir_not_unit = _massList[idx0]._pos.DirectionTo(_massList[idx1]._pos);
 		dir_not_unit.GetUnitAndDist(dir, dist);
-		/*		
-		dir = dir_not_unit.Norm();
-		dist = pt0.Distance(pt1);
-		*/
-
 
 		diff = dist - _triEdges[a]._dist;
 
-
 		eForce = dir * k *  diff;
 
-		//if (!eForce.IsBad())
-		{
-			_massList[idx0]._edgeForce += eForce;	
-			_massList[idx1]._edgeForce -= eForce;
-		}
+		_massList[idx0]._edgeForce += eForce;	
+		_massList[idx1]._edgeForce -= eForce;
+		
 	}
 
 	// 333333333333333333333333333333333333333333333333333333
-	for (unsigned int a = 0; a < _auxiliaryEdges.size(); a++)
+	int aux_sz = _auxiliaryEdges.size();
+	for (unsigned int a = 0; a < aux_sz; a++)
 	{
-		int idx0 = _auxiliaryEdges[a]._index0;
-		int idx1 = _auxiliaryEdges[a]._index1;
-
-		pt0 = _massList[idx0]._pos;
-		pt1 = _massList[idx1]._pos;
-
+		idx0 = _auxiliaryEdges[a]._index0;
+		idx1 = _auxiliaryEdges[a]._index1;
 
 		k = SystemParams::_k_edge;
 
 		// TODO: Nasty code here
-		if (_scale < small_scale)
+		if (_scale < scale_threshold)
 		{
-			k *= small_factor;
+			k *= magic_number;
 		}
 
-		dir = pt0.DirectionTo(pt1);
-		dir = dir.Norm();
-		dist = pt0.Distance(pt1);
+		dir_not_unit = _massList[idx0]._pos.DirectionTo(_massList[idx1]._pos);
+		dir_not_unit.GetUnitAndDist(dir, dist);
+
 		diff = dist - _auxiliaryEdges[a]._dist;
 
 		eForce = dir * k *  diff;
@@ -2005,25 +2178,26 @@ void AnElement::SolveForSprings3D()
 	// 333333333333333333333333333333333333333333333333333333
 	for (unsigned int a = 0; a < _negSpaceEdges.size(); a++)
 	{
-		int idx0 = _negSpaceEdges[a]._index0;
-		int idx1 = _negSpaceEdges[a]._index1;
+		idx0 = _negSpaceEdges[a]._index0;
+		idx1 = _negSpaceEdges[a]._index1;
 
-		pt0 = _massList[idx0]._pos;
-		pt1 = _massList[idx1]._pos;
+		//pt0 = _massList[idx0]._pos;
+		//pt1 = _massList[idx1]._pos;
 
 
 		k = SystemParams::_k_neg_space_edge;
 
 		// TODO: Nasty code here
-		if (_scale < small_scale)
+		if (_scale < scale_threshold)
 		{
-			k *= small_factor;
+			k *= magic_number;
 		}
 
-		dir = pt0.DirectionTo(pt1);
-		dir = dir.Norm();
-		dist = pt0.Distance(pt1);
-		diff = dist - _auxiliaryEdges[a]._dist;
+
+		dir_not_unit = _massList[idx0]._pos.DirectionTo(_massList[idx1]._pos);
+		dir_not_unit.GetUnitAndDist(dir, dist);
+
+		diff = dist - _negSpaceEdges[a]._dist;
 
 		eForce = dir * k *  diff;
 

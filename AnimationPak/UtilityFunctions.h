@@ -19,6 +19,7 @@ struct A3DVector;
 struct A2DVector;
 struct ALine;
 struct A2DRectangle;
+struct ABary;
 
 
 class UtilityFunctions
@@ -66,6 +67,9 @@ public:
 	static bool HasEnding(std::string const &fullString, std::string const &ending);
 	static std::vector<std::string>& Split(const std::string &s, char delim, std::vector<std::string> &elems);
 	static std::vector<std::string> Split(const std::string &s, char delim);
+
+	// barycentric
+	static ABary Barycentric(A2DVector p, A2DVector A, A2DVector B, A2DVector C);
 };
 
 #endif

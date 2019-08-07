@@ -30,6 +30,28 @@ PathIO::~PathIO()
 
 /*
 ================================================================================
+IO
+================================================================================
+*/
+std::vector<std::string> PathIO::LoadFiles(std::string directoryPath)
+{
+	std::vector<std::string> fileStr;
+	/*----------  dirent ----------*/
+	DIR *dp;
+	struct dirent *ep;
+	/*---------- open directory ----------*/
+	dp = opendir(directoryPath.c_str());
+	if (dp != NULL)
+	{
+		while (ep = readdir(dp)) { fileStr.push_back(ep->d_name); }
+		(void)closedir(dp);
+	}
+	else { perror("Couldn't open the directory"); }
+	return fileStr;
+}
+
+/*
+================================================================================
 ================================================================================
 */
 std::vector<std::vector<A2DVector>> PathIO::LoadElement(std::string filename)

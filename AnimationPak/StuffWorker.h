@@ -42,6 +42,7 @@ public:
 	void Interp_SaveFrames();
 	void SaveFrames();
 	void SaveFrames2();
+	void SaveFrames3();
 
 public:
 	static bool  _interp_mode;

@@ -11,6 +11,9 @@ radhitya@uwaterloo.ca
 #include <vector>
 #include <cstring>
 
+// read directory
+#include "dirent.h"
+
 #include "A2DVector.h"
 
 class PathIO
@@ -20,6 +23,8 @@ public:
 	~PathIO();
 
 	std::vector<std::vector<A2DVector>> LoadElement(std::string filename);
+
+	std::vector<std::string> LoadFiles(std::string directoryPath); // read directory
 
 };
 

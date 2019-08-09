@@ -430,14 +430,14 @@ public:
 		float yOffset = 0);
 
 	// ---------- draw ----------
-	template <typename T>
+	/*template <typename T>
 	void DrawFilledPoly(std::string imageName,
 		const std::vector<T>& shape_contours,
 		MyColor color,
 		float scale = 1.0f,
 		float xOffset = 0,
 		float yOffset = 0);
-
+	*/
 	// ---------- draw ----------
 	template <typename T>
 	void DrawFilledPoly(CVImg img,

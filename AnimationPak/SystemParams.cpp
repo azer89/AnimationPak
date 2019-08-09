@@ -48,8 +48,10 @@ void SystemParams::LoadParameters()
 	SystemParams::_k_dock = script.get<float>("_k_dock");
 
 	SystemParams::_bin_square_size = script.get<float>("_bin_square_size");
-	SystemParams::_grid_radius_1 = script.get<int>("_grid_radius_1");
-	SystemParams::_grid_radius_2 = script.get<int>("_grid_radius_2");
+	SystemParams::_grid_radius_1_xy = script.get<int>("_grid_radius_1_xy");
+	SystemParams::_grid_radius_2_xy = script.get<int>("_grid_radius_2_xy");
+	SystemParams::_grid_radius_1_z = script.get<int>("_grid_radius_1_z");
+	SystemParams::_grid_radius_2_z = script.get<int>("_grid_radius_2_z");
 	SystemParams::_max_exact_array_len = script.get<int>("_max_exact_array_len");
 	SystemParams::_max_approx_array_len = script.get<int>("_max_approx_array_len");
 	//SystemParams::_collission_block_radius = script.get<int>("_collission_block_radius");
@@ -111,8 +113,10 @@ float SystemParams::_k_dock = 0.0f;
 float SystemParams::_velocity_cap = 0.0f;
 
 float SystemParams::_bin_square_size = 0.0f;
-int SystemParams::_grid_radius_1 = 0;
-int SystemParams::_grid_radius_2 = 0;
+int SystemParams::_grid_radius_1_xy = 0;
+int SystemParams::_grid_radius_2_xy = 0;
+int SystemParams::_grid_radius_1_z = 0;
+int SystemParams::_grid_radius_2_z = 0;
 int SystemParams::_max_exact_array_len = 0;
 int SystemParams::_max_approx_array_len = 0;
 //int   SystemParams::_collission_block_radius = 0;

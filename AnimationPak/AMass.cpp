@@ -244,7 +244,7 @@ A3DVector AMass::GetClosestPtFromArray(int elem_idx, std::vector<A3DObject>& tem
 void AMass::GetClosestPoint4()
 {
 	if (!_is_boundary) { return; }
-	if (_parent_idx < 0 || _parent_idx >= StuffWorker::_element_list.size()) { return; } // why???
+	//if (_parent_idx < 0 || _parent_idx >= StuffWorker::_element_list.size()) { return; } // why???
 
 	this->_is_inside = false;           // "inside" flag
 
@@ -281,7 +281,8 @@ void AMass::GetClosestPoint4()
 	if (closest_elem_idx != -1)
 	{
 		int layer_idx = StuffWorker::_element_list[closest_elem_idx]._timeTriangles[closest_tri_idx]._layer_idx;
-		_is_inside = StuffWorker::_element_list[closest_elem_idx].IsInside(layer_idx, _pos, _closest_boundary_slice);
+		//_is_inside = StuffWorker::_element_list[closest_elem_idx].IsInside(layer_idx, _pos/*, _closest_boundary_slice*/);
+		_is_inside = StuffWorker::_element_list[closest_elem_idx].IsInsideApprox(layer_idx, _pos/*, _closest_boundary_slice*/);
 	}
 
 	// ----- approx closest point -----

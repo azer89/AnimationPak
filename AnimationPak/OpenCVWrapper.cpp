@@ -542,7 +542,7 @@ void OpenCVWrapper::DrawPolys(std::string imageName,
 
 /*================================================================================
 ================================================================================*/
-template <typename T>
+/*template <typename T>
 void OpenCVWrapper::DrawFilledPoly(std::string imageName,
 	const std::vector<T>& shape_contours,
 	MyColor color,
@@ -568,7 +568,7 @@ void OpenCVWrapper::DrawFilledPoly(std::string imageName,
 	MyColor color,
 	float scale,
 	float xOffset,
-	float yOffset);
+	float yOffset);*/
 
 /*================================================================================
 ================================================================================*/

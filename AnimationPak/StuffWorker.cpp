@@ -81,7 +81,7 @@ void StuffWorker::InitElements(Ogre::SceneManager* scnMgr)
 	int elem_iter = 0;
 	int elem_sz = art_paths.size();
 	float initialScale = SystemParams::_element_initial_scale; // 0.05
-	{
+	/*{
 		int idx = _element_list.size();
 		AnElement elem;
 		elem.Triangularization(art_paths[elem_iter++ % elem_sz], idx);
@@ -90,7 +90,7 @@ void StuffWorker::InitElements(Ogre::SceneManager* scnMgr)
 
 		// docking
 		A2DVector startPt(80, 80);
-		A2DVector endPt(410, 410);
+		A2DVector endPt(345, 345);
 		elem.TranslateXY(startPt.x, startPt.y);
 		elem.DockEnds(startPt, endPt);
 		
@@ -98,7 +98,7 @@ void StuffWorker::InitElements(Ogre::SceneManager* scnMgr)
 		Ogre::SceneNode* pNode = scnMgr->getRootSceneNode()->createChildSceneNode("TubeNode" + std::to_string(idx));
 		elem.InitMeshOgre3D(scnMgr, pNode, "StarTube" + std::to_string(idx), "Examples/TransparentTest2");
 		_element_list.push_back(elem);
-	}
+	}*/
 	
 	//_containerWorker->_randomPositions.push_back(A2DVector(250, 250));
 
@@ -541,12 +541,85 @@ void StuffWorker::Interp_SaveFrames()
 	}
 }
 
+void StuffWorker::SaveFrames4()
+{
+	for (int a = 0; a < _element_list.size(); a++)
+	{
+		_element_list[a].CalculateLayerTriangles_Drawing();
+	}
+
+	AVideoCreator vCreator;
+	vCreator.Init(SystemParams::_num_png_frame);
+
+	//for (int l = 0; l < SystemParams::_num_png_frame; l++)
+	//{
+	
+	for (int i = 0; i < _element_list.size(); i++)
+	{
+		std::cout << "elem=" << i << "\n";
+		MyColor col = _element_list[i]._color;
+		std::vector<std::vector<std::vector<A2DVector>>> per_layer_triangle_drawing = _element_list[i]._per_layer_triangle_drawing;
+		for (int l = 0; l < per_layer_triangle_drawing.size(); l++)
+		{
+			std::vector<std::vector<A2DVector>> triangles_in_a_layer = per_layer_triangle_drawing[l];
+			std::vector<std::vector<A2DVector>> arts = _element_list[i].GetBilinearInterpolatedArt(triangles_in_a_layer);
+			vCreator.DrawFilledArt(arts, col, l);
+			/*for (int a = 0; a < triangles_in_a_layer.size(); a++)
+			{
+				// iterate triangle
+				A2DVector pt1 = triangles_in_a_layer[a][0];
+				A2DVector pt2 = triangles_in_a_layer[a][1];
+				A2DVector pt3 = triangles_in_a_layer[a][2];
+
+				vCreator.DrawLine(pt1, pt2, col, l);
+				vCreator.DrawLine(pt2, pt3, col, l);
+				vCreator.DrawLine(pt3, pt1, col, l);
+			}*/
+		}
+	}
+
+	std::stringstream ss;
+	ss << SystemParams::_save_folder << "PNG\\";
+	vCreator.Save(ss.str());
+}
+
 void StuffWorker::SaveFrames3()
 {
 	for (int a = 0; a < _element_list.size(); a++)
 	{
 		_element_list[a].CalculateLayerTriangles_Drawing();
 	}
+	
+	AVideoCreator vCreator;
+	vCreator.Init(SystemParams::_num_png_frame);
+
+	//for (int l = 0; l < SystemParams::_num_png_frame; l++)
+	//{
+	//std::cout << l << "\n";
+	for (int i = 0; i < _element_list.size(); i++)
+	{
+		MyColor col = _element_list[i]._color;
+		std::vector<std::vector<std::vector<A2DVector>>> per_layer_triangle_drawing = _element_list[i]._per_layer_triangle_drawing;
+		for (int l = 0; l < per_layer_triangle_drawing.size(); l++)
+		{
+			std::vector<std::vector<A2DVector>> triangles_in_a_layer = per_layer_triangle_drawing[l];
+			for (int a = 0; a < triangles_in_a_layer.size(); a++)
+			{
+				// iterate triangle
+				A2DVector pt1 = triangles_in_a_layer[a][0];
+				A2DVector pt2 = triangles_in_a_layer[a][1];
+				A2DVector pt3 = triangles_in_a_layer[a][2];
+
+				vCreator.DrawLine(pt1, pt2, col, l);
+				vCreator.DrawLine(pt2, pt3, col, l);
+				vCreator.DrawLine(pt3, pt1, col, l);
+			}
+		}
+	}
+
+	std::stringstream ss;
+	ss << SystemParams::_save_folder << "PNG\\";
+	vCreator.Save(ss.str());
 }
 
 void StuffWorker::SaveFrames2()

@@ -110,6 +110,8 @@ bool Display::frameStarted(const Ogre::FrameEvent& evt)
 	ImGuiWindowFlags window_flags = 0;
 	ImGui::Begin("AnimationPak", p_open, window_flags);
 
+	ImGui::Text(("Num elements = " + std::to_string(_sWorker->_element_list.size())).c_str());
+
 	// interpolation
 	/*
 	std::string interp_str = " ";
@@ -136,7 +138,8 @@ bool Display::frameStarted(const Ogre::FrameEvent& evt)
 
 
 	if (ImGui::Button("Reload parameters")) { SystemParams::LoadParameters(); }
-	if (ImGui::Button("Save Frames")) { _sWorker->SaveFrames3(); }
+	if (ImGui::Button("Save Triangles to PNGs")) { _sWorker->SaveFrames3(); }
+	if (ImGui::Button("Save Elements to PNGs")) { _sWorker->SaveFrames4(); }
 	//if (ImGui::Button("Button B")) {}
 	//if (ImGui::Button("Button C")) {}
 	

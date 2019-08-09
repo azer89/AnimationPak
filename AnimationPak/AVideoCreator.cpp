@@ -33,6 +33,14 @@ void AVideoCreator::DrawLine(A2DVector pt1, A2DVector pt2, MyColor color, int fr
 	_cvWrapper.DrawLine(_frames[frameIdx]._img, pt1, pt2, color, _img_scale, _img_scale);
 }
 
+void AVideoCreator::DrawFilledArt(std::vector<std::vector<A2DVector>> arts, MyColor color, int frameIdx)
+{
+	for (int a = arts.size() - 1; a >= 0; a--) // backward
+	{
+		_cvWrapper.DrawFilledPoly(_frames[frameIdx], arts[a], color, _img_scale);
+	}
+}
+
 void AVideoCreator::ClearFrames()
 {
 	for (int a = 0; a < _frames.size(); a++)

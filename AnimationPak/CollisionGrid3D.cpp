@@ -86,7 +86,7 @@ void CollisionGrid3D::GetClosestPoints(float x, float y, float z, std::vector<A3
 	int zPos;
 	GetCellPosition(xPos, yPos, zPos, x, y, z);
 
-	int offst = SystemParams::_grid_radius_1;
+	int offst = SystemParams::_grid_radius_1_xy;
 
 	int xBegin = xPos - offst;
 	if (xBegin < 0) { xBegin = 0; }
@@ -155,7 +155,7 @@ void CollisionGrid3D::GetClosestObjects(float x, float y, float z, std::vector<A
 	int zPos;
 	GetCellPosition(xPos, yPos, zPos, x, y, z);
 
-	int offst = SystemParams::_grid_radius_1;
+	int offst = SystemParams::_grid_radius_1_xy;
 
 	int xBegin = xPos - offst;
 	if (xBegin < 0) { xBegin = 0; }
@@ -299,7 +299,8 @@ void CollisionGrid3D::PrecomputeData()
 {
 
 	int side_num_sq = _side_num * _side_num;
-	int offst = SystemParams::_grid_radius_2;
+	int offst_xy = SystemParams::_grid_radius_2_xy;
+	int offst_z = SystemParams::_grid_radius_2_z;
 
 	A3DSquare* cur_sq;
 	A3DSquare* neighbor_sq;
@@ -324,22 +325,22 @@ void CollisionGrid3D::PrecomputeData()
 		xPos = left_over / _side_num;          // current position
 		yPos = left_over - (xPos * _side_num); // current position // y is filled first
 
-		xBegin = xPos - offst;
+		xBegin = xPos - offst_xy;
 		if (xBegin < 0) { xBegin = 0; }
 
-		xEnd = xPos + offst;
+		xEnd = xPos + offst_xy;
 		if (xEnd >= _side_num) { xEnd = _side_num - 1; }
 
-		yBegin = yPos - offst;
+		yBegin = yPos - offst_xy;
 		if (yBegin < 0) { yBegin = 0; }
 
-		yEnd = yPos + offst;
+		yEnd = yPos + offst_xy;
 		if (yEnd >= _side_num) { yEnd = _side_num - 1; }
 
-		zBegin = zPos - offst;
+		zBegin = zPos - offst_z;
 		if (zBegin < 0) { zBegin = 0; }
 
-		zEnd = zPos + offst;
+		zEnd = zPos + offst_z;
 		if (zEnd >= _side_num) { zEnd = _side_num - 1; }
 
 		
@@ -351,9 +352,9 @@ void CollisionGrid3D::PrecomputeData()
 				{
 					int s_idx = SquareIndex(xIter, yIter, zIter);
 					neighbor_sq = _squares[s_idx];
-					if (abs(xIter - xPos) <= SystemParams::_grid_radius_1 &&
-						abs(yIter - yPos) <= SystemParams::_grid_radius_1 &&
-						abs(zIter - zPos) <= SystemParams::_grid_radius_1)
+					if (abs(xIter - xPos) <= SystemParams::_grid_radius_1_xy &&
+						abs(yIter - yPos) <= SystemParams::_grid_radius_1_xy &&
+						abs(zIter - zPos) <= SystemParams::_grid_radius_1_z)
 					{
 						/*for (unsigned int a = 0; a < neighbor_sq->_objects.size(); a++)
 						{
@@ -415,7 +416,7 @@ void CollisionGrid3D::PrecomputeClosestGraphsAndTriangles()
 		int xPos = left_over / _side_num;          // current position
 		int yPos = left_over - (xPos * _side_num); // current position
 
-		int offst = SystemParams::_grid_radius_1;
+		int offst = SystemParams::_grid_radius_1_xy;
 
 		int xBegin = xPos - offst;
 		if (xBegin < 0) { xBegin = 0; }

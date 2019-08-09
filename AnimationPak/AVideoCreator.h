@@ -15,6 +15,7 @@ public:
 
 	void Init(int numInterpolation = 1);
 	void DrawLine(A2DVector pt1, A2DVector pt2, MyColor color, int frameIdx);
+	void DrawFilledArt(std::vector<std::vector<A2DVector>> arts, MyColor color, int frameIdx);
 	void DrawRedCircle(int frameIdx);
 	void Save(std::string folderName);
 

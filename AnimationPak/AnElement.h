@@ -41,6 +41,7 @@ public:
 		                                std::vector<std::vector<A3DVector>>& triangleB,
 		                                std::vector<std::vector<A2DVector>>& triangleInterp,
 		                                float interVal);
+	std::vector<std::vector<A2DVector>> GetBilinearInterpolatedArt(std::vector<std::vector<A2DVector>> triangles);
 	void CalculateLayerBoundaries_Drawing();
 	void CalculateLayerTriangles_Drawing();
 	void UpdateLayerBoundaries();
@@ -51,7 +52,8 @@ public:
 	void SolveForSprings3D();
 	void SolveForSprings2D();
 
-	bool IsInside(int layer_idx, A3DVector pos, std::vector<A2DVector>& boundary_slice);
+	bool IsInsideApprox(int layer_idx, A3DVector pos);
+	bool IsInside(int layer_idx, A3DVector pos/*, std::vector<A2DVector>& boundary_slice*/);
 	
 		
 	void DrawRandomPoints(std::vector<A2DVector> randomPoints); // debug

@@ -309,7 +309,17 @@ float AnElement::GetMaxDistRandomPoints(const std::vector<A2DVector>& randomPoin
 	return maxDist;
 }
 
-bool AnElement::IsInside(int layer_idx, A3DVector pos, std::vector<A2DVector>& boundary_slice)
+bool AnElement::IsInsideApprox(int layer_idx, A3DVector pos)
+{
+	for (unsigned int a = 0; a < _numBoundaryPointPerLayer; a++)
+	{
+		_a_layer_boundary[a] = _per_layer_boundary[layer_idx][a].GetA2DVector();
+	}
+
+	return UtilityFunctions::InsidePolygon(_a_layer_boundary, pos._x, pos._y);
+}
+
+bool AnElement::IsInside(int layer_idx, A3DVector pos/*, std::vector<A2DVector>& boundary_slice*/)
 {
 	int next_layer_idx = layer_idx + 1; // guaranteed exists
 
@@ -319,18 +329,21 @@ bool AnElement::IsInside(int layer_idx, A3DVector pos, std::vector<A2DVector>& b
 	float z_length_a = pos._z - z_1;
 	float interVal = z_length_a / z_length;
 
-	for (int a = 0; a < _numBoundaryPointPerLayer; a++)
+	A3DVector pt1, pt1_next, dir1, dir1_unit;
+	float dir1_len;
+
+	for (unsigned int a = 0; a < _numBoundaryPointPerLayer; a++)
 	{
-		A3DVector pt1 = _per_layer_boundary[layer_idx][a];
-		A3DVector pt1_next = _per_layer_boundary[next_layer_idx][a];
-		A3DVector dir1 = pt1.DirectionTo(pt1_next);
-		A3DVector dir1_unit;
-		float dir1_len;
+		pt1 = _per_layer_boundary[layer_idx][a];
+		pt1_next = _per_layer_boundary[next_layer_idx][a];
+		dir1 = pt1.DirectionTo(pt1_next);
+		dir1_unit;
+		dir1_len;
 		dir1.GetUnitAndDist(dir1_unit, dir1_len);
 		_a_layer_boundary[a] = (pt1 + (dir1_unit * dir1_len * interVal)).GetA2DVector();
 	}
 
-	boundary_slice = _a_layer_boundary;
+	//boundary_slice = _a_layer_boundary;
 	return UtilityFunctions::InsidePolygon(_a_layer_boundary, pos._x, pos._y);
 }
 
@@ -370,7 +383,7 @@ void AnElement::ComputeBary()
 
 			if (triIdx == -1)
 			{
-				std::cout << "art error !!!\n";
+				//std::cout << "art error !!!\n";
 
 				triIdx = -1;
 				float dist = 100000000;
@@ -1050,7 +1063,16 @@ void AnElement::InitMeshOgre3D(Ogre::SceneManager* sceneMgr,
 	_overlap_node = _sceneMgr->getRootSceneNode()->createChildSceneNode("_overlap_lines_" + std::to_string(_elem_idx));
 	_overlap_node->attachObject(_overlap_lines);
 
-	
+
+	_neg_space_edge_lines->setBoundingBox(Ogre::AxisAlignedBox(0, 0, 0, 1, 1, 1));
+	_boundary_lines->setBoundingBox(Ogre::AxisAlignedBox(0, 0, 0, 1, 1, 1));
+	_time_springs_lines->setBoundingBox(Ogre::AxisAlignedBox(0, 0, 0, 1, 1, 1));
+	_closet_pt_approx_lines_back->setBoundingBox(Ogre::AxisAlignedBox(0, 0, 0, 1, 1, 1));
+	_closet_pt_lines_back->setBoundingBox(Ogre::AxisAlignedBox(0, 0, 0, 1, 1, 1));
+	_closet_pt_approx_lines->setBoundingBox(Ogre::AxisAlignedBox(0, 0, 0, 1, 1, 1));
+	_closet_pt_lines->setBoundingBox(Ogre::AxisAlignedBox(0, 0, 0, 1, 1, 1));
+	_closest_slice_lines->setBoundingBox(Ogre::AxisAlignedBox(0, 0, 0, 1, 1, 1));
+	_overlap_lines->setBoundingBox(Ogre::AxisAlignedBox(0, 0, 0, 1, 1, 1));
 }
 
 void AnElement::UpdateClosestSliceOgre3D()
@@ -1194,7 +1216,7 @@ void AnElement::UpdateTimeTriangleOgre3D()
 
 void AnElement::UpdateOverlapOgre3D()
 {
-	float plus_offset = 20;
+	float plus_offset = 5;
 
 	_overlap_lines->clear();
 
@@ -1480,6 +1502,28 @@ void AnElement::Interp_UpdateLayerBoundaries()
 	}
 }
 
+std::vector<std::vector<A2DVector>> AnElement::GetBilinearInterpolatedArt(std::vector<std::vector<A2DVector>> triangles)
+{
+	int art_sz = _arts.size();
+	std::vector<std::vector<A2DVector>> transformedArts;
+	ABary bary(0, 0, 0);
+	for (unsigned int a = 0; a < art_sz; a++)
+	{
+		int art_sz_2 = _arts[a].size();
+		std::vector<A2DVector> a_array;
+		for (unsigned int b = 0; b < art_sz_2; b++)
+		{
+			bary = _baryCoords[a][b];
+			A2DVector pt = triangles[_arts2Triangles[a][b]][0] * bary._u +
+				           triangles[_arts2Triangles[a][b]][1] * bary._v + 
+						   triangles[_arts2Triangles[a][b]][2] * bary._w;
+			a_array.push_back(pt);
+		}
+		transformedArts.push_back(a_array);
+	}
+	return transformedArts;
+}
+
 void AnElement::BiliniearInterpolationTriangle(std::vector<std::vector<A3DVector>>& triangleA,      // 3D
 											   std::vector<std::vector<A3DVector>>& triangleB,      // 3D
 											   std::vector<std::vector<A2DVector>>& triangleInterp, // 2D
@@ -1538,7 +1582,7 @@ void AnElement::CalculateLayerTriangles_Drawing()
 	int tube_layer_iter = 0; // layers of the tube
 
 	// ----- stuff -----
-	int max_num_png = SystemParams::_num_png_frame;
+	int max_num_png = SystemParams::_num_png_frame - 1;
 	float z_step = SystemParams::_upscaleFactor / ((float)max_num_png);
 
 	// first one
@@ -1557,9 +1601,11 @@ void AnElement::CalculateLayerTriangles_Drawing()
 	z_iter -= z_step;
 	png_iter++;
 
+	std::vector<std::vector<A3DVector>>::const_iterator first_iter;
+	std::vector<std::vector<A3DVector>>::const_iterator last_iter;
 	float min_upscale_factor = -SystemParams::_upscaleFactor;
 	int max_layer_iter = SystemParams::_num_layer - 1;
-	std::vector<std::vector<A2DVector>> a_layer_triangle_temp = _arts; // temporary?
+	//std::vector<std::vector<A2DVector>> a_layer_triangle_temp = _arts; // temporary?
 	while (z_iter > min_upscale_factor && tube_layer_iter < max_layer_iter && png_iter < max_num_png) // todo: FIX ME
 	{
 		float cur_layer_z_pos = _per_layer_boundary[tube_layer_iter][0]._z;     // negative
@@ -1574,8 +1620,16 @@ void AnElement::CalculateLayerTriangles_Drawing()
 
 			// interpolation code here
 			// dammi* the wost code I've ever had
-			std::vector<std::vector<A3DVector>> triangleA(&allActualTriangles3D[(tube_layer_iter) * _numTrianglePerLayer],     &allActualTriangles3D[(tube_layer_iter + 1) * _numTrianglePerLayer]); // 3D, tube_layer_iter
-			std::vector<std::vector<A3DVector>> triangleB(&allActualTriangles3D[(tube_layer_iter + 1) * _numTrianglePerLayer], &allActualTriangles3D[(tube_layer_iter + 2) * _numTrianglePerLayer]); // 3D, tube_layer_iter + 1
+			
+			//std::vector<std::vector<A3DVector>> triangleA(&allActualTriangles3D[(tube_layer_iter) * _numTrianglePerLayer],     &allActualTriangles3D[(tube_layer_iter + 1) * _numTrianglePerLayer]); // 3D, tube_layer_iter
+			first_iter = allActualTriangles3D.begin() + ((tube_layer_iter) * _numTrianglePerLayer);
+			last_iter = allActualTriangles3D.begin() + ((tube_layer_iter + 1) * _numTrianglePerLayer);
+			std::vector<std::vector<A3DVector>> triangleA(first_iter, last_iter);
+			//std::vector<std::vector<A3DVector>> triangleB(&allActualTriangles3D[(tube_layer_iter + 1) * _numTrianglePerLayer], &allActualTriangles3D[(tube_layer_iter + 2) * _numTrianglePerLayer]); // 3D, tube_layer_iter + 1
+			first_iter = allActualTriangles3D.begin() + ((tube_layer_iter + 1) * _numTrianglePerLayer);
+			last_iter = allActualTriangles3D.begin() + ((tube_layer_iter + 2) * _numTrianglePerLayer);
+			std::vector<std::vector<A3DVector>> triangleB(first_iter, last_iter);
+			std::vector<std::vector<A2DVector>> a_layer_triangle_temp;
 			BiliniearInterpolationTriangle(triangleA, triangleB, a_layer_triangle_temp, interp_ratio);
 			_per_layer_triangle_drawing.push_back(a_layer_triangle_temp);
 
@@ -1583,8 +1637,7 @@ void AnElement::CalculateLayerTriangles_Drawing()
 			z_iter -= z_step;
 			png_iter++;
 		}
-		else if (z_iter < next_layer_z_pos)
-		{
+		else if (z_iter < next_layer_z_pos)		{
 			// move on			
 			tube_layer_iter++;
 		}
@@ -1617,8 +1670,8 @@ void AnElement::CalculateLayerBoundaries_Drawing()
 	int tube_layer_iter = 0; // layers of the tube
 	
 	// ----- stuff -----
-	int max_num_png = SystemParams::_num_png_frame;
-	float z_step = SystemParams::_upscaleFactor / ((float)max_num_png);
+	int max_num_png = SystemParams::_num_png_frame - 1;
+	float z_step = SystemParams::_upscaleFactor / ((float)(max_num_png - 1) );
 
 	// ----- first one -----
 	_per_layer_boundary_drawing.push_back(_per_layer_boundary[0]);

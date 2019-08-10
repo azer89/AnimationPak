@@ -300,7 +300,7 @@ void CollisionGrid3D::PrecomputeData()
 
 	int side_num_sq = _side_num * _side_num;
 	int offst_xy = SystemParams::_grid_radius_2_xy;
-	int offst_z = SystemParams::_grid_radius_2_z;
+	int offst_z = SystemParams::_grid_radius_2_xy;
 
 	A3DSquare* cur_sq;
 	A3DSquare* neighbor_sq;

@@ -15,7 +15,7 @@ _upscaleFactor   = 500.0;
 _downscaleFactor = 1.0 / _upscaleFactor;
 
 --- Time step for numerical integration (euler method)
-_dt = 0.2;   --- do not set this higher than 0.1
+_dt = 0.01;   --- do not set this higher than 0.1
 
 --- random seed
 _seed = -1; --- negative means random
@@ -44,9 +44,9 @@ _bin_square_size         = 20; -- 25
 --- 2 means considering all cells that are 2 block away from the query (5x5)
 --_collission_block_radius = 1;   -- one means checking 3x3 
 _grid_radius_1_xy = 1; -- exact
-_grid_radius_2_xy = 4; -- approx (Barnes-Hut)
-_grid_radius_1_z = 1; -- exact
-_grid_radius_2_z = 1; -- approx (Barnes-Hut)
+_grid_radius_2_xy = 2; -- approx (Barnes-Hut)
+_grid_radius_1_z = 1; -- NOT USED exact
+_grid_radius_2_z = 1; -- NOT USED approx (Barnes-Hut)
 
 -- check A3DSquare.h and Mass.cpp
 -- if error, use Debug mode to detect array out of bound
@@ -59,7 +59,7 @@ _element_initial_scale = 0.05;
 _element_max_scale     = 4.0;
 
 -- num layer in the simulation, not the png layers
-_num_layer = 30;
+_num_layer = 7;
 
 _interpolation_factor = 5; -- how many interpolation between two layers
 _num_png_frame = 100;
@@ -69,7 +69,7 @@ _num_png_frame = 100;
 
 --- density of random points inside the skin
 --- if the density is higher, you get more triangles
-_sampling_density               = 50;
+_sampling_density               = 55;
 --- uniform sampling on the skin
 _boundary_sampling_factor   = 1.2;  -- [Do not edit]
 

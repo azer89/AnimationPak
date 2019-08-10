@@ -737,7 +737,7 @@ void AnElement::Triangularization(std::vector<std::vector<A2DVector>> art_path, 
 	}
 
 	// rotate
-	CreateHelix();
+	//CreateHelix();
 
 	// reset !!!
 	ResetSpringRestLengths();
@@ -921,6 +921,7 @@ void AnElement::InitMeshOgre3D(Ogre::SceneManager* sceneMgr,
 	float gVal = (float)(rand() % 255) / 255.0f;
 	float bVal = (float)(rand() % 255) / 255.0f;
 
+	// Coloe of this element, very important
 	this->_color = MyColor(rVal * 255, gVal * 255, bVal * 255);
 
 	// ---------- neg_space ----------
@@ -943,6 +944,22 @@ void AnElement::InitMeshOgre3D(Ogre::SceneManager* sceneMgr,
 	Ogre::MaterialPtr line_material = Ogre::MaterialManager::getSingleton().getByName("Examples/RedMat")->clone("ElementLines" + std::to_string(_elem_idx));	
 	line_material->getTechnique(0)->getPass(0)->setDiffuse(Ogre::ColourValue(rVal, gVal, bVal, 1));
 	
+	// ---------- mass list ----------
+	_massList_lines = new DynamicLines(line_material, Ogre::RenderOperation::OT_LINE_LIST);
+	{
+		float offsetVal = 2;
+		for (int a = 0; a < _massList.size(); a++)
+		{
+			_massList_lines->addPoint(_massList[a]._pos._x - offsetVal, _massList[a]._pos._y, _massList[a]._pos._z);
+			_massList_lines->addPoint(_massList[a]._pos._x + offsetVal, _massList[a]._pos._y, _massList[a]._pos._z);
+			_massList_lines->addPoint(_massList[a]._pos._x, _massList[a]._pos._y - offsetVal, _massList[a]._pos._z);
+			_massList_lines->addPoint(_massList[a]._pos._x, _massList[a]._pos._y + offsetVal, _massList[a]._pos._z);
+		}
+	}
+	_massList_lines->update();
+	_massList_node = _sceneMgr->getRootSceneNode()->createChildSceneNode("_massList_lines_" + std::to_string(_elem_idx));
+	_massList_node->attachObject(_massList_lines);
+
 	// ---------- boundary ----------
 	_boundary_lines = new DynamicLines(line_material, Ogre::RenderOperation::OT_LINE_LIST);
 	for (int l = 0; l < SystemParams::_num_layer; l++)
@@ -965,8 +982,6 @@ void AnElement::InitMeshOgre3D(Ogre::SceneManager* sceneMgr,
 	_boundary_lines->update();
 	_boundary_node = _sceneMgr->getRootSceneNode()->createChildSceneNode("debug_lines_" + std::to_string(_elem_idx));
 	_boundary_node->attachObject(_boundary_lines);
-
-	
 
 	// ---------- time triangles ----------
 	_time_springs_lines = new DynamicLines(line_material, Ogre::RenderOperation::OT_LINE_LIST);
@@ -1189,21 +1204,22 @@ void AnElement::UpdateTimeTriangleOgre3D()
 	{
 		_time_springs_node->setVisible(true);
 		int idx = 0;
+		std::vector<A3DVector> tri(3);
 		for (int b = 0; b < _timeTriangles.size(); b++)
 		{
-			std::vector<A3DVector> tri;
-			_tempTri3[0] = _massList[_timeTriangles[b].idx0]._pos;
-			_tempTri3[1] = _massList[_timeTriangles[b].idx1]._pos;
-			_tempTri3[2] = _massList[_timeTriangles[b].idx2]._pos;
+			//std::vector<A3DVector> tri;
+			tri[0] = _massList[_timeTriangles[b].idx0]._pos;
+			tri[1] = _massList[_timeTriangles[b].idx1]._pos;
+			tri[2] = _massList[_timeTriangles[b].idx2]._pos;
 
-			_time_springs_lines->setPoint(idx++, Ogre::Vector3(_tempTri3[0]._x, _tempTri3[0]._y, _tempTri3[0]._z));
-			_time_springs_lines->setPoint(idx++, Ogre::Vector3(_tempTri3[1]._x, _tempTri3[1]._y, _tempTri3[1]._z));
+			_time_springs_lines->setPoint(idx++, Ogre::Vector3(tri[0]._x, tri[0]._y, tri[0]._z));
+			_time_springs_lines->setPoint(idx++, Ogre::Vector3(tri[1]._x, tri[1]._y, tri[1]._z));
 
-			_time_springs_lines->setPoint(idx++, Ogre::Vector3(_tempTri3[1]._x, _tempTri3[1]._y, _tempTri3[1]._z));
-			_time_springs_lines->setPoint(idx++, Ogre::Vector3(_tempTri3[2]._x, _tempTri3[2]._y, _tempTri3[2]._z));
+			_time_springs_lines->setPoint(idx++, Ogre::Vector3(tri[1]._x, tri[1]._y, tri[1]._z));
+			_time_springs_lines->setPoint(idx++, Ogre::Vector3(tri[2]._x, tri[2]._y, tri[2]._z));
 
-			_time_springs_lines->setPoint(idx++, Ogre::Vector3(_tempTri3[2]._x, _tempTri3[2]._y, _tempTri3[2]._z));
-			_time_springs_lines->setPoint(idx++, Ogre::Vector3(_tempTri3[0]._x, _tempTri3[0]._y, _tempTri3[0]._z));
+			_time_springs_lines->setPoint(idx++, Ogre::Vector3(tri[2]._x, tri[2]._y, tri[2]._z));
+			_time_springs_lines->setPoint(idx++, Ogre::Vector3(tri[0]._x, tri[0]._y, tri[0]._z));
 		}
 		_time_springs_lines->update();
 	}
@@ -1234,6 +1250,22 @@ void AnElement::UpdateOverlapOgre3D()
 	}
 
 	_overlap_lines->update();
+}
+
+void AnElement::UpdateMassListOgre3D()
+{
+	int idx = 0;
+
+	float offsetVal = 2;
+	for (int a = 0; a < _massList.size(); a++)
+	{
+		_massList_lines->setPoint(idx++, Ogre::Vector3(_massList[a]._pos._x - offsetVal, _massList[a]._pos._y, _massList[a]._pos._z));
+		_massList_lines->setPoint(idx++, Ogre::Vector3(_massList[a]._pos._x + offsetVal, _massList[a]._pos._y, _massList[a]._pos._z));
+		_massList_lines->setPoint(idx++, Ogre::Vector3(_massList[a]._pos._x, _massList[a]._pos._y - offsetVal, _massList[a]._pos._z));
+		_massList_lines->setPoint(idx++, Ogre::Vector3(_massList[a]._pos._x, _massList[a]._pos._y + offsetVal, _massList[a]._pos._z));
+	}
+
+	_massList_lines->update();
 }
 
 void AnElement::UpdateSpringDisplayOgre3D()

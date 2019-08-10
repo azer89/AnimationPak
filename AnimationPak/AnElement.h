@@ -111,6 +111,7 @@ public:
 	void UpdateTimeTriangleOgre3D();
 	void UpdateOverlapOgre3D();
 	void UpdateNegSpaceEdgeOgre3D();
+	void UpdateMassListOgre3D();
 	// ---------- Ogre 3D ----------
 
 	// ----- interpolation ----- 
@@ -234,6 +235,10 @@ public:
 	// testing overlap
 	DynamicLines*    _overlap_lines;
 	Ogre::SceneNode* _overlap_node;
+
+	// testing massList
+	DynamicLines*    _massList_lines;
+	Ogre::SceneNode* _massList_node;
 
 	//
 	int                                 _numTrianglePerLayer;  // number of triangle in just one layer

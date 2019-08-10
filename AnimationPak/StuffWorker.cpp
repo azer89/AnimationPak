@@ -294,6 +294,9 @@ void StuffWorker::Interp_Update()
 
 void StuffWorker::Update()
 {
+	// ERASE THIS!
+	//return;
+
 	// ----- for closest point calculation -----
 	for (int a = 0; a < _element_list.size(); a++)
 	{
@@ -348,15 +351,6 @@ void StuffWorker::Update()
 	{
 		_element_list[a].Grow(SystemParams::_growth_scale_iter, SystemParams::_dt);
 	}
-
-
-
-
-	// ----- interpolation -----
-	/*for (int a = 0; a < _element_list.size(); a++)
-	{
-		_element_list[a].UpdateInterpMasses();
-	}*/
 
 
 }
@@ -486,6 +480,7 @@ void StuffWorker::UpdateOgre3D()
 		_element_list[a].UpdateClosestPtsDisplayOgre3D();
 		_element_list[a].UpdateOverlapOgre3D();
 		_element_list[a].UpdateNegSpaceEdgeOgre3D();
+		_element_list[a].UpdateMassListOgre3D();
 	}
 
 	StuffWorker::_c_grid_3d->UpdateOgre3D();

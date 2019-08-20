@@ -143,6 +143,7 @@ bool Display::frameStarted(const Ogre::FrameEvent& evt)
 	//if (ImGui::Button("Button B")) {}
 	//if (ImGui::Button("Button C")) {}
 	
+	ImGui::Checkbox("Show mass list", &SystemParams::_show_mass_list);
 	ImGui::Checkbox("Show element boundaries", &SystemParams::_show_element_boundaries);
 	ImGui::Checkbox("Show exact repulsion forces", &SystemParams::_show_exact_repulsion_forces);
 	ImGui::Checkbox("Show approx repulsion forces", &SystemParams::_show_approx_repulsion_forces);

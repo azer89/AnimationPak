@@ -74,6 +74,7 @@ public:
 	static int _num_element_pos_limit;
 
 	// viz
+	static bool _show_mass_list;
 	static bool _show_element_boundaries;
 	static bool _show_exact_repulsion_forces;
 	static bool _show_approx_repulsion_forces;

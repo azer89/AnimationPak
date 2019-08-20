@@ -595,10 +595,11 @@ void AnElement::Triangularization(std::vector<std::vector<A2DVector>> art_path, 
 	//        |        * |
 	//        |         *|
 	// ----- cur_1 ---- next_1     --> layer t
+	int mass_sz = _massList.size();
 	for (int a = 0; a < SystemParams::_num_layer - 1; a++)
 	{
-		int massIdxOffset1 = a * randomPoints.size();
-		int massIdxOffset2 = massIdxOffset1 + randomPoints.size();
+		int massIdxOffset1 = a * _numPointPerLayer;
+		int massIdxOffset2 = massIdxOffset1 + _numPointPerLayer;
 		for (int b = 0; b < _numBoundaryPointPerLayer; b++)
 		{
 			int cur_1 = b + massIdxOffset1; // layer t
@@ -607,11 +608,26 @@ void AnElement::Triangularization(std::vector<std::vector<A2DVector>> art_path, 
 			int next_1 = b + 1 + massIdxOffset1; // layer t
 			int next_2 = b + 1 + massIdxOffset2; // layer t + 1
 
+			// BE CAREFUL!!!!
+			if (b == _numBoundaryPointPerLayer - 1)
+			{
+				next_1 = 1 + massIdxOffset1; 
+				next_2 = 1 + massIdxOffset2; 
+			}
+
+			// BUG !!!
+			/*if (cur_1 >= mass_sz ||
+				cur_2 >= mass_sz ||
+				next_1 >= mass_sz ||
+				next_2 >= mass_sz) { continue; }*/
+
 			// layer_idx --> you want to know which layer a triangle belongs to
 			int layer_idx = min_of(_massList[cur_1]._layer_idx, 
 				                   _massList[cur_2]._layer_idx, 
 				                   _massList[next_1]._layer_idx, 
 				                   _massList[next_2]._layer_idx);
+
+			
 
 			// cur_1 next_1 cur_2
 			AnIdxTriangle tri1(cur_1, next_1, cur_2, layer_idx);
@@ -985,27 +1001,27 @@ void AnElement::InitMeshOgre3D(Ogre::SceneManager* sceneMgr,
 
 	// ---------- time triangles ----------
 	_time_springs_lines = new DynamicLines(line_material, Ogre::RenderOperation::OT_LINE_LIST);
+	std::vector<A3DVector> tri(3);
 	for (int b = 0; b < _timeTriangles.size(); b++)
 	{
-		std::vector<A3DVector> tri;
-		_tempTri3[0] = _massList[_timeTriangles[b].idx0]._pos;
-		_tempTri3[1] = _massList[_timeTriangles[b].idx1]._pos;
-		_tempTri3[2] = _massList[_timeTriangles[b].idx2]._pos;
+		tri[0] = _massList[_timeTriangles[b].idx0]._pos;
+		tri[1] = _massList[_timeTriangles[b].idx1]._pos;
+		tri[2] = _massList[_timeTriangles[b].idx2]._pos;
 
-		_time_springs_lines->addPoint(Ogre::Vector3(_tempTri3[0]._x, _tempTri3[0]._y, _tempTri3[0]._z));
-		_time_springs_lines->addPoint(Ogre::Vector3(_tempTri3[1]._x, _tempTri3[1]._y, _tempTri3[1]._z));
+		_time_springs_lines->addPoint(Ogre::Vector3(tri[0]._x, tri[0]._y, tri[0]._z));
+		_time_springs_lines->addPoint(Ogre::Vector3(tri[1]._x, tri[1]._y, tri[1]._z));
 
-		_time_springs_lines->addPoint(Ogre::Vector3(_tempTri3[1]._x, _tempTri3[1]._y, _tempTri3[1]._z));
-		_time_springs_lines->addPoint(Ogre::Vector3(_tempTri3[2]._x, _tempTri3[2]._y, _tempTri3[2]._z));
+		_time_springs_lines->addPoint(Ogre::Vector3(tri[1]._x, tri[1]._y, tri[1]._z));
+		_time_springs_lines->addPoint(Ogre::Vector3(tri[2]._x, tri[2]._y, tri[2]._z));
 
-		_time_springs_lines->addPoint(Ogre::Vector3(_tempTri3[2]._x, _tempTri3[2]._y, _tempTri3[2]._z));
-		_time_springs_lines->addPoint(Ogre::Vector3(_tempTri3[0]._x, _tempTri3[0]._y, _tempTri3[0]._z));
+		_time_springs_lines->addPoint(Ogre::Vector3(tri[2]._x, tri[2]._y, tri[2]._z));
+		_time_springs_lines->addPoint(Ogre::Vector3(tri[0]._x, tri[0]._y, tri[0]._z));
 
 	}
 	_time_springs_lines->update();
 	_time_springs_node = _sceneMgr->getRootSceneNode()->createChildSceneNode("_time_springs_debug_lines_back_" + std::to_string(_elem_idx));
 	_time_springs_node->attachObject(_time_springs_lines);
-	_time_springs_lines->setVisible(SystemParams::_show_time_springs);
+	//_time_springs_lines->setVisible(SystemParams::_show_time_springs);
 
 	// ---------- closest point approx debug  BACK ----------
 	Ogre::MaterialPtr line_material_c_pt_approx_back = Ogre::MaterialManager::getSingleton().getByName("Examples/RedMat")->clone("ClosestPtApproxMatback_" + std::to_string(_elem_idx));
@@ -1205,7 +1221,7 @@ void AnElement::UpdateTimeTriangleOgre3D()
 		_time_springs_node->setVisible(true);
 		int idx = 0;
 		std::vector<A3DVector> tri(3);
-		for (int b = 0; b < _timeTriangles.size(); b++)
+		for (unsigned int b = 0; b < _timeTriangles.size(); b++)
 		{
 			//std::vector<A3DVector> tri;
 			tri[0] = _massList[_timeTriangles[b].idx0]._pos;
@@ -1254,15 +1270,24 @@ void AnElement::UpdateOverlapOgre3D()
 
 void AnElement::UpdateMassListOgre3D()
 {
-	int idx = 0;
-
-	float offsetVal = 2;
-	for (int a = 0; a < _massList.size(); a++)
+	if(SystemParams::_show_mass_list)
 	{
-		_massList_lines->setPoint(idx++, Ogre::Vector3(_massList[a]._pos._x - offsetVal, _massList[a]._pos._y, _massList[a]._pos._z));
-		_massList_lines->setPoint(idx++, Ogre::Vector3(_massList[a]._pos._x + offsetVal, _massList[a]._pos._y, _massList[a]._pos._z));
-		_massList_lines->setPoint(idx++, Ogre::Vector3(_massList[a]._pos._x, _massList[a]._pos._y - offsetVal, _massList[a]._pos._z));
-		_massList_lines->setPoint(idx++, Ogre::Vector3(_massList[a]._pos._x, _massList[a]._pos._y + offsetVal, _massList[a]._pos._z));
+		_massList_node->setVisible(true);
+		int idx = 0;
+
+
+		float offsetVal = 1;
+		for (int a = 0; a < _massList.size(); a++)
+		{
+			_massList_lines->setPoint(idx++, Ogre::Vector3(_massList[a]._pos._x - offsetVal, _massList[a]._pos._y, _massList[a]._pos._z));
+			_massList_lines->setPoint(idx++, Ogre::Vector3(_massList[a]._pos._x + offsetVal, _massList[a]._pos._y, _massList[a]._pos._z));
+			_massList_lines->setPoint(idx++, Ogre::Vector3(_massList[a]._pos._x, _massList[a]._pos._y - offsetVal, _massList[a]._pos._z));
+			_massList_lines->setPoint(idx++, Ogre::Vector3(_massList[a]._pos._x, _massList[a]._pos._y + offsetVal, _massList[a]._pos._z));
+		}
+	}
+	else
+	{
+		_massList_node->setVisible(false);
 	}
 
 	_massList_lines->update();

@@ -165,7 +165,8 @@ public:
 	void ShowTimeSprings(bool yesno);
 
 public:
-	int _numPointPerLayer;
+	// DO NOT CONFUSE BETWEEN THESE TWO!
+	int _numPointPerLayer;   
 	int _numBoundaryPointPerLayer;
 
 	// for growing

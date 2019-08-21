@@ -524,7 +524,7 @@ void AnElement::Triangularization(std::vector<std::vector<A2DVector>> art_path, 
 		{
 			AMass m(randomPoints[b].x,     // x
 					randomPoints[b].y,     // y
-					zPos, // z, will be changed
+					zPos,                  // z, will be changed
 					interp_massCounter++,  // self_idx
 					_elem_idx,             // parent_idx
 					a);                    // layer_idx
@@ -611,8 +611,8 @@ void AnElement::Triangularization(std::vector<std::vector<A2DVector>> art_path, 
 			// BE CAREFUL!!!!
 			if (b == _numBoundaryPointPerLayer - 1)
 			{
-				next_1 = 1 + massIdxOffset1; 
-				next_2 = 1 + massIdxOffset2; 
+				next_1 = massIdxOffset1; 
+				next_2 = massIdxOffset2; 
 			}
 
 			// BUG !!!
@@ -1015,7 +1015,9 @@ void AnElement::InitMeshOgre3D(Ogre::SceneManager* sceneMgr,
 	_boundary_node->attachObject(_boundary_lines);
 
 	// ---------- time triangles ----------
-	_time_springs_lines = new DynamicLines(line_material, Ogre::RenderOperation::OT_LINE_LIST);
+	//Ogre::MaterialPtr time_tri_material = Ogre::MaterialManager::getSingleton().getByName("Examples/RedMat")->clone("time_tri_material_" + std::to_string(_elem_idx));
+	//time_tri_material->getTechnique(0)->getPass(0)->setDiffuse(Ogre::ColourValue(rVal, gVal, bVal, 1));
+	_time_tri_lines = new DynamicLines(line_material, Ogre::RenderOperation::OT_LINE_LIST);
 	std::vector<A3DVector> tri(3);
 	for (int b = 0; b < _timeTriangles.size(); b++)
 	{
@@ -1023,20 +1025,19 @@ void AnElement::InitMeshOgre3D(Ogre::SceneManager* sceneMgr,
 		tri[1] = _massList[_timeTriangles[b].idx1]._pos;
 		tri[2] = _massList[_timeTriangles[b].idx2]._pos;
 
-		_time_springs_lines->addPoint(Ogre::Vector3(tri[0]._x, tri[0]._y, tri[0]._z));
-		_time_springs_lines->addPoint(Ogre::Vector3(tri[1]._x, tri[1]._y, tri[1]._z));
+		_time_tri_lines->addPoint(Ogre::Vector3(tri[0]._x, tri[0]._y, tri[0]._z));
+		_time_tri_lines->addPoint(Ogre::Vector3(tri[1]._x, tri[1]._y, tri[1]._z));
 
-		_time_springs_lines->addPoint(Ogre::Vector3(tri[1]._x, tri[1]._y, tri[1]._z));
-		_time_springs_lines->addPoint(Ogre::Vector3(tri[2]._x, tri[2]._y, tri[2]._z));
+		_time_tri_lines->addPoint(Ogre::Vector3(tri[1]._x, tri[1]._y, tri[1]._z));
+		_time_tri_lines->addPoint(Ogre::Vector3(tri[2]._x, tri[2]._y, tri[2]._z));
 
-		_time_springs_lines->addPoint(Ogre::Vector3(tri[2]._x, tri[2]._y, tri[2]._z));
-		_time_springs_lines->addPoint(Ogre::Vector3(tri[0]._x, tri[0]._y, tri[0]._z));
+		_time_tri_lines->addPoint(Ogre::Vector3(tri[2]._x, tri[2]._y, tri[2]._z));
+		_time_tri_lines->addPoint(Ogre::Vector3(tri[0]._x, tri[0]._y, tri[0]._z));
 
 	}
-	_time_springs_lines->update();
-	_time_springs_node = _sceneMgr->getRootSceneNode()->createChildSceneNode("_time_springs_debug_lines_back_" + std::to_string(_elem_idx));
-	_time_springs_node->attachObject(_time_springs_lines);
-	//_time_springs_lines->setVisible(SystemParams::_show_time_springs);
+	_time_tri_lines->update();
+	_time_tri_node = _sceneMgr->getRootSceneNode()->createChildSceneNode("time_tri_node_" + std::to_string(_elem_idx));
+	_time_tri_node->attachObject(_time_tri_lines);
 
 	// ---------- closest point approx debug  BACK ----------
 	Ogre::MaterialPtr line_material_c_pt_approx_back = Ogre::MaterialManager::getSingleton().getByName("Examples/RedMat")->clone("ClosestPtApproxMatback_" + std::to_string(_elem_idx));
@@ -1112,7 +1113,7 @@ void AnElement::InitMeshOgre3D(Ogre::SceneManager* sceneMgr,
 
 	_neg_space_edge_lines->setBoundingBox(Ogre::AxisAlignedBox(0, 0, 0, 1, 1, 1));
 	_boundary_lines->setBoundingBox(Ogre::AxisAlignedBox(0, 0, 0, 1, 1, 1));
-	_time_springs_lines->setBoundingBox(Ogre::AxisAlignedBox(0, 0, 0, 1, 1, 1));
+	_time_tri_lines->setBoundingBox(Ogre::AxisAlignedBox(0, 0, 0, 1, 1, 1));
 	_closet_pt_approx_lines_back->setBoundingBox(Ogre::AxisAlignedBox(0, 0, 0, 1, 1, 1));
 	_closet_pt_lines_back->setBoundingBox(Ogre::AxisAlignedBox(0, 0, 0, 1, 1, 1));
 	_closet_pt_approx_lines->setBoundingBox(Ogre::AxisAlignedBox(0, 0, 0, 1, 1, 1));
@@ -1226,14 +1227,14 @@ void AnElement::UpdateBoundaryDisplayOgre3D()
 
 void AnElement::ShowTimeSprings(bool yesno)
 {
-	_time_springs_node->setVisible(yesno);
+	//_time_springs_node->setVisible(yesno);
 }
 
 void AnElement::UpdateTimeTriangleOgre3D()
 {	
-	if(SystemParams::_show_time_springs)
+	if(SystemParams::_show_time_tri)
 	{
-		_time_springs_node->setVisible(true);
+		_time_tri_node->setVisible(true);
 		int idx = 0;
 		std::vector<A3DVector> tri(3);
 		for (unsigned int b = 0; b < _timeTriangles.size(); b++)
@@ -1243,21 +1244,22 @@ void AnElement::UpdateTimeTriangleOgre3D()
 			tri[1] = _massList[_timeTriangles[b].idx1]._pos;
 			tri[2] = _massList[_timeTriangles[b].idx2]._pos;
 
-			_time_springs_lines->setPoint(idx++, Ogre::Vector3(tri[0]._x, tri[0]._y, tri[0]._z));
-			_time_springs_lines->setPoint(idx++, Ogre::Vector3(tri[1]._x, tri[1]._y, tri[1]._z));
+			_time_tri_lines->setPoint(idx++, Ogre::Vector3(tri[0]._x, tri[0]._y, tri[0]._z));
+			_time_tri_lines->setPoint(idx++, Ogre::Vector3(tri[1]._x, tri[1]._y, tri[1]._z));
 
-			_time_springs_lines->setPoint(idx++, Ogre::Vector3(tri[1]._x, tri[1]._y, tri[1]._z));
-			_time_springs_lines->setPoint(idx++, Ogre::Vector3(tri[2]._x, tri[2]._y, tri[2]._z));
+			_time_tri_lines->setPoint(idx++, Ogre::Vector3(tri[1]._x, tri[1]._y, tri[1]._z));
+			_time_tri_lines->setPoint(idx++, Ogre::Vector3(tri[2]._x, tri[2]._y, tri[2]._z));
 
-			_time_springs_lines->setPoint(idx++, Ogre::Vector3(tri[2]._x, tri[2]._y, tri[2]._z));
-			_time_springs_lines->setPoint(idx++, Ogre::Vector3(tri[0]._x, tri[0]._y, tri[0]._z));
-		}
-		_time_springs_lines->update();
+			_time_tri_lines->setPoint(idx++, Ogre::Vector3(tri[2]._x, tri[2]._y, tri[2]._z));
+			_time_tri_lines->setPoint(idx++, Ogre::Vector3(tri[0]._x, tri[0]._y, tri[0]._z));
+		}		
 	}
 	else
 	{
-		_time_springs_node->setVisible(false);
+		_time_tri_node->setVisible(false);
 	}
+
+	_time_tri_lines->update();
 	
 }
 
@@ -1353,7 +1355,7 @@ void AnElement::UpdateMassListOgre3D()
 
 void AnElement::UpdateSpringDisplayOgre3D()
 {
-	if (!SystemParams::_show_time_springs) { return; }
+	/*if (!SystemParams::_show_time_tri) { return; }
 
 	int idx = 0;
 
@@ -1379,7 +1381,7 @@ void AnElement::UpdateSpringDisplayOgre3D()
 		_spring_lines->setPoint(idx++, Ogre::Vector3(pt2._x, pt2._y, pt2._z));
 	}
 
-	_spring_lines->update();
+	_spring_lines->update();*/
 }
 
 

@@ -143,20 +143,21 @@ bool Display::frameStarted(const Ogre::FrameEvent& evt)
 	//if (ImGui::Button("Button B")) {}
 	//if (ImGui::Button("Button C")) {}
 	
-	ImGui::Checkbox("Show mass list", &SystemParams::_show_mass_list);
-	ImGui::Checkbox("Show element boundaries", &SystemParams::_show_element_boundaries);
-	ImGui::Checkbox("Show exact repulsion forces", &SystemParams::_show_exact_repulsion_forces);
-	ImGui::Checkbox("Show approx repulsion forces", &SystemParams::_show_approx_repulsion_forces);
-	ImGui::Checkbox("Show grid", &SystemParams::_show_collision_grid);
-	ImGui::Checkbox("Show grid objects", &SystemParams::_show_collision_grid_object);
-	ImGui::Checkbox("Show c_pt_cg (debug)", &SystemParams::_show_c_pt_cg);
-	ImGui::Checkbox("Show c_pt_approx_cg (debug)", &SystemParams::_show_c_pt_approx_cg);
-	ImGui::Checkbox("Show time triangles", &SystemParams::_show_time_springs);
-	ImGui::Checkbox("Show negative space springs", &SystemParams::_show_negative_space_springs);
+	ImGui::Text("Visualization:");
+	ImGui::Checkbox("Mass list", &SystemParams::_show_mass_list);
+	ImGui::Checkbox("Element boundaries", &SystemParams::_show_element_boundaries);
+	ImGui::Checkbox("Exact repulsion forces", &SystemParams::_show_exact_repulsion_forces);
+	ImGui::Checkbox("Approx repulsion forces", &SystemParams::_show_approx_repulsion_forces);
+	ImGui::Checkbox("Collision grid", &SystemParams::_show_collision_grid);
+	ImGui::Checkbox("Collision grid objects", &SystemParams::_show_collision_grid_object);
+	ImGui::Checkbox("Exact closest points (debug)", &SystemParams::_show_c_pt_cg);
+	ImGui::Checkbox("Approx closest points (debug)", &SystemParams::_show_c_pt_approx_cg);
+	ImGui::Checkbox("Surface triangles", &SystemParams::_show_time_tri);
+	ImGui::Checkbox("Negative space springs", &SystemParams::_show_negative_space_springs);
 	//bool SystemParams::_show_force = false;
 	//bool SystemParams::_show_overlap = false;
-	ImGui::Checkbox("Show force", &SystemParams::_show_force);
-	ImGui::Checkbox("Show overlap", &SystemParams::_show_overlap);
+	ImGui::Checkbox("Velocity", &SystemParams::_show_force);
+	ImGui::Checkbox("Overlap", &SystemParams::_show_overlap);
 	/*if (ImGui::Checkbox("Show time springs", &SystemParams::_show_time_springs))
 	{
 		for (int a = 0; a < _sWorker->_element_list.size(); a++)

@@ -211,8 +211,8 @@ public:
 	Ogre::SceneNode* _neg_space_edge_node;
 
 	// testing time edges of interpolation 
-	DynamicLines*    _time_springs_lines;
-	Ogre::SceneNode* _time_springs_node;
+	DynamicLines*    _time_tri_lines;
+	Ogre::SceneNode* _time_tri_node;
 	//DynamicLines*    _debug_lines_3;
 	//Ogre::SceneNode* _debugNode_3;
 

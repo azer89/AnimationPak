@@ -86,6 +86,9 @@ public:
 	static bool _show_c_pt_cg;
 	static bool _show_c_pt_approx_cg;
 
+	static bool _show_force;
+	static bool _show_overlap;
+
 };
 
 #endif

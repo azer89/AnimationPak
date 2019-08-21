@@ -153,3 +153,6 @@ bool SystemParams::_show_negative_space_springs = false;
 
 bool SystemParams::_show_c_pt_cg = false;
 bool SystemParams::_show_c_pt_approx_cg = false;
+
+bool SystemParams::_show_force = false;
+bool SystemParams::_show_overlap = false;

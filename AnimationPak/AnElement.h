@@ -49,6 +49,7 @@ public:
 	void UpdateInterpMasses();
 	void UpdateZConstraint();
 
+
 	void SolveForSprings3D();
 	void SolveForSprings2D();
 
@@ -112,6 +113,7 @@ public:
 	void UpdateOverlapOgre3D();
 	void UpdateNegSpaceEdgeOgre3D();
 	void UpdateMassListOgre3D();
+	void UpdateForceOgre3D();
 	// ---------- Ogre 3D ----------
 
 	// ----- interpolation ----- 
@@ -240,6 +242,10 @@ public:
 	// testing massList
 	DynamicLines*    _massList_lines;
 	Ogre::SceneNode* _massList_node;
+
+	// testing force
+	DynamicLines*    _force_lines;
+	Ogre::SceneNode* _force_node;
 
 	//
 	int                                 _numTrianglePerLayer;  // number of triangle in just one layer

@@ -153,6 +153,10 @@ bool Display::frameStarted(const Ogre::FrameEvent& evt)
 	ImGui::Checkbox("Show c_pt_approx_cg (debug)", &SystemParams::_show_c_pt_approx_cg);
 	ImGui::Checkbox("Show time triangles", &SystemParams::_show_time_springs);
 	ImGui::Checkbox("Show negative space springs", &SystemParams::_show_negative_space_springs);
+	//bool SystemParams::_show_force = false;
+	//bool SystemParams::_show_overlap = false;
+	ImGui::Checkbox("Show force", &SystemParams::_show_force);
+	ImGui::Checkbox("Show overlap", &SystemParams::_show_overlap);
 	/*if (ImGui::Checkbox("Show time springs", &SystemParams::_show_time_springs))
 	{
 		for (int a = 0; a < _sWorker->_element_list.size(); a++)

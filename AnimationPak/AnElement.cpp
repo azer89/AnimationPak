@@ -956,6 +956,21 @@ void AnElement::InitMeshOgre3D(Ogre::SceneManager* sceneMgr,
 	_neg_space_edge_node->attachObject(_neg_space_edge_lines);
 
 	
+	// ---------- force ----------
+	Ogre::MaterialPtr force_line_material = Ogre::MaterialManager::getSingleton().getByName("Examples/RedMat")->clone("force_line_material_" + std::to_string(_elem_idx));
+	force_line_material->getTechnique(0)->getPass(0)->setDiffuse(Ogre::ColourValue(1, 0, 0, 1));
+	_force_lines = new DynamicLines(force_line_material, Ogre::RenderOperation::OT_LINE_LIST);
+	for (int a = 0; a < _massList.size(); a++)
+	{
+		A3DVector pos1 = _massList[a]._pos;
+		A3DVector pos2 = pos1 + A3DVector(2, 0, 0);
+		_force_lines->addPoint(pos1._x, pos1._y, pos1._z);
+		_force_lines->addPoint(pos2._x, pos2._y, pos2._z);
+	}
+	_force_lines->update();
+	_force_node = _sceneMgr->getRootSceneNode()->createChildSceneNode("_force_node_" + std::to_string(_elem_idx));
+	_force_node->attachObject(_force_lines);
+
 	// ---------- material ----------
 	Ogre::MaterialPtr line_material = Ogre::MaterialManager::getSingleton().getByName("Examples/RedMat")->clone("ElementLines" + std::to_string(_elem_idx));	
 	line_material->getTechnique(0)->getPass(0)->setDiffuse(Ogre::ColourValue(rVal, gVal, bVal, 1));
@@ -1248,24 +1263,67 @@ void AnElement::UpdateTimeTriangleOgre3D()
 
 void AnElement::UpdateOverlapOgre3D()
 {
-	float plus_offset = 5;
-
-	_overlap_lines->clear();
-
-	for (int a = 0; a < _massList.size(); a++)
+	if (SystemParams::_show_overlap)
 	{
-		if (_massList[a]._is_boundary && _massList[a]._is_inside)
-		{
-			A3DVector massPos = _massList[a]._pos;
+		_overlap_node->setVisible(true);
 
-			_overlap_lines->addPoint(massPos._x - plus_offset, massPos._y, massPos._z);
-			_overlap_lines->addPoint(massPos._x + plus_offset, massPos._y, massPos._z);
-			_overlap_lines->addPoint(massPos._x, massPos._y - plus_offset, massPos._z);
-			_overlap_lines->addPoint(massPos._x, massPos._y + plus_offset, massPos._z);
+		float plus_offset = 5;
+
+		_overlap_lines->clear();
+
+		for (int a = 0; a < _massList.size(); a++)
+		{
+			if (_massList[a]._is_boundary && _massList[a]._is_inside)
+			{
+				A3DVector massPos = _massList[a]._pos;
+
+				_overlap_lines->addPoint(massPos._x - plus_offset, massPos._y, massPos._z);
+				_overlap_lines->addPoint(massPos._x + plus_offset, massPos._y, massPos._z);
+				_overlap_lines->addPoint(massPos._x, massPos._y - plus_offset, massPos._z);
+				_overlap_lines->addPoint(massPos._x, massPos._y + plus_offset, massPos._z);
+			}
 		}
 	}
+	else
+	{
+		_overlap_node->setVisible(false);
+	}
+
+	
 
 	_overlap_lines->update();
+}
+
+void AnElement::UpdateForceOgre3D()
+{
+	if (SystemParams::_show_force)
+	{
+		_force_node->setVisible(true);
+
+		int idx = 0;
+		for (int a = 0; a < _massList.size(); a++)
+		{
+			A3DVector pos1 = _massList[a]._pos;
+
+			A3DVector vel = _massList[a]._velocity;
+			A3DVector norm;
+			float dist;
+			vel.GetUnitAndDist(norm, dist);
+
+			A3DVector pos2 = pos1 + norm * dist * 20;
+
+			_force_lines->setPoint(idx++, Ogre::Vector3(pos1._x, pos1._y, pos1._z));
+			_force_lines->setPoint(idx++, Ogre::Vector3(pos2._x, pos2._y, pos2._z));
+		}
+
+	}
+	else
+	{
+		_force_node->setVisible(false);
+	}
+
+	
+	_force_lines->update();
 }
 
 void AnElement::UpdateMassListOgre3D()

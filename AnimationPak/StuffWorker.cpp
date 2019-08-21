@@ -481,6 +481,7 @@ void StuffWorker::UpdateOgre3D()
 		_element_list[a].UpdateOverlapOgre3D();
 		_element_list[a].UpdateNegSpaceEdgeOgre3D();
 		_element_list[a].UpdateMassListOgre3D();
+		_element_list[a].UpdateForceOgre3D();
 	}
 
 	StuffWorker::_c_grid_3d->UpdateOgre3D();

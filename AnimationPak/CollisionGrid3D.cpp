@@ -610,19 +610,13 @@ void CollisionGrid3D::InitOgre3D(Ogre::SceneManager* sceneMgr)
 	_filled_lines->update();
 	_filled_node = sceneMgr->getRootSceneNode()->createChildSceneNode("filled_lines_node");
 	_filled_node->attachObject(_filled_lines);
+	
 
+	// check DynamicLines.cpp
+	// mBox.setExtents(Vector3(-50000, -50000, -50000), Vector3(50000, 50000, 50000));
 
-	//_plus_node->showBoundingBox(true);
-	//_filled_node->showBoundingBox(true);
-	//_plus_lines->setBoundingBox(Ogre::AxisAlignedBox(-1000000, -1000000, -1000000, 1000000, 1000000, 1000000));
-	//_filled_lines->setBoundingBox(Ogre::AxisAlignedBox(-1000000, -1000000, -1000000, 1000000, 1000000, 1000000));
-	_plus_lines->setBoundingBox(Ogre::AxisAlignedBox(0, 0, 0, 1, 1, 1));
-	_filled_lines->setBoundingBox(Ogre::AxisAlignedBox(0, 0, 0, 1, 1, 1));
-	// ::EXTENT_INFINITE
-	//_plus_lines->setBoundingBox(Ogre::AxisAlignedBox::EXTENT_INFINITE);
-	//_filled_lines->setBoundingBox(Ogre::AxisAlignedBox::EXTENT_INFINITE);
-
-
+	//_plus_lines->setBoundingBox(Ogre::AxisAlignedBox(0, 0, 0, 1, 1, 1));
+	//_filled_lines->setBoundingBox(Ogre::AxisAlignedBox(0, 0, 0, 1, 1, 1));
 }
 
 void CollisionGrid3D::UpdateOgre3D()

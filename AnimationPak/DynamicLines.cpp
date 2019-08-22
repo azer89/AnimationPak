@@ -99,7 +99,7 @@ void DynamicLines::fillHardwareBuffers()
 
 	if (!size) {
 		mBox.setExtents(Vector3::ZERO, Vector3::ZERO);
-		mBox.setExtents(Vector3(-10000, -10000, -10000), Vector3(10000, 10000, 10000));  // Reza's hack to prevent cutting
+		mBox.setExtents(Vector3(-50000, -50000, -50000), Vector3(50000, 50000, 50000));  // Reza's hack to prevent cutting
 		mDirty = false;
 		return;
 	}

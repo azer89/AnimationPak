@@ -81,6 +81,7 @@ public:
 	static bool _show_collision_grid;
 	static bool _show_collision_grid_object;
 	static bool _show_time_tri;
+	static bool _show_time_edges;
 	static bool _show_negative_space_springs;
 
 	static bool _show_c_pt_cg;
@@ -88,6 +89,8 @@ public:
 
 	static bool _show_force;
 	static bool _show_overlap;
+
+	static bool _show_container;
 
 };
 

@@ -114,6 +114,7 @@ public:
 	void UpdateNegSpaceEdgeOgre3D();
 	void UpdateMassListOgre3D();
 	void UpdateForceOgre3D();
+	void UpdateTimeEdgesOgre3D();
 	// ---------- Ogre 3D ----------
 
 	// ----- interpolation ----- 
@@ -186,7 +187,7 @@ public:
 	std::vector<AnIdxTriangle>    _triangles;
 	std::vector<AnIndexedLine>    _negSpaceEdges;
 
-	std::vector<AnIdxTriangle>    _timeTriangles; // for 3D collision grid
+	std::vector<AnIdxTriangle>    _surfaceTriangles; // for 3D collision grid
 	std::vector<A3DVector>		  _tempTri3;
 
 	// ---------- Ogre 3D ----------
@@ -210,11 +211,15 @@ public:
 	DynamicLines*    _neg_space_edge_lines;
 	Ogre::SceneNode* _neg_space_edge_node;
 
-	// testing time edges of interpolation 
-	DynamicLines*    _time_tri_lines;
-	Ogre::SceneNode* _time_tri_node;
+	// testing surface triangle mesh
+	DynamicLines*    _surface_tri_lines;
+	Ogre::SceneNode* _surface_tri_node;
 	//DynamicLines*    _debug_lines_3;
 	//Ogre::SceneNode* _debugNode_3;
+
+	//
+	DynamicLines*    _time_edge_lines;
+	Ogre::SceneNode* _time_edge_node;
 
 	// testing closest slice
 	DynamicLines*    _closest_slice_lines;

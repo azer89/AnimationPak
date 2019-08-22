@@ -128,9 +128,9 @@ void StuffWorker::InitElements(Ogre::SceneManager* scnMgr)
 	for (int a = 0; a < _element_list.size(); a++)
 	{
 		// time triangle
-		for (int b = 0; b < _element_list[a]._timeTriangles.size(); b++)
+		for (int b = 0; b < _element_list[a]._surfaceTriangles.size(); b++)
 		{
-			AnIdxTriangle tri = _element_list[a]._timeTriangles[b];
+			AnIdxTriangle tri = _element_list[a]._surfaceTriangles[b];
 			A3DVector p1      = _element_list[a]._massList[tri.idx0]._pos;
 			A3DVector p2      = _element_list[a]._massList[tri.idx1]._pos;
 			A3DVector p3      = _element_list[a]._massList[tri.idx2]._pos;
@@ -306,20 +306,20 @@ void StuffWorker::Update()
 	// ----- update triangles -----
 	for (int a = 0; a < _element_list.size(); a++)
 	{
-		for (int b = 0; b < _element_list[a]._timeTriangles.size(); b++)
+		for (int b = 0; b < _element_list[a]._surfaceTriangles.size(); b++)
 		{
-			AnIdxTriangle tri = _element_list[a]._timeTriangles[b];
+			AnIdxTriangle tri = _element_list[a]._surfaceTriangles[b];
 			A3DVector p1 = _element_list[a]._massList[tri.idx0]._pos;
 			A3DVector p2 = _element_list[a]._massList[tri.idx1]._pos;
 			A3DVector p3 = _element_list[a]._massList[tri.idx2]._pos;
-			A3DVector midPt((p1._x + p2._x + p3._x) * 0.333,
-				            (p1._y + p2._y + p3._y) * 0.333,
-				            (p1._z + p2._z + p3._z) * 0.333);
+			A3DVector midPt((p1._x + p2._x + p3._x) * 0.33333333333,
+				            (p1._y + p2._y + p3._y) * 0.33333333333,
+				            (p1._z + p2._z + p3._z) * 0.33333333333);
 
-			_element_list[a]._timeTriangles[b]._temp_1_3d = p1;
-			_element_list[a]._timeTriangles[b]._temp_2_3d = p2;
-			_element_list[a]._timeTriangles[b]._temp_3_3d = p3;
-			_element_list[a]._timeTriangles[b]._temp_center_3d = midPt;
+			_element_list[a]._surfaceTriangles[b]._temp_1_3d = p1;
+			_element_list[a]._surfaceTriangles[b]._temp_2_3d = p2;
+			_element_list[a]._surfaceTriangles[b]._temp_3_3d = p3;
+			_element_list[a]._surfaceTriangles[b]._temp_center_3d = midPt;
 			
 		}
 	}
@@ -327,9 +327,9 @@ void StuffWorker::Update()
 	float iter = 0;
 	for (int a = 0; a < _element_list.size(); a++)
 	{
-		for (int b = 0; b < _element_list[a]._timeTriangles.size(); b++)
+		for (int b = 0; b < _element_list[a]._surfaceTriangles.size(); b++)
 		{
-			_c_grid_3d->SetPoint(iter++, _element_list[a]._timeTriangles[b]._temp_center_3d);
+			_c_grid_3d->SetPoint(iter++, _element_list[a]._surfaceTriangles[b]._temp_center_3d);
 		}
 	}	
 	_c_grid_3d->MovePoints();
@@ -482,11 +482,14 @@ void StuffWorker::UpdateOgre3D()
 		_element_list[a].UpdateNegSpaceEdgeOgre3D();
 		_element_list[a].UpdateMassListOgre3D();
 		_element_list[a].UpdateForceOgre3D();
+		_element_list[a].UpdateTimeEdgesOgre3D();
 	}
 
 	StuffWorker::_c_grid_3d->UpdateOgre3D();
 	//_element_list[0].UpdateClosestPtsDisplayOgre3D();
 	//_element_list[0].UpdateClosestSliceOgre3D();
+
+	_containerWorker->UpdateOgre3D();
 
 }
 

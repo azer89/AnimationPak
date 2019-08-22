@@ -105,7 +105,7 @@ bool Display::frameStarted(const Ogre::FrameEvent& evt)
 	//bool show_another_window = false;
 	//ImGui::Begin("AnimationPak", &show_another_window, ImVec2(240, 540));
 	ImGui::SetNextWindowPos(ImVec2(5, 5), ImGuiCond_Always);
-	ImGui::SetNextWindowSize(ImVec2(300, 500), ImGuiCond_Always);
+	ImGui::SetNextWindowSize(ImVec2(300, 550), ImGuiCond_Always);
 	bool* p_open = NULL;
 	ImGuiWindowFlags window_flags = 0;
 	ImGui::Begin("AnimationPak", p_open, window_flags);
@@ -144,6 +144,7 @@ bool Display::frameStarted(const Ogre::FrameEvent& evt)
 	//if (ImGui::Button("Button C")) {}
 	
 	ImGui::Text("Visualization:");
+	ImGui::Checkbox("Container", &SystemParams::_show_container);
 	ImGui::Checkbox("Mass list", &SystemParams::_show_mass_list);
 	ImGui::Checkbox("Element boundaries", &SystemParams::_show_element_boundaries);
 	ImGui::Checkbox("Exact repulsion forces", &SystemParams::_show_exact_repulsion_forces);
@@ -153,6 +154,7 @@ bool Display::frameStarted(const Ogre::FrameEvent& evt)
 	ImGui::Checkbox("Exact closest points (debug)", &SystemParams::_show_c_pt_cg);
 	ImGui::Checkbox("Approx closest points (debug)", &SystemParams::_show_c_pt_approx_cg);
 	ImGui::Checkbox("Surface triangles", &SystemParams::_show_time_tri);
+	ImGui::Checkbox("Time springs", &SystemParams::_show_time_edges);
 	ImGui::Checkbox("Negative space springs", &SystemParams::_show_negative_space_springs);
 	//bool SystemParams::_show_force = false;
 	//bool SystemParams::_show_overlap = false;

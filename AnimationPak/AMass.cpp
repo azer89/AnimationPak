@@ -280,7 +280,7 @@ void AMass::GetClosestPoint4()
 	// ----- inside outside -----
 	if (closest_elem_idx != -1)
 	{
-		int layer_idx = StuffWorker::_element_list[closest_elem_idx]._timeTriangles[closest_tri_idx]._layer_idx;
+		int layer_idx = StuffWorker::_element_list[closest_elem_idx]._surfaceTriangles[closest_tri_idx]._layer_idx;
 		//_is_inside = StuffWorker::_element_list[closest_elem_idx].IsInside(layer_idx, _pos/*, _closest_boundary_slice*/);
 		_is_inside = StuffWorker::_element_list[closest_elem_idx].IsInsideApprox(layer_idx, _pos/*, _closest_boundary_slice*/);
 	}

@@ -5,7 +5,7 @@ _window_title        = "1";
 --- A directory where we have to save output files
 _save_folder         = "C:\\Users\\azer\\OneDrive\\Images\\PhysicsPak_Snapshots_0" .. _window_title .. "\\";
 
-_element_folder      = "C:\\Users\\azer\\OneDrive\\Images\\_animation_pak_data\\animal_heads\\";
+_element_folder      = "C:\\Users\\azer\\OneDrive\\Images\\_animation_pak_data\\circle\\";
 _element_file_name   = "C:\\Users\\azer\\OneDrive\\Images\\_animation_pak_data\\bear.path"; -- NOT USED ANYMORE
 _container_file_name = "C:\\Users\\azer\\OneDrive\\Images\\_animation_pak_data\\containers\\pp_heart_2.path";
 
@@ -55,8 +55,8 @@ _max_approx_array_len = 10000;
 
 --- for growing
 _growth_scale_iter     = 0.001; -- 0.005
-_element_initial_scale = 0.05; 
-_element_max_scale     = 4.0;
+_element_initial_scale = 0.01; 
+_element_max_scale     = 20.0;
 
 -- num layer in the simulation, not the png layers
 _num_layer = 50;
@@ -78,6 +78,6 @@ _boundary_sampling_factor   = 1.2;  -- [Do not edit]
 
 
 _num_element_density       = 500;
-_num_element_pos_limit = 30;
+_num_element_pos_limit = 20;
 
 

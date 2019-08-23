@@ -40,7 +40,7 @@ public:
 
 	std::vector<AnIdxTriangle> _triangles; // for overlap force
 
-	std::vector<AnIdxTriangle>    _timeTriangles; // for 3D collision grid
+	//std::vector<AnIdxTriangle>    _timeTriangles; // for 3D collision grid
 
 	float                _closestDist; // for stop growing??? need to check
 

@@ -535,7 +535,7 @@ void AMass::Solve(const std::vector<A2DVector>& container, AnElement& parentElem
 			sumR *= SystemParams::_k_repulsion;
 			/*if (!sumR.IsBad())*/
 			{
-				this->_repulsionForce += A3DVector(sumR._x, sumR._y, sumR._z);
+				this->_repulsionForce += sumR;
 			}
 		}
 		

@@ -630,16 +630,16 @@ void AnElement::Triangularization(std::vector<std::vector<A2DVector>> art_path, 
 			// cur_1 next_1 cur_2
 			AnIdxTriangle tri1(cur_1, next_1, cur_2, layer_idx);
 			_surfaceTriangles.push_back(tri1);
-			_massList[cur_1]._timeTriangles.push_back(tri1);
-			_massList[next_1]._timeTriangles.push_back(tri1);
-			_massList[cur_2]._timeTriangles.push_back(tri1);
+			//_massList[cur_1]._timeTriangles.push_back(tri1);
+			//_massList[next_1]._timeTriangles.push_back(tri1);
+			//_massList[cur_2]._timeTriangles.push_back(tri1);
 
 			// next_1 next_2 cur_2
 			AnIdxTriangle tri2(next_1, next_2, cur_2, layer_idx);
 			_surfaceTriangles.push_back(tri2);
-			_massList[next_1]._timeTriangles.push_back(tri2);
-			_massList[next_2]._timeTriangles.push_back(tri2);
-			_massList[cur_2]._timeTriangles.push_back(tri2);
+			//_massList[next_1]._timeTriangles.push_back(tri2);
+			//_massList[next_2]._timeTriangles.push_back(tri2);
+			//_massList[cur_2]._timeTriangles.push_back(tri2);
 		}
 	}
 	std::cout << "_surfaceTriangles size = " << _surfaceTriangles.size() << "\n";

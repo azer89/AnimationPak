@@ -38,17 +38,17 @@ public:
 	static float _repulsion_soft_factor;
 	static float _k_overlap;
 	static float _k_boundary;
-	static float _k_rotate;
+	//static float _k_rotate;
 	static float _k_dock;
 
 	static float _velocity_cap;
 
 	static float _bin_square_size;
 	//static int   _collission_block_radius;
-	static int _grid_radius_1_xy;
-	static int _grid_radius_2_xy;
-	static int _grid_radius_1_z;
-	static int _grid_radius_2_z;
+	static int _grid_radius_1;
+	static int _grid_radius_2;
+	//static int _grid_radius_1_z;
+	//static int _grid_radius_2_z;
 
 	static int _max_exact_array_len;
 	static int _max_approx_array_len;

@@ -54,7 +54,7 @@ public:
 	void SolveForSprings2D();
 
 	bool IsInsideApprox(int layer_idx, A3DVector pos);
-	bool IsInside(int layer_idx, A3DVector pos/*, std::vector<A2DVector>& boundary_slice*/);
+	bool IsInside(int layer_idx, A3DVector pos, std::vector<A3DVector>& boundary_slice);
 	
 		
 	void DrawRandomPoints(std::vector<A2DVector> randomPoints); // debug
@@ -148,6 +148,7 @@ public:
 
 	std::vector<std::vector<A3DVector>> _per_layer_boundary; // for closest point and Ogre3D
 	std::vector<A2DVector> _a_layer_boundary;// for closest point
+	std::vector<A3DVector> _a_layer_boundary_3d;// for closest point
 	std::vector<std::vector<A3DVector>> _per_layer_boundary_drawing;
 	std::vector<std::vector<std::vector<A2DVector>>> _per_layer_triangle_drawing;
 	//std::vector<float> _per_layer_boundary_z_pos;

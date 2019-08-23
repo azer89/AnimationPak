@@ -147,6 +147,7 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>C:\Users\azer\workspace\ogre-sdk-1.11.5\include\OGRE;C:\Users\azer\workspace\ogre_imgui;C:\Users\azer\workspace\ogre_imgui\imgui;C:\Users\azer\workspace\ogre-sdk-1.11.5\include\OGRE\Bites;C:\Users\azer\workspace\ogre-sdk-1.11.5\include\OGRE\Overlay;C:\Users\azer\workspace\ogre-sdk-1.11.5\include\OGRE\RTShaderSystem;C:\Users\azer\workspace\ogre-sdk-1.11.5\include\OGRE\HLMS;C:\Users\azer\workspace\ogre-sdk-1.11.5\include\OGRE\MeshLodGenerator;C:\Users\azer\workspace\ogre-sdk-1.11.5\include\OGRE\Paging;C:\Users\azer\workspace\ogre-sdk-1.11.5\include\OGRE\Property;C:\Users\azer\workspace\ogre-sdk-1.11.5\include\OGRE\Terrain;C:\Users\azer\workspace\ogre-sdk-1.11.5\include\OGRE\Volume;C:\Users\azer\workspace\Lua533\Lua533;C:\Users\azer\workspace\opencv_4_0_1\build\include;C:\Users\azer\workspace\CGAL-4.13.1\include;C:\Users\azer\workspace\CGAL-4.13.1\auxiliary\gmp\include;C:\Users\azer\workspace\CGAL-4.13.1\bin\include;C:\Users\azer\workspace\boost_1_70_0;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <DebugInformationFormat>OldStyle</DebugInformationFormat>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

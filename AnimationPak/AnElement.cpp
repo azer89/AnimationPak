@@ -319,18 +319,21 @@ bool AnElement::IsInsideApprox(int layer_idx, A3DVector pos)
 	return UtilityFunctions::InsidePolygon(_a_layer_boundary, pos._x, pos._y);
 }
 
-bool AnElement::IsInside(int layer_idx, A3DVector pos/*, std::vector<A2DVector>& boundary_slice*/)
+//#pragma optimize("", off)
+bool AnElement::IsInside(int layer_idx, A3DVector pos, std::vector<A3DVector>& boundary_slice)
 {
 	int next_layer_idx = layer_idx + 1; // guaranteed exists
 
-	float z_1 = _per_layer_boundary[layer_idx][0]._z;
-	float z_2 = _per_layer_boundary[next_layer_idx][0]._z;
+	float z_1 = std::abs( _per_layer_boundary[layer_idx][0]._z);     // negative
+	float z_2 = std::abs(_per_layer_boundary[next_layer_idx][0]._z); // negative
 	float z_length = z_2 - z_1;
-	float z_length_a = pos._z - z_1;
+	float z_length_a = std::abs(pos._z) - z_1; // negative
 	float interVal = z_length_a / z_length;
 
 	A3DVector pt1, pt1_next, dir1, dir1_unit;
 	float dir1_len;
+
+	//std::cout << interVal << "\n";
 
 	for (unsigned int a = 0; a < _numBoundaryPointPerLayer; a++)
 	{
@@ -340,10 +343,11 @@ bool AnElement::IsInside(int layer_idx, A3DVector pos/*, std::vector<A2DVector>&
 		dir1_unit;
 		dir1_len;
 		dir1.GetUnitAndDist(dir1_unit, dir1_len);
-		_a_layer_boundary[a] = (pt1 + (dir1_unit * dir1_len * interVal)).GetA2DVector();
+		_a_layer_boundary_3d[a] = (pt1 + (dir1_unit * dir1_len * interVal)); // 3D
+		_a_layer_boundary[a] = _a_layer_boundary_3d[a].GetA2DVector(); // still needed? 2D
 	}
 
-	//boundary_slice = _a_layer_boundary;
+	boundary_slice = _a_layer_boundary_3d;
 	return UtilityFunctions::InsidePolygon(_a_layer_boundary, pos._x, pos._y);
 }
 
@@ -779,6 +783,7 @@ void AnElement::Triangularization(std::vector<std::vector<A2DVector>> art_path, 
 	for (int a = 0; a < _numBoundaryPointPerLayer; a++)
 	{
 		_a_layer_boundary.push_back(A2DVector());
+		_a_layer_boundary_3d.push_back(A3DVector());
 	}
 
 	// ----- some precomputation or interpolation ----- 
@@ -1109,7 +1114,6 @@ void AnElement::InitMeshOgre3D(Ogre::SceneManager* sceneMgr,
 	line_material_asdf->getTechnique(0)->getPass(0)->setDiffuse(Ogre::ColourValue(1, 0, 0, 1));
 
 	_closest_slice_lines = new DynamicLines(line_material_asdf, Ogre::RenderOperation::OT_LINE_LIST);
-
 	_closest_slice_lines->update();
 	_closest_slice_node = _sceneMgr->getRootSceneNode()->createChildSceneNode("_closest_slice_lines_" + std::to_string(_elem_idx));
 	_closest_slice_node->attachObject(_closest_slice_lines);
@@ -1138,18 +1142,13 @@ void AnElement::InitMeshOgre3D(Ogre::SceneManager* sceneMgr,
 
 void AnElement::UpdateClosestSliceOgre3D()
 {
-	// debug closest slice
-	/*DynamicLines*    _closest_slice_lines;
-	Ogre::SceneNode* _closest_slice_node;*/
-
 	_closest_slice_lines->clear();
 
 	for (int a = 0; a < _massList.size(); a++)
 	{
 		if (_massList[a]._is_boundary && _massList[a]._is_inside)
 		{
-			std::vector<A2DVector> slice_array = _massList[a]._closest_boundary_slice;
-			float z_pos = _massList[a]._pos._z;
+			std::vector<A3DVector> slice_array = _massList[a]._closest_boundary_slice;
 
 			for (int i = 0; i < slice_array.size(); i++)
 			{
@@ -1158,8 +1157,8 @@ void AnElement::UpdateClosestSliceOgre3D()
 				{
 					next_i = 0;
 				}
-				_closest_slice_lines->addPoint(Ogre::Vector3(slice_array[i].x, slice_array[i].y, z_pos));
-				_closest_slice_lines->addPoint(Ogre::Vector3(slice_array[next_i].x, slice_array[next_i].y, z_pos));
+				_closest_slice_lines->addPoint(Ogre::Vector3(slice_array[i]._x,      slice_array[i]._y,      slice_array[i]._z));
+				_closest_slice_lines->addPoint(Ogre::Vector3(slice_array[next_i]._x, slice_array[next_i]._y, slice_array[next_i]._z));
 			}
 
 		}

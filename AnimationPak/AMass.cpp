@@ -281,8 +281,8 @@ void AMass::GetClosestPoint4()
 	if (closest_elem_idx != -1)
 	{
 		int layer_idx = StuffWorker::_element_list[closest_elem_idx]._surfaceTriangles[closest_tri_idx]._layer_idx;
-		//_is_inside = StuffWorker::_element_list[closest_elem_idx].IsInside(layer_idx, _pos/*, _closest_boundary_slice*/);
-		_is_inside = StuffWorker::_element_list[closest_elem_idx].IsInsideApprox(layer_idx, _pos/*, _closest_boundary_slice*/);
+		_is_inside = StuffWorker::_element_list[closest_elem_idx].IsInside(layer_idx, _pos , _closest_boundary_slice);
+		//_is_inside = StuffWorker::_element_list[closest_elem_idx].IsInsideApprox(layer_idx, _pos/*, _closest_boundary_slice*/);
 	}
 
 	// ----- approx closest point -----
@@ -491,26 +491,26 @@ void AMass::Solve(const std::vector<A2DVector>& container, AnElement& parentElem
 {
 	if(_is_boundary)
 	{
-		if (_is_inside)
-		{
-			// ---------- OVERLAP FORCE ----------
-			A3DVector sumO(0, 0, 0);
-			A3DVector ctrPt;
-			A3DVector dir;
-			for (unsigned int a = 0; a < _triangles.size(); a++)
-			{
-				ctrPt = (parentElem._massList[_triangles[a].idx0]._pos +        // triangle vertex
-						 parentElem._massList[_triangles[a].idx1]._pos +        // triangle vertex
-						 parentElem._massList[_triangles[a].idx2]._pos) / 3.0f; // triangle vertex
+		//if (_is_inside)
+		//{
+		//	// ---------- OVERLAP FORCE ----------
+		//	A3DVector sumO(0, 0, 0);
+		//	A3DVector ctrPt;
+		//	A3DVector dir;
+		//	for (unsigned int a = 0; a < _triangles.size(); a++)
+		//	{
+		//		ctrPt = (parentElem._massList[_triangles[a].idx0]._pos +        // triangle vertex
+		//				 parentElem._massList[_triangles[a].idx1]._pos +        // triangle vertex
+		//				 parentElem._massList[_triangles[a].idx2]._pos) / 3.0f; // triangle vertex
 
-				dir = _pos.DirectionTo(ctrPt);
-				sumO += dir;
-			}
-			sumO *= SystemParams::_k_overlap;
-			/*if (!sumO.IsBad())*/ 
-			{ this->_overlapForce += sumO; }
-		}
-		else
+		//		dir = _pos.DirectionTo(ctrPt);
+		//		sumO += dir;
+		//	}
+		//	sumO *= SystemParams::_k_overlap;
+		//	/*if (!sumO.IsBad())*/ 
+		//	{ this->_overlapForce += sumO; }
+		//}
+		//else
 		{
 			// ---------- REPULSION FORCE ----------
 			A3DVector sumR(0, 0, 0);

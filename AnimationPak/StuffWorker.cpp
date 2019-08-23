@@ -483,6 +483,7 @@ void StuffWorker::UpdateOgre3D()
 		_element_list[a].UpdateMassListOgre3D();
 		_element_list[a].UpdateForceOgre3D();
 		_element_list[a].UpdateTimeEdgesOgre3D();
+		_element_list[a].UpdateClosestSliceOgre3D();
 	}
 
 	StuffWorker::_c_grid_3d->UpdateOgre3D();

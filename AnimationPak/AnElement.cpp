@@ -804,7 +804,7 @@ void AnElement::Triangularization(std::vector<std::vector<A2DVector>> art_path, 
 
 void AnElement::CalculateRestStructure()
 {
-	UpdateLayerBoundaries(); // update per_layer_boundary
+	//UpdateLayerBoundaries(); // update per_layer_boundary
 
 	//std::vector<A2DVector> _layer_center_array; // OpenCVWrapper::GetCenter
 	OpenCVWrapper cvWrapper;

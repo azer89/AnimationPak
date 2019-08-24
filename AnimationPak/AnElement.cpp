@@ -324,27 +324,41 @@ bool AnElement::IsInside(int layer_idx, A3DVector pos, std::vector<A3DVector>& b
 {
 	int next_layer_idx = layer_idx + 1; // guaranteed exists
 
-	float z_1 = std::abs( _per_layer_boundary[layer_idx][0]._z);     // negative
-	float z_2 = std::abs(_per_layer_boundary[next_layer_idx][0]._z); // negative
-	float z_length = z_2 - z_1;
-	float z_length_a = std::abs(pos._z) - z_1; // negative
-	float interVal = z_length_a / z_length;
+	float z_1 = _per_layer_boundary[layer_idx][0]._z;     // negative
+	float z_2 = _per_layer_boundary[next_layer_idx][0]._z; // negative
+	float interVal = (pos._z - z_1) / 
+		             (z_2    - z_1);
 
-	A3DVector pt1, pt1_next, dir1, dir1_unit;
-	float dir1_len;
-
-	//std::cout << interVal << "\n";
-
-	for (unsigned int a = 0; a < _numBoundaryPointPerLayer; a++)
+	if (interVal > 1 || interVal < 0)
 	{
-		pt1 = _per_layer_boundary[layer_idx][a];
-		pt1_next = _per_layer_boundary[next_layer_idx][a];
-		dir1 = pt1.DirectionTo(pt1_next);
-		dir1_unit;
-		dir1_len;
-		dir1.GetUnitAndDist(dir1_unit, dir1_len);
-		_a_layer_boundary_3d[a] = (pt1 + (dir1_unit * dir1_len * interVal)); // 3D
-		_a_layer_boundary[a] = _a_layer_boundary_3d[a].GetA2DVector(); // still needed? 2D
+		return false;
+	}
+	else if(interVal > 1e-5)
+	{
+		A3DVector pt1, pt1_next, dir1, dir1_unit;
+		float dir1_len;
+
+		//std::cout << interVal << "\n";
+
+		for (unsigned int a = 0; a < _numBoundaryPointPerLayer; a++)
+		{
+			pt1 = _per_layer_boundary[layer_idx][a];
+			pt1_next = _per_layer_boundary[next_layer_idx][a];
+			dir1 = pt1.DirectionTo(pt1_next);
+			//dir1_unit;
+			//dir1_len;
+			dir1.GetUnitAndDist(dir1_unit, dir1_len);
+			_a_layer_boundary_3d[a] = (pt1 + (dir1 * interVal)); // 3D for visualization
+			_a_layer_boundary[a] = _a_layer_boundary_3d[a].GetA2DVector(); // 2D for actual test
+		}
+	}
+	else
+	{
+		_a_layer_boundary_3d = _per_layer_boundary[layer_idx]; // 3D for visualization
+		for (unsigned int a = 0; a < _numBoundaryPointPerLayer; a++)
+		{
+			_a_layer_boundary[a] = _a_layer_boundary_3d[a].GetA2DVector(); // 2D for actual test
+		}
 	}
 
 	boundary_slice = _a_layer_boundary_3d;

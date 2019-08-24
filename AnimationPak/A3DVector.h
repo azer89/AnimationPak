@@ -105,21 +105,21 @@ public:
 	// combine Norm() and Distance()
 	void GetUnitAndDist(A3DVector& unitVec, float& dist)
 	{
-		float isqrt = inv_sqrt(_x * _x + _y * _y + _z * _z);
+		/*float isqrt = inv_sqrt(_x * _x + _y * _y + _z * _z);
 		dist = 1.0 / isqrt;
 		unitVec = A3DVector(this->_x * isqrt,
 			this->_y * isqrt,
-			this->_z * isqrt);
+			this->_z * isqrt);*/
 		
 
 		// original
 		
-		/*dist = std::sqrt(_x * _x + _y * _y + _z * _z);
+		dist = std::sqrt(_x * _x + _y * _y + _z * _z);
 
 		unitVec =  A3DVector(this->_x / dist,
 			this->_y / dist,
 			this->_z / dist);
-		*/
+		
 	}
 
 	void SetPosition(const A3DVector& otherPt)

@@ -142,8 +142,8 @@ int SystemParams::_num_element_density = 0;
 int SystemParams::_num_element_pos_limit = 0;
 
 // viz
-bool SystemParams::_show_mass_list = false;
-bool SystemParams::_show_element_boundaries = true;
+bool SystemParams::_show_mass_list = true;
+bool SystemParams::_show_element_boundaries = false;
 bool SystemParams::_show_exact_repulsion_forces = false;
 bool SystemParams::_show_approx_repulsion_forces = false;
 bool SystemParams::_show_collision_grid = false;

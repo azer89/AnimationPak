@@ -81,16 +81,20 @@ void StuffWorker::InitElements(Ogre::SceneManager* scnMgr)
 	int elem_iter = 0;
 	int elem_sz = art_paths.size();
 	float initialScale = SystemParams::_element_initial_scale; // 0.05
-	/*{
+
+	// docking
+	//A2DVector startPt(80, 80);
+	//A2DVector endPt(345, 345);
+	/*A2DVector startPt(420, 80);
+	A2DVector endPt(165, 345);
+	{
 		int idx = _element_list.size();
 		AnElement elem;
 		elem.Triangularization(art_paths[elem_iter++ % elem_sz], idx);
 		elem.ComputeBary();
 		elem.ScaleXY(initialScale);
-
-		// docking
-		A2DVector startPt(80, 80);
-		A2DVector endPt(345, 345);
+		
+		
 		elem.TranslateXY(startPt.x, startPt.y);
 		elem.DockEnds(startPt, endPt);
 		
@@ -99,11 +103,11 @@ void StuffWorker::InitElements(Ogre::SceneManager* scnMgr)
 		elem.InitMeshOgre3D(scnMgr, pNode, "StarTube" + std::to_string(idx), "Examples/TransparentTest2");
 		_element_list.push_back(elem);
 	}*/
-	
-	//_containerWorker->_randomPositions.push_back(A2DVector(250, 250));
 
 	for (int a = 0; a < _containerWorker->_randomPositions.size(); a++)
 	{
+		//if (UtilityFunctions::DistanceToFiniteLine(startPt, endPt, _containerWorker->_randomPositions[a]) < 10) { continue; }
+
 		int idx = _element_list.size();
 		AnElement elem;
 		elem.Triangularization(art_paths[elem_iter++ % elem_sz], idx);
@@ -118,7 +122,12 @@ void StuffWorker::InitElements(Ogre::SceneManager* scnMgr)
 		elem.CalculateRestStructure();
 		Ogre::SceneNode* pNode = scnMgr->getRootSceneNode()->createChildSceneNode("TubeNode" + std::to_string(idx));
 		elem.InitMeshOgre3D(scnMgr, pNode, "StarTube" + std::to_string(idx), "Examples/TransparentTest2");
-		_element_list.push_back(elem);			
+		_element_list.push_back(elem);		
+
+		//if (_element_list.size() == SystemParams::_num_element_pos_limit) { break; }
+
+		//std::mt19937 g(SystemParams::_seed);
+		//std::shuffle(_containerWorker->_randomPositions.begin(), _containerWorker->_randomPositions.end(), g);
 	}
 	
 	// ----- Collision grid 3D -----
@@ -301,6 +310,7 @@ void StuffWorker::Update()
 	for (int a = 0; a < _element_list.size(); a++)
 	{
 		_element_list[a].UpdateLayerBoundaries();
+		
 	}
 
 	// ----- update triangles -----
@@ -342,6 +352,7 @@ void StuffWorker::Update()
 		for (int b = 0; b < _element_list[a]._massList.size(); b++)
 		{
 			_element_list[a]._massList[b].GetClosestPoint4();
+			//_element_list[a].UpdatePerLayerInsideFlags();
 		}
 
 	}

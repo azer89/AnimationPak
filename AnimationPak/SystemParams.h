@@ -92,6 +92,8 @@ public:
 
 	static bool _show_container;
 
+	static int _layer_slider_int;
+
 };
 
 #endif

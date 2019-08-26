@@ -313,7 +313,7 @@ public:
 
 private:
 	// the fuck http_//h14s.p5r.org/2012/09/0x5f3759df.html?mwh=1
-	float inv_sqrt(float number)
+	float inv_sqrt_do_not_use(float number)
 	{
 		/*
 		long i;

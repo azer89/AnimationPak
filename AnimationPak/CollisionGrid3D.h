@@ -45,6 +45,7 @@ public:
 	
 
 	int   _side_num; // side length of the entire grid (unit: cell)
+	int _side_num_sq;
 	float _max_cell_length; // side length of a cell
 
 public:

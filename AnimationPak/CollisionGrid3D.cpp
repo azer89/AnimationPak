@@ -15,6 +15,7 @@ void CollisionGrid3D::Init()
 
 	// create squares, the grid is a square too
 	_side_num = SystemParams::_upscaleFactor / _max_cell_length;
+	_side_num_sq = _side_num * _side_num;
 
 	//
 	for (unsigned int z = 0; z < _side_num; z++) // fill the first layer...
@@ -51,7 +52,7 @@ CollisionGrid3D::~CollisionGrid3D()
 
 int CollisionGrid3D::SquareIndex(int xPos, int yPos, int zPos)
 {
-	return (zPos * _side_num * _side_num) + (xPos * _side_num) + yPos; // y filled first
+	return (zPos * _side_num_sq) + (xPos * _side_num) + yPos; // y filled first
 }
 
 void CollisionGrid3D::GetCellPosition(int& xPos, int& yPos, int& zPos, float x, float y, float z)
@@ -297,10 +298,7 @@ void CollisionGrid3D::InsertAPoint(float x, float y, float z, int info1, int inf
 
 void CollisionGrid3D::PrecomputeData()
 {
-
-	int side_num_sq = _side_num * _side_num;
 	int offst = SystemParams::_grid_radius_2;
-	//int offst_z = SystemParams::_grid_radius_2;
 
 	A3DSquare* cur_sq;
 	A3DSquare* neighbor_sq;
@@ -318,13 +316,14 @@ void CollisionGrid3D::PrecomputeData()
 		cur_sq->_c_pt_fill_size = 0;        // reset
 		cur_sq->_c_pt_approx_fill_size = 0; // reset
 
-		zPos = iter / side_num_sq; // int division
+		zPos = iter / _side_num_sq; // int division
 
-		left_over = iter - (zPos * side_num_sq);
+		left_over = iter - (zPos * _side_num_sq);
 
 		xPos = left_over / _side_num;          // current position
 		yPos = left_over - (xPos * _side_num); // current position // y is filled first
 
+		// todo: clamping
 		xBegin = xPos - offst;
 		if (xBegin < 0) { xBegin = 0; }
 
@@ -337,49 +336,43 @@ void CollisionGrid3D::PrecomputeData()
 		yEnd = yPos + offst;
 		if (yEnd >= _side_num) { yEnd = _side_num - 1; }
 
+		// uncomment me!
 		zBegin = zPos - offst;
 		if (zBegin < 0) { zBegin = 0; }
 
 		zEnd = zPos + offst;
 		if (zEnd >= _side_num) { zEnd = _side_num - 1; }
-
 		
+
+		int s_idx;
+		unsigned int a;
+
+		// uncomment me!
 		for (int zIter = zBegin; zIter <= zEnd; zIter++)
 		{
+			//int zIter = zPos; // delete me !!!!
 			for (int xIter = xBegin; xIter <= xEnd; xIter++)
 			{
 				for (int yIter = yBegin; yIter <= yEnd; yIter++)
 				{
-					int s_idx = SquareIndex(xIter, yIter, zIter);
+					s_idx = SquareIndex(xIter, yIter, zIter);
 					neighbor_sq = _squares[s_idx];
 					if (abs(xIter - xPos) <= SystemParams::_grid_radius_1 &&
 						abs(yIter - yPos) <= SystemParams::_grid_radius_1 &&
 						abs(zIter - zPos) <= SystemParams::_grid_radius_1)
 					{
-						/*for (unsigned int a = 0; a < neighbor_sq->_objects.size(); a++)
-						{
-							// (1) which element (2) which triangle
-							cur_sq->_c_pt[cur_sq->_c_pt_fill_size++] = std::pair<int, int>(neighbor_sq->_objects[a]->_info1, neighbor_sq->_objects[a]->_info2);
-						}*/
-						for (unsigned int a = 0; a < neighbor_sq->_object_idx_array.size(); a++)
+
+						for (a = 0; a < neighbor_sq->_object_idx_array.size(); a++)
 						{
 							// (1) which element (2) which triangle
 							obj = _objects[neighbor_sq->_object_idx_array[a]];
 							cur_sq->_c_pt[cur_sq->_c_pt_fill_size++] = std::pair<int, int>(obj->_info1, obj->_info2);
 						}
 					}
-					//else if (abs(xIter - xPos) <= SystemParams::_grid_radius_2 &&
-					//	     abs(yIter - yPos) <= SystemParams::_grid_radius_2 &&
-					//	     abs(zIter - zPos) <= SystemParams::_grid_radius_2)
+
 					else // it is ok, no need to check
 					{
-						/*for (unsigned int a = 0; a < neighbor_sq->_objects.size(); a++)
-						{
-							// (1) which element (2) which square
-							cur_sq->_c_pt_approx[cur_sq->_c_pt_approx_fill_size++] = std::pair<int, int>(neighbor_sq->_objects[a]->_info1, s_idx);
-						}
-						*/
-						for (unsigned int a = 0; a < neighbor_sq->_object_idx_array.size(); a++)
+						for (a = 0; a < neighbor_sq->_object_idx_array.size(); a++)
 						{
 							// (1) which element (2) which square
 							obj = _objects[neighbor_sq->_object_idx_array[a]];
@@ -486,18 +479,12 @@ void CollisionGrid3D::PrecomputeClosestGraphsAndTriangles()
 
 void CollisionGrid3D::MovePoints()
 {
-	//std::vector<A3DObject*> invalidObjects;
+
 	std::vector<int> invalid_obj_idx_array;
 	for (unsigned int a = 0; a < _squares.size(); a++)
 	{
-		//for (int b = _squares[a]->_objects.size() - 1; b >= 0; b--) // should be signed
 		for (int b = _squares[a]->_object_idx_array.size() - 1; b >= 0; b--) // should be signed
 		{
-			/*if (!_squares[a]->Contains(_squares[a]->_objects[b]))
-			{
-				invalidObjects.push_back(_squares[a]->_objects[b]);
-				_squares[a]->_objects.erase(_squares[a]->_objects.begin() + b);
-			}*/
 			if (!_squares[a]->Contains(_objects[_squares[a]->_object_idx_array[b]]))
 			{
 				invalid_obj_idx_array.push_back(_squares[a]->_object_idx_array[b]);
@@ -513,7 +500,7 @@ void CollisionGrid3D::MovePoints()
 		obj = _objects[invalid_obj_idx_array[a]];
 		GetCellPosition(xPos, yPos, zPos, obj->_x, obj->_y, obj->_z);		
 
-		// avoiding runtime error
+		// clamping
 		if (xPos < 0) { xPos = 0; }
 		if (xPos == _side_num) { xPos = _side_num - 1; }
 
@@ -524,7 +511,7 @@ void CollisionGrid3D::MovePoints()
 		if (zPos == _side_num) { zPos = _side_num - 1; }
 
 		idx = SquareIndex(xPos, yPos, zPos);
-		//_squares[idx]->_objects.push_back(invalidObjects[a]);
+
 		_squares[idx]->_object_idx_array.push_back(invalid_obj_idx_array[a]);
 	}
 	invalid_obj_idx_array.clear(); // HUH?? NEED TO CHECK WHETHER IT's ZERO OR NOT
@@ -628,11 +615,6 @@ void CollisionGrid3D::UpdateOgre3D()
 	_c_pt_lines->clear();
 
 	float plus_offset = 0.5;
-	//int plus_iter = 0;
-
-	// do something
-	//int empty_iter = 0;
-	//int filled_iter = 0;
 	A3DObject* obj;
 	if (SystemParams::_show_collision_grid_object)
 	{
@@ -649,11 +631,6 @@ void CollisionGrid3D::UpdateOgre3D()
 					_plus_lines->addPoint(pos._x + plus_offset, pos._y, pos._z);
 					_plus_lines->addPoint(pos._x, pos._y - plus_offset, pos._z);
 					_plus_lines->addPoint(pos._x, pos._y + plus_offset, pos._z);
-
-					/*_plus_lines->setPoint(plus_iter++, Ogre::Vector3(pos._x - plus_offset, pos._y, pos._z));
-					_plus_lines->setPoint(plus_iter++, Ogre::Vector3(pos._x + plus_offset, pos._y, pos._z));
-					_plus_lines->setPoint(plus_iter++, Ogre::Vector3(pos._x, pos._y - plus_offset, pos._z));
-					_plus_lines->setPoint(plus_iter++, Ogre::Vector3(pos._x, pos._y + plus_offset, pos._z));*/
 				}
 			}
 		}

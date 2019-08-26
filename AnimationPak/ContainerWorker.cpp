@@ -55,6 +55,9 @@ void ContainerWorker::LoadContainer()
 		}
 
 	}
+
+	//std::mt19937 g(SystemParams::_seed);
+	//std::shuffle(_randomPositions.begin(), _randomPositions.end(), g);
 	int num_pos_limit = SystemParams::_num_element_pos_limit;
 	if (num_pos_limit < _randomPositions.size())
 	{

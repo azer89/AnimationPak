@@ -95,6 +95,7 @@ public:
 	int GetUnsharedVertexIndex(AnIdxTriangle tri, AnIndexedLine edge);
 	void DrawEdges();
 
+	void UpdatePerLayerInsideFlags();
 	
 
 	// ---------- Ogre 3D ----------
@@ -226,19 +227,19 @@ public:
 	DynamicLines*    _closest_slice_lines;
 	Ogre::SceneNode* _closest_slice_node;
 
-	// testing closest points of interpolation 
+	// testing closest points
 	DynamicLines*    _closet_pt_lines;
 	Ogre::SceneNode* _closet_pt_node;
 
 	DynamicLines*    _closet_pt_approx_lines;
 	Ogre::SceneNode* _closet_pt_approx_node;
 
-	// testing closest points of interpolation 
-	DynamicLines*    _closet_pt_lines_back;
-	Ogre::SceneNode* _closet_pt_node_back;
+	// testing closest points
+	//DynamicLines*    _closet_pt_lines_back;
+	//Ogre::SceneNode* _closet_pt_node_back;
 
-	DynamicLines*    _closet_pt_approx_lines_back;
-	Ogre::SceneNode* _closet_pt_approx_node_back;
+	//DynamicLines*    _closet_pt_approx_lines_back;
+	//Ogre::SceneNode* _closet_pt_approx_node_back;
 
 
 	// testing overlap

@@ -160,6 +160,7 @@ bool Display::frameStarted(const Ogre::FrameEvent& evt)
 	//bool SystemParams::_show_overlap = false;
 	ImGui::Checkbox("Velocity", &SystemParams::_show_force);
 	ImGui::Checkbox("Overlap", &SystemParams::_show_overlap);
+	ImGui::SliderInt("Layer Viz", &SystemParams::_layer_slider_int, -1, SystemParams::_num_layer - 1);
 	/*if (ImGui::Checkbox("Show time springs", &SystemParams::_show_time_springs))
 	{
 		for (int a = 0; a < _sWorker->_element_list.size(); a++)

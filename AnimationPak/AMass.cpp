@@ -491,36 +491,38 @@ void AMass::Solve(const std::vector<A2DVector>& container, AnElement& parentElem
 {
 	if(_is_boundary)
 	{
-		//if (_is_inside)
-		//{
-		//	// ---------- OVERLAP FORCE ----------
-		//	A3DVector sumO(0, 0, 0);
-		//	A3DVector ctrPt;
-		//	A3DVector dir;
-		//	for (unsigned int a = 0; a < _triangles.size(); a++)
-		//	{
-		//		ctrPt = (parentElem._massList[_triangles[a].idx0]._pos +        // triangle vertex
-		//				 parentElem._massList[_triangles[a].idx1]._pos +        // triangle vertex
-		//				 parentElem._massList[_triangles[a].idx2]._pos) / 3.0f; // triangle vertex
+		if (_is_inside)
+		{
+			// ---------- OVERLAP FORCE ----------
+			A3DVector sumO(0, 0, 0);
+			A3DVector ctrPt;
+			A3DVector dir;
+			for (unsigned int a = 0; a < _triangles.size(); a++)
+			{
+				// todo maybe center of mass?
+				ctrPt = (parentElem._massList[_triangles[a].idx0]._pos +        // triangle vertex
+						 parentElem._massList[_triangles[a].idx1]._pos +        // triangle vertex
+						 parentElem._massList[_triangles[a].idx2]._pos) / 3.0f; // triangle vertex
 
-		//		dir = _pos.DirectionTo(ctrPt);
-		//		sumO += dir;
-		//	}
-		//	sumO *= SystemParams::_k_overlap;
-		//	/*if (!sumO.IsBad())*/ 
-		//	{ this->_overlapForce += sumO; }
-		//}
-		//else
+				dir = _pos.DirectionTo(ctrPt);
+				sumO += dir;
+			}
+			sumO *= SystemParams::_k_overlap;
+			 
+			{ this->_overlapForce += sumO; }
+		}
+		else
 		{
 			// ---------- REPULSION FORCE ----------
 			A3DVector sumR(0, 0, 0);
 			A3DVector dir;
+			float distSq;
 
 			for (int a = 0; a < _c_pts_fill_size; a++)
 			{
 				dir = _c_pts[a].DirectionTo(_pos); // direction
 
-				float distSq = dir.LengthSquared(); // distance
+				distSq = dir.LengthSquared(); // distance
 				sumR += (dir.Norm() / (SystemParams::_repulsion_soft_factor + distSq));
 			}
 
@@ -528,7 +530,7 @@ void AMass::Solve(const std::vector<A2DVector>& container, AnElement& parentElem
 			for (int a = 0; a < _c_pts_approx_fill_size; a++)
 			{
 				dir = _c_pts_approx[a].first.DirectionTo(_pos); // direction
-				float distSq = dir.LengthSquared(); // distance
+				distSq = dir.LengthSquared(); // distance
 				sumR += (dir.Norm() *_c_pts_approx[a].second / (SystemParams::_repulsion_soft_factor + distSq));
 			}
 

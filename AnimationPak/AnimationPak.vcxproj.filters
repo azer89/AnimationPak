@@ -120,6 +120,12 @@
     <ClInclude Include="ABary.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="CUDAWorker.cuh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="A3DVectorGPU.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -193,5 +199,10 @@
     <None Include="..\params.lua">
       <Filter>Resource Files</Filter>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <CudaCompile Include="CudaWorker.cu">
+      <Filter>Source Files</Filter>
+    </CudaCompile>
   </ItemGroup>
 </Project>

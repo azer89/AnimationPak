@@ -21,6 +21,8 @@ std::vector<CollisionGrid2D*>  StuffWorker::_interp_c_grid_list = std::vector< C
 
 StuffWorker::StuffWorker() : _containerWorker(0), _is_paused(false)
 {
+	_cu_worker = new CUDAWorker;
+
 	_containerWorker = new ContainerWorker;
 	_containerWorker->LoadContainer();
 
@@ -353,7 +355,7 @@ void StuffWorker::Interp_Reset()
 	{
 		for (int b = 0; b < _element_list[a]._interp_massList.size(); b++)
 		{
-			_element_list[a]._interp_massList[b].Init();
+			_element_list[a]._interp_massList[b].ResetForces();
 		}
 
 	}
@@ -368,7 +370,7 @@ void StuffWorker::Reset()
 	{
 		for (int b = 0; b < _element_list[a]._massList.size(); b++)
 		{
-			_element_list[a]._massList[b].Init();
+			_element_list[a]._massList[b].ResetForces();
 		}
 
 	}

@@ -37,14 +37,11 @@ radhitya@uwaterloo.ca
 struct A3DVector
 {
 public:
-	// x
 	float _x;
-
-	// y
 	float _y;
-
-	// z
 	float _z;
+
+
 
 	//float radAngle;
 
@@ -64,7 +61,6 @@ public:
 		this->_x = x;
 		this->_y = y;
 		this->_z = z;
-		//this->radAngle = 0;
 	}
 
 	// Scale a point (was Resize)
@@ -345,6 +341,5 @@ private:
 
 };
 
-//typedef std::vector<std::vector<AVector>> GraphArt;
 
 #endif // AVECTOR_H

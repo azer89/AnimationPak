@@ -6,8 +6,7 @@
 #include "CollisionGrid3D.h"
 #include "AVideoCreator.h"
 
-//#include "PoissonGenerator.h"
-//#include "ContainerWorker.h"
+#include "CUDAWorker.cuh"
 
 #include <vector>
 
@@ -63,6 +62,8 @@ public:
 	static CollisionGrid3D* _c_grid_3d; // collission grid 3D
 
 	AVideoCreator _video_creator;
+
+	CUDAWorker* _cu_worker;
 
 public:
 };

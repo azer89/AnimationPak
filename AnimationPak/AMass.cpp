@@ -95,10 +95,10 @@ void AMass::CallMeFromConstructor()
 
 	//_closest_tri = std::vector<A3DVector>(3);
 
-	Reset();
+	ResetForces();
 }
 
-void AMass::Init()
+void AMass::ResetForces()
 {
 	//_attractionForce = AVector(0, 0);
 	this->_edgeForce      = A3DVector(0, 0, 0);

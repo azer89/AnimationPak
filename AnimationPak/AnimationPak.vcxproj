@@ -54,6 +54,7 @@
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
+    <Import Project="$(VCTargetsPath)\BuildCustomizations\CUDA 10.1.props" />
   </ImportGroup>
   <ImportGroup Label="Shared">
   </ImportGroup>
@@ -155,8 +156,11 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>C:/Users/azer/workspace/ogre-sdk-1.11.5/lib;C:/Users/azer/workspace/ogre-sdk-1.11.5/lib/$(Configuration);C:\Users\azer\workspace\opencv_4_0_1\build\x64\vc15\lib;C:\Users\azer\workspace\CGAL-4.13.1\auxiliary\gmp\lib;C:\Users\azer\workspace\CGAL-4.13.1\bin\lib;C:\Users\azer\workspace\boost_1_70_0_\lib64-msvc-14.1;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>C:\Users\azer\workspace\AnimationPak\Release\OgreImgui.lib;C:\Users\azer\workspace\ogre-sdk-1.11.5\lib\OgreBites.lib;C:\Users\azer\workspace\ogre-sdk-1.11.5\lib\OgreHLMS.lib;C:\Users\azer\workspace\ogre-sdk-1.11.5\lib\OgreMeshLodGenerator.lib;C:\Users\azer\workspace\ogre-sdk-1.11.5\lib\OgreOverlay.lib;C:\Users\azer\workspace\ogre-sdk-1.11.5\lib\OgreProperty.lib;C:\Users\azer\workspace\ogre-sdk-1.11.5\lib\OgreRTShaderSystem.lib;C:\Users\azer\workspace\ogre-sdk-1.11.5\lib\OgreTerrain.lib;C:\Users\azer\workspace\ogre-sdk-1.11.5\lib\OgrePaging.lib;C:\Users\azer\workspace\ogre-sdk-1.11.5\lib\OgreVolume.lib;C:\Users\azer\workspace\ogre-sdk-1.11.5\lib\OgreMain.lib;C:\Users\azer\workspace\Lua533_vs2017\x64\Release\Lua533.lib;C:\Users\azer\workspace\opencv_4_0_1\build\x64\vc15\lib\opencv_world401.lib;libgmp-10.lib;libmpfr-4.lib</AdditionalDependencies>
+      <AdditionalDependencies>C:\Users\azer\workspace\AnimationPak\Release\OgreImgui.lib;C:\Users\azer\workspace\ogre-sdk-1.11.5\lib\OgreBites.lib;C:\Users\azer\workspace\ogre-sdk-1.11.5\lib\OgreHLMS.lib;C:\Users\azer\workspace\ogre-sdk-1.11.5\lib\OgreMeshLodGenerator.lib;C:\Users\azer\workspace\ogre-sdk-1.11.5\lib\OgreOverlay.lib;C:\Users\azer\workspace\ogre-sdk-1.11.5\lib\OgreProperty.lib;C:\Users\azer\workspace\ogre-sdk-1.11.5\lib\OgreRTShaderSystem.lib;C:\Users\azer\workspace\ogre-sdk-1.11.5\lib\OgreTerrain.lib;C:\Users\azer\workspace\ogre-sdk-1.11.5\lib\OgrePaging.lib;C:\Users\azer\workspace\ogre-sdk-1.11.5\lib\OgreVolume.lib;C:\Users\azer\workspace\ogre-sdk-1.11.5\lib\OgreMain.lib;C:\Users\azer\workspace\Lua533_vs2017\x64\Release\Lua533.lib;C:\Users\azer\workspace\opencv_4_0_1\build\x64\vc15\lib\opencv_world401.lib;libgmp-10.lib;libmpfr-4.lib;cudart_static.lib</AdditionalDependencies>
     </Link>
+    <CudaCompile>
+      <TargetMachinePlatform>64</TargetMachinePlatform>
+    </CudaCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="A2DRectangle.h" />
@@ -165,6 +169,7 @@
     <ClInclude Include="A3DObject.h" />
     <ClInclude Include="A3DSquare.h" />
     <ClInclude Include="A3DVector.h" />
+    <ClInclude Include="A3DVectorGPU.h" />
     <ClInclude Include="ABary.h" />
     <ClInclude Include="AMass.h" />
     <ClInclude Include="AnElement.h" />
@@ -175,6 +180,7 @@
     <ClInclude Include="CollisionGrid2D.h" />
     <ClInclude Include="CollisionGrid3D.h" />
     <ClInclude Include="ContainerWorker.h" />
+    <ClInclude Include="CUDAWorker.cuh" />
     <ClInclude Include="dirent.h" />
     <ClInclude Include="Display.h" />
     <ClInclude Include="DynamicLines.h" />
@@ -227,7 +233,11 @@
   <ItemGroup>
     <None Include="..\params.lua" />
   </ItemGroup>
+  <ItemGroup>
+    <CudaCompile Include="CudaWorker.cu" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
+    <Import Project="$(VCTargetsPath)\BuildCustomizations\CUDA 10.1.targets" />
   </ImportGroup>
 </Project>

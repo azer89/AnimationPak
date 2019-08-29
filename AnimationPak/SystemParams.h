@@ -80,7 +80,7 @@ public:
 	static bool _show_approx_repulsion_forces;
 	static bool _show_collision_grid;
 	static bool _show_collision_grid_object;
-	static bool _show_time_tri;
+	static bool _show_surface_tri;
 	static bool _show_time_edges;
 	static bool _show_negative_space_springs;
 
@@ -89,6 +89,7 @@ public:
 
 	static bool _show_force;
 	static bool _show_overlap;
+	static bool _show_closest_tri;
 
 	static bool _show_container;
 

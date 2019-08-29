@@ -51,7 +51,6 @@ public:
 
 
 	void SolveForSprings3D();
-	void SolveForSprings2D();
 
 	bool IsInsideApprox(int layer_idx, A3DVector pos);
 	bool IsInside(int layer_idx, A3DVector pos, std::vector<A3DVector>& boundary_slice);
@@ -110,7 +109,8 @@ public:
 	void UpdateBoundaryDisplayOgre3D();
 	void UpdateDockLinesOgre3D();
 	void UpdateClosestSliceOgre3D();
-	void UpdateTimeTriangleOgre3D();
+	void UpdateClosestTriOgre3D();
+	void UpdateSurfaceTriangleOgre3D();
 	void UpdateOverlapOgre3D();
 	void UpdateNegSpaceEdgeOgre3D();
 	void UpdateMassListOgre3D();
@@ -224,15 +224,19 @@ public:
 	Ogre::SceneNode* _time_edge_node;
 
 	// testing closest slice
-	DynamicLines*    _closest_slice_lines;
-	Ogre::SceneNode* _closest_slice_node;
+	DynamicLines*    _closest_slice_lines; // for debugging repulsion forces
+	Ogre::SceneNode* _closest_slice_node;  // for debugging repulsion forces
+
+	//
+	DynamicLines*    _closest_tri_lines; // for debugging repulsion forces
+	Ogre::SceneNode* _closest_tri_node;  // for debugging repulsion forces
 
 	// testing closest points
-	DynamicLines*    _closet_pt_lines;
-	Ogre::SceneNode* _closet_pt_node;
+	DynamicLines*    _closet_pt_lines; // for debugging repulsion forces
+	Ogre::SceneNode* _closet_pt_node;  // for debugging repulsion forces
 
-	DynamicLines*    _closet_pt_approx_lines;
-	Ogre::SceneNode* _closet_pt_approx_node;
+	DynamicLines*    _closet_pt_approx_lines; // for debugging repulsion forces
+	Ogre::SceneNode* _closet_pt_approx_node;  // for debugging repulsion forces
 
 	// testing closest points
 	//DynamicLines*    _closet_pt_lines_back;

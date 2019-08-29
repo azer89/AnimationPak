@@ -670,9 +670,7 @@ void CollisionGrid3D::UpdateOgre3D()
 				_filled_lines->addPoint(Ogre::Vector3(_squares[a]->_draw_pt3._x, _squares[a]->_draw_pt3._y, -_squares[a]->_draw_pt3._z));//
 				_filled_lines->addPoint(Ogre::Vector3(_squares[a]->_draw_pt7._x, _squares[a]->_draw_pt7._y, -_squares[a]->_draw_pt7._z));
 			}
-
 		}
-
 	}
 
 	// exact

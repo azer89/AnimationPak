@@ -790,7 +790,7 @@ void AnElement::Triangularization(std::vector<std::vector<A2DVector>> art_path, 
 	}
 
 	// rotate
-	//CreateHelix();
+	CreateHelix();
 
 	// reset !!!
 	ResetSpringRestLengths();
@@ -1119,7 +1119,7 @@ void AnElement::InitMeshOgre3D(Ogre::SceneManager* sceneMgr,
 
 
 	// ---------- closest point debug ----------
-	Ogre::MaterialPtr line_material_c_pt = Ogre::MaterialManager::getSingleton().getByName("Examples/RedMat")->clone("ClosestPtMat" + std::to_string(_elem_idx));
+	Ogre::MaterialPtr line_material_c_pt = Ogre::MaterialManager::getSingleton().getByName("Examples/RedMat")->clone("Closest_Pt_Mat_" + std::to_string(_elem_idx));
 	line_material_c_pt->getTechnique(0)->getPass(0)->setDiffuse(Ogre::ColourValue(0, 0, 1, 1));
 	_closet_pt_lines = new DynamicLines(line_material_c_pt, Ogre::RenderOperation::OT_LINE_LIST);
 	_closet_pt_lines->update();
@@ -1144,10 +1144,22 @@ void AnElement::InitMeshOgre3D(Ogre::SceneManager* sceneMgr,
 		_dock_node = _sceneMgr->getRootSceneNode()->createChildSceneNode("debug_lines_2_" + std::to_string(_elem_idx));
 		_dock_node->attachObject(_dock_lines);
 	}	
+
+
+	// ---------- debug closest surface tri ----------
+	Ogre::MaterialPtr line_material_ctri = Ogre::MaterialManager::getSingleton().getByName("Examples/RedMat")->clone("line_material_ctri" + std::to_string(_elem_idx));
+	line_material_ctri->getTechnique(0)->getPass(0)->setDiffuse(Ogre::ColourValue(1, 0, 0, 1));
+
+	_closest_tri_lines = new DynamicLines(line_material_ctri, Ogre::RenderOperation::OT_LINE_LIST);
+	_closest_tri_lines->update();
+	_closest_tri_node = _sceneMgr->getRootSceneNode()->createChildSceneNode("_closest_tri_lines_" + std::to_string(_elem_idx));
+	_closest_tri_node->attachObject(_closest_tri_lines);
 	   
 	// ---------- debug closest slice ----------
-	Ogre::MaterialPtr line_material_asdf = Ogre::MaterialManager::getSingleton().getByName("Examples/RedMat")->clone("line_material_asdf" + std::to_string(_elem_idx));
+	Ogre::MaterialPtr line_material_asdf = Ogre::MaterialManager::getSingleton().getByName("Examples/RedMat")->clone("line_material_asdf_" + std::to_string(_elem_idx));
 	line_material_asdf->getTechnique(0)->getPass(0)->setDiffuse(Ogre::ColourValue(1, 0, 0, 1));
+
+	
 
 	_closest_slice_lines = new DynamicLines(line_material_asdf, Ogre::RenderOperation::OT_LINE_LIST);
 	_closest_slice_lines->update();
@@ -1176,6 +1188,44 @@ void AnElement::InitMeshOgre3D(Ogre::SceneManager* sceneMgr,
 	_overlap_lines->setBoundingBox(Ogre::AxisAlignedBox(0, 0, 0, 1, 1, 1));*/
 }
 
+void AnElement::UpdateClosestTriOgre3D()
+{
+	if (SystemParams::_show_closest_tri)
+	{
+		_closest_tri_node->setVisible(true);
+		/*_closest_tri_lines->clear();
+		std::vector<A3DVector> tri;
+
+		for (unsigned int a = 0; a < _massList.size(); a++)
+		{
+			if (_massList[a]._is_boundary && _massList[a]._closest_elem_idx != -1)
+			{
+				if (SystemParams::_layer_slider_int >= 0 && _massList[a]._layer_idx != SystemParams::_layer_slider_int) { continue; }
+
+				for (int b = 0; b < _massList[a]._closest_tri_array.size(); b++)
+				{
+					tri = _massList[a]._closest_tri_array[b];
+					_closest_tri_lines->addPoint(Ogre::Vector3(tri[0]._x, tri[0]._y, tri[0]._z));
+					_closest_tri_lines->addPoint(Ogre::Vector3(tri[1]._x, tri[1]._y, tri[1]._z));
+
+					_closest_tri_lines->addPoint(Ogre::Vector3(tri[1]._x, tri[1]._y, tri[1]._z));
+					_closest_tri_lines->addPoint(Ogre::Vector3(tri[2]._x, tri[2]._y, tri[2]._z));
+
+					_closest_tri_lines->addPoint(Ogre::Vector3(tri[2]._x, tri[2]._y, tri[2]._z));
+					_closest_tri_lines->addPoint(Ogre::Vector3(tri[0]._x, tri[0]._y, tri[0]._z));
+				}
+				
+			}
+		}*/
+	}
+	else
+	{
+		_closest_tri_node->setVisible(false);
+	}
+
+	_closest_tri_lines->update();
+}
+
 void AnElement::UpdateClosestSliceOgre3D()
 {
 	if(SystemParams::_show_overlap)
@@ -1183,7 +1233,7 @@ void AnElement::UpdateClosestSliceOgre3D()
 		_closest_slice_node->setVisible(true);
 		_closest_slice_lines->clear();
 
-		for (int a = 0; a < _massList.size(); a++)
+		for (unsigned int a = 0; a < _massList.size(); a++)
 		{
 			if (_massList[a]._is_boundary && _massList[a]._is_inside)
 			{
@@ -1306,9 +1356,9 @@ void AnElement::ShowTimeSprings(bool yesno)
 	//_time_springs_node->setVisible(yesno);
 }
 
-void AnElement::UpdateTimeTriangleOgre3D()
+void AnElement::UpdateSurfaceTriangleOgre3D()
 {	
-	if(SystemParams::_show_time_tri)
+	if(SystemParams::_show_surface_tri)
 	{
 		_surface_tri_node->setVisible(true);
 		int idx = 0;
@@ -2180,7 +2230,10 @@ A2DVector  AnElement::Interp_ClosestPtOnALayer(A2DVector pt, int layer_idx)
 
 A3DVector AnElement::ClosestPtOnATriSurface(int triIdx, A3DVector pos)
 {
-	A3DVector cPt = UtilityFunctions::ClosestPointOnTriangle2(pos, _surfaceTriangles[triIdx]._temp_1_3d, _tempTri3[1], _tempTri3[2]);
+	_tempTri3[0] = _massList[_surfaceTriangles[triIdx].idx0]._pos;
+	_tempTri3[1] = _massList[_surfaceTriangles[triIdx].idx1]._pos;
+	_tempTri3[2] = _massList[_surfaceTriangles[triIdx].idx2]._pos;
+	A3DVector cPt = UtilityFunctions::ClosestPointOnTriangle2(pos, _tempTri3[0], _tempTri3[1], _tempTri3[2]);
 	return cPt;
 }
 
@@ -2193,7 +2246,7 @@ A3DVector AnElement::ClosestPtOnTriSurfaces(std::vector<int>& triIndices, A3DVec
 		//int idx = massIndices[a];
 	for (int b = 0; b < _surfaceTriangles.size(); b++)
 	{
-		std::vector<A3DVector> tri;
+		//std::vector<A3DVector> tri;
 		_tempTri3[0] = _massList[_surfaceTriangles[b].idx0]._pos;
 		_tempTri3[1] = _massList[_surfaceTriangles[b].idx1]._pos;
 		_tempTri3[2] = _massList[_surfaceTriangles[b].idx2]._pos;
@@ -2282,92 +2335,6 @@ void AnElement::Interp_SolveForSprings2D()
 	}
 }
 
-// 22222222222222222222222222222222
-void AnElement::SolveForSprings2D()
-{
-	A2DVector pt0;
-	A2DVector pt1;
-	A2DVector dir;
-	A2DVector eForce;
-	float dist = 0;
-	float diff = 0;
-	float k = 0;
-
-	// 222222222222222222222222222222222222222222222222
-	for (unsigned int a = 0; a < _triEdges.size(); a++)
-	{
-		int idx0 = _triEdges[a]._index0;
-		int idx1 = _triEdges[a]._index1;
-
-		pt0 = _massList[idx0]._pos.GetA2DVector();
-		pt1 = _massList[idx1]._pos.GetA2DVector();
-
-
-		if (_triEdges[a]._isLayer2Layer)
-		{
-			k = SystemParams::_k_time_edge;
-		}
-		else
-		{
-			k = SystemParams::_k_edge;
-
-
-			// TODO: Nasty code here
-			if (_scale < 3.0f)
-			{
-				k *= 50;
-			}
-		}
-			
-		dir = pt0.DirectionTo(pt1);
-
-		dir = dir.Norm();
-		dist = pt0.Distance(pt1);
-		diff = dist - _triEdges[a]._dist;
-
-
-		eForce = dir * k *  diff;
-
-		if (!eForce.IsBad())
-		{
-			_massList[idx0]._edgeForce += A3DVector(eForce.x, eForce.y, 0);	// _massList[idx0]._distToBoundary;
-			_massList[idx1]._edgeForce -= A3DVector(eForce.x, eForce.y, 0);	// _massList[idx1]._distToBoundary;
-		}
-	}
-
-	// 222222222222222222222222222222222222222222222222222222
-	for (unsigned int a = 0; a < _auxiliaryEdges.size(); a++)
-	{
-		int idx0 = _auxiliaryEdges[a]._index0;
-		int idx1 = _auxiliaryEdges[a]._index1;
-
-		pt0 = _massList[idx0]._pos.GetA2DVector();
-		pt1 = _massList[idx1]._pos.GetA2DVector();
-
-		
-		k = SystemParams::_k_edge;
-
-		// TODO: Nasty code here
-		if (_scale < 3.0f)
-		{
-			k *= 5;
-		}
-
-		dir = pt0.DirectionTo(pt1);
-		dir = dir.Norm();
-		dist = pt0.Distance(pt1);
-		diff = dist - _auxiliaryEdges[a]._dist;
-
-		eForce = dir * k *  diff;
-
-		if (!eForce.IsBad())
-		{
-			_massList[idx0]._edgeForce += A3DVector(eForce.x, eForce.y, 0);	// _massList[idx0]._distToBoundary;
-			_massList[idx1]._edgeForce -= A3DVector(eForce.x, eForce.y, 0);	// _massList[idx1]._distToBoundary;
-		}
-	}
-}
-
 // 33333333333333333333333333333333
 void AnElement::SolveForSprings3D()
 {
@@ -2382,8 +2349,11 @@ void AnElement::SolveForSprings3D()
 	int idx0, idx1;
 
 	// TODO: Nasty code here
-	float scale_threshold = 2.0f;
-	float magic_number = 10.0f;
+	float scale_threshold = 1.0f;
+	float magic_number = 3.0f;
+
+	// for squared forces
+	float signVal = 1;
 
 	// 333333333333333333333333333333333333333333333333
 	int tr_sz = _triEdges.size();
@@ -2413,7 +2383,11 @@ void AnElement::SolveForSprings3D()
 
 		diff = dist - _triEdges[a]._dist;
 
-		eForce = dir * k *  diff;
+		// squared version
+		signVal = 1;
+		if (diff < 0) { signVal = -1; }
+
+		eForce = dir * k *  diff * diff * signVal;
 
 		_massList[idx0]._edgeForce += eForce;	
 		_massList[idx1]._edgeForce -= eForce;
@@ -2440,7 +2414,11 @@ void AnElement::SolveForSprings3D()
 
 		diff = dist - _auxiliaryEdges[a]._dist;
 
-		eForce = dir * k *  diff;
+		// squared version
+		signVal = 1;
+		if (diff < 0) { signVal = -1; }
+
+		eForce = dir * k *  diff * diff * signVal;
 
 		//if (!eForce.IsBad())
 		{
@@ -2473,7 +2451,11 @@ void AnElement::SolveForSprings3D()
 
 		diff = dist - _negSpaceEdges[a]._dist;
 
-		eForce = dir * k *  diff;
+		// squared version
+		signVal = 1;
+		if (diff < 0) { signVal = -1; }
+
+		eForce = dir * k *  diff * diff * signVal;
 
 		//if (!eForce.IsBad())
 		{
@@ -2529,13 +2511,22 @@ void AnElement::UpdateClosestPtsDisplayOgre3D()
 	//int layerStop = SystemParams::_num_layer / 2; // delete
 	//if (layerStop < 0) { layerStop = 0; } // delete
 
+	float offst = 2;
+
 	if(SystemParams::_show_exact_repulsion_forces)
 	{
 		for (int b = 0; b < _massList.size(); b++)
 		{
 			if (SystemParams::_layer_slider_int >= 0 && _massList[b]._layer_idx != SystemParams::_layer_slider_int) { continue; }
 
+			if (_massList[b]._c_pts_fill_size == 0) { continue; }
+
 			A3DVector pt1 = _massList[b]._pos;
+			_closet_pt_lines->addPoint(Ogre::Vector3(pt1._x - offst, pt1._y, pt1._z));
+			_closet_pt_lines->addPoint(Ogre::Vector3(pt1._x + offst, pt1._y, pt1._z));
+			_closet_pt_lines->addPoint(Ogre::Vector3(pt1._x, pt1._y - offst, pt1._z));
+			_closet_pt_lines->addPoint(Ogre::Vector3(pt1._x, pt1._y + offst, pt1._z));
+
 			for (int c = 0; c < _massList[b]._c_pts_fill_size; c++)
 			{
 				A3DVector pt2(_massList[b]._c_pts[c]._x, _massList[b]._c_pts[c]._y, _massList[b]._c_pts[c]._z);

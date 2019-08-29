@@ -12,14 +12,14 @@
 
 // static variables
 std::vector<AnElement>  StuffWorker::_element_list = std::vector<AnElement>();
-//std::vector<CollisionGrid2D*>  StuffWorker::_c_grid_list = std::vector< CollisionGrid2D * >();
 CollisionGrid3D* StuffWorker::_c_grid_3d = new CollisionGrid3D;
-// static variables for interpolation
+
+// static variables for interpolation (need to delete these)
 bool  StuffWorker::_interp_mode = false;
 int   StuffWorker::_interp_iter = 0;
 std::vector<CollisionGrid2D*>  StuffWorker::_interp_c_grid_list = std::vector< CollisionGrid2D * >();
 
-StuffWorker::StuffWorker() : _containerWorker(0)//: _elem(0)
+StuffWorker::StuffWorker() : _containerWorker(0), _is_paused(false)
 {
 	_containerWorker = new ContainerWorker;
 	_containerWorker->LoadContainer();
@@ -32,35 +32,9 @@ StuffWorker::~StuffWorker()
 	if (_containerWorker) { delete _containerWorker; }
 
 	_element_list.clear();
-	/*if (_c_grid_list.size() > 0)
-	{
-		for (int a = _c_grid_list.size() - 1; a >= 0; a--)
-		{
-			delete _c_grid_list[a];
-		}
-		_c_grid_list.clear();
-	}*/
 
-	if (_c_grid_3d)
-	{
-		delete _c_grid_3d;
-	}
-
-	// doesn't work!
-	/*if (_elem)
-	{
-		delete _elem;
-	}*/
-
-	// doesn't work!
-	//Ogre::MaterialManager::getSingleton().remove("Examples/TransparentTest2");
+	if (_c_grid_3d) { delete _c_grid_3d; }
 }
-
-/*void StuffWorker::LoadElements()
-{
-	// TO DO: MULTIPLE ELEMENTS
-	PathIO pathIO;
-}*/
 
 void StuffWorker::InitElements(Ogre::SceneManager* scnMgr)
 {
@@ -76,7 +50,6 @@ void StuffWorker::InitElements(Ogre::SceneManager* scnMgr)
 
 		art_paths.push_back(pathIO.LoadElement(SystemParams::_element_folder + some_files[a]));
 	}
-	//std::vector<A2DVector> element_path = pathIO.LoadElement(SystemParams::_element_file_name)[0];
 
 	int elem_iter = 0;
 	int elem_sz = art_paths.size();
@@ -134,10 +107,10 @@ void StuffWorker::InitElements(Ogre::SceneManager* scnMgr)
 	StuffWorker::_c_grid_3d->Init();
 	StuffWorker::_c_grid_3d->InitOgre3D(scnMgr);
 	// ---------- Assign to collision grid 3D ----------
-	for (int a = 0; a < _element_list.size(); a++)
+	for (unsigned int a = 0; a < _element_list.size(); a++)
 	{
 		// time triangle
-		for (int b = 0; b < _element_list[a]._surfaceTriangles.size(); b++)
+		for (unsigned int b = 0; b < _element_list[a]._surfaceTriangles.size(); b++)
 		{
 			AnIdxTriangle tri = _element_list[a]._surfaceTriangles[b];
 			A3DVector p1      = _element_list[a]._massList[tri.idx0]._pos;
@@ -152,10 +125,17 @@ void StuffWorker::InitElements(Ogre::SceneManager* scnMgr)
 		}
 
 		// assign
-		for (int b = 0; b < _element_list[a]._massList.size(); b++)
+		for (unsigned int b = 0; b < _element_list[a]._massList.size(); b++)
 		{
 			_element_list[a]._massList[b]._c_grid_3d = _c_grid_3d; // assign grid to mass
 		}
+	}
+
+	// ---------- Calculate num vertex ----------
+	_num_vertex = 0;
+	for (unsigned int a = 0; a < _element_list.size(); a++)
+	{
+		_num_vertex += _element_list[a]._massList.size();
 	}
 
 	// ----- Interpolation collision grid -----
@@ -303,8 +283,8 @@ void StuffWorker::Interp_Update()
 
 void StuffWorker::Update()
 {
-	// ERASE THIS!
-	//return;
+
+	if (_is_paused) { return; }
 
 	// ----- for closest point calculation -----
 	for (int a = 0; a < _element_list.size(); a++)
@@ -381,6 +361,8 @@ void StuffWorker::Interp_Reset()
 
 void StuffWorker::Reset()
 {
+	if (_is_paused) { return; }
+
 	// update closest points
 	for (int a = 0; a < _element_list.size(); a++)
 	{
@@ -407,6 +389,8 @@ void StuffWorker::Interp_Solve()
 
 void StuffWorker::Solve()
 {
+	if (_is_paused) { return; }
+
 	for (int a = 0; a < _element_list.size(); a++)
 	{
 		_element_list[a].SolveForSprings3D();
@@ -441,6 +425,8 @@ bool StuffWorker::Interp_HasOverlap()
 
 void StuffWorker::Simulate()
 {
+	if (_is_paused) { return; }
+
 	for (int a = 0; a < _element_list.size(); a++)
 	{
 		for (int b = 0; b < _element_list[a]._massList.size(); b++)
@@ -463,6 +449,8 @@ void StuffWorker::Simulate()
 
 void StuffWorker::ImposeConstraints()
 {
+	if (_is_paused) { return; }
+
 	for (int a = 0; a < _element_list.size(); a++)
 	{
 		_element_list[a].UpdateZConstraint();
@@ -487,7 +475,7 @@ void StuffWorker::UpdateOgre3D()
 		//_element_list[a].UpdateSpringDisplayOgre3D();
 		_element_list[a].UpdateBoundaryDisplayOgre3D();
 		_element_list[a].UpdateDockLinesOgre3D();
-		_element_list[a].UpdateTimeTriangleOgre3D();
+		_element_list[a].UpdateSurfaceTriangleOgre3D();
 		_element_list[a].UpdateClosestPtsDisplayOgre3D();
 		_element_list[a].UpdateOverlapOgre3D();
 		_element_list[a].UpdateNegSpaceEdgeOgre3D();
@@ -495,6 +483,7 @@ void StuffWorker::UpdateOgre3D()
 		_element_list[a].UpdateForceOgre3D();
 		_element_list[a].UpdateTimeEdgesOgre3D();
 		_element_list[a].UpdateClosestSliceOgre3D();
+		_element_list[a].UpdateClosestTriOgre3D();
 	}
 
 	StuffWorker::_c_grid_3d->UpdateOgre3D();

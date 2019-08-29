@@ -25,8 +25,6 @@ public:
 	int _self_idx; // for identification, not PER LAYER
 	int _parent_idx; // parent identification
 	int _layer_idx; // layer idx
-
-	//CollisionGrid2D* _c_grid;
 	CollisionGrid3D* _c_grid_3d;
 
 	//bool _isInside;
@@ -34,6 +32,7 @@ public:
 	bool _isDocked;
 	bool _is_inside;
 	std::vector<A3DVector> _closest_boundary_slice;
+	//std::vector<std::vector<A3DVector>> _closest_tri_array; // currently disabled!
 	bool _is_boundary;
 
 	A3DVector _dockPoint; // you probably want the dockpoint be 2D?
@@ -44,11 +43,9 @@ public:
 
 	float                _closestDist; // for stop growing??? need to check
 
-public: // need to be public for debugging purpose
-	//int _closestPt_actual_sz; // reserve for avoiding push_back, actual size of the vector
-	//int _closestPt_fill_sz;   // reserve for avoiding push_back, filled size of the vector
-	//std::vector<A2DVector> _closestPoints;
+public:
 
+	int _closest_elem_idx;
 
 	// closest points (exact measurements)
 	std::vector<A3DVector> _c_pts;	
@@ -91,12 +88,6 @@ public:
 	void Solve(const std::vector<A2DVector>& container, AnElement& parentElem);
 
 	void ImposeConstraints();
-
-	//void GetClosestPoint();
-
-	//void GetClosestPoint2();
-
-	//void GetClosestPoint3();
 
 	void GetClosestPoint4();
 

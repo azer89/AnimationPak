@@ -77,22 +77,24 @@ bool Display::frameStarted(const Ogre::FrameEvent& evt)
 	}
 
 	///// UPDATE
-	if (StuffWorker::_interp_mode)
+	/*if (StuffWorker::_interp_mode)
 	{
 		_sWorker->Interp_Update();
 		_sWorker->Interp_Reset();
 		_sWorker->Interp_Solve();
 		_sWorker->Interp_Simulate();
 	}
-	else
+	else*/
 	{
-		_sWorker->Update();
+		
 		_sWorker->Reset();
 		_sWorker->Solve();
 		_sWorker->Simulate();	
 		_sWorker->ImposeConstraints();
+		_sWorker->Update();
+		_sWorker->UpdateOgre3D(); // drawing
 	}
-	_sWorker->UpdateOgre3D();
+	
 	//UpdateSpringDisplay(); // init CreateSpringLines()
 	//UpdatePerLayerBoundary();
 	//UpdateClosestPtsDisplay();
@@ -105,7 +107,7 @@ bool Display::frameStarted(const Ogre::FrameEvent& evt)
 	//bool show_another_window = false;
 	//ImGui::Begin("AnimationPak", &show_another_window, ImVec2(240, 540));
 	ImGui::SetNextWindowPos(ImVec2(5, 5), ImGuiCond_Always);
-	ImGui::SetNextWindowSize(ImVec2(300, 550), ImGuiCond_Always);
+	ImGui::SetNextWindowSize(ImVec2(300, 700), ImGuiCond_Always);
 	bool* p_open = NULL;
 	ImGuiWindowFlags window_flags = 0;
 	ImGui::Begin("AnimationPak", p_open, window_flags);
@@ -135,11 +137,12 @@ bool Display::frameStarted(const Ogre::FrameEvent& evt)
 	else { ImGui::Text("FPS : -"); }
 
 	ImGui::Text(("Scale = " + std::to_string(_sWorker->_element_list[0]._scale)).c_str());
-
+	ImGui::Text(("Num vertex = " + std::to_string(_sWorker->_num_vertex)).c_str());
 
 	if (ImGui::Button("Reload parameters")) { SystemParams::LoadParameters(); }
 	if (ImGui::Button("Save Triangles to PNGs")) { _sWorker->SaveFrames3(); }
 	if (ImGui::Button("Save Elements to PNGs")) { _sWorker->SaveFrames4(); }
+	if (ImGui::Button("Pause/Resume Simulation")) { _sWorker->_is_paused = !_sWorker->_is_paused; }
 	//if (ImGui::Button("Button B")) {}
 	//if (ImGui::Button("Button C")) {}
 	
@@ -153,14 +156,15 @@ bool Display::frameStarted(const Ogre::FrameEvent& evt)
 	ImGui::Checkbox("Collision grid objects", &SystemParams::_show_collision_grid_object);
 	ImGui::Checkbox("Exact closest points (debug)", &SystemParams::_show_c_pt_cg);
 	ImGui::Checkbox("Approx closest points (debug)", &SystemParams::_show_c_pt_approx_cg);
-	ImGui::Checkbox("Surface triangles", &SystemParams::_show_time_tri);
+	ImGui::Checkbox("Surface triangles", &SystemParams::_show_surface_tri);
 	ImGui::Checkbox("Time springs", &SystemParams::_show_time_edges);
 	ImGui::Checkbox("Negative space springs", &SystemParams::_show_negative_space_springs);
 	//bool SystemParams::_show_force = false;
 	//bool SystemParams::_show_overlap = false;
 	ImGui::Checkbox("Velocity", &SystemParams::_show_force);
 	ImGui::Checkbox("Overlap", &SystemParams::_show_overlap);
-	ImGui::SliderInt("Layer Viz", &SystemParams::_layer_slider_int, -1, SystemParams::_num_layer - 1);
+	ImGui::Checkbox("Closest Triangle", &SystemParams::_show_closest_tri);
+	ImGui::SliderInt("Layer select", &SystemParams::_layer_slider_int, -1, SystemParams::_num_layer - 1);
 	/*if (ImGui::Checkbox("Show time springs", &SystemParams::_show_time_springs))
 	{
 		for (int a = 0; a < _sWorker->_element_list.size(); a++)
@@ -168,7 +172,10 @@ bool Display::frameStarted(const Ogre::FrameEvent& evt)
 			_sWorker->_element_list[a].ShowTimeSprings(SystemParams::_show_time_springs);
 		}
 	}*/
-	ImGui::Text("Press C to activate or deactivate camera");
+	ImGui::Text("Keys:");
+	ImGui::Text("C to activate or deactivate camera");
+	ImGui::Text("X to pause/resume simulation");
+	
 
 	/*Ogre::Vector3 camPos = _cameraNode->getPosition();
 	ImGui::Text("Camera position = ");
@@ -343,6 +350,10 @@ bool Display::keyPressed(const OgreBites::KeyboardEvent& evt)
 		{
 			_cameraMan->setStyle(OgreBites::CameraStyle::CS_FREELOOK);
 		}
+	}
+	if (evt.keysym.sym == 'x' || evt.keysym.sym == 'X')
+	{
+		_sWorker->_is_paused = !_sWorker->_is_paused;
 	}
 
 	_cameraMan->keyPressed(evt);

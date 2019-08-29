@@ -148,16 +148,17 @@ bool SystemParams::_show_exact_repulsion_forces = false;
 bool SystemParams::_show_approx_repulsion_forces = false;
 bool SystemParams::_show_collision_grid = false;
 bool SystemParams::_show_collision_grid_object = false;
-bool SystemParams::_show_time_tri = false;
+bool SystemParams::_show_surface_tri = false;
 bool SystemParams::_show_time_edges = false;
 bool SystemParams::_show_negative_space_springs = false;
 
-bool SystemParams::_show_c_pt_cg = false;
+bool SystemParams::_show_c_pt_cg        = false;
 bool SystemParams::_show_c_pt_approx_cg = false;
 
-bool SystemParams::_show_force = false;
-bool SystemParams::_show_overlap = true;
+bool SystemParams::_show_force       = false;
+bool SystemParams::_show_overlap     = false;
+bool SystemParams::_show_closest_tri = false;
 
-bool SystemParams::_show_container = true;
+bool SystemParams::_show_container   = false;
 
-int SystemParams::_layer_slider_int = -1;
+int SystemParams::_layer_slider_int  = -1;

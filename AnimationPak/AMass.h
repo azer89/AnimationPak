@@ -17,15 +17,15 @@ class AMass
 {
 public:
 
-	float   _mass;    // is likely only one
-	float _ori_z_pos;
+	float     _mass;    // is likely only one
+	float     _ori_z_pos;
 	A3DVector _pos;	  // current
 	A3DVector _velocity;
 	
 	int _self_idx; // for identification, not PER LAYER
 	int _parent_idx; // parent identification
 	int _layer_idx; // layer idx
-	CollisionGrid3D* _c_grid_3d;
+	//CollisionGrid3D* _c_grid_3d;
 
 	//bool _isInside;
 
@@ -39,12 +39,9 @@ public:
 
 	std::vector<AnIdxTriangle> _triangles; // for overlap force
 
-	//std::vector<AnIdxTriangle>    _timeTriangles; // for 3D collision grid
-
-	float                _closestDist; // for stop growing??? need to check
+	//float _closestDist; // for stop growing??? need to check
 
 public:
-
 	int _closest_elem_idx;
 
 	// closest points (exact measurements)
@@ -82,7 +79,7 @@ public:
 
 	void CallMeFromConstructor();
 
-	void Init(); // reset forces to zero
+	void ResetForces(); // reset forces to zero
 	void Simulate(float dt);
 	void Interp_Simulate(float dt); // debug delete me...
 	void Solve(const std::vector<A2DVector>& container, AnElement& parentElem);

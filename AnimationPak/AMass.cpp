@@ -95,7 +95,7 @@ void AMass::CallMeFromConstructor()
 
 	//_closest_tri = std::vector<A3DVector>(3);
 
-	Init();
+	Reset();
 }
 
 void AMass::Init()

@@ -21,7 +21,28 @@ __global__ void addKernel(int *c, const int *a, const int *b)
 
 CUDAWorker::CUDAWorker()
 {
-	TestCUDA();
+	//TestCUDA();
+	int nDevices;
+
+	std::cout << "===== CUDA =====\n";
+	
+	cudaGetDeviceCount(&nDevices);
+	for (int i = 0; i < nDevices; i++) 
+	{
+		cudaDeviceProp prop;
+		cudaGetDeviceProperties(&prop, i);
+		printf("Device Number: %d\n", i);
+		printf("  Device name: %s\n", prop.name);
+		//printf("  Memory Clock Rate (KHz): %d\n", prop.memoryClockRate);
+		//printf("  Memory Bus Width (bits): %d\n", prop.memoryBusWidth);
+		//printf("  Peak Memory Bandwidth (GB/s): %f\n", 2.0*prop.memoryClockRate*(prop.memoryBusWidth / 8) / 1.0e6);
+		int maxThreadPerBlock = prop.maxThreadsPerBlock;
+		int maxGridSize = prop.maxGridSize[0];
+		
+		std::cout << "  maxThreadsPerBlock: " << maxThreadPerBlock <<"\n";
+		std::cout << "  maxGridSize: " << maxGridSize << "\n";
+	}
+	std::cout << "================\n";
 }
 
 CUDAWorker::~CUDAWorker()
@@ -47,9 +68,7 @@ int CUDAWorker::TestCUDA()
 	int* a = new int[arraySize];
 	int* b = new int[arraySize];
 	int* c = new int[arraySize];
-
-
-
+	   
 	for (int i = 0; i < arraySize; i++)
 	{
 		a[i] = rand() % 100;
@@ -60,7 +79,8 @@ int CUDAWorker::TestCUDA()
 
 	// Add vectors in parallel.
 	cudaError_t cudaStatus = addWithCuda(c, a, b, arraySize);
-	if (cudaStatus != cudaSuccess) {
+	if (cudaStatus != cudaSuccess) 
+	{
 		fprintf(stderr, "addWithCuda failed!");
 		return 1;
 	}
@@ -74,7 +94,8 @@ int CUDAWorker::TestCUDA()
 	// cudaDeviceReset must be called before exiting in order for profiling and
 	// tracing tools such as Nsight and Visual Profiler to show complete traces.
 	cudaStatus = cudaDeviceReset();
-	if (cudaStatus != cudaSuccess) {
+	if (cudaStatus != cudaSuccess) 
+	{
 		fprintf(stderr, "cudaDeviceReset failed!");
 		return 1;
 	}

@@ -21,7 +21,7 @@ __global__ void addKernel(int *c, const int *a, const int *b)
 
 CUDAWorker::CUDAWorker()
 {
-	//TestCUDA();
+	TestCUDA();
 	int nDevices;
 
 	std::cout << "===== CUDA =====\n";
@@ -43,11 +43,37 @@ CUDAWorker::CUDAWorker()
 		std::cout << "  maxGridSize: " << maxGridSize << "\n";
 	}
 	std::cout << "================\n";
+
+	/*
+	_edge_force_array = 0;
+	_z_force_array = 0;
+	_repulsion_force_array = 0;
+	_boundary_force_array = 0;
+	_overlap_force_array = 0;
+	_rotation_force_array = 0;
+	*/
 }
 
 CUDAWorker::~CUDAWorker()
 {
+	/*cudaFree(_edge_force_array);
+	cudaFree(_z_force_array);
+	cudaFree(_repulsion_force_array);
+	cudaFree(_boundary_force_array);
+	cudaFree(_overlap_force_array);
+	cudaFree(_rotation_force_array);*/
+}
 
+void CUDAWorker::InitCUDA(int num_vertex)
+{
+	/*
+	cudaMallocManaged(&_edge_force_array, num_vertex * sizeof(A3DVectorGPU));
+	cudaMallocManaged(&_z_force_array, num_vertex * sizeof(A3DVectorGPU));
+	cudaMallocManaged(&_repulsion_force_array, num_vertex * sizeof(A3DVectorGPU));
+	cudaMallocManaged(&_boundary_force_array, num_vertex * sizeof(A3DVectorGPU));
+	cudaMallocManaged(&_overlap_force_array, num_vertex * sizeof(A3DVectorGPU));
+	cudaMallocManaged(&_rotation_force_array, num_vertex * sizeof(A3DVectorGPU));
+	*/
 }
 
 int CUDAWorker::TestCUDA()
@@ -155,7 +181,7 @@ cudaError_t addWithCuda(int *c, const int *a, const int *b, unsigned int size)
 	}
 
 	// Launch a kernel on the GPU with one thread for each element.
-	addKernel << <1, size >> > (dev_c, dev_a, dev_b);
+	addKernel <<<1, size >>> (dev_c, dev_a, dev_b);
 
 	// Check for any errors launching the kernel
 	cudaStatus = cudaGetLastError();

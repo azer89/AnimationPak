@@ -36,6 +36,7 @@ StuffWorker::~StuffWorker()
 	_element_list.clear();
 
 	if (_c_grid_3d) { delete _c_grid_3d; }
+	if (_cu_worker) { delete _cu_worker; }
 }
 
 void StuffWorker::InitElements(Ogre::SceneManager* scnMgr)
@@ -139,6 +140,9 @@ void StuffWorker::InitElements(Ogre::SceneManager* scnMgr)
 	{
 		_num_vertex += _element_list[a]._massList.size();
 	}
+
+	// ---------- Calculate num vertex ----------
+	_cu_worker->InitCUDA(_num_vertex);
 
 	// ----- Interpolation collision grid -----
 	// INTERP WONT WORK BECAUSE OF THIS

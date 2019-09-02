@@ -136,9 +136,11 @@ void StuffWorker::InitElements(Ogre::SceneManager* scnMgr)
 
 	// ---------- Calculate num vertex ----------
 	_num_vertex = 0;
+	_num_spring = 0;
 	for (unsigned int a = 0; a < _element_list.size(); a++)
 	{
 		_num_vertex += _element_list[a]._massList.size();
+		_num_spring += _element_list[a]._triEdges.size();
 	}
 
 	// ---------- Calculate num vertex ----------
@@ -349,6 +351,8 @@ void StuffWorker::Update()
 		_element_list[a].Grow(SystemParams::_growth_scale_iter, SystemParams::_dt);
 	}
 
+	
+
 
 }
 
@@ -433,13 +437,20 @@ void StuffWorker::Simulate()
 {
 	if (_is_paused) { return; }
 
-	for (int a = 0; a < _element_list.size(); a++)
+	/*for (int a = 0; a < _element_list.size(); a++)
 	{
 		for (int b = 0; b < _element_list[a]._massList.size(); b++)
 		{
 			_element_list[a]._massList[b].Simulate(SystemParams::_dt);
 		}
-	}
+	}*/
+
+	// ----- CUDA -----
+	_cu_worker->SendPositionAndVelocityData();
+	_cu_worker->SendForceData();
+	_cu_worker->Simulate(SystemParams::_dt, SystemParams::_velocity_cap);
+	_cu_worker->RetrievePositionAndVelocityData();
+
 }
 
 /*void StuffWorker::Interp_ImposeConstraints()

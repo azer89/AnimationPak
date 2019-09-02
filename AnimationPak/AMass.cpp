@@ -143,7 +143,7 @@ void AMass::Simulate(float dt)
 		_rotationForce) * dt);
 	float len = _velocity.Length();
 
-	float capVal = SystemParams::_velocity_cap * dt;
+	float capVal = SystemParams::_velocity_cap * dt; // velocity_cap_dt can be precomputed
 
 	if (len > capVal)
 	{

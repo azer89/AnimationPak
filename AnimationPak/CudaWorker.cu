@@ -1,8 +1,6 @@
 
 #include "CUDAWorker.cuh"
 
-#include "cuda_runtime.h"
-#include "device_launch_parameters.h"
 
 #include <stdio.h>
 #include <iostream>
@@ -11,7 +9,56 @@
 #include <stdlib.h>     /* srand, rand */
 #include <time.h> 
 
+
+#include "StuffWorker.h"
+
 cudaError_t addWithCuda(int *c, const int *a, const int *b, unsigned int size);
+
+
+__device__
+A3DVectorGPU operator+(const A3DVectorGPU& p, const A3DVectorGPU& v)
+{
+	return A3DVectorGPU(p._x + v._x, p._y + v._y, p._z + v._z);
+}
+
+__device__
+A3DVectorGPU operator-(const A3DVectorGPU& p, const A3DVectorGPU& v)
+{
+	return A3DVectorGPU(p._x - v._x, p._y - v._y, p._z - v._z);
+}
+
+__device__
+A3DVectorGPU operator*(const A3DVectorGPU& p, const float& f)
+{
+	return A3DVectorGPU(p._x * f, p._y * f, p._z * f);
+}
+
+__device__
+A3DVectorGPU operator/(const A3DVectorGPU& p, const float& f)
+{
+	return A3DVectorGPU(p._x / f, p._y / f, p._z / f);
+}
+
+
+// length of a vector
+__device__
+float Length(const A3DVectorGPU& p) {
+	return sqrt(p._x * p._x +
+		p._y * p._y +
+		p._z * p._z);
+}
+
+__device__
+A3DVectorGPU Norm(const A3DVectorGPU& p) // get the unit vector
+{
+	float vlength = sqrt(p._x * p._x + p._y * p._y + p._z * p._z);
+
+	if (vlength == 0) { return A3DVectorGPU(0, 0, 0); }
+
+	return A3DVectorGPU(p._x / vlength,
+		p._y / vlength,
+		p._z / vlength);
+}
 
 __global__ void addKernel(int *c, const int *a, const int *b)
 {
@@ -19,9 +66,65 @@ __global__ void addKernel(int *c, const int *a, const int *b)
 	c[i] = a[i] + b[i];
 }
 
+__global__ void Simulate_GPU(A3DVectorGPU* pos_array, 
+	                     A3DVectorGPU* velocity_array, 
+	                     A3DVectorGPU* edge_force_array,
+						 A3DVectorGPU* z_force_array,
+						 A3DVectorGPU* repulsion_force_array,
+						 A3DVectorGPU* boundary_force_array,
+						 A3DVectorGPU* overlap_force_array,
+						 A3DVectorGPU* rotation_force_array, 
+						 int n, 
+						 float dt, 
+	                     float velocity_cap_dt)
+{
+	int index = blockIdx.x * blockDim.x + threadIdx.x;
+	int stride = blockDim.x * gridDim.x;
+	for (int i = index; i < n; i += stride)
+	{
+		// oiler
+		velocity_array[i] = velocity_array[i] +
+
+			                ((edge_force_array[i] +
+							z_force_array[i] +
+							repulsion_force_array[i] +
+							boundary_force_array[i] +
+							overlap_force_array[i] +
+							rotation_force_array[i]) * dt);
+
+		float len = Length(velocity_array[i]);
+
+		if (len > velocity_cap_dt)
+		{
+			velocity_array[i] = Norm(velocity_array[i]) * velocity_cap_dt;
+		}
+
+		pos_array[i] = pos_array[i] + velocity_array[i] * dt;
+	}
+}
+
+void CUDAWorker::Simulate(float dt, float velocity_cap)
+{
+	int blockSize = SystemParams::_cuda_block_size;
+	int numBlocks = (_num_vertex + blockSize - 1) / blockSize;
+	Simulate_GPU <<<numBlocks, blockSize >>> (_pos_array,
+		_velocity_array,
+		_edge_force_array,
+		_z_force_array,
+		_repulsion_force_array,
+		_boundary_force_array,
+		_overlap_force_array,
+		_rotation_force_array,
+		_num_vertex,
+		dt,
+		velocity_cap * dt);
+
+	cudaDeviceSynchronize();
+}
+
 CUDAWorker::CUDAWorker()
 {
-	TestCUDA();
+	//TestCUDA();
 	int nDevices;
 
 	std::cout << "===== CUDA =====\n";
@@ -56,24 +159,109 @@ CUDAWorker::CUDAWorker()
 
 CUDAWorker::~CUDAWorker()
 {
-	/*cudaFree(_edge_force_array);
+	cudaFree(_edge_force_array);
 	cudaFree(_z_force_array);
 	cudaFree(_repulsion_force_array);
 	cudaFree(_boundary_force_array);
 	cudaFree(_overlap_force_array);
-	cudaFree(_rotation_force_array);*/
+	cudaFree(_rotation_force_array);
 }
 
 void CUDAWorker::InitCUDA(int num_vertex)
 {
-	/*
+	_num_vertex = num_vertex;
+
+	// mass positions
+	cudaMallocManaged(&_pos_array, num_vertex * sizeof(A3DVectorGPU));
+
+	// mass velocities
+	cudaMallocManaged(&_velocity_array, num_vertex * sizeof(A3DVectorGPU));
+	
+	// mass forces
 	cudaMallocManaged(&_edge_force_array, num_vertex * sizeof(A3DVectorGPU));
 	cudaMallocManaged(&_z_force_array, num_vertex * sizeof(A3DVectorGPU));
 	cudaMallocManaged(&_repulsion_force_array, num_vertex * sizeof(A3DVectorGPU));
 	cudaMallocManaged(&_boundary_force_array, num_vertex * sizeof(A3DVectorGPU));
 	cudaMallocManaged(&_overlap_force_array, num_vertex * sizeof(A3DVectorGPU));
 	cudaMallocManaged(&_rotation_force_array, num_vertex * sizeof(A3DVectorGPU));
-	*/
+
+	/*for (unsigned int a = 0; a < _num_vertex; a++)
+	{
+		_edge_force_array[a] = A3DVectorGPU();
+	}*/
+	
+}
+
+void CUDAWorker::RetrievePositionAndVelocityData()
+{
+	int idx = 0;
+	for (unsigned int a = 0; a < StuffWorker::_element_list.size(); a++)
+	{
+		for (unsigned int b = 0; b < StuffWorker::_element_list[a]._massList.size(); b++)
+		{
+			CopyVector_GPU2CPU(&_pos_array[idx], StuffWorker::_element_list[a]._massList[b]._pos);
+			CopyVector_GPU2CPU(&_velocity_array[idx], StuffWorker::_element_list[a]._massList[b]._velocity);
+			idx++;
+		}
+	}
+}
+
+void CUDAWorker::SendPositionAndVelocityData()
+{
+	int idx = 0;
+	for (unsigned int a = 0; a < StuffWorker::_element_list.size(); a++)
+	{
+		for (unsigned int b = 0; b < StuffWorker::_element_list[a]._massList.size(); b++)
+		{
+			CopyVector_CPU2GPU(StuffWorker::_element_list[a]._massList[b]._pos, &_pos_array[idx]);
+			CopyVector_CPU2GPU(StuffWorker::_element_list[a]._massList[b]._velocity, &_velocity_array[idx]);
+			idx++;
+		}
+	}
+}
+
+void CUDAWorker::SendForceData()
+{
+	int idx = 0;
+	for (unsigned int a = 0; a < StuffWorker::_element_list.size(); a++)
+	{
+		for (unsigned int b = 0; b < StuffWorker::_element_list[a]._massList.size(); b++)
+		{
+			CopyVector_CPU2GPU(StuffWorker::_element_list[a]._massList[b]._edgeForce,      &_edge_force_array[idx]);
+			CopyVector_CPU2GPU(StuffWorker::_element_list[a]._massList[b]._zForce,         &_z_force_array[idx]);
+			CopyVector_CPU2GPU(StuffWorker::_element_list[a]._massList[b]._repulsionForce, &_repulsion_force_array[idx]);
+			CopyVector_CPU2GPU(StuffWorker::_element_list[a]._massList[b]._boundaryForce,  &_boundary_force_array[idx]);
+			CopyVector_CPU2GPU(StuffWorker::_element_list[a]._massList[b]._overlapForce,   &_overlap_force_array[idx]);
+			CopyVector_CPU2GPU(StuffWorker::_element_list[a]._massList[b]._rotationForce,  &_rotation_force_array[idx]);
+
+			idx++;
+		}
+	}
+
+	// test, delete me
+	/*idx = 0;
+	for (unsigned int a = 0; a < _num_vertex; a++)
+	{
+		std::cout << _edge_force_array[a]._x << ", " << _edge_force_array[a]._y << ", " << _edge_force_array[a]._z << "\n";
+	}
+
+	std::cout << "done\n";*/
+}
+
+
+
+void CUDAWorker::CopyVector_CPU2GPU(const A3DVector& src, A3DVectorGPU* dest)
+{
+	dest->_x = src._x;
+	dest->_y = src._y;
+	dest->_z = src._z;
+}
+
+void CUDAWorker::CopyVector_GPU2CPU(A3DVectorGPU* src, A3DVector& dest)
+{
+	dest._x = src->_x;
+	dest._y = src->_y;
+	dest._z = src->_z;
 }
 
 int CUDAWorker::TestCUDA()

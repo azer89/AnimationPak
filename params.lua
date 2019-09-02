@@ -80,4 +80,7 @@ _boundary_sampling_factor   = 1.2;  -- [Do not edit]
 _num_element_density       = 200;
 _num_element_pos_limit = 20;
 
+-- CUDA
+_cuda_block_size = 512;
+
 

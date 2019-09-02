@@ -95,6 +95,8 @@ public:
 
 	static int _layer_slider_int;
 
+	static int _cuda_block_size;
+
 };
 
 #endif

@@ -75,6 +75,8 @@ void SystemParams::LoadParameters()
 	SystemParams::_num_element_density = script.get<int>("_num_element_density");
 	SystemParams::_num_element_pos_limit = script.get<int>("_num_element_pos_limit");
 
+	SystemParams::_cuda_block_size = script.get<int>("_cuda_block_size");
+
 	//std::cout << SystemParams::_upscaleFactor << "\n";
 	//std::cout << SystemParams::_downscaleFactor << "\n";
 	//std::cout << SystemParams::_seed << "\n";
@@ -162,3 +164,5 @@ bool SystemParams::_show_closest_tri = false;
 bool SystemParams::_show_container   = false;
 
 int SystemParams::_layer_slider_int  = -1;
+
+int SystemParams::_cuda_block_size = 0;

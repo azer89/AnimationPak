@@ -54,6 +54,7 @@ public:
 public:
 
 	int _num_vertex;
+	int _num_spring;
 
 	ContainerWorker* _containerWorker;
 

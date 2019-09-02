@@ -212,7 +212,7 @@ void StuffWorker::InitElements(Ogre::SceneManager* scnMgr)
 }
 
 // INTERPOLATION
-void StuffWorker::Interp_Update()
+/*void StuffWorker::Interp_Update()
 {
 	// ----- for closest point calculation -----
 	for (int a = 0; a < _element_list.size(); a++)
@@ -287,7 +287,7 @@ void StuffWorker::Interp_Update()
 		}
 	}
 
-}
+}*/
 
 void StuffWorker::Update()
 {
@@ -356,7 +356,7 @@ void StuffWorker::Update()
 
 }
 
-void StuffWorker::Interp_Reset()
+/*void StuffWorker::Interp_Reset()
 {
 	// update closest points
 	for (int a = 0; a < _element_list.size(); a++)
@@ -367,7 +367,7 @@ void StuffWorker::Interp_Reset()
 		}
 
 	}
-}
+}*/
 
 void StuffWorker::Reset()
 {
@@ -384,9 +384,10 @@ void StuffWorker::Reset()
 	}
 }
 
+/*
 void StuffWorker::Interp_Solve()
 {
-	/*for (int a = 0; a < _element_list.size(); a++)
+	for (int a = 0; a < _element_list.size(); a++)
 	{
 		_element_list[a].Interp_SolveForSprings2D();
 
@@ -394,8 +395,8 @@ void StuffWorker::Interp_Solve()
 		{
 			_element_list[a]._interp_massList[b].Solve(_containerWorker->_2d_container);
 		}
-	}*/
-}
+	}
+}*/
 
 void StuffWorker::Solve()
 {
@@ -412,7 +413,7 @@ void StuffWorker::Solve()
 	}
 }
 
-void StuffWorker::Interp_Simulate()
+/*void StuffWorker::Interp_Simulate()
 {
 	for (int a = 0; a < _element_list.size(); a++)
 	{
@@ -421,9 +422,9 @@ void StuffWorker::Interp_Simulate()
 			_element_list[a]._interp_massList[b].Interp_Simulate(SystemParams::_dt);
 		}
 	}
-}
+}*/
 
-bool StuffWorker::Interp_HasOverlap()
+/*bool StuffWorker::Interp_HasOverlap()
 {
 	for (int a = 0; a < _element_list.size(); a++)
 	{
@@ -431,7 +432,7 @@ bool StuffWorker::Interp_HasOverlap()
 			return true;
 	}
 	return false;
-}
+}*/
 
 void StuffWorker::Simulate()
 {
@@ -511,7 +512,7 @@ void StuffWorker::UpdateOgre3D()
 
 }
 
-void StuffWorker::Interp_SaveFrames()
+/*void StuffWorker::Interp_SaveFrames()
 {
 	//int l = StuffWorker::_interpolation_iter;
 	for (int a = 0; a < _element_list.size(); a++)
@@ -556,7 +557,7 @@ void StuffWorker::Interp_SaveFrames()
 			}
 		}
 	}
-}
+}*/
 
 void StuffWorker::SaveFrames4()
 {
@@ -768,7 +769,7 @@ void StuffWorker::SaveFrames()
 	vCreator.Save(ss.str());
 }
 
-void StuffWorker::EnableInterpolationMode()
+/*void StuffWorker::EnableInterpolationMode()
 {
 	std::cout << "enable interpolation\n";
 
@@ -793,21 +794,21 @@ void StuffWorker::EnableInterpolationMode()
 		_element_list[a].Interp_ResetSpringRestLengths();
 	}
 //	
-}
+}*/
 
-void StuffWorker::DisableInterpolationMode()
+/*void StuffWorker::DisableInterpolationMode()
 {
 	std::cout << "disable interpolation\n";
 
 	StuffWorker::_interp_mode  = false;
 	StuffWorker::_interp_iter  = 0;
-//	StuffWorker::_interpolation_value = 0;
-//
-//	for (int a = 0; a < _element_list.size(); a++)
-//	{
-//		_element_list[a].DisableInterpolationMode();
-//	}
-}
+	StuffWorker::_interpolation_value = 0;
+
+	for (int a = 0; a < _element_list.size(); a++)
+	{
+		_element_list[a].DisableInterpolationMode();
+	}
+}*/
 
 /*void StuffWorker::CreateRandomElementPoints(std::vector<A2DVector> ornamentBoundary,
 									float img_length,

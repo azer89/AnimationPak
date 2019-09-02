@@ -21,11 +21,11 @@ public:
 
 	void InitElements(Ogre::SceneManager* scnMgr);
 
-	void Interp_Update();
-	void Interp_Reset();          // reset forces to zero
-	void Interp_Solve();            // calculate forces
-	void Interp_Simulate();     // 
-	bool Interp_HasOverlap();
+	//void Interp_Update();
+	//void Interp_Reset();          // reset forces to zero
+	//void Interp_Solve();            // calculate forces
+	//void Interp_Simulate();     // 
+	//bool Interp_HasOverlap();
 
 	void Update();
 	void Reset();          // reset forces to zero
@@ -34,7 +34,7 @@ public:
 	void ImposeConstraints();
 	void UpdateOgre3D();
 
-	void Interp_SaveFrames();
+	//void Interp_SaveFrames();
 	void SaveFrames();
 	void SaveFrames2();
 	void SaveFrames3();
@@ -48,8 +48,8 @@ public:
 	static std::vector<CollisionGrid2D*> _interp_c_grid_list;
 
 
-	void EnableInterpolationMode();
-	void DisableInterpolationMode();
+	//void EnableInterpolationMode();
+	//void DisableInterpolationMode();
 
 public:
 

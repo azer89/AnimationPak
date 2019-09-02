@@ -119,16 +119,16 @@ public:
 	// ---------- Ogre 3D ----------
 
 	// ----- interpolation ----- 
-	A2DVector Interp_ClosestPtOnALayer(A2DVector pt, int layer_idx);
+	/*A2DVector Interp_ClosestPtOnALayer(A2DVector pt, int layer_idx);
 	void Interp_UpdateLayerBoundaries();
 	bool Interp_HasOverlap();
 	void Interp_SolveForSprings2D();
-	void Interp_ResetSpringRestLengths();
+	void Interp_ResetSpringRestLengths();*/
 	// ----- interpolation ----- 
 
 public:
 	// ---------- interpolation stuff ----------
-	std::vector<std::vector<A2DVector>> _interp_per_layer_boundary;
+	/*std::vector<std::vector<A2DVector>> _interp_per_layer_boundary;
 
 	std::vector<AMass>            _interp_massList;       // list of the masses
 	std::vector<AnIndexedLine>    _interp_auxiliaryEdges; // for edge forces
@@ -140,7 +140,7 @@ public:
 	std::vector<AnIndexedLine>    _timeEdgesB; // first index is from interpolation, second index is from original
 	std::vector<std::vector<int>> _interp_edgeToTriA; // not used
 	std::vector<std::vector<int>> _interp_edgeToTriB; // not used
-													  // ---------- interpolation stuff ----------
+	// ---------- interpolation stuff ----------*/
 
 public:
 	int _elem_idx; // for identification

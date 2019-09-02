@@ -193,6 +193,7 @@
     <ClInclude Include="PathIO.h" />
     <ClInclude Include="PointCloud2D.h" />
     <ClInclude Include="PoissonGenerator.h" />
+    <ClInclude Include="SpringGPU.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="StuffWorker.h" />
     <ClInclude Include="SystemParams.h" />

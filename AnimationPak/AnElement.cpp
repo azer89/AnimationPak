@@ -470,8 +470,8 @@ void AnElement::Triangularization(std::vector<std::vector<A2DVector>> art_path, 
 	img_length += 5.0f; // triangulation error without this ?
 	A2DVector newCenter = A2DVector((img_length / 2.0f), (img_length / 2.0f));
 	element_path = UtilityFunctions::MovePoly(element_path, centerPt, newCenter);
-	for (int a = 0; a < art_path.size(); a++)                                                          // moveee
-			{ art_path[a] = UtilityFunctions::MovePoly(art_path[a], centerPt, newCenter); }     // moveee
+	for (int a = 0; a < art_path.size(); a++)                                               // moveee
+			{ art_path[a] = UtilityFunctions::MovePoly(art_path[a], centerPt, newCenter); } // moveee
 	_arts = art_path;
 
 	_layer_center = newCenter;
@@ -509,7 +509,7 @@ void AnElement::Triangularization(std::vector<std::vector<A2DVector>> art_path, 
 		{
 			int idx0 = temp_negSpaceEdges[b]._index0 + massIdxOffset;
 			int idx1 = temp_negSpaceEdges[b]._index1 + massIdxOffset;
-			_negSpaceEdges.push_back(AnIndexedLine(idx0, idx1));
+			_neg_space_springs.push_back(AnIndexedLine(idx0, idx1));
 		}
 	}
 	// -----  triangulation ----- 
@@ -579,9 +579,9 @@ void AnElement::Triangularization(std::vector<std::vector<A2DVector>> art_path, 
 		int idx1 = _triangles[a].idx1;
 		int idx2 = _triangles[a].idx2;
 
-		TryToAddTriangleEdge(AnIndexedLine(idx0, idx1), a, _triEdges, _edgeToTri); // 0 - 1		
-		TryToAddTriangleEdge(AnIndexedLine(idx1, idx2), a, _triEdges, _edgeToTri); // 1 - 2		
-		TryToAddTriangleEdge(AnIndexedLine(idx2, idx0), a, _triEdges, _edgeToTri); // 2 - 0
+		TryToAddSpring(AnIndexedLine(idx0, idx1), a, _layer_springs, _edgeToTri); // 0 - 1		
+		TryToAddSpring(AnIndexedLine(idx1, idx2), a, _layer_springs, _edgeToTri); // 1 - 2		
+		TryToAddSpring(AnIndexedLine(idx2, idx0), a, _layer_springs, _edgeToTri); // 2 - 0
 
 		// ----- add triangles to mass -----
 		AnIdxTriangle tri(idx0, idx1, idx2);
@@ -609,7 +609,8 @@ void AnElement::Triangularization(std::vector<std::vector<A2DVector>> art_path, 
 	}*/
 
 	// ----- bending springs ----- 
-	_auxiliaryEdges = CreateBendingSprings(_massList, _triangles, _triEdges, _edgeToTri);
+	_auxiliary_springs = CreateBendingSprings(_massList, _triangles, _layer_springs, _edgeToTri);
+	// from now on _edgeToTri isn't useful anymore
 	// ----- bending springs ----- 
 
 	// ----- interpolation bending springs ----- 
@@ -714,13 +715,13 @@ void AnElement::Triangularization(std::vector<std::vector<A2DVector>> art_path, 
 			}
 
 			// straight
-			TryToAddTriangleEdge(AnIndexedLine(b + massIdxOffset1, b + massIdxOffset2, true), -1, _triEdges, _edgeToTri);
+			AddSpring(AnIndexedLine(b + massIdxOffset1, b + massIdxOffset2),    _time_springs); // previously _triEdges
 
 			// cross
-			!TryToAddTriangleEdge(AnIndexedLine(b + massIdxOffset1, idxA + massIdxOffset2, true), -1, _triEdges, _edgeToTri);
+			AddSpring(AnIndexedLine(b + massIdxOffset1, idxA + massIdxOffset2), _time_springs); // previously _triEdges
 
 			// cross
-			!TryToAddTriangleEdge(AnIndexedLine(b + massIdxOffset1, idxB + massIdxOffset2, true), -1, _triEdges, _edgeToTri);
+			AddSpring(AnIndexedLine(b + massIdxOffset1, idxB + massIdxOffset2), _time_springs); // previously _triEdges
 
 		}
 	}
@@ -881,25 +882,33 @@ void AnElement::Grow(float growth_scale_iter, float dt)
 	}
 
 	// iterate edges
-	for (unsigned int a = 0; a < _triEdges.size(); a++)
+	for (unsigned int a = 0; a < _layer_springs.size(); a++)
 	{
-		A2DVector p1 = _rest_mass_pos_array[_triEdges[a]._index0].GetA2DVector();
-		A2DVector p2 = _rest_mass_pos_array[_triEdges[a]._index1].GetA2DVector();
-		_triEdges[a].SetActualOriDistance(p1.Distance(p2));
+		A3DVector p1 = _rest_mass_pos_array[_layer_springs[a]._index0];
+		A3DVector p2 = _rest_mass_pos_array[_layer_springs[a]._index1];
+		_layer_springs[a].SetActualOriDistance(p1.Distance(p2));
 	}
 
-	for (unsigned int a = 0; a < _auxiliaryEdges.size(); a++)
+	// iterate edges
+	for (unsigned int a = 0; a < _time_springs.size(); a++)
 	{
-		A2DVector p1 = _rest_mass_pos_array[_auxiliaryEdges[a]._index0].GetA2DVector();
-		A2DVector p2 = _rest_mass_pos_array[_auxiliaryEdges[a]._index1].GetA2DVector();
-		_auxiliaryEdges[a].SetActualOriDistance(p1.Distance(p2));
+		A3DVector p1 = _rest_mass_pos_array[_time_springs[a]._index0];
+		A3DVector p2 = _rest_mass_pos_array[_time_springs[a]._index1];
+		_time_springs[a].SetActualOriDistance(p1.Distance(p2));
 	}
 
-	for (unsigned int a = 0; a < _negSpaceEdges.size(); a++)
+	for (unsigned int a = 0; a < _auxiliary_springs.size(); a++)
 	{
-		A2DVector p1 = _rest_mass_pos_array[_negSpaceEdges[a]._index0].GetA2DVector();
-		A2DVector p2 = _rest_mass_pos_array[_negSpaceEdges[a]._index1].GetA2DVector();
-		_negSpaceEdges[a].SetActualOriDistance(p1.Distance(p2));
+		A3DVector p1 = _rest_mass_pos_array[_auxiliary_springs[a]._index0];
+		A3DVector p2 = _rest_mass_pos_array[_auxiliary_springs[a]._index1];
+		_auxiliary_springs[a].SetActualOriDistance(p1.Distance(p2));
+	}
+
+	for (unsigned int a = 0; a < _neg_space_springs.size(); a++)
+	{
+		A3DVector p1 = _rest_mass_pos_array[_neg_space_springs[a]._index0];
+		A3DVector p2 = _rest_mass_pos_array[_neg_space_springs[a]._index1];
+		_neg_space_springs[a].SetActualOriDistance(p1.Distance(p2));
 	}
 }
 
@@ -982,10 +991,10 @@ void AnElement::InitMeshOgre3D(Ogre::SceneManager* sceneMgr,
 	Ogre::MaterialPtr neg_sp_line_material = Ogre::MaterialManager::getSingleton().getByName("Examples/RedMat")->clone("neg_sp_line_material" + std::to_string(_elem_idx));
 	neg_sp_line_material->getTechnique(0)->getPass(0)->setDiffuse(Ogre::ColourValue(rVal, gVal, bVal, 1));
 	_neg_space_edge_lines = new DynamicLines(neg_sp_line_material, Ogre::RenderOperation::OT_LINE_LIST);
-	for (int l = 0; l < _negSpaceEdges.size(); l++)
+	for (int l = 0; l < _neg_space_springs.size(); l++)
 	{
-		A3DVector pt1 = _massList[_negSpaceEdges[l]._index0]._pos;
-		A3DVector pt2 = _massList[_negSpaceEdges[l]._index1]._pos;
+		A3DVector pt1 = _massList[_neg_space_springs[l]._index0]._pos;
+		A3DVector pt2 = _massList[_neg_space_springs[l]._index1]._pos;
 		_neg_space_edge_lines->addPoint(Ogre::Vector3(pt1._x, pt1._y, pt1._z));
 		_neg_space_edge_lines->addPoint(Ogre::Vector3(pt2._x, pt2._y, pt2._z));
 	}
@@ -1031,15 +1040,15 @@ void AnElement::InitMeshOgre3D(Ogre::SceneManager* sceneMgr,
 
 	// --------- time edges ----------
 	_time_edge_lines = new DynamicLines(line_material, Ogre::RenderOperation::OT_LINE_LIST);
-	for (int a = 0; a < _triEdges.size(); a++)
+	for (int a = 0; a < _time_springs.size(); a++)
 	{
-		if(_triEdges[a]._isLayer2Layer)
-		{
-			A3DVector pos1 = _massList[_triEdges[a]._index0]._pos;
-			A3DVector pos2 = _massList[_triEdges[a]._index1]._pos;
-			_time_edge_lines->addPoint(Ogre::Vector3(pos1._x, pos1._y, pos1._z));
-			_time_edge_lines->addPoint(Ogre::Vector3(pos2._x, pos2._y, pos2._z));
-		}
+		//if(_triEdges[a]._isLayer2Layer)
+		//{
+		A3DVector pos1 = _massList[_time_springs[a]._index0]._pos;
+		A3DVector pos2 = _massList[_time_springs[a]._index1]._pos;
+		_time_edge_lines->addPoint(Ogre::Vector3(pos1._x, pos1._y, pos1._z));
+		_time_edge_lines->addPoint(Ogre::Vector3(pos2._x, pos2._y, pos2._z));
+		//}
 	}
 	_time_edge_lines->update();
 	_time_edge_node = _sceneMgr->getRootSceneNode()->createChildSceneNode("time_edge_node_" + std::to_string(_elem_idx));
@@ -1285,10 +1294,10 @@ void AnElement::UpdateNegSpaceEdgeOgre3D()
 		_neg_space_edge_node->setVisible(true);
 		int idx = 0;
 
-		for (int l = 0; l < _negSpaceEdges.size(); l++)
+		for (int l = 0; l < _neg_space_springs.size(); l++)
 		{
-			A3DVector pt1 = _massList[_negSpaceEdges[l]._index0]._pos;
-			A3DVector pt2 = _massList[_negSpaceEdges[l]._index1]._pos;
+			A3DVector pt1 = _massList[_neg_space_springs[l]._index0]._pos;
+			A3DVector pt2 = _massList[_neg_space_springs[l]._index1]._pos;
 			_neg_space_edge_lines->setPoint(idx++, Ogre::Vector3(pt1._x, pt1._y, pt1._z));
 			_neg_space_edge_lines->setPoint(idx++, Ogre::Vector3(pt2._x, pt2._y, pt2._z));
 		}
@@ -1462,15 +1471,15 @@ void AnElement::UpdateTimeEdgesOgre3D()
 		_time_edge_node->setVisible(true);
 
 		int idx = 0;
-		for (int a = 0; a < _triEdges.size(); a++)
+		for (int a = 0; a < _time_springs.size(); a++)
 		{
-			if (_triEdges[a]._isLayer2Layer)
-			{
-				A3DVector pos1 = _massList[_triEdges[a]._index0]._pos;
-				A3DVector pos2 = _massList[_triEdges[a]._index1]._pos;
-				_time_edge_lines->setPoint(idx++, Ogre::Vector3(pos1._x, pos1._y, pos1._z));
-				_time_edge_lines->setPoint(idx++, Ogre::Vector3(pos2._x, pos2._y, pos2._z));
-			}
+			//if (_triEdges[a]._isLayer2Layer)
+			//{
+			A3DVector pos1 = _massList[_time_springs[a]._index0]._pos;
+			A3DVector pos2 = _massList[_time_springs[a]._index1]._pos;
+			_time_edge_lines->setPoint(idx++, Ogre::Vector3(pos1._x, pos1._y, pos1._z));
+			_time_edge_lines->setPoint(idx++, Ogre::Vector3(pos2._x, pos2._y, pos2._z));
+			//}
 		}
 		_time_edge_lines->update();
 	}
@@ -2197,19 +2206,34 @@ void AnElement::CreateStarTube(int self_idx)
 
 void AnElement::ResetSpringRestLengths()
 {
-	for (int a = 0; a < _triEdges.size(); a++)
+	for (int a = 0; a < _layer_springs.size(); a++)
 	{	
-		A2DVector p1 = _massList[_triEdges[a]._index0]._pos.GetA2DVector();
-		A2DVector p2 = _massList[_triEdges[a]._index1]._pos.GetA2DVector();
-		_triEdges[a].SetActualOriDistance(p1.Distance(p2));
+		A3DVector p1 = _massList[_layer_springs[a]._index0]._pos;
+		A3DVector p2 = _massList[_layer_springs[a]._index1]._pos;
+		_layer_springs[a].SetActualOriDistance(p1.Distance(p2));
 	}
 
-	for (int a = 0; a < _auxiliaryEdges.size(); a++)
+	for (int a = 0; a < _time_springs.size(); a++)
+	{
+		A3DVector p1 = _massList[_time_springs[a]._index0]._pos;
+		A3DVector p2 = _massList[_time_springs[a]._index1]._pos;
+		_time_springs[a].SetActualOriDistance(p1.Distance(p2));
+	}
+
+	for (int a = 0; a < _auxiliary_springs.size(); a++)
 	{
 		//{
-		A2DVector p1 = _massList[_auxiliaryEdges[a]._index0]._pos.GetA2DVector();
-		A2DVector p2 = _massList[_auxiliaryEdges[a]._index1]._pos.GetA2DVector();
-		_auxiliaryEdges[a].SetActualOriDistance(p1.Distance(p2));
+		A3DVector p1 = _massList[_auxiliary_springs[a]._index0]._pos;
+		A3DVector p2 = _massList[_auxiliary_springs[a]._index1]._pos;
+		_auxiliary_springs[a].SetActualOriDistance(p1.Distance(p2));
+	}
+
+	for (int a = 0; a < _neg_space_springs.size(); a++)
+	{
+		//{
+		A3DVector p1 = _massList[_neg_space_springs[a]._index0]._pos;
+		A3DVector p2 = _massList[_neg_space_springs[a]._index1]._pos;
+		_neg_space_springs[a].SetActualOriDistance(p1.Distance(p2));
 	}
 
 	for (int a = 0; a < _massList.size(); a++)
@@ -2356,32 +2380,25 @@ void AnElement::SolveForSprings3D()
 	float signVal = 1;
 
 	// 333333333333333333333333333333333333333333333333
-	int tr_sz = _triEdges.size();
+	int tr_sz = _layer_springs.size();
 	for (unsigned int a = 0; a < tr_sz; a++)
 	{
-		idx0 = _triEdges[a]._index0;
-		idx1 = _triEdges[a]._index1;
+		idx0 = _layer_springs[a]._index0;
+		idx1 = _layer_springs[a]._index1;
 		
-		if (_triEdges[a]._isLayer2Layer)
-		{
-			k = SystemParams::_k_time_edge;
-		}
-		else
-		{
-			k = SystemParams::_k_edge;
+		
+		k = SystemParams::_k_edge;
 
-
-			// TODO: Nasty code here
-			if (_scale < scale_threshold)
-			{
-				k *= magic_number;
-			}
+		// TODO: Nasty code here
+		if (_scale < scale_threshold)
+		{
+			k *= magic_number;
 		}
 
 		dir_not_unit = _massList[idx0]._pos.DirectionTo(_massList[idx1]._pos);
 		dir_not_unit.GetUnitAndDist(dir, dist);
 
-		diff = dist - _triEdges[a]._dist;
+		diff = dist - _layer_springs[a]._dist;
 
 		// squared version
 		signVal = 1;
@@ -2394,12 +2411,37 @@ void AnElement::SolveForSprings3D()
 		
 	}
 
+	// 333333333333333333333333333333333333333333333333
+	tr_sz = _time_springs.size();
+	for (unsigned int a = 0; a < tr_sz; a++)
+	{
+		idx0 = _time_springs[a]._index0;
+		idx1 = _time_springs[a]._index1;
+
+		k = SystemParams::_k_time_edge;
+
+		dir_not_unit = _massList[idx0]._pos.DirectionTo(_massList[idx1]._pos);
+		dir_not_unit.GetUnitAndDist(dir, dist);
+
+		diff = dist - _time_springs[a]._dist;
+
+		// squared version
+		signVal = 1;
+		if (diff < 0) { signVal = -1; }
+
+		eForce = dir * k *  diff * diff * signVal;
+
+		_massList[idx0]._edgeForce += eForce;
+		_massList[idx1]._edgeForce -= eForce;
+
+	}
+
 	// 333333333333333333333333333333333333333333333333333333
-	int aux_sz = _auxiliaryEdges.size();
+	int aux_sz = _auxiliary_springs.size();
 	for (unsigned int a = 0; a < aux_sz; a++)
 	{
-		idx0 = _auxiliaryEdges[a]._index0;
-		idx1 = _auxiliaryEdges[a]._index1;
+		idx0 = _auxiliary_springs[a]._index0;
+		idx1 = _auxiliary_springs[a]._index1;
 
 		k = SystemParams::_k_edge;
 
@@ -2412,7 +2454,7 @@ void AnElement::SolveForSprings3D()
 		dir_not_unit = _massList[idx0]._pos.DirectionTo(_massList[idx1]._pos);
 		dir_not_unit.GetUnitAndDist(dir, dist);
 
-		diff = dist - _auxiliaryEdges[a]._dist;
+		diff = dist - _auxiliary_springs[a]._dist;
 
 		// squared version
 		signVal = 1;
@@ -2428,10 +2470,10 @@ void AnElement::SolveForSprings3D()
 	}
 
 	// 333333333333333333333333333333333333333333333333333333
-	for (unsigned int a = 0; a < _negSpaceEdges.size(); a++)
+	for (unsigned int a = 0; a < _neg_space_springs.size(); a++)
 	{
-		idx0 = _negSpaceEdges[a]._index0;
-		idx1 = _negSpaceEdges[a]._index1;
+		idx0 = _neg_space_springs[a]._index0;
+		idx1 = _neg_space_springs[a]._index1;
 
 		//pt0 = _massList[idx0]._pos;
 		//pt1 = _massList[idx1]._pos;
@@ -2449,7 +2491,7 @@ void AnElement::SolveForSprings3D()
 		dir_not_unit = _massList[idx0]._pos.DirectionTo(_massList[idx1]._pos);
 		dir_not_unit.GetUnitAndDist(dir, dist);
 
-		diff = dist - _negSpaceEdges[a]._dist;
+		diff = dist - _neg_space_springs[a]._dist;
 
 		// squared version
 		signVal = 1;
@@ -2600,7 +2642,7 @@ std::vector<AnIndexedLine> AnElement::CreateBendingSprings(std::vector<AMass>& m
 	}
 	return auxiliaryEdges;
 }
-void  AnElement::ForceAddTriangleEdge(AnIndexedLine anEdge, int triIndex, std::vector<AnIndexedLine>& tEdges, std::vector<std::vector<int>>& e2t)
+void  AnElement::ForceAddSpring(AnIndexedLine anEdge, int triIndex, std::vector<AnIndexedLine>& tEdges, std::vector<std::vector<int>>& e2t)
 {
 	A3DVector pt1 = _massList[anEdge._index0]._pos;
 	A3DVector pt2 = _massList[anEdge._index1]._pos;
@@ -2616,9 +2658,20 @@ void  AnElement::ForceAddTriangleEdge(AnIndexedLine anEdge, int triIndex, std::v
 	e2t.push_back(indices);
 }
 
-bool AnElement::TryToAddTriangleEdge(AnIndexedLine anEdge, int triIndex, std::vector<AnIndexedLine>& tEdges, std::vector<std::vector<int>>& e2t)
+void AnElement::AddSpring(AnIndexedLine anEdge, std::vector<AnIndexedLine>& tSpring)
 {
-	int edgeIndex = FindTriangleEdge(anEdge, tEdges);
+	A3DVector pt1 = _massList[anEdge._index0]._pos;
+	A3DVector pt2 = _massList[anEdge._index1]._pos;
+	float d = pt1.Distance(pt2);
+	anEdge.SetDist(d);
+
+	// push to edge list
+	tSpring.push_back(anEdge);
+}
+
+bool AnElement::TryToAddSpring(AnIndexedLine anEdge, int triIndex, std::vector<AnIndexedLine>& tEdges, std::vector<std::vector<int>>& e2t)
+{
+	int edgeIndex = FindSpring(anEdge, tEdges);
 	if (edgeIndex < 0)
 	{
 		A3DVector pt1 = _massList[anEdge._index0]._pos;
@@ -2645,7 +2698,7 @@ bool AnElement::TryToAddTriangleEdge(AnIndexedLine anEdge, int triIndex, std::ve
 
 
 // triangle edges
-int AnElement::FindTriangleEdge(AnIndexedLine anEdge, std::vector<AnIndexedLine>& tEdges)
+int AnElement::FindSpring(AnIndexedLine anEdge, std::vector<AnIndexedLine>& tEdges)
 {
 	for (unsigned int a = 0; a < tEdges.size(); a++)
 	{

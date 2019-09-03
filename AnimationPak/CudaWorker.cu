@@ -12,9 +12,6 @@
 
 #include "StuffWorker.h"
 
-cudaError_t addWithCuda(int *c, const int *a, const int *b, unsigned int size);
-
-
 __device__
 A3DVectorGPU operator+(const A3DVectorGPU& p, const A3DVectorGPU& v)
 {
@@ -165,11 +162,17 @@ CUDAWorker::~CUDAWorker()
 	cudaFree(_boundary_force_array);
 	cudaFree(_overlap_force_array);
 	cudaFree(_rotation_force_array);
+
+	cudaFree(_pos_array);
+	cudaFree(_velocity_array);
+	cudaFree(_spring_array);
+	cudaFree(_spring_parameters);
 }
 
-void CUDAWorker::InitCUDA(int num_vertex)
+void CUDAWorker::InitCUDA(int num_vertex, int num_spring)
 {
 	_num_vertex = num_vertex;
+	_num_spring = num_spring;
 
 	// mass positions
 	cudaMallocManaged(&_pos_array, num_vertex * sizeof(A3DVectorGPU));
@@ -185,10 +188,15 @@ void CUDAWorker::InitCUDA(int num_vertex)
 	cudaMallocManaged(&_overlap_force_array, num_vertex * sizeof(A3DVectorGPU));
 	cudaMallocManaged(&_rotation_force_array, num_vertex * sizeof(A3DVectorGPU));
 
-	/*for (unsigned int a = 0; a < _num_vertex; a++)
-	{
-		_edge_force_array[a] = A3DVectorGPU();
-	}*/
+	// springs
+	cudaMallocManaged(&_spring_array, num_spring * sizeof(A3DVectorGPU));
+
+	// spring parameters
+	cudaMallocManaged(&_spring_parameters, 4 * sizeof(float));
+	_spring_parameters[0] = SystemParams::_k_edge;
+	_spring_parameters[1] = SystemParams::_k_time_edge;
+	_spring_parameters[2] = SystemParams::_k_edge;
+	_spring_parameters[3] = SystemParams::_k_neg_space_edge;
 	
 }
 
@@ -202,6 +210,28 @@ void CUDAWorker::RetrievePositionAndVelocityData()
 			CopyVector_GPU2CPU(&_pos_array[idx], StuffWorker::_element_list[a]._massList[b]._pos);
 			CopyVector_GPU2CPU(&_velocity_array[idx], StuffWorker::_element_list[a]._massList[b]._velocity);
 			idx++;
+		}
+	}
+}
+
+void CUDAWorker::SendSpringData()
+{
+	for (unsigned int a = 0; a < StuffWorker::_element_list.size(); a++)
+	{
+		for (unsigned int b = 0; b < StuffWorker::_element_list[a]._layer_springs.size(); b++)
+		{
+		}
+
+		for (unsigned int b = 0; b < StuffWorker::_element_list[a]._time_springs.size(); b++)
+		{
+		}
+
+		for (unsigned int b = 0; b < StuffWorker::_element_list[a]._auxiliary_springs.size(); b++)
+		{
+		}
+
+		for (unsigned int b = 0; b < StuffWorker::_element_list[a]._neg_space_springs.size(); b++)
+		{
 		}
 	}
 }
@@ -262,141 +292,4 @@ void CUDAWorker::CopyVector_GPU2CPU(A3DVectorGPU* src, A3DVector& dest)
 	dest._x = src->_x;
 	dest._y = src->_y;
 	dest._z = src->_z;
-}
-
-int CUDAWorker::TestCUDA()
-{
-	/*const int arraySize = 20;
-	const int a[arraySize] = { 1, 2, 3, 4, 5, 1, 2, 3, 4, 5,  1, 2, 3, 4, 5, 1, 2, 3, 4, 5 };
-	const int b[arraySize] = { 10, 20, 30, 40, 50, 10, 20, 30, 40, 50, 10, 20, 30, 40, 50, 10, 20, 30, 40, 50 };
-	int c[arraySize] = { 0 };*/
-
-	/*const int arraySize = 1000;
-	int a[arraySize] = { 0 };
-	int b[arraySize] = { 0 };
-	int c[arraySize] = { 0 };
-	*/
-
-	// dynamic
-	int arraySize = 1024;
-	int* a = new int[arraySize];
-	int* b = new int[arraySize];
-	int* c = new int[arraySize];
-	   
-	for (int i = 0; i < arraySize; i++)
-	{
-		a[i] = rand() % 100;
-		b[i] = rand() % 100;
-	}
-
-	//std::cout << "test\n";
-
-	// Add vectors in parallel.
-	cudaError_t cudaStatus = addWithCuda(c, a, b, arraySize);
-	if (cudaStatus != cudaSuccess) 
-	{
-		fprintf(stderr, "addWithCuda failed!");
-		return 1;
-	}
-
-	/*for (int i = 0; i < arraySize; i++)
-	{
-		std::cout << i << " --> " << a[i] << " + " << b[i] << " = " << c[i] << "\n";
-	}*/
-
-
-	// cudaDeviceReset must be called before exiting in order for profiling and
-	// tracing tools such as Nsight and Visual Profiler to show complete traces.
-	cudaStatus = cudaDeviceReset();
-	if (cudaStatus != cudaSuccess) 
-	{
-		fprintf(stderr, "cudaDeviceReset failed!");
-		return 1;
-	}
-
-	delete[] a;
-	delete[] b;
-	delete[] c;
-
-	return 0;
-}
-
-// Helper function for using CUDA to add vectors in parallel.
-cudaError_t addWithCuda(int *c, const int *a, const int *b, unsigned int size)
-{
-	int *dev_a = 0;
-	int *dev_b = 0;
-	int *dev_c = 0;
-	cudaError_t cudaStatus;
-
-	// Choose which GPU to run on, change this on a multi-GPU system.
-	cudaStatus = cudaSetDevice(0);
-	if (cudaStatus != cudaSuccess) {
-		fprintf(stderr, "cudaSetDevice failed!  Do you have a CUDA-capable GPU installed?");
-		goto Error;
-	}
-
-	// Allocate GPU buffers for three vectors (two input, one output)    .
-	cudaStatus = cudaMalloc((void**)&dev_c, size * sizeof(int));
-	if (cudaStatus != cudaSuccess) {
-		fprintf(stderr, "cudaMalloc failed!");
-		goto Error;
-	}
-
-	cudaStatus = cudaMalloc((void**)&dev_a, size * sizeof(int));
-	if (cudaStatus != cudaSuccess) {
-		fprintf(stderr, "cudaMalloc failed!");
-		goto Error;
-	}
-
-	cudaStatus = cudaMalloc((void**)&dev_b, size * sizeof(int));
-	if (cudaStatus != cudaSuccess) {
-		fprintf(stderr, "cudaMalloc failed!");
-		goto Error;
-	}
-
-	// Copy input vectors from host memory to GPU buffers.
-	cudaStatus = cudaMemcpy(dev_a, a, size * sizeof(int), cudaMemcpyHostToDevice);
-	if (cudaStatus != cudaSuccess) {
-		fprintf(stderr, "cudaMemcpy failed!");
-		goto Error;
-	}
-
-	cudaStatus = cudaMemcpy(dev_b, b, size * sizeof(int), cudaMemcpyHostToDevice);
-	if (cudaStatus != cudaSuccess) {
-		fprintf(stderr, "cudaMemcpy failed!");
-		goto Error;
-	}
-
-	// Launch a kernel on the GPU with one thread for each element.
-	addKernel <<<1, size >>> (dev_c, dev_a, dev_b);
-
-	// Check for any errors launching the kernel
-	cudaStatus = cudaGetLastError();
-	if (cudaStatus != cudaSuccess) {
-		fprintf(stderr, "--> addKernel launch failed: %s\n", cudaGetErrorString(cudaStatus));
-		goto Error;
-	}
-
-	// cudaDeviceSynchronize waits for the kernel to finish, and returns
-	// any errors encountered during the launch.
-	cudaStatus = cudaDeviceSynchronize();
-	if (cudaStatus != cudaSuccess) {
-		fprintf(stderr, "cudaDeviceSynchronize returned error code %d after launching addKernel!\n", cudaStatus);
-		goto Error;
-	}
-
-	// Copy output vector from GPU buffer to host memory.
-	cudaStatus = cudaMemcpy(c, dev_c, size * sizeof(int), cudaMemcpyDeviceToHost);
-	if (cudaStatus != cudaSuccess) {
-		fprintf(stderr, "cudaMemcpy failed!");
-		goto Error;
-	}
-
-Error:
-	cudaFree(dev_c);
-	cudaFree(dev_a);
-	cudaFree(dev_b);
-
-	return cudaStatus;
 }

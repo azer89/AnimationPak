@@ -46,7 +46,7 @@ public:
 	void CalculateLayerTriangles_Drawing();
 	void UpdateLayerBoundaries();
 	//void UpdateSpringLengths();
-	void UpdateInterpMasses();
+	//void UpdateInterpMasses();
 	void UpdateZConstraint();
 
 
@@ -83,10 +83,11 @@ public:
 
 	void CalculateRestStructure();
 
-	// edges
-	bool TryToAddTriangleEdge(AnIndexedLine anEdge, int triIndex, std::vector<AnIndexedLine>& tEdges, std::vector<std::vector<int>>& e2t);
-	void ForceAddTriangleEdge(AnIndexedLine anEdge, int triIndex, std::vector<AnIndexedLine>& tEdges, std::vector<std::vector<int>>& e2t);
-	int FindTriangleEdge(AnIndexedLine anEdge, std::vector<AnIndexedLine>& tEdges);
+	// springs
+	void AddSpring(AnIndexedLine anEdge, std::vector<AnIndexedLine>& tSpring);
+	bool TryToAddSpring(AnIndexedLine anEdge, int triIndex, std::vector<AnIndexedLine>& tEdges, std::vector<std::vector<int>>& e2t); // false if already exists
+	void ForceAddSpring(AnIndexedLine anEdge, int triIndex, std::vector<AnIndexedLine>& tEdges, std::vector<std::vector<int>>& e2t);
+	int  FindSpring(AnIndexedLine anEdge, std::vector<AnIndexedLine>& tEdges);
 	std::vector<AnIndexedLine> CreateBendingSprings(std::vector<AMass>& mList, 
 													const std::vector<AnIdxTriangle>& tris,
 		                                            const std::vector<AnIndexedLine>& tEdges,
@@ -143,6 +144,9 @@ public:
 	// ---------- interpolation stuff ----------*/
 
 public:
+	// to make it easier to flatten spring arrays
+	int _cuda_mass_array_offset;
+
 	int _elem_idx; // for identification
 
 	bool _predefined_time_path; // time path isn't straight
@@ -182,15 +186,18 @@ public:
 	std::vector<A3DVector> _rest_mass_pos_array; // after scaling
 
 	// ---------- important stuff ----------
-	std::vector<AMass>            _massList;       // list of the masses
-	std::vector<AnIndexedLine>    _auxiliaryEdges; // for edge forces // UNCOMMENT
-	std::vector<AnIndexedLine>    _triEdges;  // for edge forces
-	std::vector<std::vector<int>> _edgeToTri; // for aux edges, if -1 means time springs!!!
-	std::vector<AnIdxTriangle>    _triangles;
-	std::vector<AnIndexedLine>    _negSpaceEdges;
+	std::vector<AMass>            _massList;         // list of the masses
+		
+	std::vector<AnIndexedLine>    _layer_springs;     // 0
+	std::vector<AnIndexedLine>    _time_springs;      // 1
+	std::vector<AnIndexedLine>    _auxiliary_springs; // 2 
+	std::vector<AnIndexedLine>    _neg_space_springs; // 3
 
+	std::vector<std::vector<int>> _edgeToTri;        // for calculating aux edges, if -1 means time springs!!!
+	std::vector<AnIdxTriangle>    _triangles;
+	
 	std::vector<AnIdxTriangle>    _surfaceTriangles; // for 3D collision grid
-	std::vector<A3DVector>		  _tempTri3;
+	std::vector<A3DVector>		  _tempTri3;         // what for ???
 
 	// ---------- Ogre 3D ----------
 	Ogre::SceneManager* _sceneMgr;

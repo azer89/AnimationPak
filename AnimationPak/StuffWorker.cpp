@@ -139,12 +139,19 @@ void StuffWorker::InitElements(Ogre::SceneManager* scnMgr)
 	_num_spring = 0;
 	for (unsigned int a = 0; a < _element_list.size(); a++)
 	{
+		// to make it easier to flatten spring arrays
+		_element_list[a]._cuda_mass_array_offset = _num_vertex;
+
 		_num_vertex += _element_list[a]._massList.size();
-		_num_spring += _element_list[a]._triEdges.size();
+
+		_num_spring += _element_list[a]._layer_springs.size();
+		_num_spring += _element_list[a]._time_springs.size();
+		_num_spring += _element_list[a]._auxiliary_springs.size();
+		_num_spring += _element_list[a]._neg_space_springs.size();
 	}
 
 	// ---------- Calculate num vertex ----------
-	_cu_worker->InitCUDA(_num_vertex);
+	_cu_worker->InitCUDA(_num_vertex, _num_spring);
 
 	// ----- Interpolation collision grid -----
 	// INTERP WONT WORK BECAUSE OF THIS

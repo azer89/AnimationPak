@@ -12,16 +12,20 @@
 #include "AnElement.h"
 #include "AMass.h"
 
+#include "SpringGPU.h"
+
 class CUDAWorker
 {
 public:
 	CUDAWorker();
 	~CUDAWorker();
 
-	void InitCUDA(int num_vertex);
+	void InitCUDA(int num_vertex, int num_spring);
 	void SendPositionAndVelocityData();
 	void RetrievePositionAndVelocityData();
 	void SendForceData(); // element list is static data in StuffWorker so no data passing required
+	void SendSpringData();
+
 	void Simulate(float dt, float velocity_cap);         // integrate
 	
 	// forces
@@ -38,15 +42,17 @@ public:
 	// mass velocities
 	A3DVectorGPU* _velocity_array;
 
+	// springs
+	SpringGPU* _spring_array;
+	float* _spring_parameters;
+
 	// tool
 	void CopyVector_CPU2GPU(const A3DVector& src, A3DVectorGPU* dest);
 	void CopyVector_GPU2CPU(A3DVectorGPU* src, A3DVector& dest);
 
 private:
-	int TestCUDA();
-
-
-	int _num_vertex;
+	int _num_vertex; // how many vertices in the system
+	int _num_spring; // how many springs in the system
 };
 
 #endif

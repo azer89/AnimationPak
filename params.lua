@@ -23,7 +23,7 @@ _seed = -1; --- negative means random
 --- Force parameters
 _k_edge                = 1;	--- 0.5 edge force for filling elements
 _k_z                   = 1;   --- preventing layers to stray away in z direction
-_k_time_edge           = 0.1;
+_k_time_edge           = 0.01;
 _k_neg_space_edge      = 0.01;	--- edge force for springs
 _k_edge_small_factor   = 12;
 _k_repulsion           = 3;	--- 10 repulsion force
@@ -81,6 +81,6 @@ _num_element_density       = 200;
 _num_element_pos_limit = 20;
 
 -- CUDA
-_cuda_block_size = 512;
+_cuda_block_size = 256;
 
 

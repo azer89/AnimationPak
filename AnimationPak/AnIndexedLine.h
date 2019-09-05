@@ -20,12 +20,10 @@ struct AnIndexedLine
 {
 public:
 	float _dist;
-	float _oriDist;
+	float _oriDist; // see MakeLonger()
 
 	int _index0; // start index
 	int _index1; // end index 
-	//bool  _canGrow;
-	//float _angle;
 	float _scale;
 	
 	

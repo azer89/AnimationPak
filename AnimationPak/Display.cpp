@@ -137,7 +137,8 @@ bool Display::frameStarted(const Ogre::FrameEvent& evt)
 	else { ImGui::Text("FPS : -"); }
 
 	ImGui::Text(("Scale = " + std::to_string(_sWorker->_element_list[0]._scale)).c_str());
-	ImGui::Text(("Num vertex = " + std::to_string(_sWorker->_num_vertex)).c_str());
+	ImGui::Text(("Num vertices = " + std::to_string(_sWorker->_num_vertex)).c_str());
+	ImGui::Text(("Num springs = " + std::to_string(_sWorker->_num_spring)).c_str());
 
 	if (ImGui::Button("Reload parameters")) { SystemParams::LoadParameters(); }
 	if (ImGui::Button("Save Triangles to PNGs")) { _sWorker->SaveFrames3(); }

@@ -115,8 +115,11 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>C:/Users/azer/workspace/ogre-sdk-1.11.5/lib;C:/Users/azer/workspace/ogre-sdk-1.11.5/lib/$(Configuration);C:\Users\azer\workspace\opencv_4_0_1\build\x64\vc15\lib;C:\Users\azer\workspace\CGAL-4.13.1\auxiliary\gmp\lib;C:\Users\azer\workspace\CGAL-4.13.1\bin\lib;C:\Users\azer\workspace\boost_1_70_0_\lib64-msvc-14.1;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>C:\Users\azer\workspace\AnimationPak\Debug\OgreImgui.lib;C:\Users\azer\workspace\ogre-sdk-1.11.5\lib\OgreBites_d.lib;C:\Users\azer\workspace\ogre-sdk-1.11.5\lib\OgreHLMS_d.lib;C:\Users\azer\workspace\ogre-sdk-1.11.5\lib\OgreMeshLodGenerator_d.lib;C:\Users\azer\workspace\ogre-sdk-1.11.5\lib\OgreOverlay_d.lib;C:\Users\azer\workspace\ogre-sdk-1.11.5\lib\OgreProperty_d.lib;C:\Users\azer\workspace\ogre-sdk-1.11.5\lib\OgreRTShaderSystem_d.lib;C:\Users\azer\workspace\ogre-sdk-1.11.5\lib\OgreTerrain_d.lib;C:\Users\azer\workspace\ogre-sdk-1.11.5\lib\OgrePaging_d.lib;C:\Users\azer\workspace\ogre-sdk-1.11.5\lib\OgreVolume_d.lib;C:\Users\azer\workspace\ogre-sdk-1.11.5\lib\OgreMain_d.lib;C:\Users\azer\workspace\Lua533_vs2017\x64\Debug\Lua533.lib;C:\Users\azer\workspace\opencv_4_0_1\build\x64\vc15\lib\opencv_world401d.lib;libgmp-10.lib;libmpfr-4.lib</AdditionalDependencies>
+      <AdditionalDependencies>C:\Users\azer\workspace\AnimationPak\Debug\OgreImgui.lib;C:\Users\azer\workspace\ogre-sdk-1.11.5\lib\OgreBites_d.lib;C:\Users\azer\workspace\ogre-sdk-1.11.5\lib\OgreHLMS_d.lib;C:\Users\azer\workspace\ogre-sdk-1.11.5\lib\OgreMeshLodGenerator_d.lib;C:\Users\azer\workspace\ogre-sdk-1.11.5\lib\OgreOverlay_d.lib;C:\Users\azer\workspace\ogre-sdk-1.11.5\lib\OgreProperty_d.lib;C:\Users\azer\workspace\ogre-sdk-1.11.5\lib\OgreRTShaderSystem_d.lib;C:\Users\azer\workspace\ogre-sdk-1.11.5\lib\OgreTerrain_d.lib;C:\Users\azer\workspace\ogre-sdk-1.11.5\lib\OgrePaging_d.lib;C:\Users\azer\workspace\ogre-sdk-1.11.5\lib\OgreVolume_d.lib;C:\Users\azer\workspace\ogre-sdk-1.11.5\lib\OgreMain_d.lib;C:\Users\azer\workspace\Lua533_vs2017\x64\Debug\Lua533.lib;C:\Users\azer\workspace\opencv_4_0_1\build\x64\vc15\lib\opencv_world401d.lib;libgmp-10.lib;libmpfr-4.lib;cudart_static.lib</AdditionalDependencies>
     </Link>
+    <CudaCompile>
+      <TargetMachinePlatform>64</TargetMachinePlatform>
+    </CudaCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>

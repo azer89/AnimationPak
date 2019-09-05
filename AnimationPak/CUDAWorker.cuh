@@ -21,11 +21,19 @@ public:
 	~CUDAWorker();
 
 	void InitCUDA(int num_vertex, int num_spring);
-	void SendPositionAndVelocityData();
-	void RetrievePositionAndVelocityData();
-	void SendForceData(); // element list is static data in StuffWorker so no data passing required
-	void SendSpringData();
 
+	void SendPositionData();
+	void SendPositionAndVelocityData();
+	void SendForceData(); 
+	void SendSpringLengths();
+
+	void RetrievePositionAndVelocityData();
+	void RetrieveEdgeForceData();
+	
+	void InitSpringData();
+	
+	void ResetForces();
+	void SolveForSprings3D();
 	void Simulate(float dt, float velocity_cap);         // integrate
 	
 	// forces
@@ -41,6 +49,8 @@ public:
 
 	// mass velocities
 	A3DVectorGPU* _velocity_array;
+
+	
 
 	// springs
 	SpringGPU* _spring_array;

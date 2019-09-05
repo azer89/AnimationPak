@@ -10,6 +10,7 @@ public:
 	int   _index0;
 	int   _index1; 
 	float _dist;
+	//float _scale;
 
 	/*
 	0 layer springs
@@ -25,6 +26,7 @@ public:
 		_index1 = -1;
 		_dist = 0;
 		_spring_type = -1;
+		//_scale = 1;
 	}
 
 	__host__ __device__ SpringGPU(int index0, int index1, float dist, int spring_type)
@@ -33,6 +35,7 @@ public:
 		_index1 = index1;
 		_dist = dist;
 		_spring_type = spring_type;
+		//_scale = 1;
 	}
 };
 

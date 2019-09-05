@@ -389,6 +389,9 @@ void StuffWorker::Reset()
 		}
 
 	}
+
+	// duplication until Solve() is entirely on GPU
+	//_cu_worker->ResetForces();
 }
 
 /*
@@ -418,59 +421,37 @@ void StuffWorker::Solve()
 			_element_list[a]._massList[b].Solve(_containerWorker->_2d_container, _element_list[a]);
 		}
 	}
+
+	// ----- CUDA -----
+	//_cu_worker->SendPositionAndVelocityData();
+	_cu_worker->SendPositionData();
+	_cu_worker->SendSpringLengths();
+	_cu_worker->SolveForSprings3D();
+	_cu_worker->RetrieveEdgeForceData();
 }
 
-/*void StuffWorker::Interp_Simulate()
-{
-	for (int a = 0; a < _element_list.size(); a++)
-	{
-		for (int b = 0; b < _element_list[a]._interp_massList.size(); b++)
-		{
-			_element_list[a]._interp_massList[b].Interp_Simulate(SystemParams::_dt);
-		}
-	}
-}*/
 
-/*bool StuffWorker::Interp_HasOverlap()
-{
-	for (int a = 0; a < _element_list.size(); a++)
-	{
-		if (_element_list[a].Interp_HasOverlap())
-			return true;
-	}
-	return false;
-}*/
 
 void StuffWorker::Simulate()
 {
 	if (_is_paused) { return; }
 
-	/*for (int a = 0; a < _element_list.size(); a++)
+	for (int a = 0; a < _element_list.size(); a++)
 	{
 		for (int b = 0; b < _element_list[a]._massList.size(); b++)
 		{
 			_element_list[a]._massList[b].Simulate(SystemParams::_dt);
 		}
-	}*/
+	}
 
-	// ----- CUDA -----
-	_cu_worker->SendPositionAndVelocityData();
-	_cu_worker->SendForceData();
-	_cu_worker->Simulate(SystemParams::_dt, SystemParams::_velocity_cap);
-	_cu_worker->RetrievePositionAndVelocityData();
+	// ----- CUDA -----	
+	//_cu_worker->SendForceData();
+	//_cu_worker->Simulate(SystemParams::_dt, SystemParams::_velocity_cap);
+	//_cu_worker->RetrievePositionAndVelocityData();
 
 }
 
-/*void StuffWorker::Interp_ImposeConstraints()
-{
-	for (int a = 0; a < _element_list.size(); a++)
-	{
-		for (int b = 0; b < _element_list[a]._interp_massList.size(); b++)
-		{
-			_element_list[a]._interp_massList[b].ImposeConstraints();
-		}
-	}
-}*/
+
 
 void StuffWorker::ImposeConstraints()
 {
@@ -519,52 +500,7 @@ void StuffWorker::UpdateOgre3D()
 
 }
 
-/*void StuffWorker::Interp_SaveFrames()
-{
-	//int l = StuffWorker::_interpolation_iter;
-	for (int a = 0; a < _element_list.size(); a++)
-	{
-		int layerOffset = StuffWorker::_interp_iter * _element_list[a]._numPointPerLayer;
-		for (int b = 0; b < _element_list[a]._numBoundaryPointPerLayer; b++)
-		{
-			int massIdx1 = b + layerOffset;
-			int massIdx2 = b + layerOffset + 1;
-			if (b == _element_list[a]._numBoundaryPointPerLayer - 1)
-			{
-				massIdx2 = layerOffset;
-			}
-			A2DVector pt1 = _element_list[a]._massList[massIdx1]._pos.GetA2DVector();
-			A2DVector pt2 = _element_list[a]._massList[massIdx2]._pos.GetA2DVector();
-			int frameIdx = StuffWorker::_interp_iter * SystemParams::_interpolation_factor;
-			_video_creator.DrawLine(pt1, pt2, _element_list[a]._color, frameIdx);
-			_video_creator.DrawRedCircle(frameIdx); // debug delete me
 
-		}
-	}
-
-	for (int i = 0; i < SystemParams::_interpolation_factor - 1; i++)
-	{		
-		for (int a = 0; a < _element_list.size(); a++)
-		{
-			int layerOffset = i * _element_list[a]._numPointPerLayer;
-			for (int b = 0; b < _element_list[a]._numBoundaryPointPerLayer; b++)
-			{
-				int massIdx1 = b + layerOffset;
-				int massIdx2 = b + layerOffset + 1;
-				if (b == _element_list[a]._numBoundaryPointPerLayer - 1)
-				{
-					massIdx2 = layerOffset;
-				}
-				A2DVector pt1 = _element_list[a]._interp_massList[massIdx1]._pos.GetA2DVector();
-				A2DVector pt2 = _element_list[a]._interp_massList[massIdx2]._pos.GetA2DVector();
-
-				int frameIdx = (StuffWorker::_interp_iter * SystemParams::_interpolation_factor) + (i + 1);
-				_video_creator.DrawLine(pt1, pt2, _element_list[a]._color, frameIdx);
-
-			}
-		}
-	}
-}*/
 
 void StuffWorker::SaveFrames4()
 {
@@ -775,6 +711,85 @@ void StuffWorker::SaveFrames()
 	ss << SystemParams::_save_folder << "PNG\\";
 	vCreator.Save(ss.str());
 }
+
+/*void StuffWorker::Interp_Simulate()
+{
+	for (int a = 0; a < _element_list.size(); a++)
+	{
+		for (int b = 0; b < _element_list[a]._interp_massList.size(); b++)
+		{
+			_element_list[a]._interp_massList[b].Interp_Simulate(SystemParams::_dt);
+		}
+	}
+}*/
+
+/*bool StuffWorker::Interp_HasOverlap()
+{
+	for (int a = 0; a < _element_list.size(); a++)
+	{
+		if (_element_list[a].Interp_HasOverlap())
+			return true;
+	}
+	return false;
+}*/
+
+/*void StuffWorker::Interp_ImposeConstraints()
+{
+	for (int a = 0; a < _element_list.size(); a++)
+	{
+		for (int b = 0; b < _element_list[a]._interp_massList.size(); b++)
+		{
+			_element_list[a]._interp_massList[b].ImposeConstraints();
+		}
+	}
+}*/
+
+/*void StuffWorker::Interp_SaveFrames()
+{
+	//int l = StuffWorker::_interpolation_iter;
+	for (int a = 0; a < _element_list.size(); a++)
+	{
+		int layerOffset = StuffWorker::_interp_iter * _element_list[a]._numPointPerLayer;
+		for (int b = 0; b < _element_list[a]._numBoundaryPointPerLayer; b++)
+		{
+			int massIdx1 = b + layerOffset;
+			int massIdx2 = b + layerOffset + 1;
+			if (b == _element_list[a]._numBoundaryPointPerLayer - 1)
+			{
+				massIdx2 = layerOffset;
+			}
+			A2DVector pt1 = _element_list[a]._massList[massIdx1]._pos.GetA2DVector();
+			A2DVector pt2 = _element_list[a]._massList[massIdx2]._pos.GetA2DVector();
+			int frameIdx = StuffWorker::_interp_iter * SystemParams::_interpolation_factor;
+			_video_creator.DrawLine(pt1, pt2, _element_list[a]._color, frameIdx);
+			_video_creator.DrawRedCircle(frameIdx); // debug delete me
+
+		}
+	}
+
+	for (int i = 0; i < SystemParams::_interpolation_factor - 1; i++)
+	{
+		for (int a = 0; a < _element_list.size(); a++)
+		{
+			int layerOffset = i * _element_list[a]._numPointPerLayer;
+			for (int b = 0; b < _element_list[a]._numBoundaryPointPerLayer; b++)
+			{
+				int massIdx1 = b + layerOffset;
+				int massIdx2 = b + layerOffset + 1;
+				if (b == _element_list[a]._numBoundaryPointPerLayer - 1)
+				{
+					massIdx2 = layerOffset;
+				}
+				A2DVector pt1 = _element_list[a]._interp_massList[massIdx1]._pos.GetA2DVector();
+				A2DVector pt2 = _element_list[a]._interp_massList[massIdx2]._pos.GetA2DVector();
+
+				int frameIdx = (StuffWorker::_interp_iter * SystemParams::_interpolation_factor) + (i + 1);
+				_video_creator.DrawLine(pt1, pt2, _element_list[a]._color, frameIdx);
+
+			}
+		}
+	}
+}*/
 
 /*void StuffWorker::EnableInterpolationMode()
 {

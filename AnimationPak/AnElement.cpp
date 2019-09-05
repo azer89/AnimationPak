@@ -2373,28 +2373,22 @@ void AnElement::SolveForSprings3D()
 	int idx0, idx1;
 
 	// TODO: Nasty code here
-	float scale_threshold = 1.0f;
-	float magic_number = 3.0f;
+	//float scale_threshold = 1.0f;
+	//float magic_number = 3.0f;
 
 	// for squared forces
 	float signVal = 1;
 
 	// 333333333333333333333333333333333333333333333333
 	int tr_sz = _layer_springs.size();
+	k = SystemParams::_k_edge;
+	// TODO: Nasty code here
+	//if (_scale < scale_threshold) { k *= magic_number; }
 	for (unsigned int a = 0; a < tr_sz; a++)
 	{
 		idx0 = _layer_springs[a]._index0;
 		idx1 = _layer_springs[a]._index1;
 		
-		
-		k = SystemParams::_k_edge;
-
-		// TODO: Nasty code here
-		if (_scale < scale_threshold)
-		{
-			k *= magic_number;
-		}
-
 		dir_not_unit = _massList[idx0]._pos.DirectionTo(_massList[idx1]._pos);
 		dir_not_unit.GetUnitAndDist(dir, dist);
 
@@ -2413,12 +2407,11 @@ void AnElement::SolveForSprings3D()
 
 	// 333333333333333333333333333333333333333333333333
 	tr_sz = _time_springs.size();
+	k = SystemParams::_k_time_edge;
 	for (unsigned int a = 0; a < tr_sz; a++)
 	{
 		idx0 = _time_springs[a]._index0;
 		idx1 = _time_springs[a]._index1;
-
-		k = SystemParams::_k_time_edge;
 
 		dir_not_unit = _massList[idx0]._pos.DirectionTo(_massList[idx1]._pos);
 		dir_not_unit.GetUnitAndDist(dir, dist);
@@ -2438,18 +2431,14 @@ void AnElement::SolveForSprings3D()
 
 	// 333333333333333333333333333333333333333333333333333333
 	int aux_sz = _auxiliary_springs.size();
+	k = SystemParams::_k_edge;
+
+	// TODO: Nasty code here
+	//if (_scale < scale_threshold) { k *= magic_number; }
 	for (unsigned int a = 0; a < aux_sz; a++)
 	{
 		idx0 = _auxiliary_springs[a]._index0;
-		idx1 = _auxiliary_springs[a]._index1;
-
-		k = SystemParams::_k_edge;
-
-		// TODO: Nasty code here
-		if (_scale < scale_threshold)
-		{
-			k *= magic_number;
-		}
+		idx1 = _auxiliary_springs[a]._index1;		
 
 		dir_not_unit = _massList[idx0]._pos.DirectionTo(_massList[idx1]._pos);
 		dir_not_unit.GetUnitAndDist(dir, dist);
@@ -2462,31 +2451,16 @@ void AnElement::SolveForSprings3D()
 
 		eForce = dir * k *  diff * diff * signVal;
 
-		//if (!eForce.IsBad())
-		{
-			_massList[idx0]._edgeForce += eForce;	
-			_massList[idx1]._edgeForce -= eForce;	
-		}
+		_massList[idx0]._edgeForce += eForce;	
+		_massList[idx1]._edgeForce -= eForce;
 	}
 
 	// 333333333333333333333333333333333333333333333333333333
+	k = SystemParams::_k_neg_space_edge;
 	for (unsigned int a = 0; a < _neg_space_springs.size(); a++)
 	{
 		idx0 = _neg_space_springs[a]._index0;
 		idx1 = _neg_space_springs[a]._index1;
-
-		//pt0 = _massList[idx0]._pos;
-		//pt1 = _massList[idx1]._pos;
-
-
-		k = SystemParams::_k_neg_space_edge;
-
-		// TODO: Nasty code here
-		if (_scale < scale_threshold)
-		{
-			k *= magic_number;
-		}
-
 
 		dir_not_unit = _massList[idx0]._pos.DirectionTo(_massList[idx1]._pos);
 		dir_not_unit.GetUnitAndDist(dir, dist);
@@ -2499,11 +2473,8 @@ void AnElement::SolveForSprings3D()
 
 		eForce = dir * k *  diff * diff * signVal;
 
-		//if (!eForce.IsBad())
-		{
-			_massList[idx0]._edgeForce += eForce;
-			_massList[idx1]._edgeForce -= eForce;
-		}
+		_massList[idx0]._edgeForce += eForce;
+		_massList[idx1]._edgeForce -= eForce;
 	}
 }
 

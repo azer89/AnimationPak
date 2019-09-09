@@ -2362,8 +2362,8 @@ A3DVector AnElement::ClosestPtOnTriSurfaces(std::vector<int>& triIndices, A3DVec
 // 33333333333333333333333333333333
 void AnElement::SolveForSprings3D()
 {
-	A3DVector pt0;
-	A3DVector pt1;
+	//A3DVector pt0;
+	//A3DVector pt1;
 	A3DVector dir;
 	A3DVector dir_not_unit;
 	A3DVector eForce;

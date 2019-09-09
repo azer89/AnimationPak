@@ -100,6 +100,7 @@ public:
 	}
 
 public:
+	A3DVector _edgeForce_cuda;
 	A3DVector _edgeForce;
 	A3DVector _zForce;
 	A3DVector _repulsionForce;

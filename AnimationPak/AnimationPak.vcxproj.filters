@@ -129,6 +129,9 @@
     <ClInclude Include="SpringGPU.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="CUDAFunctions.cuh">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">

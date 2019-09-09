@@ -107,7 +107,7 @@ bool Display::frameStarted(const Ogre::FrameEvent& evt)
 	//bool show_another_window = false;
 	//ImGui::Begin("AnimationPak", &show_another_window, ImVec2(240, 540));
 	ImGui::SetNextWindowPos(ImVec2(5, 5), ImGuiCond_Always);
-	ImGui::SetNextWindowSize(ImVec2(300, 700), ImGuiCond_Always);
+	ImGui::SetNextWindowSize(ImVec2(600, 900), ImGuiCond_Always);
 	bool* p_open = NULL;
 	ImGuiWindowFlags window_flags = 0;
 	ImGui::Begin("AnimationPak", p_open, window_flags);
@@ -139,6 +139,11 @@ bool Display::frameStarted(const Ogre::FrameEvent& evt)
 	ImGui::Text(("Scale = " + std::to_string(_sWorker->_element_list[0]._scale)).c_str());
 	ImGui::Text(("Num vertices = " + std::to_string(_sWorker->_num_vertex)).c_str());
 	ImGui::Text(("Num springs = " + std::to_string(_sWorker->_num_spring)).c_str());
+	//_edge_cu_diff
+	ImGui::Text(("_edge_cu_diff = " + std::to_string(_sWorker->_edge_cu_diff)).c_str());
+	ImGui::Text(("_edge_ori_mag = " + std::to_string(_sWorker->_edge_ori_mag)).c_str());
+	ImGui::Text(("_edge_cu_dir = " + _sWorker->_edge_cu_dir.ToString() ).c_str());
+	ImGui::Text(("_edge_ori_dir = " + _sWorker->_edge_ori_dir.ToString()).c_str());
 
 	if (ImGui::Button("Reload parameters")) { SystemParams::LoadParameters(); }
 	if (ImGui::Button("Save Triangles to PNGs")) { _sWorker->SaveFrames3(); }

@@ -428,6 +428,32 @@ void StuffWorker::Solve()
 	_cu_worker->SendSpringLengths();
 	_cu_worker->SolveForSprings3D();
 	_cu_worker->RetrieveEdgeForceData();
+
+
+	// debug delete me
+	_edge_cu_diff = 0;
+	_edge_ori_mag = 0;
+	_edge_cu_dir = A3DVector(0, 0, 0);
+	_edge_ori_dir = A3DVector(0, 0, 0);
+	for (int a = 0; a < _element_list.size(); a++)
+	{
+		for (int b = 0; b < _element_list[a]._massList.size(); b++)
+		{
+			float oriMag = _element_list[a]._massList[b]._edgeForce.Length();
+			float cudaMag = _element_list[a]._massList[b]._edgeForce_cuda.Length();
+
+			_edge_ori_dir += _element_list[a]._massList[b]._edgeForce;
+			_edge_cu_dir += _element_list[a]._massList[b]._edgeForce_cuda;
+
+			_edge_cu_diff += oriMag - cudaMag;
+			_edge_ori_mag += oriMag;
+		}
+	}
+
+	_edge_cu_diff /= (float)_num_spring;
+	_edge_ori_mag /= (float)_num_spring;
+	_edge_ori_dir /= (float)_num_spring;
+	_edge_cu_dir /= (float)_num_spring;
 }
 
 

@@ -183,6 +183,7 @@
     <ClInclude Include="CollisionGrid2D.h" />
     <ClInclude Include="CollisionGrid3D.h" />
     <ClInclude Include="ContainerWorker.h" />
+    <ClInclude Include="CUDAFunctions.cuh" />
     <ClInclude Include="CUDAWorker.cuh" />
     <ClInclude Include="dirent.h" />
     <ClInclude Include="Display.h" />

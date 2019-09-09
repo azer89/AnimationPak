@@ -54,7 +54,7 @@ _max_exact_array_len  = 5000;
 _max_approx_array_len = 10000;
 
 --- for growing
-_growth_scale_iter     = 0.00075; -- 0.005
+_growth_scale_iter     = 0.0; -- 0.005
 _element_initial_scale = 0.1; 
 _element_max_scale     = 2.0;
 

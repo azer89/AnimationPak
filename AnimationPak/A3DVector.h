@@ -17,6 +17,8 @@ radhitya@uwaterloo.ca
 
 #include <vector>
 
+#include <sstream>
+
 #include "A2DVector.h"
 
 //#include "SystemParams.h"
@@ -300,9 +302,12 @@ public:
 		_y = y;
 	}
 
-	void Print()
+    std::string ToString()
 	{
-		std::cout << "(" << _x << ", " << _y << ", " << _z << ")\n";
+		//std::cout << "(" << _x << ", " << _y << ", " << _z << ")\n";
+		std::stringstream ss;
+		ss << "(" << _x << ", " << _y << ", " << _z << ")\n";
+		return ss.str();
 	}
 
 private:

@@ -49,7 +49,7 @@ A3DVectorGPU Norm(const A3DVectorGPU& p) // get the unit vector
 {
 	float vlength = sqrtf(p._x * p._x + p._y * p._y + p._z * p._z);
 
-	if (vlength == 0) { return A3DVectorGPU(0, 0, 0); }
+	//if (vlength == 0) { return A3DVectorGPU(0, 0, 0); }
 
 	return A3DVectorGPU(p._x / vlength,
 		p._y / vlength,

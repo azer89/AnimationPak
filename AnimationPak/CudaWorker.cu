@@ -256,8 +256,11 @@ void CUDAWorker::SendPositionData()
 	{
 		for (unsigned int b = 0; b < StuffWorker::_element_list[a]._massList.size(); b++)
 		{
-			CopyVector_CPU2GPU(StuffWorker::_element_list[a]._massList[b]._pos, &_pos_array[idx]);
-			//CopyVector_CPU2GPU(StuffWorker::_element_list[a]._massList[b]._velocity, &_velocity_array[idx]);
+			/*CopyVector_CPU2GPU(StuffWorker::_element_list[a]._massList[b]._pos, &_pos_array[idx]);
+			idx++;*/
+			_pos_array[idx]._x = StuffWorker::_element_list[a]._massList[b]._pos._x;
+			_pos_array[idx]._y = StuffWorker::_element_list[a]._massList[b]._pos._y;
+			_pos_array[idx]._z = StuffWorker::_element_list[a]._massList[b]._pos._z;
 			idx++;
 		}
 	}

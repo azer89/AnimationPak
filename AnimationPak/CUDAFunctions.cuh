@@ -73,13 +73,11 @@ __device__ 	void GetUnitAndDist(const A3DVectorGPU& p, A3DVectorGPU& unitVec, fl
 }
 
 __global__ void SolveForSprings3D_GPU(SpringGPU* spring_array,
-	A3DVectorGPU* pos_array,
-	A3DVectorGPU* edge_force_array,
-	float* spring_parameters,
-	int n_springs)
+									  A3DVectorGPU* pos_array,
+									  A3DVectorGPU* edge_force_array,
+									  float* spring_parameters,
+									  int n_springs)
 {
-	//A3DVectorGPU pt0;
-	//A3DVectorGPU pt1;
 	A3DVectorGPU dir;
 	A3DVectorGPU dir_not_unit;
 	A3DVectorGPU eForce;
@@ -89,10 +87,6 @@ __global__ void SolveForSprings3D_GPU(SpringGPU* spring_array,
 	int idx0, idx1;
 	int spring_type;
 
-	// TODO: Nasty code here
-	//float scale_threshold = 1.0f;
-	//float magic_number = 3.0f;
-
 	// for squared forces
 	float signVal = 1;
 
@@ -100,6 +94,7 @@ __global__ void SolveForSprings3D_GPU(SpringGPU* spring_array,
 	int stride = blockDim.x * gridDim.x;
 	for (int i = index; i < n_springs; i += stride)
 	{
+		// parameters
 		spring_type = spring_array[i]._spring_type;
 		k = spring_parameters[spring_type];
 
@@ -107,7 +102,7 @@ __global__ void SolveForSprings3D_GPU(SpringGPU* spring_array,
 		idx0 = spring_array[i]._index0;
 		idx1 = spring_array[i]._index1;
 
-		dir_not_unit = DirectionTo(pos_array[idx0], pos_array[idx1]);
+		dir_not_unit = pos_array[idx1] - pos_array[idx0];
 		GetUnitAndDist(dir_not_unit, dir, dist);
 
 		diff = dist - spring_array[i]._dist;

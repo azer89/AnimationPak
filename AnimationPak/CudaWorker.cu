@@ -24,6 +24,13 @@ void CUDAWorker::SolveForSprings3D()
 
 	int blockSize = SystemParams::_cuda_block_size;
 	int numBlocks = (_num_vertex + blockSize - 1) / blockSize;
+	/*
+	__global__ void SolveForSprings3D_GPU(SpringGPU* spring_array,
+										  A3DVectorGPU* pos_array,
+										  A3DVectorGPU* edge_force_array,
+										  float* spring_parameters,
+										  int n_springs);	
+	*/
 	SolveForSprings3D_GPU<<<numBlocks, blockSize >>>(_spring_array, // need data from CPU
 		                                             _pos_array,    // need data from CPU
 													 _edge_force_array,
@@ -160,8 +167,6 @@ void CUDAWorker::RetrieveEdgeForceData()
 		for (unsigned int b = 0; b < StuffWorker::_element_list[a]._massList.size(); b++)
 		{
 			//CopyVector_GPU2CPU(&_edge_force_array[idx], StuffWorker::_element_list[a]._massList[b]._edgeForce_cuda);
-			//idx++;
-
 			StuffWorker::_element_list[a]._massList[b]._edgeForce_cuda._x = _edge_force_array[idx]._x;
 			StuffWorker::_element_list[a]._massList[b]._edgeForce_cuda._y = _edge_force_array[idx]._y;
 			StuffWorker::_element_list[a]._massList[b]._edgeForce_cuda._z = _edge_force_array[idx]._z;
@@ -256,8 +261,6 @@ void CUDAWorker::SendPositionData()
 	{
 		for (unsigned int b = 0; b < StuffWorker::_element_list[a]._massList.size(); b++)
 		{
-			/*CopyVector_CPU2GPU(StuffWorker::_element_list[a]._massList[b]._pos, &_pos_array[idx]);
-			idx++;*/
 			_pos_array[idx]._x = StuffWorker::_element_list[a]._massList[b]._pos._x;
 			_pos_array[idx]._y = StuffWorker::_element_list[a]._massList[b]._pos._y;
 			_pos_array[idx]._z = StuffWorker::_element_list[a]._massList[b]._pos._z;

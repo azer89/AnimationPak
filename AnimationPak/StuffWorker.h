@@ -65,7 +65,7 @@ public:
 	AVideoCreator _video_creator;
 
 	CUDAWorker* _cu_worker;
-	float _edge_cu_diff; // debug delete me
+	float _edge_cu_mag; // debug delete me
 	float _edge_ori_mag; // debug delete me
 	A3DVector _edge_cu_dir;
 	A3DVector _edge_ori_dir;

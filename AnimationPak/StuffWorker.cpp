@@ -431,7 +431,7 @@ void StuffWorker::Solve()
 
 
 	// debug delete me
-	_edge_cu_diff = 0;
+	_edge_cu_mag = 0;
 	_edge_ori_mag = 0;
 	_edge_cu_dir = A3DVector(0, 0, 0);
 	_edge_ori_dir = A3DVector(0, 0, 0);
@@ -445,15 +445,15 @@ void StuffWorker::Solve()
 			_edge_ori_dir += _element_list[a]._massList[b]._edgeForce;
 			_edge_cu_dir += _element_list[a]._massList[b]._edgeForce_cuda;
 
-			_edge_cu_diff += oriMag - cudaMag;
+			_edge_cu_mag += cudaMag;
 			_edge_ori_mag += oriMag;
 		}
 	}
 
-	_edge_cu_diff /= (float)_num_spring;
-	_edge_ori_mag /= (float)_num_spring;
-	_edge_ori_dir /= (float)_num_spring;
-	_edge_cu_dir /= (float)_num_spring;
+	_edge_cu_mag /= (float)_num_vertex;
+	_edge_ori_mag /= (float)_num_vertex;
+	_edge_ori_dir /= (float)_num_vertex;
+	_edge_cu_dir /= (float)_num_vertex;
 }
 
 

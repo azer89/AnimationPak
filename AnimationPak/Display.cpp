@@ -140,10 +140,10 @@ bool Display::frameStarted(const Ogre::FrameEvent& evt)
 	ImGui::Text(("Num vertices = " + std::to_string(_sWorker->_num_vertex)).c_str());
 	ImGui::Text(("Num springs = " + std::to_string(_sWorker->_num_spring)).c_str());
 	//_edge_cu_diff
-	ImGui::Text(("_edge_cu_diff = " + std::to_string(_sWorker->_edge_cu_diff)).c_str());
+	ImGui::Text(("_edge_cu_mag = "  + std::to_string(_sWorker->_edge_cu_mag)).c_str());
 	ImGui::Text(("_edge_ori_mag = " + std::to_string(_sWorker->_edge_ori_mag)).c_str());
-	ImGui::Text(("_edge_cu_dir = " + _sWorker->_edge_cu_dir.ToString() ).c_str());
-	ImGui::Text(("_edge_ori_dir = " + _sWorker->_edge_ori_dir.ToString()).c_str());
+	//ImGui::Text(("_edge_cu_dir = "  + _sWorker->_edge_cu_dir.ToString() ).c_str());
+	//ImGui::Text(("_edge_ori_dir = " + _sWorker->_edge_ori_dir.ToString()).c_str());
 
 	if (ImGui::Button("Reload parameters")) { SystemParams::LoadParameters(); }
 	if (ImGui::Button("Save Triangles to PNGs")) { _sWorker->SaveFrames3(); }

@@ -2433,8 +2433,6 @@ void AnElement::SolveForSprings3D()
 	int aux_sz = _auxiliary_springs.size();
 	k = SystemParams::_k_edge;
 
-	// TODO: Nasty code here
-	//if (_scale < scale_threshold) { k *= magic_number; }
 	for (unsigned int a = 0; a < aux_sz; a++)
 	{
 		idx0 = _auxiliary_springs[a]._index0;

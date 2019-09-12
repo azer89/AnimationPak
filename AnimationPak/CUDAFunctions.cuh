@@ -14,25 +14,33 @@
 __device__
 A3DVectorGPU operator+(const A3DVectorGPU& p, const A3DVectorGPU& v)
 {
-	return A3DVectorGPU(p._x + v._x, p._y + v._y, p._z + v._z);
+	return A3DVectorGPU(p._x + v._x, 
+		                p._y + v._y, 
+		                p._z + v._z);
 }
 
 __device__
 A3DVectorGPU operator-(const A3DVectorGPU& p, const A3DVectorGPU& v)
 {
-	return A3DVectorGPU(p._x - v._x, p._y - v._y, p._z - v._z);
+	return A3DVectorGPU(p._x - v._x, 
+		                p._y - v._y, 
+		                p._z - v._z);
 }
 
 __device__
 A3DVectorGPU operator*(const A3DVectorGPU& p, const float& f)
 {
-	return A3DVectorGPU(p._x * f, p._y * f, p._z * f);
+	return A3DVectorGPU(p._x * f, 
+		                p._y * f, 
+		                p._z * f);
 }
 
 __device__
 A3DVectorGPU operator/(const A3DVectorGPU& p, const float& f)
 {
-	return A3DVectorGPU(p._x / f, p._y / f, p._z / f);
+	return A3DVectorGPU(p._x / f, 
+		                p._y / f, 
+		                p._z / f);
 }
 
 
@@ -75,25 +83,36 @@ __device__ 	void GetUnitAndDist(const A3DVectorGPU& p, A3DVectorGPU& unitVec, fl
 __global__ void SolveForSprings3D_GPU(SpringGPU* spring_array,
 									  A3DVectorGPU* pos_array,
 									  A3DVectorGPU* edge_force_array,
+									  float* spring_diff_array, // debug delete me
+									  float* _spring_k_array, // debug delete me
+									  float* _spring_signval_array, // debug delete me
+									  float* _spring_mag_array, // debug delete me
+									  A3DVectorGPU* _spring_dir_array, // debug delete me
 									  float* spring_parameters,
 									  int n_springs)
 {
-	A3DVectorGPU dir;
-	A3DVectorGPU dir_not_unit;
-	A3DVectorGPU eForce;
-	float dist = 0;
-	float diff = 0;
-	float k = 0;
-	int idx0, idx1;
-	int spring_type;
-
-	// for squared forces
-	float signVal = 1;
+	
 
 	int index = blockIdx.x * blockDim.x + threadIdx.x;
 	int stride = blockDim.x * gridDim.x;
 	for (int i = index; i < n_springs; i += stride)
 	{
+		A3DVectorGPU dir;
+		A3DVectorGPU dir_not_unit;
+		A3DVectorGPU eForce;
+
+		A3DVectorGPU temp1; // debug delete me
+		A3DVectorGPU temp2; // debug delete me
+
+		float dist = 0;
+		float diff = 0;
+		float k = 0;
+		int idx0, idx1;
+		int spring_type;
+
+		// for squared forces
+		float signVal = 1;
+
 		// parameters
 		spring_type = spring_array[i]._spring_type;
 		k = spring_parameters[spring_type];
@@ -106,25 +125,34 @@ __global__ void SolveForSprings3D_GPU(SpringGPU* spring_array,
 		GetUnitAndDist(dir_not_unit, dir, dist);
 
 		diff = dist - spring_array[i]._dist;
+		spring_diff_array[i] = diff;// debug delete me
+		_spring_k_array[i] = k;// debug delete me
+		_spring_mag_array[i] = dist; // debug delete me
+		_spring_dir_array[i] = dir; // debug delete me
 
 		// squared version
 		signVal = 1;
 		if (diff < 0) { signVal = -1; }
 
+		_spring_signval_array[i] = signVal; // debug delete me
+
 		eForce = dir * (k *  diff * diff * signVal);
 
-		edge_force_array[idx0] = edge_force_array[idx0] + eForce;
-		edge_force_array[idx1] = edge_force_array[idx1] - eForce;
+		temp1 = edge_force_array[idx0];
+		temp2 = edge_force_array[idx1];
+
+		edge_force_array[idx0] = temp1 + eForce;
+		edge_force_array[idx1] = temp2 - eForce;
 	}
 }
 
 __global__ void ResetForces_GPU(A3DVectorGPU* edge_force_array,
-	A3DVectorGPU* z_force_array,
-	A3DVectorGPU* repulsion_force_array,
-	A3DVectorGPU* boundary_force_array,
-	A3DVectorGPU* overlap_force_array,
-	A3DVectorGPU* rotation_force_array,
-	int n)
+								A3DVectorGPU* z_force_array,
+								A3DVectorGPU* repulsion_force_array,
+								A3DVectorGPU* boundary_force_array,
+								A3DVectorGPU* overlap_force_array,
+								A3DVectorGPU* rotation_force_array,
+								int n)
 {
 	int index = blockIdx.x * blockDim.x + threadIdx.x;
 	int stride = blockDim.x * gridDim.x;

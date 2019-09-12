@@ -107,6 +107,7 @@ void AMass::ResetForces()
 	this->_boundaryForce  = A3DVector(0, 0, 0);
 	this->_overlapForce   = A3DVector(0, 0, 0);
 	this->_rotationForce  = A3DVector(0, 0, 0);
+	this->_dockForce = A3DVector(0, 0, 0);
 }
 
 // debug delete me
@@ -117,7 +118,8 @@ void AMass::Interp_Simulate(float dt)
 		_repulsionForce +
 		_boundaryForce +
 		_overlapForce +
-		_rotationForce) * dt);
+		_rotationForce +
+		_dockForce) * dt);
 	float len = _velocity.Length();
 
 	float capVal = SystemParams::_velocity_cap * dt;
@@ -140,7 +142,8 @@ void AMass::Simulate(float dt)
 		_repulsionForce +
 		_boundaryForce +
 		_overlapForce +
-		_rotationForce) * dt);
+		_rotationForce +
+		_dockForce) * dt);
 	float len = _velocity.Length();
 
 	float capVal = SystemParams::_velocity_cap * dt; // velocity_cap_dt can be precomputed
@@ -172,78 +175,6 @@ void AMass::ImposeConstraints()
 	if (_pos._y >= SystemParams::_upscaleFactor) { _pos._y = SystemParams::_upscaleFactor - 1; }*/
 }
 
-void AMass::Interp_GetClosestPoint()
-{
-	/*
-	if (!_is_boundary) { return; }
-	if (_parent_idx < 0 || _parent_idx >= StuffWorker::_element_list.size()) { return; }
-
-	this->_closestGraphIndices.clear();
-	this->_closestPt_fill_sz = 0;
-	this->_is_inside = false;           // "inside" flag
-
-	_c_grid->GetGraphIndices2B(_pos._x, _pos._y, _closestGraphIndices);
-
-	if (_closestGraphIndices.size() > 0)
-	{
-		//std::cout << "closestpt";
-		std::vector<bool> insideGraphFlags;
-		int sz = _closestGraphIndices.size();
-		for (unsigned int a = 0; a < sz; a++)
-		{
-			// uncomment me
-			if (_closestGraphIndices[a] == _parent_idx) { insideGraphFlags.push_back(true); continue; }
-
-			if (UtilityFunctions::InsidePolygon(StuffWorker::_element_list[_closestGraphIndices[a]]._interp_per_layer_boundary[_layer_idx], _pos._x, _pos._y))
-			{
-				insideGraphFlags.push_back(true);
-				_is_inside = true;
-				continue; // can be more than one
-			}
-			else
-			{
-				insideGraphFlags.push_back(false);
-			}
-		}
-
-		// closest pts
-		int sz2 = sz;
-		if (sz2 > _closestPt_actual_sz) { sz2 = _closestPt_actual_sz; }  // _closestPt_actual_sz --> BE CAREFUL HARD CODED PARAM!!!
-		for (unsigned int a = 0; a < sz2; a++)
-		{
-			if (insideGraphFlags[a]) { continue; }
-
-			// the only difference from AMass::GetClosestPoint()
-			A2DVector pt = StuffWorker::_element_list[_closestGraphIndices[a]].Interp_ClosestPtOnALayer(_pos.GetA2DVector(), _layer_idx);
-			_closestPoints[_closestPt_fill_sz++] = pt;
-		}
-	}
-
-	// this is used in AGraph
-	_closestDist = std::numeric_limits<float>::max();
-	for (unsigned int a = 0; a < _closestPt_fill_sz; a++)
-	{
-		float d = _closestPoints[a].DistanceSquared(_pos.GetA2DVector());  // 2D!!!! // SQUARED!!!
-		if (d < _closestDist)
-		{
-			_closestDist = d;
-		}
-	}
-	_closestDist = std::sqrt(_closestDist); // SQRT
-	*/
-}
-
-/*
-A3DVector AMass::GetClosestPtFromArray(int elem_idx, std::vector<A3DObject>& tempClosestObj3D)
-{
-	float dist = 10000000;
-
-
-	for (int a = 0; a < tempClosestObj3D.size(); a++)
-	{
-		if (tempClosestObj3D[a]._info1 != elem_idx) { continue; }
-	}
-}*/
 
 void AMass::GetClosestPoint4()
 {
@@ -411,7 +342,7 @@ void AMass::Solve(const std::vector<A2DVector>& container, AnElement& parentElem
 		A3DVector eForce = (dir * SystemParams::_k_dock * dist);
 		/*if (!eForce.IsBad())*/
 		{
-			_edgeForce += eForce;	
+			_dockForce += eForce;	
 		}
 	}
 
@@ -421,3 +352,76 @@ void AMass::Solve(const std::vector<A2DVector>& container, AnElement& parentElem
 	_zForce = A3DVector(0, 0, z_dist) * k_z;
 
 }
+
+void AMass::Interp_GetClosestPoint()
+{
+	/*
+	if (!_is_boundary) { return; }
+	if (_parent_idx < 0 || _parent_idx >= StuffWorker::_element_list.size()) { return; }
+
+	this->_closestGraphIndices.clear();
+	this->_closestPt_fill_sz = 0;
+	this->_is_inside = false;           // "inside" flag
+
+	_c_grid->GetGraphIndices2B(_pos._x, _pos._y, _closestGraphIndices);
+
+	if (_closestGraphIndices.size() > 0)
+	{
+		//std::cout << "closestpt";
+		std::vector<bool> insideGraphFlags;
+		int sz = _closestGraphIndices.size();
+		for (unsigned int a = 0; a < sz; a++)
+		{
+			// uncomment me
+			if (_closestGraphIndices[a] == _parent_idx) { insideGraphFlags.push_back(true); continue; }
+
+			if (UtilityFunctions::InsidePolygon(StuffWorker::_element_list[_closestGraphIndices[a]]._interp_per_layer_boundary[_layer_idx], _pos._x, _pos._y))
+			{
+				insideGraphFlags.push_back(true);
+				_is_inside = true;
+				continue; // can be more than one
+			}
+			else
+			{
+				insideGraphFlags.push_back(false);
+			}
+		}
+
+		// closest pts
+		int sz2 = sz;
+		if (sz2 > _closestPt_actual_sz) { sz2 = _closestPt_actual_sz; }  // _closestPt_actual_sz --> BE CAREFUL HARD CODED PARAM!!!
+		for (unsigned int a = 0; a < sz2; a++)
+		{
+			if (insideGraphFlags[a]) { continue; }
+
+			// the only difference from AMass::GetClosestPoint()
+			A2DVector pt = StuffWorker::_element_list[_closestGraphIndices[a]].Interp_ClosestPtOnALayer(_pos.GetA2DVector(), _layer_idx);
+			_closestPoints[_closestPt_fill_sz++] = pt;
+		}
+	}
+
+	// this is used in AGraph
+	_closestDist = std::numeric_limits<float>::max();
+	for (unsigned int a = 0; a < _closestPt_fill_sz; a++)
+	{
+		float d = _closestPoints[a].DistanceSquared(_pos.GetA2DVector());  // 2D!!!! // SQUARED!!!
+		if (d < _closestDist)
+		{
+			_closestDist = d;
+		}
+	}
+	_closestDist = std::sqrt(_closestDist); // SQRT
+	*/
+}
+
+/*
+A3DVector AMass::GetClosestPtFromArray(int elem_idx, std::vector<A3DObject>& tempClosestObj3D)
+{
+	float dist = 10000000;
+
+
+	for (int a = 0; a < tempClosestObj3D.size(); a++)
+	{
+		if (tempClosestObj3D[a]._info1 != elem_idx) { continue; }
+	}
+}*/

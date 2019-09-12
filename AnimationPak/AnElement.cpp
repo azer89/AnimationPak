@@ -2379,11 +2379,9 @@ void AnElement::SolveForSprings3D()
 	// for squared forces
 	float signVal = 1;
 
-	// 333333333333333333333333333333333333333333333333
+	// ----- 00000 Layer Spring -----
 	int tr_sz = _layer_springs.size();
 	k = SystemParams::_k_edge;
-	// TODO: Nasty code here
-	//if (_scale < scale_threshold) { k *= magic_number; }
 	for (unsigned int a = 0; a < tr_sz; a++)
 	{
 		idx0 = _layer_springs[a]._index0;
@@ -2393,19 +2391,25 @@ void AnElement::SolveForSprings3D()
 		dir_not_unit.GetUnitAndDist(dir, dist);
 
 		diff = dist - _layer_springs[a]._dist;
+				
+		_layer_springs[a]._diff = diff; // debug delete me
+		_layer_springs[a]._k_debug = k;// debug delete me
+		_layer_springs[a]._mag = dist; // debug delete me
+		_layer_springs[a]._dir = dir;// debug delete me
 
 		// squared version
 		signVal = 1;
 		if (diff < 0) { signVal = -1; }
 
+		_layer_springs[a]._signval_debug = signVal; // debug delete me
+
 		eForce = dir * k *  diff * diff * signVal;
 
 		_massList[idx0]._edgeForce += eForce;	
-		_massList[idx1]._edgeForce -= eForce;
-		
+		_massList[idx1]._edgeForce -= eForce;		
 	}
 
-	// 333333333333333333333333333333333333333333333333
+	// ----- 11111 Time Spring -----
 	tr_sz = _time_springs.size();
 	k = SystemParams::_k_time_edge;
 	for (unsigned int a = 0; a < tr_sz; a++)
@@ -2417,22 +2421,27 @@ void AnElement::SolveForSprings3D()
 		dir_not_unit.GetUnitAndDist(dir, dist);
 
 		diff = dist - _time_springs[a]._dist;
+				
+		_time_springs[a]._diff = diff; // debug delete me
+		_time_springs[a]._k_debug = k; // debug delete me
+		_time_springs[a]._mag = dist; // debug delete me
+		_time_springs[a]._dir = dir;// debug delete me
 
 		// squared version
 		signVal = 1;
 		if (diff < 0) { signVal = -1; }
 
+		_time_springs[a]._signval_debug = signVal; // debug delete me
+
 		eForce = dir * k *  diff * diff * signVal;
 
 		_massList[idx0]._edgeForce += eForce;
 		_massList[idx1]._edgeForce -= eForce;
-
 	}
 
-	// 333333333333333333333333333333333333333333333333333333
+	// ----- 22222 Auxiliary Spring -----
 	int aux_sz = _auxiliary_springs.size();
 	k = SystemParams::_k_edge;
-
 	for (unsigned int a = 0; a < aux_sz; a++)
 	{
 		idx0 = _auxiliary_springs[a]._index0;
@@ -2442,10 +2451,17 @@ void AnElement::SolveForSprings3D()
 		dir_not_unit.GetUnitAndDist(dir, dist);
 
 		diff = dist - _auxiliary_springs[a]._dist;
+				
+		_auxiliary_springs[a]._diff = diff; // debug delete me
+		_auxiliary_springs[a]._k_debug = k; // debug delete me
+		_auxiliary_springs[a]._mag = dist; // debug delete me
+		_auxiliary_springs[a]._dir = dir;// debug delete me
 
 		// squared version
 		signVal = 1;
 		if (diff < 0) { signVal = -1; }
+
+		_auxiliary_springs[a]._signval_debug = signVal; // debug delete me
 
 		eForce = dir * k *  diff * diff * signVal;
 
@@ -2453,9 +2469,10 @@ void AnElement::SolveForSprings3D()
 		_massList[idx1]._edgeForce -= eForce;
 	}
 
-	// 333333333333333333333333333333333333333333333333333333
+	// ----- 33333 Negative Space Spring -----
 	k = SystemParams::_k_neg_space_edge;
-	for (unsigned int a = 0; a < _neg_space_springs.size(); a++)
+	int neg_sp_sz = _neg_space_springs.size();
+	for (unsigned int a = 0; a < neg_sp_sz; a++)
 	{
 		idx0 = _neg_space_springs[a]._index0;
 		idx1 = _neg_space_springs[a]._index1;
@@ -2465,9 +2482,16 @@ void AnElement::SolveForSprings3D()
 
 		diff = dist - _neg_space_springs[a]._dist;
 
+		_neg_space_springs[a]._diff = diff; // debug delete me
+		_neg_space_springs[a]._k_debug = k; // debug delete me
+		_neg_space_springs[a]._mag = dist; // debug delete me
+		_neg_space_springs[a]._dir = dir;// debug delete me
+
 		// squared version
 		signVal = 1;
 		if (diff < 0) { signVal = -1; }
+
+		_neg_space_springs[a]._signval_debug = signVal; // debug delete me
 
 		eForce = dir * k *  diff * diff * signVal;
 

@@ -19,7 +19,7 @@ void CUDAWorker::SolveForSprings3D()
 {
 	for (unsigned int a = 0; a < _num_vertex; a++)
 	{
-		_edge_force_array[a] = A3DVectorGPU(0, 0, 0);
+		_edge_force_array[a] = A3DVectorGPU();
 	}
 
 	int blockSize = SystemParams::_cuda_block_size;
@@ -34,6 +34,11 @@ void CUDAWorker::SolveForSprings3D()
 	SolveForSprings3D_GPU<<<numBlocks, blockSize >>>(_spring_array, // need data from CPU
 		                                             _pos_array,    // need data from CPU
 													 _edge_force_array,
+													 _spring_diff_array,
+													 _spring_k_array,
+													 _spring_signval_array,
+											         _spring_mag_array,
+													 _spring_dir_array,
 													 _spring_parameters,
 													 _num_spring);
 
@@ -154,6 +159,13 @@ void CUDAWorker::InitCUDA(int num_vertex, int num_spring)
 	_spring_parameters[2] = SystemParams::_k_edge;
 	_spring_parameters[3] = SystemParams::_k_neg_space_edge;
 
+	// debug delete me
+	cudaMallocManaged(&_spring_diff_array, _num_spring * sizeof(float));
+	cudaMallocManaged(&_spring_signval_array, _num_spring * sizeof(float));
+	cudaMallocManaged(&_spring_k_array, _num_spring * sizeof(float));
+	cudaMallocManaged(&_spring_mag_array, _num_spring * sizeof(float));
+	cudaMallocManaged(&_spring_dir_array, _num_spring * sizeof(A3DVectorGPU));
+
 	// call this only once, assuming springs are not changed during simulation
 	InitSpringData();
 	
@@ -166,7 +178,6 @@ void CUDAWorker::RetrieveEdgeForceData()
 	{
 		for (unsigned int b = 0; b < StuffWorker::_element_list[a]._massList.size(); b++)
 		{
-			//CopyVector_GPU2CPU(&_edge_force_array[idx], StuffWorker::_element_list[a]._massList[b]._edgeForce_cuda);
 			StuffWorker::_element_list[a]._massList[b]._edgeForce_cuda._x = _edge_force_array[idx]._x;
 			StuffWorker::_element_list[a]._massList[b]._edgeForce_cuda._y = _edge_force_array[idx]._y;
 			StuffWorker::_element_list[a]._massList[b]._edgeForce_cuda._z = _edge_force_array[idx]._z;
@@ -174,6 +185,8 @@ void CUDAWorker::RetrieveEdgeForceData()
 		}
 	}
 }
+
+
 
 void CUDAWorker::RetrievePositionAndVelocityData()
 {
@@ -187,6 +200,103 @@ void CUDAWorker::RetrievePositionAndVelocityData()
 			idx++;
 		}
 	}
+}
+
+// debug delete me
+void CUDAWorker::UnitTestSpringGPU()
+{
+	int idx = 0;
+	for (unsigned int a = 0; a < StuffWorker::_element_list.size(); a++)
+	{
+		for (unsigned int b = 0; b < StuffWorker::_element_list[a]._layer_springs.size(); b++)
+		{
+			StuffWorker::_element_list[a]._layer_springs[b]._diff_cuda = _spring_diff_array[idx]; // 0
+			StuffWorker::_element_list[a]._layer_springs[b]._k_debug_cuda = _spring_k_array[idx]; // 0
+			StuffWorker::_element_list[a]._layer_springs[b]._signval_debug_cuda = _spring_signval_array[idx]; // 0
+			StuffWorker::_element_list[a]._layer_springs[b]._mag_cuda = _spring_mag_array[idx]; // 0
+
+			StuffWorker::_element_list[a]._layer_springs[b]._dir_cuda._x = _spring_dir_array[idx]._x; // 0
+			StuffWorker::_element_list[a]._layer_springs[b]._dir_cuda._y = _spring_dir_array[idx]._y; // 0
+			StuffWorker::_element_list[a]._layer_springs[b]._dir_cuda._z = _spring_dir_array[idx]._z; // 0
+
+			idx++;
+		}
+
+		for (unsigned int b = 0; b < StuffWorker::_element_list[a]._time_springs.size(); b++)
+		{
+			StuffWorker::_element_list[a]._time_springs[b]._diff_cuda = _spring_diff_array[idx]; // 1
+			StuffWorker::_element_list[a]._time_springs[b]._k_debug_cuda = _spring_k_array[idx]; // 1
+			StuffWorker::_element_list[a]._time_springs[b]._signval_debug_cuda = _spring_signval_array[idx]; // 1
+			StuffWorker::_element_list[a]._time_springs[b]._mag_cuda = _spring_mag_array[idx]; // 1
+
+			StuffWorker::_element_list[a]._time_springs[b]._dir_cuda._x = _spring_dir_array[idx]._x; // 1
+			StuffWorker::_element_list[a]._time_springs[b]._dir_cuda._y = _spring_dir_array[idx]._y; // 1
+			StuffWorker::_element_list[a]._time_springs[b]._dir_cuda._z = _spring_dir_array[idx]._z; // 1
+
+			idx++;
+		}
+
+		for (unsigned int b = 0; b < StuffWorker::_element_list[a]._auxiliary_springs.size(); b++)
+		{
+			StuffWorker::_element_list[a]._auxiliary_springs[b]._diff_cuda = _spring_diff_array[idx]; // 2
+			StuffWorker::_element_list[a]._auxiliary_springs[b]._k_debug_cuda = _spring_k_array[idx]; // 2
+			StuffWorker::_element_list[a]._auxiliary_springs[b]._signval_debug_cuda = _spring_signval_array[idx]; // 2
+			StuffWorker::_element_list[a]._auxiliary_springs[b]._mag_cuda = _spring_mag_array[idx]; // 2
+
+			StuffWorker::_element_list[a]._auxiliary_springs[b]._dir_cuda._x = _spring_dir_array[idx]._x; // 2
+			StuffWorker::_element_list[a]._auxiliary_springs[b]._dir_cuda._y = _spring_dir_array[idx]._y; // 2
+			StuffWorker::_element_list[a]._auxiliary_springs[b]._dir_cuda._z = _spring_dir_array[idx]._z; // 2
+
+			idx++;
+		}
+
+		for (unsigned int b = 0; b < StuffWorker::_element_list[a]._neg_space_springs.size(); b++)
+		{
+			StuffWorker::_element_list[a]._neg_space_springs[b]._diff_cuda          = _spring_diff_array[idx]; // 3
+			StuffWorker::_element_list[a]._neg_space_springs[b]._k_debug_cuda       = _spring_k_array[idx]; // 3
+			StuffWorker::_element_list[a]._neg_space_springs[b]._signval_debug_cuda = _spring_signval_array[idx]; // 3
+			StuffWorker::_element_list[a]._neg_space_springs[b]._mag_cuda = _spring_mag_array[idx]; // 2
+
+			StuffWorker::_element_list[a]._neg_space_springs[b]._dir_cuda._x = _spring_dir_array[idx]._x; // 2
+			StuffWorker::_element_list[a]._neg_space_springs[b]._dir_cuda._y = _spring_dir_array[idx]._y; // 2
+			StuffWorker::_element_list[a]._neg_space_springs[b]._dir_cuda._z = _spring_dir_array[idx]._z; // 2
+
+			idx++;
+		}
+	}
+
+	idx = 0;
+	for (unsigned int a = 0; a < StuffWorker::_element_list.size(); a++)
+	{
+		for (unsigned int b = 0; b < StuffWorker::_element_list[a]._layer_springs.size(); b++)
+		{
+			StuffWorker::_element_list[a]._layer_springs[b].DebugShit();
+			//StuffWorker::_element_list[a]._layer_springs[b].PrintKCUDA();
+			//StuffWorker::_element_list[a]._layer_springs[b].PrintSignValCUDA();
+		}
+
+		for (unsigned int b = 0; b < StuffWorker::_element_list[a]._time_springs.size(); b++)
+		{
+			StuffWorker::_element_list[a]._time_springs[b].DebugShit();
+			//StuffWorker::_element_list[a]._time_springs[b].PrintKCUDA();
+			//StuffWorker::_element_list[a]._time_springs[b].PrintSignValCUDA();
+		}
+
+		for (unsigned int b = 0; b < StuffWorker::_element_list[a]._auxiliary_springs.size(); b++)
+		{
+			StuffWorker::_element_list[a]._auxiliary_springs[b].DebugShit();
+			//StuffWorker::_element_list[a]._auxiliary_springs[b].PrintKCUDA();
+			//StuffWorker::_element_list[a]._auxiliary_springs[b].PrintSignValCUDA();
+		}
+
+		for (unsigned int b = 0; b < StuffWorker::_element_list[a]._neg_space_springs.size(); b++)
+		{
+			StuffWorker::_element_list[a]._neg_space_springs[b].DebugShit();
+			//StuffWorker::_element_list[a]._neg_space_springs[b].PrintKCUDA();
+			//StuffWorker::_element_list[a]._neg_space_springs[b].PrintSignValCUDA();
+		}
+	}
+	//std::cout << "test\n";
 }
 
 void CUDAWorker::SendSpringLengths()
@@ -216,6 +326,41 @@ void CUDAWorker::SendSpringLengths()
 	}
 
 	//std::cout << idx << "\n";
+
+	// unit test (PASSED)
+	/*idx = 0;
+	for (unsigned int a = 0; a < StuffWorker::_element_list.size(); a++)
+	{
+		int mass_offset = StuffWorker::_element_list[a]._cuda_mass_array_offset;
+
+		for (unsigned int b = 0; b < StuffWorker::_element_list[a]._layer_springs.size(); b++)
+		{
+			if ((_spring_array[idx]._index0 - StuffWorker::_element_list[a]._layer_springs[b]._index0 - mass_offset) != 0) { std::cout << "x"; }
+			if ((_spring_array[idx]._index1 - StuffWorker::_element_list[a]._layer_springs[b]._index1 - mass_offset) != 0) { std::cout << "x"; }
+			idx++;
+		}
+		for (unsigned int b = 0; b < StuffWorker::_element_list[a]._time_springs.size(); b++)
+		{
+			if ((_spring_array[idx]._index0 - StuffWorker::_element_list[a]._time_springs[b]._index0 - mass_offset) != 0) { std::cout << "x"; }
+			if ((_spring_array[idx]._index1 - StuffWorker::_element_list[a]._time_springs[b]._index1 - mass_offset) != 0) { std::cout << "x"; }
+			idx++;
+		}
+
+		for (unsigned int b = 0; b < StuffWorker::_element_list[a]._auxiliary_springs.size(); b++)
+		{
+			if ((_spring_array[idx]._index0 - StuffWorker::_element_list[a]._auxiliary_springs[b]._index0 - mass_offset) != 0) { std::cout << "x"; }
+			if ((_spring_array[idx]._index1 - StuffWorker::_element_list[a]._auxiliary_springs[b]._index1 - mass_offset) != 0) { std::cout << "x"; }
+			idx++;
+		}
+
+		for (unsigned int b = 0; b < StuffWorker::_element_list[a]._neg_space_springs.size(); b++)
+		{
+			if ((_spring_array[idx]._index0 - StuffWorker::_element_list[a]._neg_space_springs[b]._index0 - mass_offset) != 0) { std::cout << "x"; }
+			if ((_spring_array[idx]._index1 - StuffWorker::_element_list[a]._neg_space_springs[b]._index1 - mass_offset) != 0) { std::cout << "x"; }
+			idx++;
+		}
+	}*/
+
 }
 
 // call this only once
@@ -224,30 +369,30 @@ void CUDAWorker::InitSpringData()
 	int idx = 0;
 	for (unsigned int a = 0; a < StuffWorker::_element_list.size(); a++)
 	{
-		int mass_offset = StuffWorker::_element_list[a]._cuda_mass_array_offset;
+		int m_offset = StuffWorker::_element_list[a]._cuda_mass_array_offset;
 
 		for (unsigned int b = 0; b < StuffWorker::_element_list[a]._layer_springs.size(); b++)
 		{
 			AnIndexedLine ln = StuffWorker::_element_list[a]._layer_springs[b];
-			_spring_array[idx++] = SpringGPU(ln._index0 + mass_offset, ln._index1 + mass_offset, ln._dist, 0); // 0
+			_spring_array[idx++] = SpringGPU(ln._index0 + m_offset, ln._index1 + m_offset, ln._dist, 0); // 0
 		}
 
 		for (unsigned int b = 0; b < StuffWorker::_element_list[a]._time_springs.size(); b++)
 		{
 			AnIndexedLine ln = StuffWorker::_element_list[a]._time_springs[b];
-			_spring_array[idx++] = SpringGPU(ln._index0 + mass_offset, ln._index1 + mass_offset, ln._dist, 1); // 1
+			_spring_array[idx++] = SpringGPU(ln._index0 + m_offset, ln._index1 + m_offset, ln._dist, 1); // 1
 		}
 
 		for (unsigned int b = 0; b < StuffWorker::_element_list[a]._auxiliary_springs.size(); b++)
 		{
 			AnIndexedLine ln = StuffWorker::_element_list[a]._auxiliary_springs[b];
-			_spring_array[idx++] = SpringGPU(ln._index0 + mass_offset, ln._index1 + mass_offset, ln._dist, 2); // 2
+			_spring_array[idx++] = SpringGPU(ln._index0 + m_offset, ln._index1 + m_offset, ln._dist, 2); // 2
 		}
 
 		for (unsigned int b = 0; b < StuffWorker::_element_list[a]._neg_space_springs.size(); b++)
 		{
 			AnIndexedLine ln = StuffWorker::_element_list[a]._neg_space_springs[b];
-			_spring_array[idx++] = SpringGPU(ln._index0 + mass_offset, ln._index1 + mass_offset, ln._dist, 3); // 3
+			_spring_array[idx++] = SpringGPU(ln._index0 + m_offset, ln._index1 + m_offset, ln._dist, 3); // 3
 		}
 	}
 

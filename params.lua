@@ -59,7 +59,7 @@ _element_initial_scale = 0.1;
 _element_max_scale     = 2.0;
 
 -- num layer in the simulation, not the png layers
-_num_layer = 50;
+_num_layer = 20;
 
 _interpolation_factor = 5; -- how many interpolation between two layers
 _num_png_frame = 200;

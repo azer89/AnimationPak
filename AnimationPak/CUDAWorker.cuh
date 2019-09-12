@@ -29,6 +29,7 @@ public:
 
 	void RetrievePositionAndVelocityData();
 	void RetrieveEdgeForceData();
+	void UnitTestSpringGPU();
 	
 	void InitSpringData();
 	
@@ -51,6 +52,11 @@ public:
 	A3DVectorGPU* _velocity_array;
 
 	
+	float* _spring_diff_array;       // debug delete me
+	float* _spring_k_array;          // debug delete me
+	float* _spring_signval_array;    // debug delete me
+	float* _spring_mag_array;        // debug delete me
+	A3DVectorGPU* _spring_dir_array; // debug delete me
 
 	// springs
 	SpringGPU* _spring_array;

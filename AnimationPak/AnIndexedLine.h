@@ -11,7 +11,10 @@
 #ifndef ANINDEXEDLINE_H
 #define ANINDEXEDLINE_H
 
+#include "A3DVector.h"
+
 #include "SystemParams.h"
+#include <iostream>
 
 
 //namespace CVSystem
@@ -19,6 +22,21 @@
 struct AnIndexedLine
 {
 public:
+	A3DVector _dir;
+	A3DVector _dir_cuda;
+
+	float _mag; // for cuda debugging debug delete me
+	float _mag_cuda; // for cuda debugging debug delete me
+
+	float _diff; // for cuda debugging debug delete me
+	float _diff_cuda; // for cuda debugging debug delete me
+
+	float _k_debug; // for cuda debugging debug delete me
+	float _k_debug_cuda; // for cuda debugging debug delete me
+
+	float _signval_debug; // for cuda debugging debug delete me
+	float _signval_debug_cuda; // for cuda debugging debug delete me
+
 	float _dist;
 	float _oriDist; // see MakeLonger()
 
@@ -68,6 +86,56 @@ public:
 		this->_dist = d;
 		this->_oriDist = d;
 	}
+
+	// debug delete me
+	void DebugShit()
+	{
+		float mag_diff_abs = std::abs(_mag - _mag_cuda);
+		//if (_dir != _dir_cuda)
+		if(mag_diff_abs >= 1e-10)
+		{
+			//std::cout << "dist = " << std::abs(_diff - _diff_cuda) << "\n";
+			std::cout << mag_diff_abs << "\n";
+			std::cout << "dir = " << _dir.ToString() << "\n";
+			std::cout << "dir_cuda = " << _dir_cuda.ToString() << "\n\n";
+		}
+
+		/*float diff_abs = std::abs(_diff - _diff_cuda);
+
+		if(diff_abs > 1e-4)
+		{
+			std::cout << "d   " << _diff << ", " << _diff_cuda << "\n";
+		}*/
+
+		/*if ((_diff < 0 && _diff_cuda > 0) || (_diff > 0 && _diff_cuda < 0))
+		{
+			std::cout << "d   " << _diff << ", " << _diff_cuda << "\n";
+			std::cout << "s   " << _signval_debug << ", " << _signval_debug_cuda << "\n\n";
+		}*/
+	}
+
+	// debug delete me
+	/*void PrintKCUDA()
+	{
+		float diff_abs = std::abs(_k_debug - _k_debug_cuda);
+
+		if (diff_abs > 0.0)
+		{
+			std::cout << "k   " << _k_debug << ", " << _k_debug_cuda << "\n";
+		}
+	}*/
+
+	// debug delete me
+	/*void PrintSignValCUDA()
+	{
+		float diff_abs = std::abs(_signval_debug - _signval_debug_cuda);
+
+		if (diff_abs > 0.0)
+		{
+			std::cout << "s   " << _signval_debug << ", " << _signval_debug_cuda << "\n";
+			std::cout << "d   " << _diff << ", " << _diff_cuda << "\n\n";
+		}
+	}*/
 
 	/*AnIndexedLine(const AMass& m1, const AMass& m2, bool isLayer2Layer = false)
 	{

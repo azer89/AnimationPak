@@ -428,6 +428,8 @@ void StuffWorker::Solve()
 	_cu_worker->SendSpringLengths();
 	_cu_worker->SolveForSprings3D();
 	_cu_worker->RetrieveEdgeForceData();
+	_cu_worker->UnitTestSpringGPU();
+
 
 
 	// debug delete me
@@ -447,6 +449,9 @@ void StuffWorker::Solve()
 
 			_edge_cu_mag += cudaMag;
 			_edge_ori_mag += oriMag;
+
+			//std::cout << oriMag << "     ";
+			//std::cout << cudaMag << "\n";
 		}
 	}
 

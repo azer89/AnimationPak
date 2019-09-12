@@ -107,9 +107,7 @@ public:
 	A3DVector _boundaryForce;
 	A3DVector _overlapForce;
 	A3DVector _rotationForce;
-
-
-	
+	A3DVector _dockForce;
 };
 
 #endif

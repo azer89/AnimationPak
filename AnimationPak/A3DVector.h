@@ -306,7 +306,7 @@ public:
 	{
 		//std::cout << "(" << _x << ", " << _y << ", " << _z << ")\n";
 		std::stringstream ss;
-		ss << "(" << _x << ", " << _y << ", " << _z << ")\n";
+		ss << "(" << _x << ", " << _y << ", " << _z << ")";
 		return ss.str();
 	}
 

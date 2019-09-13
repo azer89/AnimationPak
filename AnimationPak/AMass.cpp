@@ -102,6 +102,7 @@ void AMass::ResetForces()
 {
 	//_attractionForce = AVector(0, 0);
 	this->_edgeForce      = A3DVector(0, 0, 0);
+	this->_edgeForce_cpu = A3DVector(0, 0, 0);
 	//this->_edgeForce_cuda = A3DVector(0, 0, 0);
 	this->_zForce         = A3DVector(0, 0, 0);
 	this->_repulsionForce = A3DVector(0, 0, 0);

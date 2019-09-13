@@ -2528,8 +2528,8 @@ void AnElement::SolveForSprings3D()
 
 		eForce = dir * k *  diff * diff * signVal;
 
-		_massList[idx0]._edgeForce += eForce;	
-		_massList[idx1]._edgeForce -= eForce;		
+		_massList[idx0]._edgeForce_cpu += eForce;	
+		_massList[idx1]._edgeForce_cpu -= eForce;
 	}
 
 	// ----- 11111 Time Spring -----
@@ -2558,8 +2558,8 @@ void AnElement::SolveForSprings3D()
 
 		eForce = dir * k *  diff * diff * signVal;
 
-		_massList[idx0]._edgeForce += eForce;
-		_massList[idx1]._edgeForce -= eForce;
+		_massList[idx0]._edgeForce_cpu += eForce;
+		_massList[idx1]._edgeForce_cpu -= eForce;
 	}
 
 	// ----- 22222 Auxiliary Spring -----
@@ -2588,8 +2588,8 @@ void AnElement::SolveForSprings3D()
 
 		eForce = dir * k *  diff * diff * signVal;
 
-		_massList[idx0]._edgeForce += eForce;	
-		_massList[idx1]._edgeForce -= eForce;
+		_massList[idx0]._edgeForce_cpu += eForce;
+		_massList[idx1]._edgeForce_cpu -= eForce;
 	}
 
 	// ----- 33333 Negative Space Spring -----
@@ -2618,8 +2618,8 @@ void AnElement::SolveForSprings3D()
 
 		eForce = dir * k *  diff * diff * signVal;
 
-		_massList[idx0]._edgeForce += eForce;
-		_massList[idx1]._edgeForce -= eForce;
+		_massList[idx0]._edgeForce_cpu += eForce;
+		_massList[idx1]._edgeForce_cpu -= eForce;
 	}
 }
 

@@ -140,6 +140,8 @@ bool Display::frameStarted(const Ogre::FrameEvent& evt)
 	ImGui::Text(("Num vertices = " + std::to_string(_sWorker->_num_vertex)).c_str());
 	ImGui::Text(("Num springs = " + std::to_string(_sWorker->_num_spring)).c_str());
 	ImGui::Text(("Num surface triangles = " + std::to_string(_sWorker->_num_surface_tri)).c_str());
+	ImGui::Text(("microsecond_spring_cpu = " + std::to_string(_sWorker->_microsecond_spring_cpu)).c_str());
+	ImGui::Text(("microsecond_spring_cuda = " + std::to_string(_sWorker->_microsecond_spring_cuda)).c_str());
 	//_edge_cu_diff
 	/*ImGui::Text(("E Force CUDA Vertices = "  + std::to_string(_sWorker->_e_force_of_vertices_cuda)).c_str());
 	ImGui::Text(("E Force CPU Vertices = " + std::to_string(_sWorker->_e_force_of_vertices_cpu)).c_str());

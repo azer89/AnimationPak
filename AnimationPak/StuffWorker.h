@@ -68,6 +68,9 @@ public:
 	CUDAWorker* _cu_worker;
 
 
+	long long _microsecond_spring_cpu;
+	long long _microsecond_spring_cuda;
+
 	//float _e_force_of_vertices_cuda; // debug delete me
 	//float _e_force_of_vertices_cpu; // debug delete me
 

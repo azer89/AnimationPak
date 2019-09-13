@@ -10,6 +10,8 @@
 
 #include "dirent.h" // external
 
+#include <chrono> // debug delete me
+
 // static variables
 std::vector<AnElement>  StuffWorker::_element_list = std::vector<AnElement>();
 CollisionGrid3D* StuffWorker::_c_grid_3d = new CollisionGrid3D;
@@ -425,14 +427,26 @@ void StuffWorker::Solve()
 		}
 	}
 
+
+	auto start1 = std::chrono::high_resolution_clock::now(); // timing
+	for (int a = 0; a < _element_list.size(); a++)
+	{
+		_element_list[a].SolveForSprings3D();
+	}
+	auto elapsed1 = std::chrono::high_resolution_clock::now() - start1; // timing
+	_microsecond_spring_cpu = std::chrono::duration_cast<std::chrono::microseconds>(elapsed1).count(); // timing
+
+	
 	// ----- CUDA -----
 	//_cu_worker->SendPositionAndVelocityData();
+	auto start2 = std::chrono::high_resolution_clock::now(); // timing
 	_cu_worker->SendPositionData();
-	_cu_worker->SendSpringLengths();
-	_cu_worker->SolveForSprings3D();
+	_cu_worker->SendSpringLengths();	
+	_cu_worker->SolveForSprings3D();	
 	_cu_worker->RetrieveEdgeForceData();
-	//_cu_worker->UnitTestSpringGPU();
-
+	auto elapsed2 = std::chrono::high_resolution_clock::now() - start2; // timing
+	_microsecond_spring_cuda = std::chrono::duration_cast<std::chrono::microseconds>(elapsed2).count(); // timing
+	
 
 
 	// debug delete me

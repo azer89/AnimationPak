@@ -90,7 +90,7 @@ public:
 	// debug delete me
 	void DebugShit()
 	{
-		float mag_diff_abs = std::abs(_mag - _mag_cuda);
+		/*float mag_diff_abs = std::abs(_mag - _mag_cuda);
 		//if (_dir != _dir_cuda)
 		if(mag_diff_abs >= 1e-10)
 		{
@@ -98,7 +98,7 @@ public:
 			std::cout << mag_diff_abs << "\n";
 			std::cout << "dir = " << _dir.ToString() << "\n";
 			std::cout << "dir_cuda = " << _dir_cuda.ToString() << "\n\n";
-		}
+		}*/
 
 		/*float diff_abs = std::abs(_diff - _diff_cuda);
 

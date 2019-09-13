@@ -59,7 +59,7 @@ _element_initial_scale = 0.1;
 _element_max_scale     = 2.0;
 
 -- num layer in the simulation, not the png layers
-_num_layer = 20;
+_num_layer = 50;
 
 _interpolation_factor = 5; -- how many interpolation between two layers
 _num_png_frame = 200;
@@ -78,7 +78,7 @@ _boundary_sampling_factor   = 1.2;  -- [Do not edit]
 
 
 _num_element_density       = 200;
-_num_element_pos_limit = 10;
+_num_element_pos_limit = 20;
 
 -- CUDA
 _cuda_block_size = 256;

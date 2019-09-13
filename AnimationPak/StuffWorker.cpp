@@ -137,6 +137,7 @@ void StuffWorker::InitElements(Ogre::SceneManager* scnMgr)
 	// ---------- Calculate num vertex ----------
 	_num_vertex = 0;
 	_num_spring = 0;
+	_num_surface_tri = 0;
 	for (unsigned int a = 0; a < _element_list.size(); a++)
 	{
 		// to make it easier to flatten spring arrays
@@ -148,10 +149,12 @@ void StuffWorker::InitElements(Ogre::SceneManager* scnMgr)
 		_num_spring += _element_list[a]._time_springs.size();
 		_num_spring += _element_list[a]._auxiliary_springs.size();
 		_num_spring += _element_list[a]._neg_space_springs.size();
+
+		_num_surface_tri += _element_list[a]._surfaceTriangles.size();
 	}
 
 	// ---------- Calculate num vertex ----------
-	_cu_worker->InitCUDA(_num_vertex, _num_spring);
+	_cu_worker->InitCUDA(_num_vertex, _num_spring, _num_surface_tri);
 
 	// ----- Interpolation collision grid -----
 	// INTERP WONT WORK BECAUSE OF THIS
@@ -414,7 +417,7 @@ void StuffWorker::Solve()
 
 	for (int a = 0; a < _element_list.size(); a++)
 	{
-		_element_list[a].SolveForSprings3D();
+		//_element_list[a].SolveForSprings3D();
 
 		for (int b = 0; b < _element_list[a]._massList.size(); b++)
 		{
@@ -428,37 +431,64 @@ void StuffWorker::Solve()
 	_cu_worker->SendSpringLengths();
 	_cu_worker->SolveForSprings3D();
 	_cu_worker->RetrieveEdgeForceData();
-	_cu_worker->UnitTestSpringGPU();
+	//_cu_worker->UnitTestSpringGPU();
 
 
 
 	// debug delete me
-	_edge_cu_mag = 0;
-	_edge_ori_mag = 0;
-	_edge_cu_dir = A3DVector(0, 0, 0);
-	_edge_ori_dir = A3DVector(0, 0, 0);
+	/*_e_force_of_vertices_cuda = 0;
+	_e_force_of_vertices_cpu = 0;
+
 	for (int a = 0; a < _element_list.size(); a++)
 	{
 		for (int b = 0; b < _element_list[a]._massList.size(); b++)
 		{
-			float oriMag = _element_list[a]._massList[b]._edgeForce.Length();
-			float cudaMag = _element_list[a]._massList[b]._edgeForce_cuda.Length();
-
-			_edge_ori_dir += _element_list[a]._massList[b]._edgeForce;
-			_edge_cu_dir += _element_list[a]._massList[b]._edgeForce_cuda;
-
-			_edge_cu_mag += cudaMag;
-			_edge_ori_mag += oriMag;
-
-			//std::cout << oriMag << "     ";
-			//std::cout << cudaMag << "\n";
+			_e_force_of_vertices_cpu  += _element_list[a]._massList[b]._edgeForce.Length();
+			_e_force_of_vertices_cuda += _element_list[a]._massList[b]._edgeForce_cuda.Length();
 		}
 	}
+	_e_force_of_springs_cuda = 0;
+	_e_force_of_springs_cpu = 0;
+	_edge_cu_dir = A3DVector(0, 0, 0);
+	_edge_ori_dir = A3DVector(0, 0, 0);
+	for (unsigned int a = 0; a < StuffWorker::_element_list.size(); a++)
+	{
+		for (unsigned int b = 0; b < StuffWorker::_element_list[a]._layer_springs.size(); b++)
+		{
+			_e_force_of_springs_cpu += StuffWorker::_element_list[a]._layer_springs[b]._diff;
+			_e_force_of_springs_cuda += StuffWorker::_element_list[a]._layer_springs[b]._diff_cuda;
 
-	_edge_cu_mag /= (float)_num_vertex;
-	_edge_ori_mag /= (float)_num_vertex;
-	_edge_ori_dir /= (float)_num_vertex;
-	_edge_cu_dir /= (float)_num_vertex;
+			_edge_ori_dir += StuffWorker::_element_list[a]._layer_springs[b]._dir;
+			_edge_cu_dir += StuffWorker::_element_list[a]._layer_springs[b]._dir_cuda;
+		}
+
+		for (unsigned int b = 0; b < StuffWorker::_element_list[a]._time_springs.size(); b++)
+		{
+			_e_force_of_springs_cpu += StuffWorker::_element_list[a]._time_springs[b]._diff;
+			_e_force_of_springs_cuda += StuffWorker::_element_list[a]._time_springs[b]._diff_cuda;
+
+			_edge_ori_dir += StuffWorker::_element_list[a]._time_springs[b]._dir;
+			_edge_cu_dir += StuffWorker::_element_list[a]._time_springs[b]._dir_cuda;
+		}
+
+		for (unsigned int b = 0; b < StuffWorker::_element_list[a]._auxiliary_springs.size(); b++)
+		{
+			_e_force_of_springs_cpu += StuffWorker::_element_list[a]._auxiliary_springs[b]._diff;
+			_e_force_of_springs_cuda += StuffWorker::_element_list[a]._auxiliary_springs[b]._diff_cuda;
+
+			_edge_ori_dir += StuffWorker::_element_list[a]._auxiliary_springs[b]._dir;
+			_edge_cu_dir += StuffWorker::_element_list[a]._auxiliary_springs[b]._dir_cuda;
+		}
+
+		for (unsigned int b = 0; b < StuffWorker::_element_list[a]._neg_space_springs.size(); b++)
+		{
+			_e_force_of_springs_cpu += StuffWorker::_element_list[a]._neg_space_springs[b]._diff;
+			_e_force_of_springs_cuda += StuffWorker::_element_list[a]._neg_space_springs[b]._diff_cuda;
+
+			_edge_ori_dir += StuffWorker::_element_list[a]._neg_space_springs[b]._dir;
+			_edge_cu_dir += StuffWorker::_element_list[a]._neg_space_springs[b]._dir_cuda;
+		}
+	}*/
 }
 
 

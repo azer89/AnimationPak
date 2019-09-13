@@ -55,6 +55,7 @@ public:
 
 	int _num_vertex;
 	int _num_spring;
+	int _num_surface_tri;
 
 	ContainerWorker* _containerWorker;
 
@@ -65,10 +66,16 @@ public:
 	AVideoCreator _video_creator;
 
 	CUDAWorker* _cu_worker;
-	float _edge_cu_mag; // debug delete me
-	float _edge_ori_mag; // debug delete me
-	A3DVector _edge_cu_dir;
-	A3DVector _edge_ori_dir;
+
+
+	//float _e_force_of_vertices_cuda; // debug delete me
+	//float _e_force_of_vertices_cpu; // debug delete me
+
+	//float _e_force_of_springs_cuda; // debug delete me
+	//float _e_force_of_springs_cpu; // debug delete me
+
+	//A3DVector _edge_cu_dir;  // debug delete me
+	//A3DVector _edge_ori_dir;  // debug delete me
 
 public:
 };

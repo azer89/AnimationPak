@@ -2360,6 +2360,129 @@ A3DVector AnElement::ClosestPtOnTriSurfaces(std::vector<int>& triIndices, A3DVec
 }*/
 
 // 33333333333333333333333333333333
+void AnElement::SolveForSprings3D_Linear()
+{
+	//A3DVector pt0;
+	//A3DVector pt1;
+	A3DVector dir;
+	A3DVector dir_not_unit;
+	A3DVector eForce;
+	float dist = 0;
+	float diff = 0;
+	float k = 0;
+	int idx0, idx1;
+
+	// TODO: Nasty code here
+	//float scale_threshold = 1.0f;
+	//float magic_number = 3.0f;
+
+	// ----- 00000 Layer Spring -----
+	int tr_sz = _layer_springs.size();
+	k = SystemParams::_k_edge;
+	for (unsigned int a = 0; a < tr_sz; a++)
+	{
+		idx0 = _layer_springs[a]._index0;
+		idx1 = _layer_springs[a]._index1;
+
+		dir_not_unit = _massList[idx0]._pos.DirectionTo(_massList[idx1]._pos);
+		dir_not_unit.GetUnitAndDist(dir, dist);
+
+		diff = dist - _layer_springs[a]._dist;
+
+		_layer_springs[a]._diff = diff; // debug delete me
+		_layer_springs[a]._k_debug = k;// debug delete me
+		_layer_springs[a]._mag = dist; // debug delete me
+		_layer_springs[a]._dir = dir;// debug delete me
+		
+		_layer_springs[a]._signval_debug = 0; // debug delete me
+
+		eForce = dir * k *  diff;
+
+		_massList[idx0]._edgeForce += eForce;
+		_massList[idx1]._edgeForce -= eForce;
+	}
+
+	// ----- 11111 Time Spring -----
+	tr_sz = _time_springs.size();
+	k = SystemParams::_k_time_edge;
+	for (unsigned int a = 0; a < tr_sz; a++)
+	{
+		idx0 = _time_springs[a]._index0;
+		idx1 = _time_springs[a]._index1;
+
+		dir_not_unit = _massList[idx0]._pos.DirectionTo(_massList[idx1]._pos);
+		dir_not_unit.GetUnitAndDist(dir, dist);
+
+		diff = dist - _time_springs[a]._dist;
+
+		_time_springs[a]._diff = diff; // debug delete me
+		_time_springs[a]._k_debug = k; // debug delete me
+		_time_springs[a]._mag = dist; // debug delete me
+		_time_springs[a]._dir = dir;// debug delete me
+		
+		_time_springs[a]._signval_debug = 0; // debug delete me
+
+		eForce = dir * k *  diff;
+
+		_massList[idx0]._edgeForce += eForce;
+		_massList[idx1]._edgeForce -= eForce;
+	}
+
+	// ----- 22222 Auxiliary Spring -----
+	int aux_sz = _auxiliary_springs.size();
+	k = SystemParams::_k_edge;
+	for (unsigned int a = 0; a < aux_sz; a++)
+	{
+		idx0 = _auxiliary_springs[a]._index0;
+		idx1 = _auxiliary_springs[a]._index1;
+
+		dir_not_unit = _massList[idx0]._pos.DirectionTo(_massList[idx1]._pos);
+		dir_not_unit.GetUnitAndDist(dir, dist);
+
+		diff = dist - _auxiliary_springs[a]._dist;
+
+		_auxiliary_springs[a]._diff = diff; // debug delete me
+		_auxiliary_springs[a]._k_debug = k; // debug delete me
+		_auxiliary_springs[a]._mag = dist; // debug delete me
+		_auxiliary_springs[a]._dir = dir;// debug delete me
+		
+		_auxiliary_springs[a]._signval_debug = 0; // debug delete me
+
+		eForce = dir * k *  diff;
+
+		_massList[idx0]._edgeForce += eForce;
+		_massList[idx1]._edgeForce -= eForce;
+	}
+
+	// ----- 33333 Negative Space Spring -----
+	k = SystemParams::_k_neg_space_edge;
+	int neg_sp_sz = _neg_space_springs.size();
+	for (unsigned int a = 0; a < neg_sp_sz; a++)
+	{
+		idx0 = _neg_space_springs[a]._index0;
+		idx1 = _neg_space_springs[a]._index1;
+
+		dir_not_unit = _massList[idx0]._pos.DirectionTo(_massList[idx1]._pos);
+		dir_not_unit.GetUnitAndDist(dir, dist);
+
+		diff = dist - _neg_space_springs[a]._dist;
+
+		_neg_space_springs[a]._diff = diff; // debug delete me
+		_neg_space_springs[a]._k_debug = k; // debug delete me
+		_neg_space_springs[a]._mag = dist; // debug delete me
+		_neg_space_springs[a]._dir = dir;// debug delete me
+
+		_neg_space_springs[a]._signval_debug = 0; // debug delete me
+
+		eForce = dir * k *  diff;
+
+		_massList[idx0]._edgeForce += eForce;
+		_massList[idx1]._edgeForce -= eForce;
+	}
+}
+
+
+// 33333333333333333333333333333333
 void AnElement::SolveForSprings3D()
 {
 	//A3DVector pt0;

@@ -50,6 +50,7 @@ public:
 	void UpdateZConstraint();
 
 
+	void SolveForSprings3D_Linear();
 	void SolveForSprings3D();
 
 	bool IsInsideApprox(int layer_idx, A3DVector pos);

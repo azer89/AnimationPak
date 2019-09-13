@@ -80,18 +80,18 @@ __device__ 	void GetUnitAndDist(const A3DVectorGPU& p, A3DVectorGPU& unitVec, fl
 		p._z / dist);
 }
 
-__global__ void SolveForSprings3D_GPU(SpringGPU* spring_array,
-									  A3DVectorGPU* pos_array,
-									  A3DVectorGPU* edge_force_array,
-									  float* spring_diff_array, // debug delete me
-									  float* _spring_k_array, // debug delete me
-									  float* _spring_signval_array, // debug delete me
-									  float* _spring_mag_array, // debug delete me
-									  A3DVectorGPU* _spring_dir_array, // debug delete me
-									  float* spring_parameters,
-									  int n_springs)
+__global__ void SolveForSprings3D_Linear_GPU(SpringGPU* spring_array,
+	A3DVectorGPU* pos_array,
+	A3DVectorGPU* edge_force_array,
+	float* spring_diff_array, // debug delete me
+	float* _spring_k_array, // debug delete me
+	float* _spring_signval_array, // debug delete me
+	float* _spring_mag_array, // debug delete me
+	A3DVectorGPU* _spring_dir_array, // debug delete me
+	float* spring_parameters,
+	int n_springs)
 {
-	
+
 
 	int index = blockIdx.x * blockDim.x + threadIdx.x;
 	int stride = blockDim.x * gridDim.x;
@@ -110,9 +110,6 @@ __global__ void SolveForSprings3D_GPU(SpringGPU* spring_array,
 		int idx0, idx1;
 		int spring_type;
 
-		// for squared forces
-		float signVal = 1;
-
 		// parameters
 		spring_type = spring_array[i]._spring_type;
 		k = spring_parameters[spring_type];
@@ -122,7 +119,9 @@ __global__ void SolveForSprings3D_GPU(SpringGPU* spring_array,
 		idx1 = spring_array[i]._index1;
 
 		dir_not_unit = pos_array[idx1] - pos_array[idx0];
-		GetUnitAndDist(dir_not_unit, dir, dist);
+		//GetUnitAndDist(dir_not_unit, dir, dist);
+		dist = Length(dir_not_unit);
+		dir = dir_not_unit / dist;
 
 		diff = dist - spring_array[i]._dist;
 		spring_diff_array[i] = diff;// debug delete me
@@ -131,18 +130,65 @@ __global__ void SolveForSprings3D_GPU(SpringGPU* spring_array,
 		_spring_dir_array[i] = dir; // debug delete me
 
 		// squared version
-		signVal = 1;
-		if (diff < 0) { signVal = -1; }
 
-		_spring_signval_array[i] = signVal; // debug delete me
+		_spring_signval_array[i] = 0; // debug delete me
 
-		eForce = dir * (k *  diff * diff * signVal);
+		eForce = dir * k *  diff;
 
 		temp1 = edge_force_array[idx0];
 		temp2 = edge_force_array[idx1];
 
 		edge_force_array[idx0] = temp1 + eForce;
 		edge_force_array[idx1] = temp2 - eForce;
+	}
+}
+
+__global__ void SolveForSprings3D_GPU(SpringGPU* spring_array, // INPUT
+									  A3DVectorGPU* pos_array, // INPUT
+									  A3DVectorGPU* edge_force_array_springs, // OUTPUT
+									  float* spring_parameters, // INPUT
+									  int n_springs) // INPUT
+{
+	
+
+	int index = blockIdx.x * blockDim.x + threadIdx.x;
+	int stride = blockDim.x * gridDim.x;
+	for (int i = index; i < n_springs; i += stride)
+	{
+		// parameters
+		int spring_type = spring_array[i]._spring_type;
+		float k = spring_parameters[spring_type];
+
+		// check this!
+		int idx0 = spring_array[i]._index0;
+		int idx1 = spring_array[i]._index1;
+
+		A3DVectorGPU dir;
+		float dist = 0;
+		A3DVectorGPU dir_not_unit = pos_array[idx1] - pos_array[idx0];
+		GetUnitAndDist(dir_not_unit, dir, dist);
+		//float dist = Length(dir_not_unit);
+		//dir = dir_not_unit / dist;
+
+		float diff = dist - spring_array[i]._dist;
+		//spring_diff_array[i] = diff;// debug delete me
+		//_spring_k_array[i] = k;// debug delete me
+		//_spring_mag_array[i] = dist; // debug delete me
+		//_spring_dir_array[i] = dir; // debug delete me
+
+		// squared version
+		float signVal = 1;
+		if (diff < 0) { signVal = -1; }
+
+		//_spring_signval_array[i] = signVal; // debug delete me
+
+		edge_force_array_springs[i] = dir * (k *  diff * diff * signVal); // OUTPUT
+
+		//temp1 = edge_force_array[idx0];
+		//temp2 = edge_force_array[idx1];
+
+		//edge_force_array[idx0] = temp1 + eForce;
+		//edge_force_array[idx1] = temp2 - eForce;
 	}
 }
 

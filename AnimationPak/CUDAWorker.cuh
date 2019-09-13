@@ -20,7 +20,7 @@ public:
 	CUDAWorker();
 	~CUDAWorker();
 
-	void InitCUDA(int num_vertex, int num_spring);
+	void InitCUDA(int num_vertex, int num_spring, int num_surface_tri);
 
 	void SendPositionData();
 	void SendPositionAndVelocityData();
@@ -38,25 +38,27 @@ public:
 	void Simulate(float dt, float velocity_cap);         // integrate
 	
 	// forces
-	A3DVectorGPU* _edge_force_array;
-	A3DVectorGPU* _z_force_array;
-	A3DVectorGPU* _repulsion_force_array;
-	A3DVectorGPU* _boundary_force_array;
-	A3DVectorGPU* _overlap_force_array;
-	A3DVectorGPU* _rotation_force_array;
+	//A3DVectorGPU* _edge_force_array;
+	A3DVectorGPU* _edge_force_array_springs;
+	A3DVectorGPU* _repulsion_f_combinations;
+	//A3DVectorGPU* _z_force_array;
+	//A3DVectorGPU* _repulsion_force_array;
+	//A3DVectorGPU* _boundary_force_array;
+	//A3DVectorGPU* _overlap_force_array;
+	//A3DVectorGPU* _rotation_force_array;
 
 	// mass positions
 	A3DVectorGPU* _pos_array;
 
 	// mass velocities
-	A3DVectorGPU* _velocity_array;
+	//A3DVectorGPU* _velocity_array;
 
 	
-	float* _spring_diff_array;       // debug delete me
-	float* _spring_k_array;          // debug delete me
-	float* _spring_signval_array;    // debug delete me
-	float* _spring_mag_array;        // debug delete me
-	A3DVectorGPU* _spring_dir_array; // debug delete me
+	//float* _spring_diff_array;       // debug delete me
+	//float* _spring_k_array;          // debug delete me
+	//float* _spring_signval_array;    // debug delete me
+	//float* _spring_mag_array;        // debug delete me
+	//A3DVectorGPU* _spring_dir_array; // debug delete me
 
 	// springs
 	SpringGPU* _spring_array;
@@ -69,6 +71,7 @@ public:
 private:
 	int _num_vertex; // how many vertices in the system
 	int _num_spring; // how many springs in the system
+	int _num_surface_tri;
 };
 
 #endif

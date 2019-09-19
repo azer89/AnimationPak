@@ -20,7 +20,8 @@ public:
 	float     _mass;    // is likely only one
 	float     _ori_z_pos;
 
-	A3DVector _pos;	  // current
+	int       _pos_idx;
+	//A3DVector _pos_init;	  // for triangulation
 	A3DVector _velocity;
 	A3DVector _dockPoint; // you probably want the dockpoint be 2D?
 
@@ -49,8 +50,8 @@ public:
 	int _c_pts_approx_fill_size;
 	int _c_pts_approx_max_size;
 
-private:		
-	std::vector<int>     _closestGraphIndices;
+//private:		
+//	std::vector<int>     _closestGraphIndices;
 
 public:
 	AMass();
@@ -74,16 +75,24 @@ public:
 
 	void CallMeFromConstructor();
 
+	void SetPos(float x, float y, float z);
+	A3DVector GetPos();
+	float GetZPos();
+	void SetXYPos(float x, float y);
+	void SetZPos(float z);
+	void AddPos(float x, float y, float z);
+
 	void ResetForces(); // reset forces to zero
 	void Simulate(float dt);
-	void Interp_Simulate(float dt); // debug delete me...
+	
 	void Solve(const std::vector<A2DVector>& container, AnElement& parentElem);
 
 	void ImposeConstraints();
 
 	void GetClosestPoint4();
 
-	void Interp_GetClosestPoint();
+	//void Interp_Simulate(float dt); // debug delete me...
+	//void Interp_GetClosestPoint();
 
 	//A3DVector GetClosestPtFromArray(int elem_idx, std::vector<A3DObject>& tempClosestObj3D);
 

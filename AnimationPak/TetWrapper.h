@@ -16,9 +16,9 @@ public:
 
 	~TetWrapper();
 
-	void GenerateTet(const std::vector<AMass>& massList,	
-					 float maxDistRandPt,
-		             std::vector<AnIndexedLine>& tetEdges);
+	//void GenerateTet(const std::vector<AMass>& massList,	
+	//				 float maxDistRandPt,
+	//	             std::vector<AnIndexedLine>& tetEdges);
 
 	//void PruneEdges(const std::vector<AMass>& massList,
 	//	            const std::vector<AnIndexedLine>& tetEdges);

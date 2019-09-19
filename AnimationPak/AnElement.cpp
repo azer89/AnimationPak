@@ -119,7 +119,7 @@ void AnElement::UpdateZConstraint()
 	for (int a = 0; a < _massList.size(); a++)
 	{
 		int layer_idx = _massList[a]._layer_idx;
-		_z_pos_array[layer_idx] += _massList[a]._pos._z;
+		_z_pos_array[layer_idx] += _massList[a].GetZPos(); // _pos_list
 	}
 
 	float numPt = _numPointPerLayer;
@@ -131,7 +131,7 @@ void AnElement::UpdateZConstraint()
 	for (int a = 0; a < _massList.size(); a++)
 	{
 		int layer_idx = _massList[a]._layer_idx;
-		_massList[a]._pos._z = _z_pos_array[layer_idx];
+		_massList[a].SetZPos(_z_pos_array[layer_idx]); // _pos_list
 	}
 }
 
@@ -139,10 +139,11 @@ void  AnElement::RotateXY(float radAngle)
 {
 	for (int a = 0; a < _massList.size(); a++)
 	{
-		A2DVector pos = _massList[a]._pos.GetA2DVector();
+		A2DVector pos = _massList[a].GetPos().GetA2DVector();
 		A2DVector rotPos = UtilityFunctions::Rotate(pos, _layer_center, radAngle);
-		_massList[a]._pos._x = rotPos.x;
-		_massList[a]._pos._y = rotPos.y;
+		//_massList[a]._pos._x = rotPos.x;
+		//_massList[a]._pos._y = rotPos.y;
+		_massList[a].SetXYPos(rotPos.x, rotPos.y);
 	}
 
 	/*for (int a = 0; a < _interp_massList.size(); a++)
@@ -160,8 +161,8 @@ void AnElement::ScaleXY(float scVal)
 {
 	for (int a = 0; a < _massList.size(); a++)
 	{
-		A3DVector pos = _massList[a]._pos;
-		_massList[a]._pos = A3DVector(pos._x * scVal, pos._y * scVal, pos._z);
+		A3DVector pos = _massList[a].GetPos(); // _pos_list
+		_massList[a].SetPos(pos._x * scVal, pos._y * scVal, pos._z); // _pos_list
 	}
 
 	/*for (int a = 0; a < _interp_massList.size(); a++)
@@ -178,8 +179,8 @@ void AnElement::TranslateXY(float x, float y)
 
 	for (int a = 0; a < _massList.size(); a++)
 	{
-		A3DVector pos = _massList[a]._pos;
-		_massList[a]._pos = A3DVector(pos._x + x, pos._y + y, pos._z);
+		A3DVector pos = _massList[a].GetPos(); // _pos_list
+		_massList[a].SetPos(pos._x + x, pos._y + y, pos._z);  // _pos_list
 	}
 
 	/*for (int a = 0; a < _interp_massList.size(); a++)
@@ -201,7 +202,7 @@ void AnElement::CreateDockPoint(A2DVector queryPos, A2DVector lockPos, int layer
 	{
 		//if (_massList[a]._layer_idx == layer_idx)
 		//{
-		float d = _massList[a]._pos.GetA2DVector().Distance(queryPos);
+		float d = _massList[a].GetPos().GetA2DVector().Distance(queryPos); // _pos_list
 		if (d < dist)
 		{
 			dist = d;
@@ -217,7 +218,7 @@ void AnElement::CreateDockPoint(A2DVector queryPos, A2DVector lockPos, int layer
 
 	_massList[massListIdx]._isDocked = true;
 	// you probably want the dockpoint be 2D?
-	_massList[massListIdx]._dockPoint = A3DVector(lockPos.x, lockPos.y, _massList[massListIdx]._pos._z);
+	_massList[massListIdx]._dockPoint = A3DVector(lockPos.x, lockPos.y, _massList[massListIdx].GetZPos());  // _pos_list
 
 	_dock_mass_idx.push_back(massListIdx);
 	//_debug_lines_2->addPoint(Ogre::Vector3(_massList[massListIdx]._pos._x, _massList[massListIdx]._pos._y, _massList[massListIdx]._pos._z));
@@ -228,7 +229,7 @@ void AnElement::DockEnds(A2DVector startPt2D, A2DVector endPt2D, bool lockEnds)
 {
 	// ----- stuff -----
 	float zGap = SystemParams::_upscaleFactor / (float)(SystemParams::_num_layer - 1);
-	A2DVector startPt = _massList[0]._pos.GetA2DVector();
+	A2DVector startPt = _massList[0].GetPos().GetA2DVector();  // _pos_list
 	A2DVector dirVector = startPt.DirectionTo(endPt2D);
 	float xyGap = dirVector.Length() / (float)(SystemParams::_num_layer - 1);
 	dirVector = dirVector.Norm();
@@ -237,9 +238,10 @@ void AnElement::DockEnds(A2DVector startPt2D, A2DVector endPt2D, bool lockEnds)
 	{
 		float which_layer = _massList[a]._layer_idx;
 		A2DVector moveVector2D = dirVector * (xyGap * which_layer);
-		_massList[a]._pos._x += moveVector2D.x;
-		_massList[a]._pos._y += moveVector2D.y;
-		_massList[a]._pos._z = -(zGap * which_layer);
+		//_massList[a]._pos._x += moveVector2D.x;         // _pos_list
+		//_massList[a]._pos._y += moveVector2D.y;         // _pos_list
+		//_massList[a]._pos._z = -(zGap * which_layer);   // _pos_list
+		_massList[a].SetPos(_massList[a].GetPos()._x + moveVector2D.x, _massList[a].GetPos()._y + moveVector2D.y, -(zGap * which_layer));
 	}
 
 	if(lockEnds)
@@ -339,7 +341,6 @@ bool AnElement::IsInsideApprox(int layer_idx, A3DVector pos)
 	return UtilityFunctions::InsidePolygon(_a_layer_boundary, pos._x, pos._y);
 }
 
-//#pragma optimize("", off)
 bool AnElement::IsInside(int layer_idx, A3DVector pos, std::vector<A3DVector>& boundary_slice)
 {
 	int next_layer_idx = layer_idx + 1; // guaranteed exists
@@ -392,9 +393,9 @@ void AnElement::ComputeBary()
 	for (unsigned int c = 0; c < _numTrianglePerLayer; c++) // first layer only
 	{
 		std::vector<A2DVector> tri(3);
-		tri[0] = _massList[_triangles[c].idx0]._pos.GetA2DVector();
-		tri[1] = _massList[_triangles[c].idx1]._pos.GetA2DVector();
-		tri[2] = _massList[_triangles[c].idx2]._pos.GetA2DVector();
+		tri[0] = _massList[_triangles[c].idx0].GetPos().GetA2DVector(); // _pos_list
+		tri[1] = _massList[_triangles[c].idx1].GetPos().GetA2DVector(); // _pos_list
+		tri[2] = _massList[_triangles[c].idx2].GetPos().GetA2DVector(); // _pos_list
 		actualTriangles.push_back(tri);
 	}
 
@@ -451,7 +452,8 @@ void AnElement::ComputeBary()
 	}
 }
 
-void AnElement::Triangularization(std::vector<std::vector<A2DVector>> art_path, int self_idx)
+// has neg space springs
+std::vector<A3DVector>  AnElement::Triangularization(std::vector<std::vector<A2DVector>> art_path, int self_idx)
 {
 	// TODO calculate uniArt
 	std::vector<A2DVector> element_path = art_path[0];
@@ -476,7 +478,7 @@ void AnElement::Triangularization(std::vector<std::vector<A2DVector>> art_path, 
 
 	_layer_center = newCenter;
 
-	// -----  random points ----- 
+	// -----  random POINTS ----- 
 	std::vector<A2DVector> randomPoints;
 	CreateRandomPoints(element_path, img_length, randomPoints, this->_numBoundaryPointPerLayer);
 	this->_numPointPerLayer = randomPoints.size(); // ASSIGN
@@ -488,7 +490,8 @@ void AnElement::Triangularization(std::vector<std::vector<A2DVector>> art_path, 
 	std::vector<AnIndexedLine> temp_negSpaceEdges;
 	cvWrapper.Triangulate(tempTriangles, temp_negSpaceEdges, randomPoints, element_path, img_length);
 	_numTrianglePerLayer = tempTriangles.size(); // number of triangle per layer
-	// duplicate triangles
+
+	// duplicate TRIANGLES
 	for (int a = 0; a < SystemParams::_num_layer; a++)
 	{
 		float massIdxOffset = a * _numPointPerLayer;
@@ -501,7 +504,7 @@ void AnElement::Triangularization(std::vector<std::vector<A2DVector>> art_path, 
 			_triangles.push_back(tri);
 		}
 	}
-	// duplicate neg space edge
+	// duplicate neg space SPRINGS
 	for (int a = 0; a < SystemParams::_num_layer; a++)
 	{
 		float massIdxOffset = a * _numPointPerLayer;
@@ -534,12 +537,16 @@ void AnElement::Triangularization(std::vector<std::vector<A2DVector>> art_path, 
 	float zOffset = -((float)SystemParams::_upscaleFactor) / ((float)SystemParams::_num_layer - 1);
 
 	// -----  generate mass ----- 
+	std::vector<A3DVector> temp_pos_array;
 	int massCounter = 0; // self_idx
 	for (int a = 0; a < SystemParams::_num_layer; a++)
 	{
 		float zPos = zOffset * a;
 		for (int b = 0; b < randomPoints.size(); b++)
 		{
+			temp_pos_array.push_back(A3DVector(randomPoints[b].x, randomPoints[b].y, zPos));
+
+			// TODO: do not need to send position
 			AMass m(randomPoints[b].x, // x
 				randomPoints[b].y,     // y
 				zPos,                  // z
@@ -572,6 +579,11 @@ void AnElement::Triangularization(std::vector<std::vector<A2DVector>> art_path, 
 	}*/
 	// -----  generate interpolation mass ----- 
 
+	return temp_pos_array;
+}
+
+void AnElement::Setup()
+{
 	// -----  triangle edge springs ----- 
 	for (unsigned int a = 0; a < _triangles.size(); a++)
 	{
@@ -597,8 +609,8 @@ void AnElement::Triangularization(std::vector<std::vector<A2DVector>> art_path, 
 		int idx1 = _interp_triangles[a].idx1;
 		int idx2 = _interp_triangles[a].idx2;
 
-		TryToAddTriangleEdge(AnIndexedLine(idx0, idx1), a, _interp_triEdges, _interp_edgeToTri); // 0 - 1		
-		TryToAddTriangleEdge(AnIndexedLine(idx1, idx2), a, _interp_triEdges, _interp_edgeToTri); // 1 - 2		
+		TryToAddTriangleEdge(AnIndexedLine(idx0, idx1), a, _interp_triEdges, _interp_edgeToTri); // 0 - 1
+		TryToAddTriangleEdge(AnIndexedLine(idx1, idx2), a, _interp_triEdges, _interp_edgeToTri); // 1 - 2
 		TryToAddTriangleEdge(AnIndexedLine(idx2, idx0), a, _interp_triEdges, _interp_edgeToTri); // 2 - 0
 
 		// ----- add triangles to mass -----
@@ -650,8 +662,8 @@ void AnElement::Triangularization(std::vector<std::vector<A2DVector>> art_path, 
 			// BE CAREFUL!!!!
 			if (b == _numBoundaryPointPerLayer - 1)
 			{
-				next_1 = massIdxOffset1; 
-				next_2 = massIdxOffset2; 
+				next_1 = massIdxOffset1;
+				next_2 = massIdxOffset2;
 			}
 
 			// BUG !!!
@@ -660,12 +672,12 @@ void AnElement::Triangularization(std::vector<std::vector<A2DVector>> art_path, 
 				next_1 >= mass_sz ||
 				next_2 >= mass_sz) { continue; }*/
 
-			// layer_idx --> you want to know which layer a triangle belongs to
-			int layer_idx = min_of(_massList[cur_1]._layer_idx, 
-				                   _massList[cur_2]._layer_idx, 
-				                   _massList[next_1]._layer_idx, 
-				                   _massList[next_2]._layer_idx);
-						
+				// layer_idx --> you want to know which layer a triangle belongs to
+			int layer_idx = min_of(_massList[cur_1]._layer_idx,
+				_massList[cur_2]._layer_idx,
+				_massList[next_1]._layer_idx,
+				_massList[next_2]._layer_idx);
+
 			// cur_1 next_1 cur_2
 			AnIdxTriangle tri1(cur_1, next_1, cur_2, layer_idx);
 			_surfaceTriangles.push_back(tri1);
@@ -699,8 +711,9 @@ void AnElement::Triangularization(std::vector<std::vector<A2DVector>> art_path, 
 	//-----------------------
 	for (int a = 0; a < SystemParams::_num_layer - 1; a++)
 	{
-		int massIdxOffset1 = a * randomPoints.size();
-		int massIdxOffset2 = massIdxOffset1 + randomPoints.size();
+		//int massIdxOffset1 = a * randomPoints.size();
+		int massIdxOffset1 = a * _numPointPerLayer;
+		int massIdxOffset2 = massIdxOffset1 + _numPointPerLayer;
 		for (int b = 0; b < _numBoundaryPointPerLayer; b++)
 		{
 			int idxA = b - 1; // prev
@@ -715,7 +728,7 @@ void AnElement::Triangularization(std::vector<std::vector<A2DVector>> art_path, 
 			}
 
 			// straight
-			AddSpring(AnIndexedLine(b + massIdxOffset1, b + massIdxOffset2),    _time_springs); // previously _triEdges
+			AddSpring(AnIndexedLine(b + massIdxOffset1, b + massIdxOffset2), _time_springs); // previously _triEdges
 
 			// cross
 			AddSpring(AnIndexedLine(b + massIdxOffset1, idxA + massIdxOffset2), _time_springs); // previously _triEdges
@@ -796,7 +809,7 @@ void AnElement::Triangularization(std::vector<std::vector<A2DVector>> art_path, 
 	// reset !!!
 	ResetSpringRestLengths();
 	//Interp_ResetSpringRestLengths();
-	
+
 
 	// ----- some precomputation ----- 
 	for (int a = 0; a < SystemParams::_num_layer; a++)
@@ -810,7 +823,7 @@ void AnElement::Triangularization(std::vector<std::vector<A2DVector>> art_path, 
 		if (perLayerIdx < _numBoundaryPointPerLayer)
 		{
 			int layerIdx = _massList[a]._layer_idx;
-			_per_layer_boundary[layerIdx].push_back ( _massList[a]._pos );
+			_per_layer_boundary[layerIdx].push_back(_massList[a].GetPos());
 			//_per_layer_boundary_drawing[layerIdx].push_back(_massList[a]._pos);
 		}
 	}
@@ -854,8 +867,8 @@ void AnElement::CalculateRestStructure()
 	_rest_mass_pos_array.clear();
 	for (int a = 0; a < _massList.size(); a++)
 	{
-		_ori_rest_mass_pos_array.push_back(_massList[a]._pos);
-		_rest_mass_pos_array.push_back(_massList[a]._pos);
+		_ori_rest_mass_pos_array.push_back(_massList[a].GetPos());
+		_rest_mass_pos_array.push_back(_massList[a].GetPos());
 	}
 	
 }
@@ -993,8 +1006,8 @@ void AnElement::InitMeshOgre3D(Ogre::SceneManager* sceneMgr,
 	_neg_space_edge_lines = new DynamicLines(neg_sp_line_material, Ogre::RenderOperation::OT_LINE_LIST);
 	for (int l = 0; l < _neg_space_springs.size(); l++)
 	{
-		A3DVector pt1 = _massList[_neg_space_springs[l]._index0]._pos;
-		A3DVector pt2 = _massList[_neg_space_springs[l]._index1]._pos;
+		A3DVector pt1 = _massList[_neg_space_springs[l]._index0].GetPos();
+		A3DVector pt2 = _massList[_neg_space_springs[l]._index1].GetPos();
 		_neg_space_edge_lines->addPoint(Ogre::Vector3(pt1._x, pt1._y, pt1._z));
 		_neg_space_edge_lines->addPoint(Ogre::Vector3(pt2._x, pt2._y, pt2._z));
 	}
@@ -1009,7 +1022,7 @@ void AnElement::InitMeshOgre3D(Ogre::SceneManager* sceneMgr,
 	_force_lines = new DynamicLines(force_line_material, Ogre::RenderOperation::OT_LINE_LIST);
 	for (int a = 0; a < _massList.size(); a++)
 	{
-		A3DVector pos1 = _massList[a]._pos;
+		A3DVector pos1 = _massList[a].GetPos();
 		A3DVector pos2 = pos1 + A3DVector(2, 0, 0);
 		_force_lines->addPoint(pos1._x, pos1._y, pos1._z);
 		_force_lines->addPoint(pos2._x, pos2._y, pos2._z);
@@ -1028,10 +1041,11 @@ void AnElement::InitMeshOgre3D(Ogre::SceneManager* sceneMgr,
 		float offsetVal = 2;
 		for (int a = 0; a < _massList.size(); a++)
 		{
-			_massList_lines->addPoint(_massList[a]._pos._x - offsetVal, _massList[a]._pos._y, _massList[a]._pos._z);
-			_massList_lines->addPoint(_massList[a]._pos._x + offsetVal, _massList[a]._pos._y, _massList[a]._pos._z);
-			_massList_lines->addPoint(_massList[a]._pos._x, _massList[a]._pos._y - offsetVal, _massList[a]._pos._z);
-			_massList_lines->addPoint(_massList[a]._pos._x, _massList[a]._pos._y + offsetVal, _massList[a]._pos._z);
+			A3DVector tempPos = _massList[a].GetPos();
+			_massList_lines->addPoint(tempPos._x - offsetVal, tempPos._y,             tempPos._z);
+			_massList_lines->addPoint(tempPos._x + offsetVal, tempPos._y,             tempPos._z);
+			_massList_lines->addPoint(tempPos._x,             tempPos._y - offsetVal, tempPos._z);
+			_massList_lines->addPoint(tempPos._x,             tempPos._y + offsetVal, tempPos._z);
 		}
 	}
 	_massList_lines->update();
@@ -1044,8 +1058,8 @@ void AnElement::InitMeshOgre3D(Ogre::SceneManager* sceneMgr,
 	{
 		//if(_triEdges[a]._isLayer2Layer)
 		//{
-		A3DVector pos1 = _massList[_time_springs[a]._index0]._pos;
-		A3DVector pos2 = _massList[_time_springs[a]._index1]._pos;
+		A3DVector pos1 = _massList[_time_springs[a]._index0].GetPos();
+		A3DVector pos2 = _massList[_time_springs[a]._index1].GetPos();
 		_time_edge_lines->addPoint(Ogre::Vector3(pos1._x, pos1._y, pos1._z));
 		_time_edge_lines->addPoint(Ogre::Vector3(pos2._x, pos2._y, pos2._z));
 		//}
@@ -1067,8 +1081,8 @@ void AnElement::InitMeshOgre3D(Ogre::SceneManager* sceneMgr,
 			{
 				massIdx2 = layerOffset;
 			}
-			A3DVector pt1 = _massList[massIdx1]._pos;
-			A3DVector pt2 = _massList[massIdx2]._pos;
+			A3DVector pt1 = _massList[massIdx1].GetPos();
+			A3DVector pt2 = _massList[massIdx2].GetPos();
 			_boundary_lines->addPoint(Ogre::Vector3(pt1._x, pt1._y, pt1._z));
 			_boundary_lines->addPoint(Ogre::Vector3(pt2._x, pt2._y, pt2._z));
 		}
@@ -1082,9 +1096,9 @@ void AnElement::InitMeshOgre3D(Ogre::SceneManager* sceneMgr,
 	std::vector<A3DVector> tri(3);
 	for (int b = 0; b < _surfaceTriangles.size(); b++)
 	{
-		tri[0] = _massList[_surfaceTriangles[b].idx0]._pos;
-		tri[1] = _massList[_surfaceTriangles[b].idx1]._pos;
-		tri[2] = _massList[_surfaceTriangles[b].idx2]._pos;
+		tri[0] = _massList[_surfaceTriangles[b].idx0].GetPos();
+		tri[1] = _massList[_surfaceTriangles[b].idx1].GetPos();
+		tri[2] = _massList[_surfaceTriangles[b].idx2].GetPos();
 
 		_surface_tri_lines->addPoint(Ogre::Vector3(tri[0]._x, tri[0]._y, tri[0]._z));
 		_surface_tri_lines->addPoint(Ogre::Vector3(tri[1]._x, tri[1]._y, tri[1]._z));
@@ -1145,7 +1159,8 @@ void AnElement::InitMeshOgre3D(Ogre::SceneManager* sceneMgr,
 		for (int a = 0; a < _dock_mass_idx.size(); a++)
 		{
 			int massIdx = _dock_mass_idx[a];
-			_dock_lines->addPoint(Ogre::Vector3(_massList[massIdx]._pos._x, _massList[massIdx]._pos._y, _massList[massIdx]._pos._z));
+			A3DVector tempPos = _massList[massIdx].GetPos();
+			_dock_lines->addPoint(Ogre::Vector3(tempPos._x, tempPos._y, tempPos._z));
 			_dock_lines->addPoint(Ogre::Vector3(_massList[massIdx]._dockPoint._x, _massList[massIdx]._dockPoint._y, _massList[massIdx]._dockPoint._z));
 		}
 
@@ -1280,7 +1295,8 @@ void AnElement::UpdateDockLinesOgre3D()
 		int idx1 = a * 2;
 		int idx2 = idx1 + 1;
 		int massIdx = _dock_mass_idx[a];
-		_dock_lines->setPoint(idx1, Ogre::Vector3(_massList[massIdx]._pos._x, _massList[massIdx]._pos._y, _massList[massIdx]._pos._z));
+		A3DVector tempPos = _massList[massIdx].GetPos();
+		_dock_lines->setPoint(idx1, Ogre::Vector3(tempPos._x, tempPos._y, tempPos._z));
 		_dock_lines->setPoint(idx2, Ogre::Vector3(_massList[massIdx]._dockPoint._x, _massList[massIdx]._dockPoint._y, _massList[massIdx]._dockPoint._z));
 	}
 
@@ -1296,8 +1312,8 @@ void AnElement::UpdateNegSpaceEdgeOgre3D()
 
 		for (int l = 0; l < _neg_space_springs.size(); l++)
 		{
-			A3DVector pt1 = _massList[_neg_space_springs[l]._index0]._pos;
-			A3DVector pt2 = _massList[_neg_space_springs[l]._index1]._pos;
+			A3DVector pt1 = _massList[_neg_space_springs[l]._index0].GetPos();
+			A3DVector pt2 = _massList[_neg_space_springs[l]._index1].GetPos();
 			_neg_space_edge_lines->setPoint(idx++, Ogre::Vector3(pt1._x, pt1._y, pt1._z));
 			_neg_space_edge_lines->setPoint(idx++, Ogre::Vector3(pt2._x, pt2._y, pt2._z));
 		}
@@ -1333,13 +1349,13 @@ void AnElement::UpdateBoundaryDisplayOgre3D()
 
 				if(SystemParams::_layer_slider_int == -1)
 				{					
-					pt1 = _massList[massIdx1]._pos;
-					pt2 = _massList[massIdx2]._pos;
+					pt1 = _massList[massIdx1].GetPos();
+					pt2 = _massList[massIdx2].GetPos();
 				}
 				else if (l == SystemParams::_layer_slider_int)
 				{
-					pt1 = _massList[massIdx1]._pos;
-					pt2 = _massList[massIdx2]._pos;
+					pt1 = _massList[massIdx1].GetPos();
+					pt2 = _massList[massIdx2].GetPos();
 				}
 				else
 				{
@@ -1375,9 +1391,9 @@ void AnElement::UpdateSurfaceTriangleOgre3D()
 		for (unsigned int b = 0; b < _surfaceTriangles.size(); b++)
 		{
 			//std::vector<A3DVector> tri;
-			tri[0] = _massList[_surfaceTriangles[b].idx0]._pos;
-			tri[1] = _massList[_surfaceTriangles[b].idx1]._pos;
-			tri[2] = _massList[_surfaceTriangles[b].idx2]._pos;
+			tri[0] = _massList[_surfaceTriangles[b].idx0].GetPos();
+			tri[1] = _massList[_surfaceTriangles[b].idx1].GetPos();
+			tri[2] = _massList[_surfaceTriangles[b].idx2].GetPos();
 
 			_surface_tri_lines->setPoint(idx++, Ogre::Vector3(tri[0]._x, tri[0]._y, tri[0]._z));
 			_surface_tri_lines->setPoint(idx++, Ogre::Vector3(tri[1]._x, tri[1]._y, tri[1]._z));
@@ -1413,7 +1429,7 @@ void AnElement::UpdateOverlapOgre3D()
 		{
 			if (_massList[a]._is_boundary && _massList[a]._is_inside)
 			{
-				A3DVector massPos = _massList[a]._pos;
+				A3DVector massPos = _massList[a].GetPos();
 
 				_overlap_lines->addPoint(massPos._x - plus_offset, massPos._y, massPos._z);
 				_overlap_lines->addPoint(massPos._x + plus_offset, massPos._y, massPos._z);
@@ -1441,7 +1457,7 @@ void AnElement::UpdateForceOgre3D()
 		int idx = 0;
 		for (int a = 0; a < _massList.size(); a++)
 		{
-			A3DVector pos1 = _massList[a]._pos;
+			A3DVector pos1 = _massList[a].GetPos();
 
 			A3DVector vel = _massList[a]._velocity;
 			A3DVector norm;
@@ -1475,8 +1491,8 @@ void AnElement::UpdateTimeEdgesOgre3D()
 		{
 			//if (_triEdges[a]._isLayer2Layer)
 			//{
-			A3DVector pos1 = _massList[_time_springs[a]._index0]._pos;
-			A3DVector pos2 = _massList[_time_springs[a]._index1]._pos;
+			A3DVector pos1 = _massList[_time_springs[a]._index0].GetPos();
+			A3DVector pos2 = _massList[_time_springs[a]._index1].GetPos();
 			_time_edge_lines->setPoint(idx++, Ogre::Vector3(pos1._x, pos1._y, pos1._z));
 			_time_edge_lines->setPoint(idx++, Ogre::Vector3(pos2._x, pos2._y, pos2._z));
 			//}
@@ -1502,10 +1518,11 @@ void AnElement::UpdateMassListOgre3D()
 		float offsetVal = 1;
 		for (int a = 0; a < _massList.size(); a++)
 		{
-			_massList_lines->setPoint(idx++, Ogre::Vector3(_massList[a]._pos._x - offsetVal, _massList[a]._pos._y, _massList[a]._pos._z));
-			_massList_lines->setPoint(idx++, Ogre::Vector3(_massList[a]._pos._x + offsetVal, _massList[a]._pos._y, _massList[a]._pos._z));
-			_massList_lines->setPoint(idx++, Ogre::Vector3(_massList[a]._pos._x, _massList[a]._pos._y - offsetVal, _massList[a]._pos._z));
-			_massList_lines->setPoint(idx++, Ogre::Vector3(_massList[a]._pos._x, _massList[a]._pos._y + offsetVal, _massList[a]._pos._z));
+			A3DVector tempPos = _massList[a].GetPos();
+			_massList_lines->setPoint(idx++, Ogre::Vector3(tempPos._x - offsetVal, tempPos._y, tempPos._z));
+			_massList_lines->setPoint(idx++, Ogre::Vector3(tempPos._x + offsetVal, tempPos._y, tempPos._z));
+			_massList_lines->setPoint(idx++, Ogre::Vector3(tempPos._x, tempPos._y - offsetVal, tempPos._z));
+			_massList_lines->setPoint(idx++, Ogre::Vector3(tempPos._x, tempPos._y + offsetVal, tempPos._z));
 		}
 	}
 	else
@@ -1560,7 +1577,7 @@ void AnElement::UpdateMeshOgre3D()
 	{
 		if (a % 11 == 0) continue;
 
-		A3DVector pos = _massList[a]._pos;
+		A3DVector pos = _massList[a].GetPos();
 		_tubeObject->position(pos._x, pos._y, pos._z);
 
 		// normal doesn't work???
@@ -1758,12 +1775,14 @@ void  AnElement::CreateHelix()
 	for (int a = 0; a < _massList.size(); a++)
 	{
 		//if (a % 11 == 0) { continue; }
-		A2DVector pos(_massList[a]._pos._x, _massList[a]._pos._y);
+		//A2DVector pos(_massList[a]._pos._x, _massList[a]._pos._y);
+		A2DVector pos = _massList[a].GetPos().GetA2DVector();
 		int curLayer = _massList[a]._layer_idx;
 		float radAngle = (ggg / (float)SystemParams::_num_layer) * (float)curLayer;
 		A2DVector rotPos = UtilityFunctions::Rotate(pos, _layer_center, radAngle);
-		_massList[a]._pos._x = rotPos.x;
-		_massList[a]._pos._y = rotPos.y;
+		//_massList[a]._pos._x = rotPos.x;
+		//_massList[a]._pos._y = rotPos.y;
+		_massList[a].SetXYPos(rotPos.x, rotPos.y);
 	}
 }
 
@@ -1850,9 +1869,9 @@ void AnElement::CalculateLayerTriangles_Drawing()
 	for (unsigned int a = 0; a < _triangles.size(); a++)
 	{
 		std::vector<A3DVector> tri;
-		tri.push_back( _massList[_triangles[a].idx0]._pos );
-		tri.push_back( _massList[_triangles[a].idx1]._pos );
-		tri.push_back( _massList[_triangles[a].idx2]._pos );
+		tri.push_back( _massList[_triangles[a].idx0].GetPos());
+		tri.push_back( _massList[_triangles[a].idx1].GetPos());
+		tri.push_back( _massList[_triangles[a].idx2].GetPos());
 		allActualTriangles3D.push_back(tri);
 	}
 	
@@ -2008,7 +2027,7 @@ void AnElement::UpdateLayerBoundaries()
 		if (perLayerIdx < _numBoundaryPointPerLayer)
 		{
 			int layerIdx = _massList[a]._layer_idx;
-			_per_layer_boundary[layerIdx][perLayerIdx] = _massList[a]._pos;
+			_per_layer_boundary[layerIdx][perLayerIdx] = _massList[a].GetPos();
 		}
 	}
 }
@@ -2208,37 +2227,37 @@ void AnElement::ResetSpringRestLengths()
 {
 	for (int a = 0; a < _layer_springs.size(); a++)
 	{	
-		A3DVector p1 = _massList[_layer_springs[a]._index0]._pos;
-		A3DVector p2 = _massList[_layer_springs[a]._index1]._pos;
+		A3DVector p1 = _massList[_layer_springs[a]._index0].GetPos();
+		A3DVector p2 = _massList[_layer_springs[a]._index1].GetPos();
 		_layer_springs[a].SetActualOriDistance(p1.Distance(p2));
 	}
 
 	for (int a = 0; a < _time_springs.size(); a++)
 	{
-		A3DVector p1 = _massList[_time_springs[a]._index0]._pos;
-		A3DVector p2 = _massList[_time_springs[a]._index1]._pos;
+		A3DVector p1 = _massList[_time_springs[a]._index0].GetPos();
+		A3DVector p2 = _massList[_time_springs[a]._index1].GetPos();
 		_time_springs[a].SetActualOriDistance(p1.Distance(p2));
 	}
 
 	for (int a = 0; a < _auxiliary_springs.size(); a++)
 	{
 		//{
-		A3DVector p1 = _massList[_auxiliary_springs[a]._index0]._pos;
-		A3DVector p2 = _massList[_auxiliary_springs[a]._index1]._pos;
+		A3DVector p1 = _massList[_auxiliary_springs[a]._index0].GetPos();
+		A3DVector p2 = _massList[_auxiliary_springs[a]._index1].GetPos();
 		_auxiliary_springs[a].SetActualOriDistance(p1.Distance(p2));
 	}
 
 	for (int a = 0; a < _neg_space_springs.size(); a++)
 	{
 		//{
-		A3DVector p1 = _massList[_neg_space_springs[a]._index0]._pos;
-		A3DVector p2 = _massList[_neg_space_springs[a]._index1]._pos;
+		A3DVector p1 = _massList[_neg_space_springs[a]._index0].GetPos();
+		A3DVector p2 = _massList[_neg_space_springs[a]._index1].GetPos();
 		_neg_space_springs[a].SetActualOriDistance(p1.Distance(p2));
 	}
 
 	for (int a = 0; a < _massList.size(); a++)
 	{
-		_massList[a]._ori_z_pos = _massList[a]._pos._z;
+		_massList[a]._ori_z_pos = _massList[a].GetZPos();
 	}
 	
 	
@@ -2254,9 +2273,9 @@ void AnElement::ResetSpringRestLengths()
 
 A3DVector AnElement::ClosestPtOnATriSurface(int triIdx, A3DVector pos)
 {
-	_tempTri3[0] = _massList[_surfaceTriangles[triIdx].idx0]._pos;
-	_tempTri3[1] = _massList[_surfaceTriangles[triIdx].idx1]._pos;
-	_tempTri3[2] = _massList[_surfaceTriangles[triIdx].idx2]._pos;
+	_tempTri3[0] = _massList[_surfaceTriangles[triIdx].idx0].GetPos();
+	_tempTri3[1] = _massList[_surfaceTriangles[triIdx].idx1].GetPos();
+	_tempTri3[2] = _massList[_surfaceTriangles[triIdx].idx2].GetPos();
 	A3DVector cPt = UtilityFunctions::ClosestPointOnTriangle2(pos, _tempTri3[0], _tempTri3[1], _tempTri3[2]);
 	return cPt;
 }
@@ -2271,9 +2290,9 @@ A3DVector AnElement::ClosestPtOnTriSurfaces(std::vector<int>& triIndices, A3DVec
 	for (int b = 0; b < _surfaceTriangles.size(); b++)
 	{
 		//std::vector<A3DVector> tri;
-		_tempTri3[0] = _massList[_surfaceTriangles[b].idx0]._pos;
-		_tempTri3[1] = _massList[_surfaceTriangles[b].idx1]._pos;
-		_tempTri3[2] = _massList[_surfaceTriangles[b].idx2]._pos;
+		_tempTri3[0] = _massList[_surfaceTriangles[b].idx0].GetPos();
+		_tempTri3[1] = _massList[_surfaceTriangles[b].idx1].GetPos();
+		_tempTri3[2] = _massList[_surfaceTriangles[b].idx2].GetPos();
 
 		//A3DVector cPt = UtilityFunctions::ClosestPointOnTriangle(_tempTri3, pos);
 		A3DVector cPt = UtilityFunctions::ClosestPointOnTriangle2(pos, _tempTri3[0], _tempTri3[1], _tempTri3[2]);
@@ -2384,7 +2403,7 @@ void AnElement::SolveForSprings3D_Linear()
 		idx0 = _layer_springs[a]._index0;
 		idx1 = _layer_springs[a]._index1;
 
-		dir_not_unit = _massList[idx0]._pos.DirectionTo(_massList[idx1]._pos);
+		dir_not_unit = _massList[idx0].GetPos().DirectionTo(_massList[idx1].GetPos());
 		dir_not_unit.GetUnitAndDist(dir, dist);
 
 		diff = dist - _layer_springs[a]._dist;
@@ -2410,7 +2429,7 @@ void AnElement::SolveForSprings3D_Linear()
 		idx0 = _time_springs[a]._index0;
 		idx1 = _time_springs[a]._index1;
 
-		dir_not_unit = _massList[idx0]._pos.DirectionTo(_massList[idx1]._pos);
+		dir_not_unit = _massList[idx0].GetPos().DirectionTo(_massList[idx1].GetPos());
 		dir_not_unit.GetUnitAndDist(dir, dist);
 
 		diff = dist - _time_springs[a]._dist;
@@ -2436,7 +2455,7 @@ void AnElement::SolveForSprings3D_Linear()
 		idx0 = _auxiliary_springs[a]._index0;
 		idx1 = _auxiliary_springs[a]._index1;
 
-		dir_not_unit = _massList[idx0]._pos.DirectionTo(_massList[idx1]._pos);
+		dir_not_unit = _massList[idx0].GetPos().DirectionTo(_massList[idx1].GetPos());
 		dir_not_unit.GetUnitAndDist(dir, dist);
 
 		diff = dist - _auxiliary_springs[a]._dist;
@@ -2462,7 +2481,7 @@ void AnElement::SolveForSprings3D_Linear()
 		idx0 = _neg_space_springs[a]._index0;
 		idx1 = _neg_space_springs[a]._index1;
 
-		dir_not_unit = _massList[idx0]._pos.DirectionTo(_massList[idx1]._pos);
+		dir_not_unit = _massList[idx0].GetPos().DirectionTo(_massList[idx1].GetPos());
 		dir_not_unit.GetUnitAndDist(dir, dist);
 
 		diff = dist - _neg_space_springs[a]._dist;
@@ -2510,7 +2529,7 @@ void AnElement::SolveForSprings3D()
 		idx0 = _layer_springs[a]._index0;
 		idx1 = _layer_springs[a]._index1;
 		
-		dir_not_unit = _massList[idx0]._pos.DirectionTo(_massList[idx1]._pos);
+		dir_not_unit = _massList[idx0].GetPos().DirectionTo(_massList[idx1].GetPos());
 		dir_not_unit.GetUnitAndDist(dir, dist);
 
 		diff = dist - _layer_springs[a]._dist;
@@ -2540,7 +2559,7 @@ void AnElement::SolveForSprings3D()
 		idx0 = _time_springs[a]._index0;
 		idx1 = _time_springs[a]._index1;
 
-		dir_not_unit = _massList[idx0]._pos.DirectionTo(_massList[idx1]._pos);
+		dir_not_unit = _massList[idx0].GetPos().DirectionTo(_massList[idx1].GetPos());
 		dir_not_unit.GetUnitAndDist(dir, dist);
 
 		diff = dist - _time_springs[a]._dist;
@@ -2570,7 +2589,7 @@ void AnElement::SolveForSprings3D()
 		idx0 = _auxiliary_springs[a]._index0;
 		idx1 = _auxiliary_springs[a]._index1;		
 
-		dir_not_unit = _massList[idx0]._pos.DirectionTo(_massList[idx1]._pos);
+		dir_not_unit = _massList[idx0].GetPos().DirectionTo(_massList[idx1].GetPos());
 		dir_not_unit.GetUnitAndDist(dir, dist);
 
 		diff = dist - _auxiliary_springs[a]._dist;
@@ -2600,7 +2619,7 @@ void AnElement::SolveForSprings3D()
 		idx0 = _neg_space_springs[a]._index0;
 		idx1 = _neg_space_springs[a]._index1;
 
-		dir_not_unit = _massList[idx0]._pos.DirectionTo(_massList[idx1]._pos);
+		dir_not_unit = _massList[idx0].GetPos().DirectionTo(_massList[idx1].GetPos());
 		dir_not_unit.GetUnitAndDist(dir, dist);
 
 		diff = dist - _neg_space_springs[a]._dist;
@@ -2679,7 +2698,7 @@ void AnElement::UpdateClosestPtsDisplayOgre3D()
 
 			if (_massList[b]._c_pts_fill_size == 0) { continue; }
 
-			A3DVector pt1 = _massList[b]._pos;
+			A3DVector pt1 = _massList[b].GetPos();
 			_closet_pt_lines->addPoint(Ogre::Vector3(pt1._x - offst, pt1._y, pt1._z));
 			_closet_pt_lines->addPoint(Ogre::Vector3(pt1._x + offst, pt1._y, pt1._z));
 			_closet_pt_lines->addPoint(Ogre::Vector3(pt1._x, pt1._y - offst, pt1._z));
@@ -2701,7 +2720,7 @@ void AnElement::UpdateClosestPtsDisplayOgre3D()
 		{
 			if (SystemParams::_layer_slider_int >= 0 && _massList[b]._layer_idx != SystemParams::_layer_slider_int) { continue; }
 
-			A3DVector pt1 = _massList[b]._pos;
+			A3DVector pt1 = _massList[b].GetPos();
 			for (int c = 0; c < _massList[b]._c_pts_approx_fill_size; c++)
 			{
 				A3DVector pt2(_massList[b]._c_pts_approx[c].first._x, _massList[b]._c_pts_approx[c].first._y, _massList[b]._c_pts_approx[c].first._z);
@@ -2747,8 +2766,8 @@ std::vector<AnIndexedLine> AnElement::CreateBendingSprings(std::vector<AMass>& m
 		if (idx2 < 0) { continue; }
 
 		AnIndexedLine anEdge(idx1, idx2);
-		A2DVector pt1 = mList[idx1]._pos.GetA2DVector();
-		A2DVector pt2 = mList[idx2]._pos.GetA2DVector();
+		A2DVector pt1 = mList[idx1].GetPos().GetA2DVector();
+		A2DVector pt2 = mList[idx2].GetPos().GetA2DVector();
 		//anEdge._dist = pt1.Distance(pt2);
 		float d = pt1.Distance(pt2);
 		anEdge.SetDist(d);
@@ -2760,8 +2779,8 @@ std::vector<AnIndexedLine> AnElement::CreateBendingSprings(std::vector<AMass>& m
 }
 void  AnElement::ForceAddSpring(AnIndexedLine anEdge, int triIndex, std::vector<AnIndexedLine>& tEdges, std::vector<std::vector<int>>& e2t)
 {
-	A3DVector pt1 = _massList[anEdge._index0]._pos;
-	A3DVector pt2 = _massList[anEdge._index1]._pos;
+	A3DVector pt1 = _massList[anEdge._index0].GetPos();
+	A3DVector pt2 = _massList[anEdge._index1].GetPos();
 	float d = pt1.Distance(pt2);
 	anEdge.SetDist(d);
 
@@ -2776,8 +2795,8 @@ void  AnElement::ForceAddSpring(AnIndexedLine anEdge, int triIndex, std::vector<
 
 void AnElement::AddSpring(AnIndexedLine anEdge, std::vector<AnIndexedLine>& tSpring)
 {
-	A3DVector pt1 = _massList[anEdge._index0]._pos;
-	A3DVector pt2 = _massList[anEdge._index1]._pos;
+	A3DVector pt1 = _massList[anEdge._index0].GetPos();
+	A3DVector pt2 = _massList[anEdge._index1].GetPos();
 	float d = pt1.Distance(pt2);
 	anEdge.SetDist(d);
 
@@ -2790,8 +2809,8 @@ bool AnElement::TryToAddSpring(AnIndexedLine anEdge, int triIndex, std::vector<A
 	int edgeIndex = FindSpring(anEdge, tEdges);
 	if (edgeIndex < 0)
 	{
-		A3DVector pt1 = _massList[anEdge._index0]._pos;
-		A3DVector pt2 = _massList[anEdge._index1]._pos;
+		A3DVector pt1 = _massList[anEdge._index0].GetPos();
+		A3DVector pt2 = _massList[anEdge._index1].GetPos();
 		float d = pt1.Distance(pt2);
 		anEdge.SetDist(d);
 

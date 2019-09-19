@@ -15,11 +15,13 @@
 // static variables
 std::vector<AnElement>  StuffWorker::_element_list = std::vector<AnElement>();
 CollisionGrid3D* StuffWorker::_c_grid_3d = new CollisionGrid3D;
+A3DVector* StuffWorker::_pos_list = 0;
+
 
 // static variables for interpolation (need to delete these)
-bool  StuffWorker::_interp_mode = false;
-int   StuffWorker::_interp_iter = 0;
-std::vector<CollisionGrid2D*>  StuffWorker::_interp_c_grid_list = std::vector< CollisionGrid2D * >();
+//bool  StuffWorker::_interp_mode = false;
+//int   StuffWorker::_interp_iter = 0;
+//std::vector<CollisionGrid2D*>  StuffWorker::_interp_c_grid_list = std::vector< CollisionGrid2D * >();
 
 StuffWorker::StuffWorker() : _containerWorker(0), _is_paused(false)
 {
@@ -33,6 +35,8 @@ StuffWorker::StuffWorker() : _containerWorker(0), _is_paused(false)
 
 StuffWorker::~StuffWorker()
 {
+	free(_pos_list);
+
 	if (_containerWorker) { delete _containerWorker; }
 
 	_element_list.clear();
@@ -82,31 +86,70 @@ void StuffWorker::InitElements(Ogre::SceneManager* scnMgr)
 		_element_list.push_back(elem);
 	}*/
 
+	// ---------- Triangularization and generate positions ----------
+	std::vector<A3DVector> temp_pos_array; // temporary
 	for (int a = 0; a < _containerWorker->_randomPositions.size(); a++)
 	{
-		//if (UtilityFunctions::DistanceToFiniteLine(startPt, endPt, _containerWorker->_randomPositions[a]) < 10) { continue; }
-
 		int idx = _element_list.size();
 		AnElement elem;
-		elem.Triangularization(art_paths[elem_iter++ % elem_sz], idx);
-		elem.ComputeBary();
+		std::vector<A3DVector> t_p_arr = elem.Triangularization(art_paths[elem_iter++ % elem_sz], idx);
+		temp_pos_array.insert(temp_pos_array.end(), t_p_arr.begin(), t_p_arr.end());
+
+		_element_list.push_back(elem);		
+	}
+
+	// ---------- Calculate num vertex ----------
+	_num_vertex = 0;
+	for (unsigned int a = 0; a < _element_list.size(); a++)
+	{
+		// to make it easier to flatten spring arrays
+		_element_list[a]._cuda_mass_array_offset = _num_vertex;
+		_num_vertex += _element_list[a]._massList.size();
+	}
+	if (temp_pos_array.size() != _num_vertex) { std::cout << "num vertex count error!\n"; }
+
+	// ---------- Malloc postions ----------
+	int idx = 0;
+	_pos_list = (A3DVector*)malloc(_num_vertex * sizeof(A3DVector));
+	for (unsigned int a = 0; a < _element_list.size(); a++)
+	{
+		for (unsigned int b = 0; b < _element_list[a]._massList.size(); b++)
+		{
+			_element_list[a]._massList[b]._pos_idx = idx; // set reference
+			_pos_list[idx] = temp_pos_array[idx]; // set position
+			idx++; // increment
+		}
+	}
+
+	for (int a = 0; a < _element_list.size(); a++)
+	{
+		_element_list[a].ComputeBary();
 		// random rotation
 		float radAngle = float(rand() % 628) / 100.0;
-		elem.RotateXY(radAngle);
+		_element_list[a].RotateXY(radAngle);
 
-		elem.ScaleXY(initialScale);
-		elem.TranslateXY(_containerWorker->_randomPositions[a].x, _containerWorker->_randomPositions[a].y);
+		_element_list[a].ScaleXY(initialScale);
+		_element_list[a].TranslateXY(_containerWorker->_randomPositions[a].x, _containerWorker->_randomPositions[a].y);
 
-		elem.CalculateRestStructure();
+		_element_list[a].CalculateRestStructure();
 		Ogre::SceneNode* pNode = scnMgr->getRootSceneNode()->createChildSceneNode("TubeNode" + std::to_string(idx));
-		elem.InitMeshOgre3D(scnMgr, pNode, "StarTube" + std::to_string(idx), "Examples/TransparentTest2");
-		_element_list.push_back(elem);		
-
-		//if (_element_list.size() == SystemParams::_num_element_pos_limit) { break; }
-
-		//std::mt19937 g(SystemParams::_seed);
-		//std::shuffle(_containerWorker->_randomPositions.begin(), _containerWorker->_randomPositions.end(), g);
+		_element_list[a].InitMeshOgre3D(scnMgr, pNode, "StarTube" + std::to_string(idx), "Examples/TransparentTest2");
 	}
+
+	// ---------- Calculate everything else ----------
+	_num_spring = 0;
+	_num_surface_tri = 0;
+	for (unsigned int a = 0; a < _element_list.size(); a++)
+	{
+		_num_spring += _element_list[a]._layer_springs.size();
+		_num_spring += _element_list[a]._time_springs.size();
+		_num_spring += _element_list[a]._auxiliary_springs.size();
+		_num_spring += _element_list[a]._neg_space_springs.size();
+
+		_num_surface_tri += _element_list[a]._surfaceTriangles.size();
+	}
+
+	
 	
 	// ----- Collision grid 3D -----
 	StuffWorker::_c_grid_3d->Init();
@@ -118,9 +161,9 @@ void StuffWorker::InitElements(Ogre::SceneManager* scnMgr)
 		for (unsigned int b = 0; b < _element_list[a]._surfaceTriangles.size(); b++)
 		{
 			AnIdxTriangle tri = _element_list[a]._surfaceTriangles[b];
-			A3DVector p1      = _element_list[a]._massList[tri.idx0]._pos;
-			A3DVector p2      = _element_list[a]._massList[tri.idx1]._pos;
-			A3DVector p3      = _element_list[a]._massList[tri.idx2]._pos;
+			A3DVector p1      = _element_list[a]._massList[tri.idx0].GetPos(); // _post_list
+			A3DVector p2      = _element_list[a]._massList[tri.idx1].GetPos(); // _post_list
+			A3DVector p3      = _element_list[a]._massList[tri.idx2].GetPos(); // _post_list
 
 			_c_grid_3d->InsertAPoint( (p1._x + p2._x + p3._x) * 0.333,
 				                      (p1._y + p2._y + p3._y) * 0.333,
@@ -136,24 +179,7 @@ void StuffWorker::InitElements(Ogre::SceneManager* scnMgr)
 		}*/
 	}
 
-	// ---------- Calculate num vertex ----------
-	_num_vertex = 0;
-	_num_spring = 0;
-	_num_surface_tri = 0;
-	for (unsigned int a = 0; a < _element_list.size(); a++)
-	{
-		// to make it easier to flatten spring arrays
-		_element_list[a]._cuda_mass_array_offset = _num_vertex;
-
-		_num_vertex += _element_list[a]._massList.size();
-
-		_num_spring += _element_list[a]._layer_springs.size();
-		_num_spring += _element_list[a]._time_springs.size();
-		_num_spring += _element_list[a]._auxiliary_springs.size();
-		_num_spring += _element_list[a]._neg_space_springs.size();
-
-		_num_surface_tri += _element_list[a]._surfaceTriangles.size();
-	}
+	
 
 	// ---------- Calculate num vertex ----------
 	_cu_worker->InitCUDA(_num_vertex, _num_spring, _num_surface_tri);
@@ -319,9 +345,9 @@ void StuffWorker::Update()
 		for (int b = 0; b < _element_list[a]._surfaceTriangles.size(); b++)
 		{
 			AnIdxTriangle tri = _element_list[a]._surfaceTriangles[b];
-			A3DVector p1 = _element_list[a]._massList[tri.idx0]._pos;
-			A3DVector p2 = _element_list[a]._massList[tri.idx1]._pos;
-			A3DVector p3 = _element_list[a]._massList[tri.idx2]._pos;
+			A3DVector p1 = _element_list[a]._massList[tri.idx0].GetPos(); // _post_list
+			A3DVector p2 = _element_list[a]._massList[tri.idx1].GetPos(); // _post_list
+			A3DVector p3 = _element_list[a]._massList[tri.idx2].GetPos(); // _post_list
 			A3DVector midPt((p1._x + p2._x + p3._x) * 0.33333333333,
 				            (p1._y + p2._y + p3._y) * 0.33333333333,
 				            (p1._z + p2._z + p3._z) * 0.33333333333);
@@ -440,10 +466,10 @@ void StuffWorker::Solve()
 	// ----- CUDA -----
 	//_cu_worker->SendPositionAndVelocityData();
 	auto start2 = std::chrono::high_resolution_clock::now(); // timing
-	_cu_worker->SendPositionData();
-	_cu_worker->SendSpringLengths();	
-	_cu_worker->SolveForSprings3D();	
-	_cu_worker->RetrieveEdgeForceData();
+	//_cu_worker->SendPositionData();
+	//_cu_worker->SendSpringLengths();	
+	//_cu_worker->SolveForSprings3D();	
+	//_cu_worker->RetrieveEdgeForceData();
 	auto elapsed2 = std::chrono::high_resolution_clock::now() - start2; // timing
 	_microsecond_spring_cuda = std::chrono::duration_cast<std::chrono::microseconds>(elapsed2).count(); // timing
 	
@@ -715,8 +741,8 @@ void StuffWorker::SaveFrames()
 				int massIdx2 = b + layerOffset + 1;
 				if (b == _element_list[a]._numBoundaryPointPerLayer - 1)
 					{ massIdx2 = layerOffset; }
-				A2DVector pt1 = _element_list[a]._massList[massIdx1]._pos.GetA2DVector();
-				A2DVector pt2 = _element_list[a]._massList[massIdx2]._pos.GetA2DVector();
+				A2DVector pt1 = _element_list[a]._massList[massIdx1].GetPos().GetA2DVector(); // _pos_list
+				A2DVector pt2 = _element_list[a]._massList[massIdx2].GetPos().GetA2DVector(); // _pos_list
 				vCreator.DrawLine(pt1, pt2, _element_list[a]._color, l * numInterpolation);
 				vCreator.DrawRedCircle(l * numInterpolation); // debug delete me
 
@@ -752,11 +778,11 @@ void StuffWorker::SaveFrames()
 					int massIdx1_next = massIdx1 + _element_list[a]._numPointPerLayer; // next
 					int massIdx2_next = massIdx2 + _element_list[a]._numPointPerLayer; // next
 
-					A2DVector pt1 = _element_list[a]._massList[massIdx1]._pos.GetA2DVector();
-					A2DVector pt2 = _element_list[a]._massList[massIdx2]._pos.GetA2DVector();
+					A2DVector pt1 = _element_list[a]._massList[massIdx1].GetPos().GetA2DVector(); // _pos_list
+					A2DVector pt2 = _element_list[a]._massList[massIdx2].GetPos().GetA2DVector(); // _pos_list
 
-					A2DVector pt1_next = _element_list[a]._massList[massIdx1_next]._pos.GetA2DVector();
-					A2DVector pt2_next = _element_list[a]._massList[massIdx2_next]._pos.GetA2DVector();
+					A2DVector pt1_next = _element_list[a]._massList[massIdx1_next].GetPos().GetA2DVector(); // _pos_list
+					A2DVector pt2_next = _element_list[a]._massList[massIdx2_next].GetPos().GetA2DVector(); // _pos_list
 					
 
 					A2DVector dir1 = pt1.DirectionTo(pt1_next);

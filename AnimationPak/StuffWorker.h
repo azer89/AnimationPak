@@ -41,13 +41,20 @@ public:
 	void SaveFrames4();
 
 public:
+	static A3DVector* _pos_list;
+
+	static std::vector<AnElement> _element_list;
+
+	static CollisionGrid3D* _c_grid_3d; // collission grid 3D
+	
+
+public:
 	bool _is_paused;
 
-	static bool  _interp_mode;
-	static int   _interp_iter; // from zero to _interpolation_factor - 1
-	static std::vector<CollisionGrid2D*> _interp_c_grid_list;
-
-
+	//static bool  _interp_mode;
+	//static int   _interp_iter; // from zero to _interpolation_factor - 1
+	//static std::vector<CollisionGrid2D*> _interp_c_grid_list;
+	
 	//void EnableInterpolationMode();
 	//void DisableInterpolationMode();
 
@@ -59,9 +66,7 @@ public:
 
 	ContainerWorker* _containerWorker;
 
-	static std::vector<AnElement> _element_list;
-
-	static CollisionGrid3D* _c_grid_3d; // collission grid 3D
+	
 
 	AVideoCreator _video_creator;
 

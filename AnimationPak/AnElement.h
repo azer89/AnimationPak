@@ -61,7 +61,8 @@ public:
 
 	float GetMaxDistRandomPoints(const std::vector<A2DVector>& randomPoints);
 	void ComputeBary();
-	void Triangularization(std::vector<std::vector<A2DVector>> art_path, int self_idx);
+	std::vector<A3DVector> Triangularization(std::vector<std::vector<A2DVector>> art_path, int self_idx); // return temporary positions
+	void Setup();
 	void CreateRandomPoints(std::vector<A2DVector> ornamentBoundary, // called from Tetrahedralization()
 							float img_length,
 							std::vector<A2DVector>& randomPoints,

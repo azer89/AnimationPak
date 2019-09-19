@@ -477,7 +477,7 @@ void CUDAWorker::InitSpringData()
 
 void CUDAWorker::SendPositionData()
 {
-	int idx = 0;
+	/*int idx = 0;
 	for (unsigned int a = 0; a < StuffWorker::_element_list.size(); a++)
 	{
 		for (unsigned int b = 0; b < StuffWorker::_element_list[a]._massList.size(); b++)
@@ -487,7 +487,7 @@ void CUDAWorker::SendPositionData()
 			_pos_array[idx]._z = StuffWorker::_element_list[a]._massList[b]._pos._z;
 			idx++;
 		}
-	}
+	}*/
 }
 
 void CUDAWorker::SendPositionAndVelocityData()

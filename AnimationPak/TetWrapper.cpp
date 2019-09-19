@@ -42,7 +42,7 @@ bool TetWrapper::ValidIndex(int idx)
 //	}
 //}
 
-void TetWrapper::GenerateTet(const std::vector<AMass>& massList, float maxDistRandPt, std::vector<AnIndexedLine>& tetEdges)
+/*void TetWrapper::GenerateTet(const std::vector<AMass>& massList, float maxDistRandPt, std::vector<AnIndexedLine>& tetEdges)
 {
 	_massSize = massList.size();
 
@@ -97,4 +97,5 @@ void TetWrapper::GenerateTet(const std::vector<AMass>& massList, float maxDistRa
 	
 	//std::cout << "done" << "\n";
 	//return tetEdges;
-}
+}*/
+

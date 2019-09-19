@@ -9,12 +9,9 @@
 
 AMass::AMass()
 {
-	//this->_closestPoints3D = 0;
-	//this->_m     = 0;             // mass is always one
-	this->_pos = A3DVector(0, 0, 0);
+	this->_pos_idx = -1; 
+	//this->_pos_init = A3DVector(0, 0, 0); // temporary
 	this->_self_idx = -1;
-	//this->_cellIdx = -1;
-
 	CallMeFromConstructor();
 }
 
@@ -22,7 +19,8 @@ AMass::AMass()
 AMass::AMass(float x, float y, float z)
 {
 	//this->_closestPoints3D = 0;
-	this->_pos = A3DVector(x, y, z);
+	this->_pos_idx = -1;
+	//this->_pos_init = A3DVector(x, y, z); // temporary
 	this->_self_idx = -1;
 
 	CallMeFromConstructor();
@@ -37,9 +35,9 @@ AMass::AMass(float x,
 	         int debug_which_layer,
 			 bool is_boundary)
 {
-	//this->_closestPoints3D = 0;
-	this->_pos               = A3DVector(x, y, z);
-	this->_layer_idx = debug_which_layer;
+	this->_pos_idx           = -1;
+	//this->_pos_init          = A3DVector(x, y, z);  // temporary
+	this->_layer_idx         = debug_which_layer;
 	this->_self_idx          = self_idx;
 	this->_parent_idx        = parent_idx;
 	this->_is_boundary       = is_boundary;
@@ -51,8 +49,8 @@ AMass::AMass(float x,
 // Constructor
 AMass::AMass(A3DVector pos)
 {
-	//this->_closestPoints3D = 0;
-	this->_pos = pos;
+	this->_pos_idx  = -1; 
+	//this->_pos_init = pos;  // temporary
 	this->_self_idx = -1;
 
 	CallMeFromConstructor();
@@ -70,7 +68,7 @@ void AMass::CallMeFromConstructor()
 {
 	_closest_elem_idx = -1;
 
-	_ori_z_pos = _pos._z;
+	//_ori_z_pos = _pos_init._z; // TODO solve this!!!
 
 	_velocity = A3DVector(0, 0, 0);
 
@@ -98,6 +96,41 @@ void AMass::CallMeFromConstructor()
 	ResetForces();
 }
 
+// indirect
+void AMass::SetPos(float x, float y, float z)
+{
+	StuffWorker::_pos_list[_pos_idx] = A3DVector(x, y, z);
+}
+
+void AMass::SetZPos(float z)
+{
+	StuffWorker::_pos_list[_pos_idx]._z = z;
+}
+
+// indirect
+A3DVector AMass::GetPos()
+{
+	return StuffWorker::_pos_list[_pos_idx];
+}
+
+void AMass::SetXYPos(float x, float y)
+{
+	StuffWorker::_pos_list[_pos_idx]._x = x;
+	StuffWorker::_pos_list[_pos_idx]._y = y;
+}
+
+void AMass::AddPos(float x, float y, float z)
+{
+	StuffWorker::_pos_list[_pos_idx]._x += x;
+	StuffWorker::_pos_list[_pos_idx]._y += y;
+	StuffWorker::_pos_list[_pos_idx]._z += z;
+}
+
+float AMass::GetZPos()
+{
+	return StuffWorker::_pos_list[_pos_idx]._z;
+}
+
 void AMass::ResetForces()
 {
 	//_attractionForce = AVector(0, 0);
@@ -112,27 +145,7 @@ void AMass::ResetForces()
 	this->_dockForce = A3DVector(0, 0, 0);
 }
 
-// debug delete me
-void AMass::Interp_Simulate(float dt)
-{
-	_velocity += ((_edgeForce +
-		_zForce +
-		_repulsionForce +
-		_boundaryForce +
-		_overlapForce +
-		_rotationForce +
-		_dockForce) * dt);
-	float len = _velocity.Length();
 
-	float capVal = SystemParams::_velocity_cap * dt;
-
-	if (len > capVal)
-	{
-		_velocity = _velocity.Norm() * capVal;
-	}
-
-	_pos = _pos + _velocity * dt;
-}
 
 void AMass::Simulate(float dt)
 {
@@ -155,18 +168,23 @@ void AMass::Simulate(float dt)
 		_velocity = _velocity.Norm() * capVal;
 	}
 
-	_pos = _pos + _velocity * dt;
+	//_pos = _pos + _velocity * dt;
+	A3DVector vel_dt = _velocity * dt;
+	AddPos(vel_dt._x, vel_dt._y, vel_dt._z);
 }
 
 void AMass::ImposeConstraints()
 {
 	if (_layer_idx == 0)
 	{
-		_pos._z = 0;
+		//_pos._z = 0;
+		SetZPos(0);
+		
 	}
 	else if (_layer_idx == SystemParams::_num_layer - 1)
 	{
-		_pos._z = -SystemParams::_upscaleFactor;
+		//_pos._z = -SystemParams::_upscaleFactor;
+		SetZPos(-SystemParams::_upscaleFactor);
 	}
 
 	// boundary
@@ -192,7 +210,9 @@ void AMass::GetClosestPoint4()
 
 	//_closest_tri_array.clear(); // disabled :(
 
-	int square_idx = StuffWorker::_c_grid_3d->GetSquareIndexFromFloat(_pos._x, _pos._y, _pos._z);
+	A3DVector cur_pos = GetPos();
+
+	int square_idx = StuffWorker::_c_grid_3d->GetSquareIndexFromFloat(cur_pos._x, cur_pos._y, cur_pos._z);
 
 	//for (unsigned int a = 0; a < exact_pd.size(); a++)
 	float closest_dist = 10000000000;	
@@ -203,7 +223,7 @@ void AMass::GetClosestPoint4()
 	for (unsigned int a = 0; a < sq->_c_pt_fill_size; a++)
 	{
 		if (sq->_c_pt[a].first == _parent_idx) { continue; }
-		A3DVector pt = StuffWorker::_element_list[sq->_c_pt[a].first].ClosestPtOnATriSurface(sq->_c_pt[a].second, _pos);
+		A3DVector pt = StuffWorker::_element_list[sq->_c_pt[a].first].ClosestPtOnATriSurface(sq->_c_pt[a].second, cur_pos);
 
 		// disabled
 		/*
@@ -218,7 +238,7 @@ void AMass::GetClosestPoint4()
 		_c_pts[_c_pts_fill_size++] = pt;
 
 		// closest element
-		float distSq = pt.DistanceSquared(_pos);
+		float distSq = pt.DistanceSquared(cur_pos);
 		if (distSq < closest_dist)
 		{
 			closest_dist = distSq;
@@ -231,7 +251,7 @@ void AMass::GetClosestPoint4()
 	if (_closest_elem_idx != -1)
 	{		
 		int layer_idx = StuffWorker::_element_list[_closest_elem_idx]._surfaceTriangles[closest_tri_idx]._layer_idx; // original
-		_is_inside = StuffWorker::_element_list[_closest_elem_idx].IsInside(layer_idx, _pos, _closest_boundary_slice);
+		_is_inside = StuffWorker::_element_list[_closest_elem_idx].IsInside(layer_idx, cur_pos, _closest_boundary_slice);
 	}
 
 	// ----- approx closest point -----
@@ -279,11 +299,11 @@ void AMass::Solve(const std::vector<A2DVector>& container, AnElement& parentElem
 			for (unsigned int a = 0; a < _triangles.size(); a++)
 			{
 				// todo maybe center of mass?
-				ctrPt = (parentElem._massList[_triangles[a].idx0]._pos +        // triangle vertex
-						 parentElem._massList[_triangles[a].idx1]._pos +        // triangle vertex
-						 parentElem._massList[_triangles[a].idx2]._pos) / 3.0f; // triangle vertex
+				ctrPt = (parentElem._massList[_triangles[a].idx0].GetPos() +        // triangle vertex
+						 parentElem._massList[_triangles[a].idx1].GetPos() +        // triangle vertex
+						 parentElem._massList[_triangles[a].idx2].GetPos()) / 3.0f; // triangle vertex
 
-				dir = _pos.DirectionTo(ctrPt);
+				dir = GetPos().DirectionTo(ctrPt);
 				sumO += dir;
 			}
 			sumO *= SystemParams::_k_overlap;
@@ -299,7 +319,7 @@ void AMass::Solve(const std::vector<A2DVector>& container, AnElement& parentElem
 
 			for (int a = 0; a < _c_pts_fill_size; a++)
 			{
-				dir = _c_pts[a].DirectionTo(_pos); // direction
+				dir = _c_pts[a].DirectionTo(GetPos()); // direction
 
 				distSq = dir.LengthSquared(); // distance
 				sumR += (dir.Norm() / (SystemParams::_repulsion_soft_factor + distSq));
@@ -308,7 +328,7 @@ void AMass::Solve(const std::vector<A2DVector>& container, AnElement& parentElem
 
 			for (int a = 0; a < _c_pts_approx_fill_size; a++)
 			{
-				dir = _c_pts_approx[a].first.DirectionTo(_pos); // direction
+				dir = _c_pts_approx[a].first.DirectionTo(GetPos()); // direction
 				distSq = dir.LengthSquared(); // distance
 				sumR += (dir.Norm() *_c_pts_approx[a].second / (SystemParams::_repulsion_soft_factor + distSq));
 			}
@@ -324,11 +344,12 @@ void AMass::Solve(const std::vector<A2DVector>& container, AnElement& parentElem
 
 	// ---------- BOUNDARY FORCE ----------
 	float k_boundary = SystemParams::_k_boundary;
-	if (!UtilityFunctions::InsidePolygon(container, _pos._x, _pos._y))
+	A2DVector pos_2d = GetPos().GetA2DVector();
+	if (!UtilityFunctions::InsidePolygon(container, pos_2d.x, pos_2d.y))
 	{
-		A2DVector pos2D = _pos.GetA2DVector();
-		A2DVector cPt = UtilityFunctions::GetClosestPtOnClosedCurve(container, pos2D);
-		A2DVector dirDist = pos2D.DirectionTo(cPt); // not normalized
+		//A2DVector pos2D = _pos.GetA2DVector();
+		A2DVector cPt = UtilityFunctions::GetClosestPtOnClosedCurve(container, pos_2d);
+		A2DVector dirDist = pos_2d.DirectionTo(cPt); // not normalized
 		A2DVector bForce = dirDist * k_boundary;
 		/*if (!bForce.IsBad())*/ 
 		{ this->_boundaryForce += A3DVector(bForce.x, bForce.y, 0); } // z is always 0 !!!
@@ -338,7 +359,7 @@ void AMass::Solve(const std::vector<A2DVector>& container, AnElement& parentElem
 	if(_isDocked)
 	{
 		float k_dock = SystemParams::_k_dock;
-		A3DVector dir = _pos.DirectionTo(_dockPoint); // not normalized
+		A3DVector dir = GetPos().DirectionTo(_dockPoint); // not normalized
 		float dist = dir.Length();
 		dir = dir.Norm();
 		A3DVector eForce = (dir * SystemParams::_k_dock * dist);
@@ -350,13 +371,35 @@ void AMass::Solve(const std::vector<A2DVector>& container, AnElement& parentElem
 
 	// --------- Z FORCE
 	float k_z = SystemParams::_k_z;
-	float z_dist = _ori_z_pos - _pos._z;
+	float z_dist = _ori_z_pos - GetZPos();
 	_zForce = A3DVector(0, 0, z_dist) * k_z;
 
 }
 
-void AMass::Interp_GetClosestPoint()
+// debug delete me
+/*void AMass::Interp_Simulate(float dt)
 {
+	_velocity += ((_edgeForce +
+		_zForce +
+		_repulsionForce +
+		_boundaryForce +
+		_overlapForce +
+		_rotationForce +
+		_dockForce) * dt);
+	float len = _velocity.Length();
+
+	float capVal = SystemParams::_velocity_cap * dt;
+
+	if (len > capVal)
+	{
+		_velocity = _velocity.Norm() * capVal;
+	}
+
+	_pos = _pos + _velocity * dt;
+}*/
+
+//void AMass::Interp_GetClosestPoint()
+//{
 	/*
 	if (!_is_boundary) { return; }
 	if (_parent_idx < 0 || _parent_idx >= StuffWorker::_element_list.size()) { return; }
@@ -414,7 +457,7 @@ void AMass::Interp_GetClosestPoint()
 	}
 	_closestDist = std::sqrt(_closestDist); // SQRT
 	*/
-}
+//}
 
 /*
 A3DVector AMass::GetClosestPtFromArray(int elem_idx, std::vector<A3DObject>& tempClosestObj3D)
@@ -426,4 +469,26 @@ A3DVector AMass::GetClosestPtFromArray(int elem_idx, std::vector<A3DObject>& tem
 	{
 		if (tempClosestObj3D[a]._info1 != elem_idx) { continue; }
 	}
+}*/
+
+// debug delete me
+/*void AMass::Interp_Simulate(float dt)
+{
+	_velocity += ((_edgeForce +
+		_zForce +
+		_repulsionForce +
+		_boundaryForce +
+		_overlapForce +
+		_rotationForce +
+		_dockForce) * dt);
+	float len = _velocity.Length();
+
+	float capVal = SystemParams::_velocity_cap * dt;
+
+	if (len > capVal)
+	{
+		_velocity = _velocity.Norm() * capVal;
+	}
+
+	_pos = _pos + _velocity * dt;
 }*/

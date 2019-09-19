@@ -31,7 +31,7 @@ public:
 	void CreateStarTube(int self_idx);
 	void ResetSpringRestLengths();
 	void CreateHelix();
-	void RandomizeLayerSize();
+	//void RandomizeLayerSize();
 	
 	void BiliniearInterpolation(std::vector<A3DVector>& boundaryA, 
 		                        std::vector<A3DVector>& boundaryB, 

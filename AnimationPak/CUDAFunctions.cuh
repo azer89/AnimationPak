@@ -5,13 +5,13 @@
 #include "device_launch_parameters.h"
 
 #include "A3DVector.h"
-#include "A3DVectorGPU.h"
+//#include "A3DVectorGPU.h"
 #include "AnElement.h"
 #include "AMass.h"
 
 #include "SpringGPU.h"
 
-__device__
+/*__device__
 A3DVectorGPU operator+(const A3DVectorGPU& p, const A3DVectorGPU& v)
 {
 	return A3DVectorGPU(p._x + v._x, 
@@ -78,16 +78,16 @@ __device__ 	void GetUnitAndDist(const A3DVectorGPU& p, A3DVectorGPU& unitVec, fl
 	unitVec = A3DVectorGPU(p._x / dist,
 		p._y / dist,
 		p._z / dist);
-}
+}*/
 
 __global__ void SolveForSprings3D_Linear_GPU(SpringGPU* spring_array,
-	A3DVectorGPU* pos_array,
-	A3DVectorGPU* edge_force_array,
+	A3DVector* pos_array,
+	A3DVector* edge_force_array,
 	float* spring_diff_array, // debug delete me
 	float* _spring_k_array, // debug delete me
 	float* _spring_signval_array, // debug delete me
 	float* _spring_mag_array, // debug delete me
-	A3DVectorGPU* _spring_dir_array, // debug delete me
+	A3DVector* _spring_dir_array, // debug delete me
 	float* spring_parameters,
 	int n_springs)
 {
@@ -97,12 +97,12 @@ __global__ void SolveForSprings3D_Linear_GPU(SpringGPU* spring_array,
 	int stride = blockDim.x * gridDim.x;
 	for (int i = index; i < n_springs; i += stride)
 	{
-		A3DVectorGPU dir;
-		A3DVectorGPU dir_not_unit;
-		A3DVectorGPU eForce;
+		A3DVector dir;
+		A3DVector dir_not_unit;
+		A3DVector eForce;
 
-		A3DVectorGPU temp1; // debug delete me
-		A3DVectorGPU temp2; // debug delete me
+		A3DVector temp1; // debug delete me
+		A3DVector temp2; // debug delete me
 
 		float dist = 0;
 		float diff = 0;
@@ -119,8 +119,7 @@ __global__ void SolveForSprings3D_Linear_GPU(SpringGPU* spring_array,
 		idx1 = spring_array[i]._index1;
 
 		dir_not_unit = pos_array[idx1] - pos_array[idx0];
-		//GetUnitAndDist(dir_not_unit, dir, dist);
-		dist = Length(dir_not_unit);
+		dist = dir_not_unit.Length();
 		dir = dir_not_unit / dist;
 
 		diff = dist - spring_array[i]._dist;
@@ -144,8 +143,7 @@ __global__ void SolveForSprings3D_Linear_GPU(SpringGPU* spring_array,
 }
 
 __global__ void SolveForSprings3D_GPU(SpringGPU* spring_array, // INPUT
-									  A3DVectorGPU* pos_array, // INPUT
-									  A3DVectorGPU* edge_force_array_springs, // OUTPUT
+									  A3DVector* edge_force_array_springs, // OUTPUT
 									  float* spring_parameters, // INPUT
 									  int n_springs) // INPUT
 {
@@ -163,10 +161,10 @@ __global__ void SolveForSprings3D_GPU(SpringGPU* spring_array, // INPUT
 		int idx0 = spring_array[i]._index0;
 		int idx1 = spring_array[i]._index1;
 
-		A3DVectorGPU dir;
+		A3DVector dir;
 		float dist = 0;
-		A3DVectorGPU dir_not_unit = pos_array[idx1] - pos_array[idx0];
-		GetUnitAndDist(dir_not_unit, dir, dist);
+		A3DVector dir_not_unit = spring_array[i]._pos1 - spring_array[i]._pos0;
+		dir_not_unit.GetUnitAndDist(dir, dist);
 		//float dist = Length(dir_not_unit);
 		//dir = dir_not_unit / dist;
 
@@ -192,35 +190,35 @@ __global__ void SolveForSprings3D_GPU(SpringGPU* spring_array, // INPUT
 	}
 }
 
-__global__ void ResetForces_GPU(A3DVectorGPU* edge_force_array,
-								A3DVectorGPU* z_force_array,
-								A3DVectorGPU* repulsion_force_array,
-								A3DVectorGPU* boundary_force_array,
-								A3DVectorGPU* overlap_force_array,
-								A3DVectorGPU* rotation_force_array,
+__global__ void ResetForces_GPU(A3DVector* edge_force_array,
+								A3DVector* z_force_array,
+								A3DVector* repulsion_force_array,
+								A3DVector* boundary_force_array,
+								A3DVector* overlap_force_array,
+								A3DVector* rotation_force_array,
 								int n)
 {
 	int index = blockIdx.x * blockDim.x + threadIdx.x;
 	int stride = blockDim.x * gridDim.x;
 	for (int i = index; i < n; i += stride)
 	{
-		edge_force_array[i] = A3DVectorGPU(0, 0, 0);
-		z_force_array[i] = A3DVectorGPU(0, 0, 0);
-		repulsion_force_array[i] = A3DVectorGPU(0, 0, 0);
-		boundary_force_array[i] = A3DVectorGPU(0, 0, 0);
-		overlap_force_array[i] = A3DVectorGPU(0, 0, 0);
-		rotation_force_array[i] = A3DVectorGPU(0, 0, 0);
+		edge_force_array[i] = A3DVector(0, 0, 0);
+		z_force_array[i] = A3DVector(0, 0, 0);
+		repulsion_force_array[i] = A3DVector(0, 0, 0);
+		boundary_force_array[i] = A3DVector(0, 0, 0);
+		overlap_force_array[i] = A3DVector(0, 0, 0);
+		rotation_force_array[i] = A3DVector(0, 0, 0);
 	}
 }
 
-__global__ void Simulate_GPU(A3DVectorGPU* pos_array,
-	A3DVectorGPU* velocity_array,
-	A3DVectorGPU* edge_force_array,
-	A3DVectorGPU* z_force_array,
-	A3DVectorGPU* repulsion_force_array,
-	A3DVectorGPU* boundary_force_array,
-	A3DVectorGPU* overlap_force_array,
-	A3DVectorGPU* rotation_force_array,
+__global__ void Simulate_GPU(A3DVector* pos_array,
+	A3DVector* velocity_array,
+	A3DVector* edge_force_array,
+	A3DVector* z_force_array,
+	A3DVector* repulsion_force_array,
+	A3DVector* boundary_force_array,
+	A3DVector* overlap_force_array,
+	A3DVector* rotation_force_array,
 	int n,
 	float dt,
 	float velocity_cap_dt)
@@ -239,11 +237,11 @@ __global__ void Simulate_GPU(A3DVectorGPU* pos_array,
 				overlap_force_array[i] +
 				rotation_force_array[i]) * dt);
 
-		float len = Length(velocity_array[i]);
+		float len = velocity_array[i].Length();
 
 		if (len > velocity_cap_dt)
 		{
-			velocity_array[i] = Norm(velocity_array[i]) * velocity_cap_dt;
+			velocity_array[i] = velocity_array[i].Norm() * velocity_cap_dt;
 		}
 
 		pos_array[i] = pos_array[i] + velocity_array[i] * dt;

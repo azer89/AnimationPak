@@ -31,6 +31,7 @@ public:
 
 	bool _isDocked;
 	bool _is_inside;
+
 	std::vector<A3DVector> _closest_boundary_slice;
 	//std::vector<std::vector<A3DVector>> _closest_tri_array; // currently disabled!
 	bool _is_boundary;
@@ -100,7 +101,6 @@ public:
 	}
 
 public:
-	//A3DVector _edgeForce_cuda;
 	A3DVector _edgeForce_cpu;
 	A3DVector _edgeForce;
 	A3DVector _zForce;

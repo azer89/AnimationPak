@@ -1,7 +1,7 @@
 #ifndef A3DVECTORGPU_H
 #define A3DVECTORGPU_H
 
-#include "cuda_runtime.h"
+/*#include "cuda_runtime.h"
 
 #include "A3DVector.h"
 
@@ -26,15 +26,9 @@ public:
 		_y = y;
 		_z = z;
 	}
-
-	/*void SetValue(const A3DVector& v)
-	{
-		_x = v._x;
-		_y = v._y;
-		_z = v._z;
-	}*/
 };
 
+*/
 
 
 

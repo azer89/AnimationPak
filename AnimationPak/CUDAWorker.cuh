@@ -8,7 +8,7 @@
 #define CUDAWORKER_H
 
 #include "A3DVector.h"
-#include "A3DVectorGPU.h"
+//#include "A3DVectorGPU.h"
 #include "AnElement.h"
 #include "AMass.h"
 
@@ -39,8 +39,8 @@ public:
 	
 	// forces
 	//A3DVectorGPU* _edge_force_array;
-	A3DVectorGPU* _edge_force_array_springs;
-	A3DVectorGPU* _repulsion_f_combinations;
+	A3DVector* _edge_force_array_springs;
+	A3DVector* _repulsion_f_combinations;
 	//A3DVectorGPU* _z_force_array;
 	//A3DVectorGPU* _repulsion_force_array;
 	//A3DVectorGPU* _boundary_force_array;
@@ -48,7 +48,7 @@ public:
 	//A3DVectorGPU* _rotation_force_array;
 
 	// mass positions
-	A3DVectorGPU* _pos_array;
+	A3DVector* _pos_array;
 
 	// mass velocities
 	//A3DVectorGPU* _velocity_array;
@@ -65,8 +65,8 @@ public:
 	float* _spring_parameters;
 
 	// tool
-	void CopyVector_CPU2GPU(const A3DVector& src, A3DVectorGPU* dest);
-	void CopyVector_GPU2CPU(A3DVectorGPU* src, A3DVector& dest);
+	//void CopyVector_CPU2GPU(const A3DVector& src, A3DVector* dest);
+	//void CopyVector_GPU2CPU(A3DVector* src, A3DVector& dest);
 
 private:
 	int _num_vertex; // how many vertices in the system

@@ -1690,7 +1690,7 @@ void AnElement::UpdateMeshOgre3D()
 	}
 }*/
 
-void AnElement::RandomizeLayerSize()
+/*void AnElement::RandomizeLayerSize()
 {
 	float scale1 = (float)((rand() % 100) + 50) / 100.0f;
 	float scale2 = (float)((rand() % 100) + 50) / 100.0f;
@@ -1743,7 +1743,7 @@ void AnElement::RandomizeLayerSize()
 		_massList[a]._pos.SetXY(pos2D.x, pos2D.y);
 
 	}
-}
+}*/
 
 void  AnElement::CreateHelix()
 {

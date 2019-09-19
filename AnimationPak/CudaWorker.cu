@@ -110,16 +110,16 @@ void CUDAWorker::InitCUDA(int num_vertex, int num_spring, int num_surface_tri)
 	_num_surface_tri = num_surface_tri;
 
 	// mass positions
-	cudaMallocManaged(&_pos_array, _num_vertex * sizeof(A3DVectorGPU));
+	cudaMallocManaged(&_pos_array, _num_vertex * sizeof(A3DVector));
 
 	// mass velocities
 	//cudaMallocManaged(&_velocity_array, _num_vertex * sizeof(A3DVectorGPU));
 	
 	// mass forces
 	//cudaMallocManaged(&_edge_force_array,      _num_vertex * sizeof(A3DVectorGPU));
-	cudaMallocManaged(&_edge_force_array_springs,    _num_spring * sizeof(A3DVectorGPU));
+	cudaMallocManaged(&_edge_force_array_springs,    _num_spring * sizeof(A3DVector));
 	//_repulsion_f_combinations
-	cudaMallocManaged(&_repulsion_f_combinations, _num_vertex * _num_surface_tri * sizeof(A3DVectorGPU));
+	cudaMallocManaged(&_repulsion_f_combinations, _num_vertex * _num_surface_tri * sizeof(A3DVector));
 	//cudaMallocManaged(&_z_force_array,         _num_vertex * sizeof(A3DVectorGPU));
 	//cudaMallocManaged(&_repulsion_force_array, _num_vertex * sizeof(A3DVectorGPU));
 	//cudaMallocManaged(&_boundary_force_array,  _num_vertex * sizeof(A3DVectorGPU));
@@ -150,8 +150,15 @@ void CUDAWorker::InitCUDA(int num_vertex, int num_spring, int num_surface_tri)
 
 void CUDAWorker::SolveForSprings3D()
 {
+	// prefetch?
+	int device = -1;
+	cudaGetDevice(&device);
+	cudaMemPrefetchAsync(_spring_array, _num_spring * sizeof(SpringGPU), device, NULL);
+	cudaMemPrefetchAsync(_edge_force_array_springs, _num_spring * sizeof(A3DVector), device, NULL);
+
+
 	int blockSize = SystemParams::_cuda_block_size;
-	int numBlocks = (_num_vertex + blockSize - 1) / blockSize;
+	int numBlocks = (_num_spring + blockSize - 1) / blockSize;
 	/*
 	SolveForSprings3D_GPU(SpringGPU* spring_array, // INPUT
 						A3DVectorGPU* pos_array, // INPUT
@@ -160,7 +167,6 @@ void CUDAWorker::SolveForSprings3D()
 						int n_springs) // INPUT
 	*/
 	SolveForSprings3D_GPU <<< numBlocks, blockSize >>> (_spring_array,
-		_pos_array,
 		_edge_force_array_springs,
 		_spring_parameters,
 		_num_spring);
@@ -353,22 +359,34 @@ void CUDAWorker::SendSpringLengths()
 	{
 		for (unsigned int b = 0; b < StuffWorker::_element_list[a]._layer_springs.size(); b++)
 		{
-			_spring_array[idx++]._dist = StuffWorker::_element_list[a]._layer_springs[b]._dist; // 0
+			_spring_array[idx]._dist = StuffWorker::_element_list[a]._layer_springs[b]._dist; // 0
+			_spring_array[idx]._pos0 = _pos_array[_spring_array[idx]._index0];
+			_spring_array[idx]._pos1 = _pos_array[_spring_array[idx]._index1];
+			idx++;
 		}
 
 		for (unsigned int b = 0; b < StuffWorker::_element_list[a]._time_springs.size(); b++)
 		{
-			_spring_array[idx++]._dist = StuffWorker::_element_list[a]._time_springs[b]._dist; // 1
+			_spring_array[idx]._dist = StuffWorker::_element_list[a]._time_springs[b]._dist; // 1
+			_spring_array[idx]._pos0 = _pos_array[_spring_array[idx]._index0];
+			_spring_array[idx]._pos1 = _pos_array[_spring_array[idx]._index1];
+			idx++;
 		}
 
 		for (unsigned int b = 0; b < StuffWorker::_element_list[a]._auxiliary_springs.size(); b++)
 		{
-			_spring_array[idx++]._dist = StuffWorker::_element_list[a]._auxiliary_springs[b]._dist; // 2
+			_spring_array[idx]._dist = StuffWorker::_element_list[a]._auxiliary_springs[b]._dist; // 2
+			_spring_array[idx]._pos0 = _pos_array[_spring_array[idx]._index0];
+			_spring_array[idx]._pos1 = _pos_array[_spring_array[idx]._index1];
+			idx++;
 		}
 
 		for (unsigned int b = 0; b < StuffWorker::_element_list[a]._neg_space_springs.size(); b++)
 		{
-			_spring_array[idx++]._dist = StuffWorker::_element_list[a]._neg_space_springs[b]._dist; // 3
+			_spring_array[idx]._dist = StuffWorker::_element_list[a]._neg_space_springs[b]._dist; // 3
+			_spring_array[idx]._pos0 = _pos_array[_spring_array[idx]._index0];
+			_spring_array[idx]._pos1 = _pos_array[_spring_array[idx]._index1];
+			idx++;
 		}
 	}
 
@@ -515,18 +533,16 @@ void CUDAWorker::SendForceData()
 	std::cout << "done\n";*/
 }
 
-
-
-void CUDAWorker::CopyVector_CPU2GPU(const A3DVector& src, A3DVectorGPU* dest)
+/*void CUDAWorker::CopyVector_CPU2GPU(const A3DVector& src, A3DVectorGPU* dest)
 {
 	dest->_x = src._x;
 	dest->_y = src._y;
 	dest->_z = src._z;
-}
+}*/
 
-void CUDAWorker::CopyVector_GPU2CPU(A3DVectorGPU* src, A3DVector& dest)
+/*void CUDAWorker::CopyVector_GPU2CPU(A3DVectorGPU* src, A3DVector& dest)
 {
 	dest._x = src->_x;
 	dest._y = src->_y;
 	dest._z = src->_z;
-}
+}*/

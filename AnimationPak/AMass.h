@@ -19,28 +19,22 @@ public:
 
 	float     _mass;    // is likely only one
 	float     _ori_z_pos;
+
 	A3DVector _pos;	  // current
 	A3DVector _velocity;
-	
+	A3DVector _dockPoint; // you probably want the dockpoint be 2D?
+
+
 	int _self_idx; // for identification, not PER LAYER
 	int _parent_idx; // parent identification
 	int _layer_idx; // layer idx
-	//CollisionGrid3D* _c_grid_3d;
-
-	//bool _isInside;
 
 	bool _isDocked;
 	bool _is_inside;
-
-	std::vector<A3DVector> _closest_boundary_slice;
-	//std::vector<std::vector<A3DVector>> _closest_tri_array; // currently disabled!
 	bool _is_boundary;
 
-	A3DVector _dockPoint; // you probably want the dockpoint be 2D?
-
+	std::vector<A3DVector> _closest_boundary_slice;
 	std::vector<AnIdxTriangle> _triangles; // for overlap force
-
-	//float _closestDist; // for stop growing??? need to check
 
 public:
 	int _closest_elem_idx;

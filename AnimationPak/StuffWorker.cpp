@@ -109,20 +109,22 @@ void StuffWorker::InitElements(Ogre::SceneManager* scnMgr)
 	if (temp_pos_array.size() != _num_vertex) { std::cout << "num vertex count error!\n"; }
 
 	// ---------- Malloc postions ----------
-	int idx = 0;
+	int idx_ctr = 0;
 	_pos_list = (A3DVector*)malloc(_num_vertex * sizeof(A3DVector));
 	for (unsigned int a = 0; a < _element_list.size(); a++)
 	{
 		for (unsigned int b = 0; b < _element_list[a]._massList.size(); b++)
 		{
-			_element_list[a]._massList[b]._pos_idx = idx; // set reference
-			_pos_list[idx] = temp_pos_array[idx]; // set position
-			idx++; // increment
+			_element_list[a]._massList[b]._pos_idx = idx_ctr; // set reference
+			_pos_list[idx_ctr] = temp_pos_array[idx_ctr]; // set position
+			idx_ctr++; // increment
 		}
 	}
 
 	for (int a = 0; a < _element_list.size(); a++)
 	{
+		_element_list[a].Setup(); // previously in Triangularization()
+
 		_element_list[a].ComputeBary();
 		// random rotation
 		float radAngle = float(rand() % 628) / 100.0;
@@ -132,8 +134,8 @@ void StuffWorker::InitElements(Ogre::SceneManager* scnMgr)
 		_element_list[a].TranslateXY(_containerWorker->_randomPositions[a].x, _containerWorker->_randomPositions[a].y);
 
 		_element_list[a].CalculateRestStructure();
-		Ogre::SceneNode* pNode = scnMgr->getRootSceneNode()->createChildSceneNode("TubeNode" + std::to_string(idx));
-		_element_list[a].InitMeshOgre3D(scnMgr, pNode, "StarTube" + std::to_string(idx), "Examples/TransparentTest2");
+		Ogre::SceneNode* pNode = scnMgr->getRootSceneNode()->createChildSceneNode("TubeNode" + std::to_string(a));
+		_element_list[a].InitMeshOgre3D(scnMgr, pNode, "StarTube" + std::to_string(a), "Examples/TransparentTest2");
 	}
 
 	// ---------- Calculate everything else ----------

@@ -324,6 +324,7 @@ void StuffWorker::Update()
 	}	
 	_c_grid_3d->MovePoints();
 	_c_grid_3d->PrecomputeData();
+	//_c_grid_3d->PrecomputeData_Prepare_Threads();
 	
 	// ----- update closest points -----
 	// TODO

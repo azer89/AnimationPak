@@ -4,6 +4,8 @@
 
 #include <math.h>
 
+#include <thread>
+
 CollisionGrid3D::CollisionGrid3D()
 {
 	// need to call init
@@ -295,6 +297,132 @@ void CollisionGrid3D::InsertAPoint(float x, float y, float z, int info1, int inf
 	//_squares[sq_idx]->_objects.push_back(obj);
 	_squares[sq_idx]->_object_idx_array.push_back(_objects.size() - 1);
 }
+void CollisionGrid3D::PrecomputeData_Prepare_Threads()
+{
+	// prepare vector
+	int len = _squares.size();
+	int num_threads = 25;
+	int thread_stride = len / num_threads;
+	//int half_len = len / 2;
+
+
+	std::vector<std::thread> t_list;
+	for (int a = 0; a < num_threads; a++)
+	{
+		int startIdx = a * thread_stride;
+		int endIdx = startIdx + thread_stride;
+		t_list.push_back(std::thread(&CollisionGrid3D::PrecomputeData_Threads, this, startIdx, endIdx));
+	}
+
+	for (int a = 0; a < num_threads; a++)
+	{
+		t_list[a].join();
+	}
+
+
+	//std::thread t1(&CollisionGrid3D::PrecomputeData_Threads, this, 0, half_len);
+	//std::thread t2(&CollisionGrid3D::PrecomputeData_Threads, this, half_len, len);
+	
+	//t1.join();
+	//t2.join();
+}
+
+void CollisionGrid3D::PrecomputeData_Threads(int startIdx, int endIdx)
+{
+	int offst = SystemParams::_grid_radius_2;
+
+	A3DSquare* cur_sq;
+	A3DSquare* neighbor_sq;
+	A3DObject* obj;
+
+	int xPos, yPos, zPos, left_over;
+	int xBegin, xEnd, yBegin, yEnd, zBegin, zEnd;
+	for (unsigned int iter = startIdx; iter < endIdx; iter++)
+	{
+		// make sure...
+		if (iter >= _squares.size()) { break; }
+
+		cur_sq = _squares[iter];
+
+		//if (cur_sq->_objects.size() == 0) {continue;} // should we comment this ???
+		if (cur_sq->_object_idx_array.size() == 0) { continue; } // should we comment this ???
+
+		cur_sq->_c_pt_fill_size = 0;        // reset
+		cur_sq->_c_pt_approx_fill_size = 0; // reset
+
+		zPos = iter / _side_num_sq; // int division
+
+		left_over = iter - (zPos * _side_num_sq);
+
+		xPos = left_over / _side_num;          // current position
+		yPos = left_over - (xPos * _side_num); // current position // y is filled first
+
+		// todo: clamping
+		xBegin = xPos - offst;
+		if (xBegin < 0) { xBegin = 0; }
+
+		xEnd = xPos + offst;
+		if (xEnd >= _side_num) { xEnd = _side_num - 1; }
+
+		yBegin = yPos - offst;
+		if (yBegin < 0) { yBegin = 0; }
+
+		yEnd = yPos + offst;
+		if (yEnd >= _side_num) { yEnd = _side_num - 1; }
+
+		// uncomment me!
+		zBegin = zPos - offst;
+		if (zBegin < 0) { zBegin = 0; }
+
+		zEnd = zPos + offst;
+		if (zEnd >= _side_num) { zEnd = _side_num - 1; }
+
+
+		int s_idx;
+		unsigned int a;
+
+		// uncomment me!
+		for (int zIter = zBegin; zIter <= zEnd; zIter++)
+		{
+			//int zIter = zPos; // delete me !!!!
+			for (int xIter = xBegin; xIter <= xEnd; xIter++)
+			{
+				for (int yIter = yBegin; yIter <= yEnd; yIter++)
+				{
+					s_idx = SquareIndex(xIter, yIter, zIter);
+					neighbor_sq = _squares[s_idx];
+					if (abs(xIter - xPos) <= SystemParams::_grid_radius_1 &&
+						abs(yIter - yPos) <= SystemParams::_grid_radius_1 &&
+						abs(zIter - zPos) <= SystemParams::_grid_radius_1)
+					{
+
+						for (a = 0; a < neighbor_sq->_object_idx_array.size(); a++)
+						{
+							// (1) which element (2) which triangle
+							obj = _objects[neighbor_sq->_object_idx_array[a]];
+							cur_sq->_c_pt[cur_sq->_c_pt_fill_size++] = std::pair<int, int>(obj->_info1, obj->_info2);
+						}
+					}
+
+					else // it is ok, no need to check
+					{
+						for (a = 0; a < neighbor_sq->_object_idx_array.size(); a++)
+						{
+							// (1) which element (2) which square
+							obj = _objects[neighbor_sq->_object_idx_array[a]];
+							cur_sq->_c_pt_approx[cur_sq->_c_pt_approx_fill_size++] = std::pair<int, int>(obj->_info1, s_idx);
+						}
+					}
+				}
+			}
+		}
+	}
+
+	cur_sq = 0;
+	neighbor_sq = 0;
+	obj = 0;
+}
+
 
 void CollisionGrid3D::PrecomputeData()
 {

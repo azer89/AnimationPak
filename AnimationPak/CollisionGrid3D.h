@@ -72,6 +72,9 @@ public:
 
 	void PrecomputeData();
 
+	void PrecomputeData_Prepare_Threads();
+	void PrecomputeData_Threads(int startIdx, int endIdx);
+
 	void PrecomputeClosestGraphsAndTriangles();
 
 	void MovePoints();

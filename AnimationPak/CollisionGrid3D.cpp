@@ -52,12 +52,12 @@ CollisionGrid3D::~CollisionGrid3D()
 	_squares.clear();
 }
 
-int CollisionGrid3D::SquareIndex(int xPos, int yPos, int zPos)
+int CollisionGrid3D::SquareIndex(int xPos, int yPos, int zPos) const
 {
 	return (zPos * _side_num_sq) + (xPos * _side_num) + yPos; // y filled first
 }
 
-void CollisionGrid3D::GetCellPosition(int& xPos, int& yPos, int& zPos, float x, float y, float z)
+void CollisionGrid3D::GetCellPosition(int& xPos, int& yPos, int& zPos, float x, float y, float z) const
 {
 	xPos = x / _max_cell_length;
 	yPos = y / _max_cell_length;
@@ -231,7 +231,7 @@ void CollisionGrid3D::GetTriangleIndices(float x, float y, float z, TriangleIndi
 	closestTriIndices = _triangle_idx_array[idx];
 }
 
-int CollisionGrid3D::GetSquareIndexFromFloat(float x, float y, float z)
+int CollisionGrid3D::GetSquareIndexFromFloat(float x, float y, float z) const
 {
 	z = abs(z); // POSITIVE !!!
 
@@ -301,8 +301,8 @@ void CollisionGrid3D::PrecomputeData_Prepare_Threads()
 {
 	// prepare vector
 	int len = _squares.size();
-	int num_threads = 25;
-	int thread_stride = len / num_threads;
+	int num_threads = SystemParams::_num_thread_cg;
+	int thread_stride = (len + num_threads - 1) / num_threads;
 	//int half_len = len / 2;
 
 
@@ -311,7 +311,7 @@ void CollisionGrid3D::PrecomputeData_Prepare_Threads()
 	{
 		int startIdx = a * thread_stride;
 		int endIdx = startIdx + thread_stride;
-		t_list.push_back(std::thread(&CollisionGrid3D::PrecomputeData_Threads, this, startIdx, endIdx));
+		t_list.push_back(std::thread(&CollisionGrid3D::PrecomputeData_Thread, this, startIdx, endIdx));
 	}
 
 	for (int a = 0; a < num_threads; a++)
@@ -327,7 +327,7 @@ void CollisionGrid3D::PrecomputeData_Prepare_Threads()
 	//t2.join();
 }
 
-void CollisionGrid3D::PrecomputeData_Threads(int startIdx, int endIdx)
+void CollisionGrid3D::PrecomputeData_Thread(int startIdx, int endIdx)
 {
 	int offst = SystemParams::_grid_radius_2;
 

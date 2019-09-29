@@ -73,18 +73,18 @@ public:
 	void PrecomputeData();
 
 	void PrecomputeData_Prepare_Threads();
-	void PrecomputeData_Threads(int startIdx, int endIdx);
+	void PrecomputeData_Thread(int startIdx, int endIdx);
 
 	void PrecomputeClosestGraphsAndTriangles();
 
 	void MovePoints();
 
-	int GetSquareIndexFromFloat(float x, float y, float z);
+	int GetSquareIndexFromFloat(float x, float y, float z) const;
 
 private:
-	void GetCellPosition(int& xPos, int& yPos, int& zPos, float x, float y, float z);
+	void GetCellPosition(int& xPos, int& yPos, int& zPos, float x, float y, float z) const;
 
-	int SquareIndex(int xPos, int yPos, int zPos);
+	int SquareIndex(int xPos, int yPos, int zPos) const;
 
 	
 

@@ -245,6 +245,78 @@ A3DVector AMass::GetClosestPtFromArray(int elem_idx, std::vector<A3DObject>& tem
 	}
 }*/
 
+void AMass::GetClosestPoint5(const CollisionGrid3D& c_grid, const std::vector<AnElement>& element_list)
+{
+	if (!_is_boundary) { return; }
+	//if (_parent_idx < 0 || _parent_idx >= StuffWorker::_element_list.size()) { return; } // why???
+
+	this->_is_inside = false;           // "inside" flag
+
+	// clear
+	_c_pts_fill_size = 0;
+	_c_pts_approx_fill_size = 0;
+	_closest_elem_idx = -1;
+
+	//_closest_tri_array.clear(); // disabled :(
+
+	int square_idx = c_grid.GetSquareIndexFromFloat(_pos._x, _pos._y, _pos._z);
+
+	//for (unsigned int a = 0; a < exact_pd.size(); a++)
+	float closest_dist = 10000000000;
+	float closest_tri_idx = -1;
+	A3DSquare* sq = c_grid._squares[square_idx];
+
+	// ----- exact closest point -----
+	for (unsigned int a = 0; a < sq->_c_pt_fill_size; a++)
+	{
+		if (sq->_c_pt[a].first == _parent_idx) { continue; }
+		A3DVector pt = element_list[sq->_c_pt[a].first].ClosestPtOnATriSurface_Const(sq->_c_pt[a].second, _pos);
+
+		_c_pts[_c_pts_fill_size++] = pt;
+
+		// closest element
+		float distSq = pt.DistanceSquared(_pos);
+		if (distSq < closest_dist)
+		{
+			closest_dist = distSq;
+			_closest_elem_idx = sq->_c_pt[a].first;
+			closest_tri_idx = sq->_c_pt[a].second;
+		}
+	}
+
+	// ----- inside outside -----
+	if (_closest_elem_idx != -1)
+	{
+		int layer_idx = StuffWorker::_element_list[_closest_elem_idx]._surfaceTriangles[closest_tri_idx]._layer_idx; // original
+		_is_inside = StuffWorker::_element_list[_closest_elem_idx].IsInside(layer_idx, _pos, _closest_boundary_slice);
+	}
+
+	// ----- approx closest point -----
+	int current_sq_idx = -1;
+	for (unsigned int a = 0; a < sq->_c_pt_approx_fill_size; a++)
+	{
+		int p_idx = sq->_c_pt_approx[a].first;
+		if (p_idx == _parent_idx) { continue; }
+
+		int temp_sq_idx = sq->_c_pt_approx[a].second; // square idx, assume they're on the same segments.
+
+		if (temp_sq_idx == current_sq_idx) // same
+		{
+			_c_pts_approx[_c_pts_approx_fill_size].second++;
+		}
+		else // new one
+		{
+			current_sq_idx = temp_sq_idx;
+
+			_c_pts_approx[_c_pts_approx_fill_size].first = A3DVector(c_grid._squares[current_sq_idx]->_xCenter,
+				c_grid._squares[current_sq_idx]->_yCenter,
+				-c_grid._squares[current_sq_idx]->_zCenter); // negative
+			_c_pts_approx[_c_pts_approx_fill_size].second = 1;
+			_c_pts_approx_fill_size++;
+		}
+	}
+}
+
 void AMass::GetClosestPoint4()
 {
 	if (!_is_boundary) { return; }
@@ -333,7 +405,7 @@ void AMass::Grow(float growth_scale_iter, float dt)
 	// nothing happens
 }
 
-void AMass::Solve(const std::vector<A2DVector>& container, AnElement& parentElem)
+void AMass::Solve(const std::vector<A2DVector>& container, const AnElement& parentElem)
 {
 	if(_is_boundary)
 	{
@@ -346,9 +418,9 @@ void AMass::Solve(const std::vector<A2DVector>& container, AnElement& parentElem
 			for (unsigned int a = 0; a < _triangles.size(); a++)
 			{
 				// todo maybe center of mass?
-				ctrPt = (parentElem._massList[_triangles[a].idx0]._pos +        // triangle vertex
-						 parentElem._massList[_triangles[a].idx1]._pos +        // triangle vertex
-						 parentElem._massList[_triangles[a].idx2]._pos) / 3.0f; // triangle vertex
+				ctrPt = (parentElem._massList[_triangles[a].idx0].GetPos() +        // triangle vertex
+						 parentElem._massList[_triangles[a].idx1].GetPos() +        // triangle vertex
+						 parentElem._massList[_triangles[a].idx2].GetPos()) / 3.0f; // triangle vertex
 
 				dir = _pos.DirectionTo(ctrPt);
 				sumO += dir;

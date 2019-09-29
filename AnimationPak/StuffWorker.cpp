@@ -10,6 +10,8 @@
 
 #include "dirent.h" // external
 
+#include <chrono> // debug delete me
+
 // static variables
 std::vector<AnElement>  StuffWorker::_element_list = std::vector<AnElement>();
 CollisionGrid3D* StuffWorker::_c_grid_3d = new CollisionGrid3D;
@@ -21,6 +23,9 @@ std::vector<CollisionGrid2D*>  StuffWorker::_interp_c_grid_list = std::vector< C
 
 StuffWorker::StuffWorker() : _containerWorker(0), _is_paused(false)
 {
+	_micro_n_thread = 0;
+	_micro_1_thread = 0;
+
 	_containerWorker = new ContainerWorker;
 	_containerWorker->LoadContainer();
 
@@ -125,10 +130,10 @@ void StuffWorker::InitElements(Ogre::SceneManager* scnMgr)
 		}
 
 		// assign
-		for (unsigned int b = 0; b < _element_list[a]._massList.size(); b++)
-		{
-			_element_list[a]._massList[b]._c_grid_3d = _c_grid_3d; // assign grid to mass
-		}
+		//for (unsigned int b = 0; b < _element_list[a]._massList.size(); b++)
+		//{
+			//_element_list[a]._massList[b]._c_grid_3d = _c_grid_3d; // assign grid to mass
+		//}
 	}
 
 	// ---------- Calculate num vertex ----------
@@ -323,20 +328,43 @@ void StuffWorker::Update()
 		}
 	}	
 	_c_grid_3d->MovePoints();
-	_c_grid_3d->PrecomputeData();
-	//_c_grid_3d->PrecomputeData_Prepare_Threads();
 	
+	
+
+	//
+	_c_grid_3d->PrecomputeData_Prepare_Threads();
+	//auto elapsed2 = std::chrono::system_clock::now() - start2; // timing
+	//_micro_n_thread = std::chrono::duration_cast<std::chrono::microseconds>(elapsed2).count(); // timing
+	
+	// system_clock
+	// steady_clock model physical time
+	// high_resolution_clock
+	/*auto start1 = std::chrono::system_clock::now(); // timing
+	_c_grid_3d->PrecomputeData();
+	auto elapsed1 = std::chrono::system_clock::now() - start1; // timing
+	_micro_1_thread = std::chrono::duration_cast<std::chrono::microseconds>(elapsed1).count(); // timing
+	*/
 	// ----- update closest points -----
 	// TODO
+
+
+	/*auto start1 = std::chrono::system_clock::now(); // timing
 	for (int a = 0; a < _element_list.size(); a++)
 	{
 		for (int b = 0; b < _element_list[a]._massList.size(); b++)
 		{
 			_element_list[a]._massList[b].GetClosestPoint4();
-			//_element_list[a].UpdatePerLayerInsideFlags();
 		}
-
 	}
+	auto elapsed1 = std::chrono::system_clock::now() - start1; // timing
+	_micro_1_thread = std::chrono::duration_cast<std::chrono::microseconds>(elapsed1).count(); // timing
+	*/
+
+	//auto start2 = std::chrono::system_clock::now(); // timing
+	GetClosestPt_Prepare_Threads();
+	//auto elapsed2 = std::chrono::system_clock::now() - start2; // timing
+	//_micro_n_thread = std::chrono::duration_cast<std::chrono::microseconds>(elapsed2).count(); // timing
+	
 
 	// ----- grow -----
 	for (int a = 0; a < _element_list.size(); a++)
@@ -345,6 +373,109 @@ void StuffWorker::Update()
 	}
 
 
+}
+
+void StuffWorker::Solve_Prepare_Threads()
+{
+	int len = _element_list.size();
+	int num_threads = SystemParams::_num_thread_springs;
+	int thread_stride = (len + num_threads - 1) / num_threads;
+
+	std::vector<std::thread> t_list;
+	for (int a = 0; a < num_threads; a++)
+	{
+		int startIdx = a * thread_stride;
+		int endIdx = startIdx + thread_stride;
+		t_list.push_back(std::thread(&StuffWorker::Solve_Thread, this, startIdx, endIdx));
+	}
+
+	for (int a = 0; a < num_threads; a++)
+	{
+		t_list[a].join();
+	}
+}
+
+void StuffWorker::Solve_Thread(int startIdx, int endIdx)
+{
+	for (unsigned int iter = startIdx; iter < endIdx; iter++)
+	{
+		// make sure...
+		if (iter >= _element_list.size()) { break; }
+
+		for (int b = 0; b < _element_list[iter]._massList.size(); b++)
+		{
+			_element_list[iter]._massList[b].Solve(_containerWorker->_2d_container, _element_list[iter]);
+		}
+	}
+}
+
+void StuffWorker::SolveSprings_Prepare_Threads()
+{
+	int len = _element_list.size();
+	int num_threads = SystemParams::_num_thread_springs;
+	int thread_stride = (len + num_threads - 1) / num_threads;
+
+	std::vector<std::thread> t_list;
+	for (int a = 0; a < num_threads; a++)
+	{
+		int startIdx = a * thread_stride;
+		int endIdx = startIdx + thread_stride;
+		t_list.push_back(std::thread(&StuffWorker::SolveSprings_Thread, this, startIdx, endIdx));
+	}
+
+	for (int a = 0; a < num_threads; a++)
+	{
+		t_list[a].join();
+	}
+}
+
+void StuffWorker::SolveSprings_Thread(int startIdx, int endIdx)
+{
+	for (unsigned int iter = startIdx; iter < endIdx; iter++)
+	{
+		// make sure...
+		if (iter >= _element_list.size()) { break; }
+		
+		_element_list[iter].SolveForSprings3D();
+	}
+}
+
+
+// DOESNT WORK
+void StuffWorker::GetClosestPt_Prepare_Threads()
+{
+	int len = _element_list.size();
+	int num_threads = SystemParams::_num_thread_c_pt;
+	int thread_stride = (len + num_threads - 1) / num_threads;
+
+	std::vector<std::thread> t_list;
+	for (int a = 0; a < num_threads; a++)
+	{
+		int startIdx = a * thread_stride;
+		int endIdx = startIdx + thread_stride;
+		t_list.push_back(std::thread(&StuffWorker::GetClosestPt_Thread, this, startIdx, endIdx));
+	}
+
+	for (int a = 0; a < num_threads; a++)
+	{
+		t_list[a].join();
+	}
+}
+
+// DOESNT WORK
+void StuffWorker::GetClosestPt_Thread(int startIdx, int endIdx)
+{
+	for (unsigned int iter = startIdx; iter < endIdx; iter++)
+	{
+		// make sure...
+		if (iter >= _element_list.size()) { break; }
+
+		for (int b = 0; b < _element_list[iter]._massList.size(); b++)
+		{
+			_element_list[iter]._massList[b].GetClosestPoint5(*StuffWorker::_c_grid_3d, _element_list);
+		}
+
+	}
 }
 
 void StuffWorker::Interp_Reset()
@@ -392,15 +523,36 @@ void StuffWorker::Solve()
 {
 	if (_is_paused) { return; }
 
+	//auto start1 = std::chrono::system_clock::now(); // timing
 	for (int a = 0; a < _element_list.size(); a++)
 	{
 		_element_list[a].SolveForSprings3D();
+	}
+	//auto elapsed1 = std::chrono::system_clock::now() - start1; // timing
+	//_micro_1_thread = std::chrono::duration_cast<std::chrono::microseconds>(elapsed1).count(); // timing
 
+	//Reset();
+
+	//auto start2 = std::chrono::system_clock::now();
+	SolveSprings_Prepare_Threads();
+	//auto elapsed2 = std::chrono::system_clock::now() - start2; // timing
+	//_micro_n_thread = std::chrono::duration_cast<std::chrono::microseconds>(elapsed2).count(); // timing
+
+	/*auto start1 = std::chrono::system_clock::now(); // timing
+	for (int a = 0; a < _element_list.size(); a++)
+	{
 		for (int b = 0; b < _element_list[a]._massList.size(); b++)
 		{
 			_element_list[a]._massList[b].Solve(_containerWorker->_2d_container, _element_list[a]);
 		}
 	}
+	auto elapsed1 = std::chrono::system_clock::now() - start1; // timing
+	_micro_1_thread = std::chrono::duration_cast<std::chrono::microseconds>(elapsed1).count(); // timing*/
+
+	auto start2 = std::chrono::system_clock::now();
+	Solve_Prepare_Threads();
+	auto elapsed2 = std::chrono::system_clock::now() - start2; // timing
+	_micro_n_thread = std::chrono::duration_cast<std::chrono::microseconds>(elapsed2).count(); // timing
 }
 
 void StuffWorker::Interp_Simulate()

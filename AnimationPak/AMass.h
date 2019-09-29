@@ -25,7 +25,7 @@ public:
 	int _self_idx; // for identification, not PER LAYER
 	int _parent_idx; // parent identification
 	int _layer_idx; // layer idx
-	CollisionGrid3D* _c_grid_3d;
+	//CollisionGrid3D* _c_grid_3d;
 
 	//bool _isInside;
 
@@ -85,17 +85,23 @@ public:
 	void Init(); // reset forces to zero
 	void Simulate(float dt);
 	void Interp_Simulate(float dt); // debug delete me...
-	void Solve(const std::vector<A2DVector>& container, AnElement& parentElem);
+	void Solve(const std::vector<A2DVector>& container, const AnElement& parentElem);
 
 	void ImposeConstraints();
 
 	void GetClosestPoint4();
+	void GetClosestPoint5(const CollisionGrid3D& c_grid, const std::vector<AnElement>& element_list);
 
 	void Interp_GetClosestPoint();
 
 	//A3DVector GetClosestPtFromArray(int elem_idx, std::vector<A3DObject>& tempClosestObj3D);
 
 	void Grow(float growth_scale_iter, float dt);
+
+	A3DVector GetPos() const
+	{
+		return _pos;
+	}
 
 	void Print()
 	{

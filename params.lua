@@ -15,15 +15,22 @@ _upscaleFactor   = 500.0;
 _downscaleFactor = 1.0 / _upscaleFactor;
 
 --- Time step for numerical integration (euler method)
-_dt = 0.2;   --- do not set this higher than 0.1
+_dt = 0.1;   --- do not set this higher than 0.1
 
 --- random seed
 _seed = -1; --- negative means random
 
+
+---
+_num_thread_cg      = 12; -- collision grid
+_num_thread_springs = 4;
+_num_thread_c_pt    = 12; -- closest point
+_num_thread_solve   = 12;
+
 --- Force parameters
-_k_edge                = 1;	--- 0.5 edge force for filling elements
+_k_edge                = 0.2;	--- 0.5 edge force for filling elements
 _k_z                   = 1;   --- preventing layers to stray away in z direction
-_k_time_edge           = 0.001;
+_k_time_edge           = 0.005;
 _k_neg_space_edge      = 0.01;	--- edge force for springs
 _k_edge_small_factor   = 12;
 _k_repulsion           = 3;	--- 10 repulsion force
@@ -69,7 +76,7 @@ _num_png_frame = 200;
 
 --- density of random points inside the skin
 --- if the density is higher, you get more triangles
-_sampling_density               = 45;
+_sampling_density               = 50;
 --- uniform sampling on the skin
 _boundary_sampling_factor   = 1.2;  -- [Do not edit]
 

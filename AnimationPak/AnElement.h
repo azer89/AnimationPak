@@ -78,6 +78,7 @@ public:
 
 	A3DVector ClosestPtOnTriSurfaces(std::vector<int>& triIndices, A3DVector pos);
 	A3DVector ClosestPtOnATriSurface(int triIdx, A3DVector pos);
+	A3DVector ClosestPtOnATriSurface_Const(int triIdx, A3DVector pos) const;
 
 	void Grow(float growth_scale_iter, float dt);
 

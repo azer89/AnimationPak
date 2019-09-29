@@ -2228,6 +2228,15 @@ A2DVector  AnElement::Interp_ClosestPtOnALayer(A2DVector pt, int layer_idx)
 	return closestPt;
 }
 
+A3DVector AnElement::ClosestPtOnATriSurface_Const(int triIdx, A3DVector pos) const
+{
+	A3DVector t1 = _massList[_surfaceTriangles[triIdx].idx0].GetPos();
+	A3DVector t2 = _massList[_surfaceTriangles[triIdx].idx1].GetPos();
+	A3DVector t3 = _massList[_surfaceTriangles[triIdx].idx2].GetPos();
+	A3DVector cPt = UtilityFunctions::ClosestPointOnTriangle2(pos, t1, t2, t3);
+	return cPt;
+}
+
 A3DVector AnElement::ClosestPtOnATriSurface(int triIdx, A3DVector pos)
 {
 	_tempTri3[0] = _massList[_surfaceTriangles[triIdx].idx0]._pos;

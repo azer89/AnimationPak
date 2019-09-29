@@ -35,6 +35,15 @@ public:
 	void ImposeConstraints();
 	void UpdateOgre3D();
 
+	void GetClosestPt_Prepare_Threads();
+	void GetClosestPt_Thread(int startIdx, int endIdx);
+
+	void SolveSprings_Prepare_Threads();
+	void SolveSprings_Thread(int startIdx, int endIdx);
+
+	void Solve_Prepare_Threads();
+	void Solve_Thread(int startIdx, int endIdx);
+
 	void Interp_SaveFrames();
 	void SaveFrames();
 	void SaveFrames2();
@@ -61,8 +70,12 @@ public:
 	static std::vector<AnElement> _element_list;
 
 	static CollisionGrid3D* _c_grid_3d; // collission grid 3D
+	//static CollisionGrid3D _c_grid_3d;
 
 	AVideoCreator _video_creator;
+
+	float _micro_1_thread;
+	float _micro_n_thread;
 
 public:
 };

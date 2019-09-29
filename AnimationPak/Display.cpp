@@ -138,6 +138,8 @@ bool Display::frameStarted(const Ogre::FrameEvent& evt)
 
 	ImGui::Text(("Scale = " + std::to_string(_sWorker->_element_list[0]._scale)).c_str());
 	ImGui::Text(("Num vertex = " + std::to_string(_sWorker->_num_vertex)).c_str());
+	ImGui::Text(("_micro_1_thread = " + std::to_string(_sWorker->_micro_1_thread)).c_str());
+	ImGui::Text(("_micro_n_thread = " + std::to_string(_sWorker->_micro_n_thread)).c_str());
 
 	if (ImGui::Button("Reload parameters")) { SystemParams::LoadParameters(); }
 	if (ImGui::Button("Save Triangles to PNGs")) { _sWorker->SaveFrames3(); }

@@ -25,6 +25,15 @@ public:
 	static float _upscaleFactor;
 	static float _downscaleFactor;
 
+	/*
+	_num_thread_cg = 12; -- collision grid
+	_num_thread_springs = 4;
+	*/
+	static int _num_thread_cg;
+	static int _num_thread_springs;
+	static int _num_thread_c_pt;
+	static int _num_thread_solve;
+
 	static float _dt;
 
 	static int _seed;

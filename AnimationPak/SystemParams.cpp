@@ -35,6 +35,11 @@ void SystemParams::LoadParameters()
 	SystemParams::_dt = script.get<float>("_dt");
 	SystemParams::_seed = script.get<int>("_seed");
 
+	SystemParams::_num_thread_cg = script.get<int>("_num_thread_cg");
+	SystemParams::_num_thread_springs = script.get<int>("_num_thread_springs");
+	SystemParams::_num_thread_c_pt = script.get<int>("_num_thread_c_pt");
+	SystemParams::_num_thread_solve = script.get<int>("_num_thread_solve");
+
 	SystemParams::_k_edge = script.get<float>("_k_edge");
 	SystemParams::_k_z = script.get<float>("_k_z");
 	SystemParams::_k_time_edge = script.get<float>("_k_time_edge");
@@ -97,6 +102,11 @@ float SystemParams::_downscaleFactor = 0.0f;
 float SystemParams::_dt = 0.0f;
 
 int SystemParams::_seed = 0;
+
+int SystemParams::_num_thread_cg = 0;
+int SystemParams::_num_thread_springs = 0;
+int SystemParams::_num_thread_c_pt = 0;
+int SystemParams::_num_thread_solve = 0;
 
 float SystemParams::_k_edge = 0.0f;
 float SystemParams::_k_z = 0.0f;

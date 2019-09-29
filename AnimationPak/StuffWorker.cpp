@@ -524,10 +524,10 @@ void StuffWorker::Solve()
 	if (_is_paused) { return; }
 
 	//auto start1 = std::chrono::system_clock::now(); // timing
-	for (int a = 0; a < _element_list.size(); a++)
-	{
-		_element_list[a].SolveForSprings3D();
-	}
+	//for (int a = 0; a < _element_list.size(); a++)
+	//{
+	//	_element_list[a].SolveForSprings3D();
+	//}
 	//auto elapsed1 = std::chrono::system_clock::now() - start1; // timing
 	//_micro_1_thread = std::chrono::duration_cast<std::chrono::microseconds>(elapsed1).count(); // timing
 
@@ -549,10 +549,10 @@ void StuffWorker::Solve()
 	auto elapsed1 = std::chrono::system_clock::now() - start1; // timing
 	_micro_1_thread = std::chrono::duration_cast<std::chrono::microseconds>(elapsed1).count(); // timing*/
 
-	auto start2 = std::chrono::system_clock::now();
+	//auto start2 = std::chrono::system_clock::now();
 	Solve_Prepare_Threads();
-	auto elapsed2 = std::chrono::system_clock::now() - start2; // timing
-	_micro_n_thread = std::chrono::duration_cast<std::chrono::microseconds>(elapsed2).count(); // timing
+	//auto elapsed2 = std::chrono::system_clock::now() - start2; // timing
+	//_micro_n_thread = std::chrono::duration_cast<std::chrono::microseconds>(elapsed2).count(); // timing
 }
 
 void StuffWorker::Interp_Simulate()

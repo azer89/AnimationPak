@@ -172,6 +172,7 @@
     <ClInclude Include="AnIndexedLine.h" />
     <ClInclude Include="A2DObject.h" />
     <ClInclude Include="AVideoCreator.h" />
+    <ClInclude Include="ClipperWrapper.h" />
     <ClInclude Include="CollisionGrid2D.h" />
     <ClInclude Include="CollisionGrid3D.h" />
     <ClInclude Include="ContainerWorker.h" />
@@ -199,6 +200,8 @@
     <ClCompile Include="AMass.cpp" />
     <ClCompile Include="AnElement.cpp" />
     <ClCompile Include="AVideoCreator.cpp" />
+    <ClCompile Include="clipper.cpp" />
+    <ClCompile Include="ClipperWrapper.cpp" />
     <ClCompile Include="CollisionGrid2D.cpp" />
     <ClCompile Include="CollisionGrid3D.cpp" />
     <ClCompile Include="ContainerWorker.cpp" />

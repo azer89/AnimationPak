@@ -38,11 +38,14 @@ public:
 
 	static int _seed;
 
-	static float _k_edge;
+	//static float _k_edge;
+	static float _k_edge_start;
+	static float _k_edge_end;
+	
 	static float _k_z;
 	static float _k_time_edge;
 	static float _k_neg_space_edge;
-	static float _k_edge_small_factor;
+	//static float _k_edge_small_factor;
 	static float _k_repulsion;
 	static float _repulsion_soft_factor;
 	static float _k_overlap;
@@ -72,7 +75,8 @@ public:
 	static float _element_max_scale;
 	static float _element_initial_scale;
 
-	// tetrathedralization
+	// ttriangularization
+	static float _skin_offset; // d_gap over 2
 	static float _sampling_density;
 	static float _boundary_sampling_factor;
 

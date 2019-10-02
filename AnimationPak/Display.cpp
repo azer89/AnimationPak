@@ -107,7 +107,7 @@ bool Display::frameStarted(const Ogre::FrameEvent& evt)
 	//bool show_another_window = false;
 	//ImGui::Begin("AnimationPak", &show_another_window, ImVec2(240, 540));
 	ImGui::SetNextWindowPos(ImVec2(5, 5), ImGuiCond_Always);
-	ImGui::SetNextWindowSize(ImVec2(300, 700), ImGuiCond_Always);
+	ImGui::SetNextWindowSize(ImVec2(300, 750), ImGuiCond_Always);
 	bool* p_open = NULL;
 	ImGuiWindowFlags window_flags = 0;
 	ImGui::Begin("AnimationPak", p_open, window_flags);
@@ -138,8 +138,20 @@ bool Display::frameStarted(const Ogre::FrameEvent& evt)
 
 	ImGui::Text(("Scale = " + std::to_string(_sWorker->_element_list[0]._scale)).c_str());
 	ImGui::Text(("Num vertex = " + std::to_string(_sWorker->_num_vertex)).c_str());
-	ImGui::Text(("_micro_1_thread = " + std::to_string(_sWorker->_micro_1_thread)).c_str());
-	ImGui::Text(("_micro_n_thread = " + std::to_string(_sWorker->_micro_n_thread)).c_str());
+	
+
+	ImGui::Text(("_k_edge = " + std::to_string(_sWorker->_element_list[0]._k_edge)).c_str());
+	//ImGui::Text(("_micro_1_thread = " + std::to_string(_sWorker->_micro_1_thread)).c_str());
+	//ImGui::Text(("_micro_n_thread = " + std::to_string(_sWorker->_micro_n_thread)).c_str());
+	/*int _cg_thread_t;
+	int _springs_thread_t;
+	int _c_pt_thread_t;
+	int _solve_thread_t;*/
+	ImGui::Text(("_cg_thread_t      = " + std::to_string(_sWorker->_cg_thread_t)).c_str());
+	ImGui::Text(("_springs_thread_t = " + std::to_string(_sWorker->_springs_thread_t)).c_str());
+	ImGui::Text(("_c_pt_thread_t    = " + std::to_string(_sWorker->_c_pt_thread_t)).c_str());
+	ImGui::Text(("_solve_thread_t   = " + std::to_string(_sWorker->_solve_thread_t)).c_str());
+
 
 	if (ImGui::Button("Reload parameters")) { SystemParams::LoadParameters(); }
 	if (ImGui::Button("Save Triangles to PNGs")) { _sWorker->SaveFrames3(); }
@@ -276,7 +288,7 @@ void Display::setup()
 	*/
 
 	_sWorker = new StuffWorker;
-	_sWorker->InitElements(_scnMgr);
+	_sWorker->InitElements2(_scnMgr);
 	_sWorker->_containerWorker->CreateOgreContainer(_scnMgr);
 
 	//CreateCubeFromLines();

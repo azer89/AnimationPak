@@ -40,11 +40,15 @@ void SystemParams::LoadParameters()
 	SystemParams::_num_thread_c_pt = script.get<int>("_num_thread_c_pt");
 	SystemParams::_num_thread_solve = script.get<int>("_num_thread_solve");
 
-	SystemParams::_k_edge = script.get<float>("_k_edge");
+	//SystemParams::_k_edge = script.get<float>("_k_edge");
+	SystemParams::_k_edge_start = script.get<float>("_k_edge_start");
+	SystemParams::_k_edge_end = script.get<float>("_k_edge_end");
+
+
 	SystemParams::_k_z = script.get<float>("_k_z");
 	SystemParams::_k_time_edge = script.get<float>("_k_time_edge");
 	SystemParams::_k_neg_space_edge = script.get<float>("_k_neg_space_edge");
-	SystemParams::_k_edge_small_factor = script.get<float>("_k_edge_small_factor");
+	//SystemParams::_k_edge_small_factor = script.get<float>("_k_edge_small_factor");
 	SystemParams::_k_repulsion = script.get<float>("_k_repulsion");
 	SystemParams::_repulsion_soft_factor = script.get<float>("_repulsion_soft_factor");
 	SystemParams::_k_overlap = script.get<float>("_k_overlap");
@@ -77,6 +81,7 @@ void SystemParams::LoadParameters()
 	SystemParams::_interpolation_factor = script.get<int>("_interpolation_factor");
 	SystemParams::_num_png_frame = script.get<int>("_num_png_frame");
 
+	SystemParams::_skin_offset = script.get<float>("_skin_offset");
 	SystemParams::_num_element_density = script.get<int>("_num_element_density");
 	SystemParams::_num_element_pos_limit = script.get<int>("_num_element_pos_limit");
 
@@ -108,11 +113,14 @@ int SystemParams::_num_thread_springs = 0;
 int SystemParams::_num_thread_c_pt = 0;
 int SystemParams::_num_thread_solve = 0;
 
-float SystemParams::_k_edge = 0.0f;
+//float SystemParams::_k_edge = 0.0f;
+float SystemParams::_k_edge_start = 0.0f;
+float SystemParams::_k_edge_end = 0.0f;
+
 float SystemParams::_k_z = 0.0f;
 float SystemParams::_k_time_edge = 0.0f;
 float SystemParams::_k_neg_space_edge = 0.0f;
-float SystemParams::_k_edge_small_factor = 0.0f;
+//float SystemParams::_k_edge_small_factor = 0.0f;
 float SystemParams::_k_repulsion = 0.0f;
 float SystemParams::_repulsion_soft_factor = 0.0f;
 float SystemParams::_k_overlap = 0.0f;
@@ -142,6 +150,7 @@ float SystemParams::_growth_scale_iter = 0.0f;
 float SystemParams::_element_max_scale = 0.0f;
 float SystemParams::_element_initial_scale = 0.0f;
 
+float SystemParams::_skin_offset = 0.0f;
 float SystemParams::_sampling_density = 0.0f;
 float SystemParams::_boundary_sampling_factor = 0.0f;
 

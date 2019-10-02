@@ -20,7 +20,8 @@ public:
 
 	~StuffWorker();
 
-	void InitElements(Ogre::SceneManager* scnMgr);
+	//void InitElements(Ogre::SceneManager* scnMgr);
+	void InitElements2(Ogre::SceneManager* scnMgr);
 
 	void Interp_Update();
 	void Interp_Reset();          // reset forces to zero
@@ -74,8 +75,13 @@ public:
 
 	AVideoCreator _video_creator;
 
-	float _micro_1_thread;
-	float _micro_n_thread;
+	//float _micro_1_thread;
+	//float _micro_n_thread;
+	int _cg_thread_t;
+	int _springs_thread_t;
+	int _c_pt_thread_t;
+	int _solve_thread_t;
+
 
 public:
 };

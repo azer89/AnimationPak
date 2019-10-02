@@ -28,7 +28,7 @@ public:
 	AnElement();
 	~AnElement();
 
-	void CreateStarTube(int self_idx);
+	//void CreateStarTube(int self_idx);
 	void ResetSpringRestLengths();
 	void CreateHelix();
 	void RandomizeLayerSize();
@@ -46,7 +46,7 @@ public:
 	void CalculateLayerTriangles_Drawing();
 	void UpdateLayerBoundaries();
 	//void UpdateSpringLengths();
-	void UpdateInterpMasses();
+	//void UpdateInterpMasses();
 	void UpdateZConstraint();
 
 
@@ -65,7 +65,7 @@ public:
 							float img_length,
 							std::vector<A2DVector>& randomPoints,
 							int& boundaryPointNum);
-
+	void SetIndex(int idx);
 	void RotateXY(float radAngle);
 	void ScaleXY(float scVal);
 	void TranslateXY(float x, float y);
@@ -85,6 +85,7 @@ public:
 	void CalculateRestStructure();
 
 	// edges
+	void AddSpring(AnIndexedLine anEdge, std::vector<AnIndexedLine>& tSpring);
 	bool TryToAddTriangleEdge(AnIndexedLine anEdge, int triIndex, std::vector<AnIndexedLine>& tEdges, std::vector<std::vector<int>>& e2t);
 	void ForceAddTriangleEdge(AnIndexedLine anEdge, int triIndex, std::vector<AnIndexedLine>& tEdges, std::vector<std::vector<int>>& e2t);
 	int FindTriangleEdge(AnIndexedLine anEdge, std::vector<AnIndexedLine>& tEdges);
@@ -120,16 +121,16 @@ public:
 	// ---------- Ogre 3D ----------
 
 	// ----- interpolation ----- 
-	A2DVector Interp_ClosestPtOnALayer(A2DVector pt, int layer_idx);
-	void Interp_UpdateLayerBoundaries();
-	bool Interp_HasOverlap();
-	void Interp_SolveForSprings2D();
-	void Interp_ResetSpringRestLengths();
+	//A2DVector Interp_ClosestPtOnALayer(A2DVector pt, int layer_idx);
+	//void Interp_UpdateLayerBoundaries();
+	//bool Interp_HasOverlap();
+	//void Interp_SolveForSprings2D();
+	//void Interp_ResetSpringRestLengths();
 	// ----- interpolation ----- 
 
 public:
 	// ---------- interpolation stuff ----------
-	std::vector<std::vector<A2DVector>> _interp_per_layer_boundary;
+	/*std::vector<std::vector<A2DVector>> _interp_per_layer_boundary;
 
 	std::vector<AMass>            _interp_massList;       // list of the masses
 	std::vector<AnIndexedLine>    _interp_auxiliaryEdges; // for edge forces
@@ -140,13 +141,13 @@ public:
 	std::vector<AnIndexedLine>    _timeEdgesA; // first index is from original, second index is from interpolation
 	std::vector<AnIndexedLine>    _timeEdgesB; // first index is from interpolation, second index is from original
 	std::vector<std::vector<int>> _interp_edgeToTriA; // not used
-	std::vector<std::vector<int>> _interp_edgeToTriB; // not used
-													  // ---------- interpolation stuff ----------
+	std::vector<std::vector<int>> _interp_edgeToTriB; // not used*/
+	// ---------- interpolation stuff ----------
 
 public:
 	int _elem_idx; // for identification
 
-	bool _predefined_time_path; // time path isn't straight
+	//bool _predefined_time_path; // time path isn't straight
 
 	std::vector<std::vector<A3DVector>> _per_layer_boundary; // for closest point and Ogre3D
 	std::vector<A2DVector> _a_layer_boundary;// for closest point
@@ -164,11 +165,10 @@ private:
 	//std::vector<std::vector<A2DVector>> _temp_per_layer_boundary; // for interpolation mode	
 	std::vector<bool> _insideFlags; // for interpolation mode	
 
-public:
+//public:
 	//void EnableInterpolationMode();  // for interpolation mode	
 	//void DisableInterpolationMode(); // for interpolation mode	
-
-	void ShowTimeSprings(bool yesno);
+	//void ShowTimeSprings(bool yesno);
 
 public:
 	// DO NOT CONFUSE BETWEEN THESE TWO!
@@ -177,18 +177,29 @@ public:
 
 	// for growing
 	float _scale; // initially 1.0f, check SystemParamas
-	float _maxScale; // check SystemParamas
+	//float _maxScale; // check SystemParamas
 	std::vector<A2DVector> _layer_center_array; // 
 	std::vector<A3DVector> _ori_rest_mass_pos_array; // before scaling
 	std::vector<A3DVector> _rest_mass_pos_array; // after scaling
 
 	// ---------- important stuff ----------
 	std::vector<AMass>            _massList;       // list of the masses
-	std::vector<AnIndexedLine>    _auxiliaryEdges; // for edge forces // UNCOMMENT
-	std::vector<AnIndexedLine>    _triEdges;  // for edge forces
+
+
+	//std::vector<AnIndexedLine>    _auxiliaryEdges; // for edge forces // UNCOMMENT
+	//std::vector<AnIndexedLine>    _triEdges;  // for edge forces
+	//std::vector<AnIndexedLine>    _negSpaceEdges;
+	float _k_edge; // see Grow()
+
+	std::vector<AnIndexedLine>    _layer_springs;     // 0
+	std::vector<AnIndexedLine>    _time_springs;      // 1
+	std::vector<AnIndexedLine>    _auxiliary_springs; // 2 
+	std::vector<AnIndexedLine>    _neg_space_springs; // 3
+
+
 	std::vector<std::vector<int>> _edgeToTri; // for aux edges, if -1 means time springs!!!
 	std::vector<AnIdxTriangle>    _triangles;
-	std::vector<AnIndexedLine>    _negSpaceEdges;
+	
 
 	std::vector<AnIdxTriangle>    _surfaceTriangles; // for 3D collision grid
 	std::vector<A3DVector>		  _tempTri3;

@@ -17,10 +17,11 @@ class AMass
 {
 public:
 
-	float   _mass;    // is likely only one
-	float _ori_z_pos;
+	float     _mass;    // is likely only one
+	float     _ori_z_pos;
 	A3DVector _pos;	  // current
 	A3DVector _velocity;
+	int _valence;
 	
 	int _self_idx; // for identification, not PER LAYER
 	int _parent_idx; // parent identification
@@ -41,21 +42,21 @@ public:
 
 	//std::vector<AnIdxTriangle>    _timeTriangles; // for 3D collision grid
 
-	float                _closestDist; // for stop growing??? need to check
+	float closestDist; // for stop growing??? need to check
 
 public:
 
 	int _closest_elem_idx;
 
 	// closest points (exact measurements)
-	std::vector<A3DVector> _c_pts;	
-	int _c_pts_fill_size;	
-	int _c_pts_max_size;
+	std::vector<A3DVector> _c_pts;	 // if _is_boundary == false, this should be zero
+	int _c_pts_fill_size;	         // if _is_boundary == false, this should be zero
+	int _c_pts_max_size;             // if _is_boundary == false, this should be zero
 
 	// closest points (approx measurement)
-	std::vector<std::pair<A3DVector, int>> _c_pts_approx; // barnes hut: (1) center of square (2) num points in that square
-	int _c_pts_approx_fill_size;
-	int _c_pts_approx_max_size;
+	std::vector<std::pair<A3DVector, int>> _c_pts_approx;  // if _is_boundary == false, this should be zero // barnes hut: (1) center of square (2) num points in that square
+	int _c_pts_approx_fill_size;      // if _is_boundary == false, this should be zero
+	int _c_pts_approx_max_size;       // if _is_boundary == false, this should be zero
 
 private:		
 	std::vector<int>     _closestGraphIndices;
@@ -81,6 +82,8 @@ public:
 	AMass(A3DVector pos);
 
 	void CallMeFromConstructor();
+
+	void PrepareCPtsArrays(); // see _c_pts and _c_pts_approx
 
 	void Init(); // reset forces to zero
 	void Simulate(float dt);

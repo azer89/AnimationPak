@@ -107,7 +107,7 @@ bool Display::frameStarted(const Ogre::FrameEvent& evt)
 	//bool show_another_window = false;
 	//ImGui::Begin("AnimationPak", &show_another_window, ImVec2(240, 540));
 	ImGui::SetNextWindowPos(ImVec2(5, 5), ImGuiCond_Always);
-	ImGui::SetNextWindowSize(ImVec2(300, 750), ImGuiCond_Always);
+	ImGui::SetNextWindowSize(ImVec2(320, 750), ImGuiCond_Always);
 	bool* p_open = NULL;
 	ImGuiWindowFlags window_flags = 0;
 	ImGui::Begin("AnimationPak", p_open, window_flags);
@@ -161,24 +161,30 @@ bool Display::frameStarted(const Ogre::FrameEvent& evt)
 	//if (ImGui::Button("Button C")) {}
 	
 	ImGui::Text("Visualization:");
-	ImGui::Checkbox("Container", &SystemParams::_show_container);
-	ImGui::Checkbox("Mass list", &SystemParams::_show_mass_list);
-	ImGui::Checkbox("Element boundaries", &SystemParams::_show_element_boundaries);
-	ImGui::Checkbox("Exact repulsion forces", &SystemParams::_show_exact_repulsion_forces);
+	ImGui::Checkbox("Container",               &SystemParams::_show_container);
+	ImGui::Checkbox("Mass list",               &SystemParams::_show_mass_list);
+	ImGui::Checkbox("Element boundaries",      &SystemParams::_show_element_boundaries);
+	ImGui::Checkbox("0 - Layer springs",          &SystemParams::_show_layer_springs);
+	ImGui::Checkbox("1 - Time springs",           &SystemParams::_show_time_springs);
+	ImGui::Checkbox("2 - Auxiliary springs",      &SystemParams::_show_aux_springs);
+	ImGui::Checkbox("3 - Negative space springs", &SystemParams::_show_negative_space_springs);
+
+	ImGui::Checkbox("Exact repulsion forces",  &SystemParams::_show_exact_repulsion_forces);
 	ImGui::Checkbox("Approx repulsion forces", &SystemParams::_show_approx_repulsion_forces);
-	ImGui::Checkbox("Collision grid", &SystemParams::_show_collision_grid);
-	ImGui::Checkbox("Collision grid objects", &SystemParams::_show_collision_grid_object);
-	ImGui::Checkbox("Exact closest points (debug)", &SystemParams::_show_c_pt_cg);
-	ImGui::Checkbox("Approx closest points (debug)", &SystemParams::_show_c_pt_approx_cg);
-	ImGui::Checkbox("Surface triangles", &SystemParams::_show_surface_tri);
-	ImGui::Checkbox("Time springs", &SystemParams::_show_time_edges);
-	ImGui::Checkbox("Negative space springs", &SystemParams::_show_negative_space_springs);
+	ImGui::Checkbox("Collision grid",          &SystemParams::_show_collision_grid);
+	ImGui::Checkbox("Collision grid objects",  &SystemParams::_show_collision_grid_object);
+	//ImGui::Checkbox("Exact closest points (debug)", &SystemParams::_show_c_pt_cg);
+	//ImGui::Checkbox("Approx closest points (debug)", &SystemParams::_show_c_pt_approx_cg);
+	ImGui::Checkbox("Surface triangles",       &SystemParams::_show_surface_tri);
+
+
+	
 	//bool SystemParams::_show_force = false;
 	//bool SystemParams::_show_overlap = false;
-	ImGui::Checkbox("Velocity", &SystemParams::_show_force);
-	ImGui::Checkbox("Overlap", &SystemParams::_show_overlap);
-	ImGui::Checkbox("Closest Triangle", &SystemParams::_show_closest_tri);
-	ImGui::SliderInt("Layer select", &SystemParams::_layer_slider_int, -1, SystemParams::_num_layer - 1);
+	ImGui::Checkbox("Velocity",                &SystemParams::_show_force);
+	ImGui::Checkbox("Overlap",                 &SystemParams::_show_overlap);
+	ImGui::Checkbox("Closest Triangle",        &SystemParams::_show_closest_tri);
+	ImGui::SliderInt("Layer select",                  &SystemParams::_layer_slider_int, -1, SystemParams::_num_layer - 1);
 	/*if (ImGui::Checkbox("Show time springs", &SystemParams::_show_time_springs))
 	{
 		for (int a = 0; a < _sWorker->_element_list.size(); a++)

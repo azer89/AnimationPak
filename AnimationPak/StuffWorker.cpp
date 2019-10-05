@@ -31,7 +31,7 @@ StuffWorker::StuffWorker() : _containerWorker(0), _is_paused(false)
 	_containerWorker = new ContainerWorker;
 	_containerWorker->LoadContainer();
 
-	_video_creator.Init(SystemParams::_interpolation_factor);
+	//_video_creator.Init(SystemParams::_interpolation_factor);
 }
 
 StuffWorker::~StuffWorker()
@@ -149,85 +149,7 @@ void StuffWorker::InitElements2(Ogre::SceneManager* scnMgr)
 	}
 }
 
-//
 
-// INTERPOLATION
-void StuffWorker::Interp_Update()
-{
-	/*// ----- for closest point calculation -----
-	for (int a = 0; a < _element_list.size(); a++)
-	{
-		_element_list[a].Interp_UpdateLayerBoundaries();
-	}
-
-	// ----- update collision grid -----
-	std::vector<int> iters; // TODO can be better
-	for (int a = 0; a < _interp_c_grid_list.size(); a++) 
-		{ iters.push_back(0); }
-
-	for (int a = 0; a < _element_list.size(); a++)
-	{
-		for (int b = 0; b < _element_list[a]._interp_massList.size(); b++)
-		{
-			int c_grid_idx = _element_list[a]._interp_massList[b]._layer_idx;
-			int layer_iter = iters[c_grid_idx];  // why is this called layer_iter?
-			A3DVector p1 = _element_list[a]._interp_massList[b]._pos;
-
-			// update pt
-			_interp_c_grid_list[c_grid_idx]->_objects[layer_iter]->_x = p1._x;
-			_interp_c_grid_list[c_grid_idx]->_objects[layer_iter]->_y = p1._y;
-
-			iters[c_grid_idx]++; // increment
-		}
-	}
-	for (int a = 0; a < _interp_c_grid_list.size(); a++)
-	{
-		_interp_c_grid_list[a]->MovePoints();
-		_interp_c_grid_list[a]->PrecomputeGraphIndices();
-	}
-
-	// ----- update closest points -----
-	for (int a = 0; a < _element_list.size(); a++)
-	{
-		for (int b = 0; b < _element_list[a]._interp_massList.size(); b++)
-		{
-			_element_list[a]._interp_massList[b].Interp_GetClosestPoint();
-		}
-
-	}
-
-	// move to another layer?
-	if (!Interp_HasOverlap())
-	{
-		Interp_SaveFrames();
-
-		StuffWorker::_interp_iter++;
-
-		if (StuffWorker::_interp_iter == SystemParams::_num_layer - 1)
-		{
-			std::stringstream ss;
-			ss << SystemParams::_save_folder << "PNG\\";
-			_video_creator.Save(ss.str());
-
-			DisableInterpolationMode();
-		}
-		else
-		{
-			// ----- interpolation -----
-			for (int a = 0; a < _element_list.size(); a++)
-			{
-				_element_list[a].UpdateInterpMasses();
-			}
-
-			// ----- Enable ? -----
-			for (int a = 0; a < _element_list.size(); a++)
-			{
-				_element_list[a].Interp_ResetSpringRestLengths();
-			}
-		}
-	}*/
-
-}
 
 void StuffWorker::Update()
 {
@@ -280,36 +202,20 @@ void StuffWorker::Update()
 	_cg_thread_t = std::chrono::duration_cast<std::chrono::microseconds>(elapsed1).count(); // timing
 	// ~~~~~ T ~~~~~
 
-	// system_clock
-	// steady_clock model physical time
-	// high_resolution_clock
-	/*auto start1 = std::chrono::system_clock::now(); // timing
-	_c_grid_3d->PrecomputeData();
-	auto elapsed1 = std::chrono::system_clock::now() - start1; // timing
-	_micro_1_thread = std::chrono::duration_cast<std::chrono::microseconds>(elapsed1).count(); // timing
-	*/
 	// ----- update closest points -----
-	// TODO
-
-
-	/*auto start1 = std::chrono::system_clock::now(); // timing
-	for (int a = 0; a < _element_list.size(); a++)
+	/*for (int a = 0; a < _element_list.size(); a++)
 	{
 		for (int b = 0; b < _element_list[a]._massList.size(); b++)
 		{
 			_element_list[a]._massList[b].GetClosestPoint4();
 		}
-	}
-	auto elapsed1 = std::chrono::system_clock::now() - start1; // timing
-	_micro_1_thread = std::chrono::duration_cast<std::chrono::microseconds>(elapsed1).count(); // timing
-	*/
+	}*/
 
 	auto start2 = std::chrono::system_clock::now(); // timing
 	GetClosestPt_Prepare_Threads();
 	auto elapsed2 = std::chrono::system_clock::now() - start2; // timing
 	_c_pt_thread_t = std::chrono::duration_cast<std::chrono::microseconds>(elapsed2).count(); // timing
 	
-
 	// ----- grow -----
 	for (int a = 0; a < _element_list.size(); a++)
 	{
@@ -423,18 +329,7 @@ void StuffWorker::GetClosestPt_Thread(int startIdx, int endIdx)
 	}
 }
 
-void StuffWorker::Interp_Reset()
-{
-	// update closest points
-	/*for (int a = 0; a < _element_list.size(); a++)
-	{
-		for (int b = 0; b < _element_list[a]._interp_massList.size(); b++)
-		{
-			_element_list[a]._interp_massList[b].Init();
-		}
 
-	}*/
-}
 
 void StuffWorker::Reset()
 {
@@ -451,18 +346,7 @@ void StuffWorker::Reset()
 	}
 }
 
-void StuffWorker::Interp_Solve()
-{
-	/*for (int a = 0; a < _element_list.size(); a++)
-	{
-		_element_list[a].Interp_SolveForSprings2D();
 
-		for (int b = 0; b < _element_list[a]._interp_massList.size(); b++)
-		{
-			_element_list[a]._interp_massList[b].Solve(_containerWorker->_2d_container);
-		}
-	}*/
-}
 
 void StuffWorker::Solve()
 {
@@ -502,26 +386,6 @@ void StuffWorker::Solve()
 	_solve_thread_t = std::chrono::duration_cast<std::chrono::microseconds>(elapsed2).count(); // timing
 }
 
-void StuffWorker::Interp_Simulate()
-{
-	/*for (int a = 0; a < _element_list.size(); a++)
-	{
-		for (int b = 0; b < _element_list[a]._interp_massList.size(); b++)
-		{
-			_element_list[a]._interp_massList[b].Interp_Simulate(SystemParams::_dt);
-		}
-	}*/
-}
-
-bool StuffWorker::Interp_HasOverlap()
-{
-	/*for (int a = 0; a < _element_list.size(); a++)
-	{
-		if (_element_list[a].Interp_HasOverlap())
-			return true;
-	}*/
-	return false;
-}
 
 void StuffWorker::Simulate()
 {
@@ -578,6 +442,8 @@ void StuffWorker::UpdateOgre3D()
 		_element_list[a].UpdateSurfaceTriangleOgre3D();
 		_element_list[a].UpdateClosestPtsDisplayOgre3D();
 		_element_list[a].UpdateOverlapOgre3D();
+		_element_list[a].UpdateLayerSpringsOgre3D();
+		_element_list[a].UpdateAuxSpringsOgre3D();
 		_element_list[a].UpdateNegSpaceEdgeOgre3D();
 		_element_list[a].UpdateMassListOgre3D();
 		_element_list[a].UpdateForceOgre3D();
@@ -594,52 +460,7 @@ void StuffWorker::UpdateOgre3D()
 
 }
 
-void StuffWorker::Interp_SaveFrames()
-{
-	//int l = StuffWorker::_interpolation_iter;
-	/*for (int a = 0; a < _element_list.size(); a++)
-	{
-		int layerOffset = StuffWorker::_interp_iter * _element_list[a]._numPointPerLayer;
-		for (int b = 0; b < _element_list[a]._numBoundaryPointPerLayer; b++)
-		{
-			int massIdx1 = b + layerOffset;
-			int massIdx2 = b + layerOffset + 1;
-			if (b == _element_list[a]._numBoundaryPointPerLayer - 1)
-			{
-				massIdx2 = layerOffset;
-			}
-			A2DVector pt1 = _element_list[a]._massList[massIdx1]._pos.GetA2DVector();
-			A2DVector pt2 = _element_list[a]._massList[massIdx2]._pos.GetA2DVector();
-			int frameIdx = StuffWorker::_interp_iter * SystemParams::_interpolation_factor;
-			_video_creator.DrawLine(pt1, pt2, _element_list[a]._color, frameIdx);
-			_video_creator.DrawRedCircle(frameIdx); // debug delete me
 
-		}
-	}
-
-	for (int i = 0; i < SystemParams::_interpolation_factor - 1; i++)
-	{		
-		for (int a = 0; a < _element_list.size(); a++)
-		{
-			int layerOffset = i * _element_list[a]._numPointPerLayer;
-			for (int b = 0; b < _element_list[a]._numBoundaryPointPerLayer; b++)
-			{
-				int massIdx1 = b + layerOffset;
-				int massIdx2 = b + layerOffset + 1;
-				if (b == _element_list[a]._numBoundaryPointPerLayer - 1)
-				{
-					massIdx2 = layerOffset;
-				}
-				A2DVector pt1 = _element_list[a]._interp_massList[massIdx1]._pos.GetA2DVector();
-				A2DVector pt2 = _element_list[a]._interp_massList[massIdx2]._pos.GetA2DVector();
-
-				int frameIdx = (StuffWorker::_interp_iter * SystemParams::_interpolation_factor) + (i + 1);
-				_video_creator.DrawLine(pt1, pt2, _element_list[a]._color, frameIdx);
-
-			}
-		}
-	}*/
-}
 
 void StuffWorker::SaveFrames4()
 {
@@ -691,9 +512,6 @@ void StuffWorker::SaveFrames3()
 	{
 		MyColor col = _element_list[i]._color;
 
-
-
-
 		std::vector<std::vector<std::vector<A2DVector>>> per_layer_triangle_drawing = _element_list[i]._per_layer_triangle_drawing;
 		for (int l = 0; l < per_layer_triangle_drawing.size(); l++)
 		{
@@ -711,9 +529,7 @@ void StuffWorker::SaveFrames3()
 				vCreator.DrawLine(pt1, pt2, blk_col, l);
 				vCreator.DrawLine(pt2, pt3, blk_col, l);
 				vCreator.DrawLine(pt3, pt1, blk_col, l);
-			}
-
-			
+			}			
 		}
 	}
 
@@ -722,175 +538,8 @@ void StuffWorker::SaveFrames3()
 	vCreator.Save(ss.str());
 }
 
-void StuffWorker::SaveFrames2()
-{
-	for (int a = 0; a < _element_list.size(); a++)
-	{
-		_element_list[a].CalculateLayerBoundaries_Drawing();
-	}
-
-	AVideoCreator vCreator;
-	vCreator.Init(SystemParams::_num_png_frame);
-
-	for (int l = 0; l < SystemParams::_num_png_frame; l++)
-	{
-		std::cout << l << "\n";
-		for (int a = 0; a < _element_list.size(); a++)
-		{
-			for (int b = 0; b < _element_list[a]._numBoundaryPointPerLayer; b++)
-			{
-				int massIdx1 = b;
-				int massIdx2 = b + 1;
-
-				if (massIdx2 == _element_list[a]._numBoundaryPointPerLayer)
-				{
-					massIdx2 = 0;
-				}
-				A2DVector pt1 = _element_list[a]._per_layer_boundary_drawing[l][massIdx1].GetA2DVector();
-				A2DVector pt2 = _element_list[a]._per_layer_boundary_drawing[l][massIdx2].GetA2DVector();
-				vCreator.DrawLine(pt1, pt2, _element_list[a]._color, l);
-			}
-		}
-	}
-
-	std::stringstream ss;
-	ss << SystemParams::_save_folder << "PNG\\";
-	vCreator.Save(ss.str());
-}
-
-void StuffWorker::SaveFrames()
-{
-
-	int numInterpolation = SystemParams::_interpolation_factor;
-
-	AVideoCreator vCreator;
-	vCreator.Init(numInterpolation);
-
-	// ----- shouldn't be deleted for interpolation mode -----
-	for (int l = 0; l < SystemParams::_num_layer; l++)
-	{
-
-		for (int a = 0; a < _element_list.size(); a++)
-		{
-			int layerOffset = l * _element_list[a]._numPointPerLayer;
-			for (int b = 0; b < _element_list[a]._numBoundaryPointPerLayer; b++)
-			{
-				int massIdx1 = b + layerOffset;
-				int massIdx2 = b + layerOffset + 1;
-				if (b == _element_list[a]._numBoundaryPointPerLayer - 1)
-					{ massIdx2 = layerOffset; }
-				A2DVector pt1 = _element_list[a]._massList[massIdx1]._pos.GetA2DVector();
-				A2DVector pt2 = _element_list[a]._massList[massIdx2]._pos.GetA2DVector();
-				vCreator.DrawLine(pt1, pt2, _element_list[a]._color, l * numInterpolation);
-				vCreator.DrawRedCircle(l * numInterpolation); // debug delete me
-
-			}
-		}
-	}
-	// ----- shouldn't be deleted for interpolation mode -----
 
 
-	// WARNING very messy nested loops
-
-	// only generate numInterpolation - 1 frames (one less)
-	for (int i = 1; i < numInterpolation; i++)
-	{
-		float interVal = ((float)i) / ((float)numInterpolation);
-		
-		// one less layer
-		for (int l = 0; l < SystemParams::_num_layer - 1; l++)
-		{
-			for (int a = 0; a < _element_list.size(); a++)
-			{
-				int layerOffset = l * _element_list[a]._numPointPerLayer;
-				for (int b = 0; b < _element_list[a]._numBoundaryPointPerLayer; b++)
-				{
-					int massIdx1 = b + layerOffset;
-					int massIdx2 = b + layerOffset + 1;
-
-					if (b == _element_list[a]._numBoundaryPointPerLayer - 1)
-					{
-						massIdx2 = layerOffset;
-					}
-
-					int massIdx1_next = massIdx1 + _element_list[a]._numPointPerLayer; // next
-					int massIdx2_next = massIdx2 + _element_list[a]._numPointPerLayer; // next
-
-					A2DVector pt1 = _element_list[a]._massList[massIdx1]._pos.GetA2DVector();
-					A2DVector pt2 = _element_list[a]._massList[massIdx2]._pos.GetA2DVector();
-
-					A2DVector pt1_next = _element_list[a]._massList[massIdx1_next]._pos.GetA2DVector();
-					A2DVector pt2_next = _element_list[a]._massList[massIdx2_next]._pos.GetA2DVector();
-					
-
-					A2DVector dir1 = pt1.DirectionTo(pt1_next);
-					A2DVector dir2 = pt2.DirectionTo(pt2_next);
-
-					float d1 = dir1.Length() * interVal;
-					float d2 = dir2.Length() * interVal;
-
-					dir1 = dir1.Norm();
-					dir2 = dir2.Norm();
-
-					A2DVector pt1_mid = pt1 + (dir1 * d1);
-					A2DVector pt2_mid = pt2 + (dir2 * d2);
-					
-					//A2DVector pt1_mid = (pt1 + pt1_next) / 2.0;
-					//A2DVector pt2_mid = (pt2 + pt2_next) / 2.0;
-
-					int frameIdx = l * numInterpolation + i;
-
-					vCreator.DrawLine(pt1_mid, pt2_mid, _element_list[a]._color, frameIdx);
-				}
-			}
-		}
-	}
-
-	std::stringstream ss;
-	ss << SystemParams::_save_folder << "PNG\\";
-	vCreator.Save(ss.str());
-}
-
-void StuffWorker::EnableInterpolationMode()
-{
-	/*std::cout << "enable interpolation\n";
-
-	// ----- variables -----
-	StuffWorker::_interp_mode  = true;
-	StuffWorker::_interp_iter  = 0;
-//	StuffWorker::_interpolation_value = 0;
-//
-//	// -----  -----
-//
-	_video_creator.ClearFrames();
-
-	// ----- interpolation -----
-	for (int a = 0; a < _element_list.size(); a++)
-	{
-		_element_list[a].UpdateInterpMasses();
-	}
-
-	// ----- Enable ? -----
-	for (int a = 0; a < _element_list.size(); a++)
-	{
-		_element_list[a].Interp_ResetSpringRestLengths();
-	}*/
-//	
-}
-
-void StuffWorker::DisableInterpolationMode()
-{
-	std::cout << "disable interpolation\n";
-
-	StuffWorker::_interp_mode  = false;
-	StuffWorker::_interp_iter  = 0;
-//	StuffWorker::_interpolation_value = 0;
-//
-//	for (int a = 0; a < _element_list.size(); a++)
-//	{
-//		_element_list[a].DisableInterpolationMode();
-//	}
-}
 
 /*void StuffWorker::CreateRandomElementPoints(std::vector<A2DVector> ornamentBoundary,
 									float img_length,
@@ -1114,4 +763,350 @@ void StuffWorker::DisableInterpolationMode()
 //	_debugNode_tri = scnMgr->getRootSceneNode()->createChildSceneNode("debug_lines_tri_debug");
 //	_debugNode_tri->attachObject(_debug_lines_tri);*/
 //
+//}
+
+//void StuffWorker::Interp_SaveFrames()
+//{
+	//int l = StuffWorker::_interpolation_iter;
+	/*for (int a = 0; a < _element_list.size(); a++)
+	{
+		int layerOffset = StuffWorker::_interp_iter * _element_list[a]._numPointPerLayer;
+		for (int b = 0; b < _element_list[a]._numBoundaryPointPerLayer; b++)
+		{
+			int massIdx1 = b + layerOffset;
+			int massIdx2 = b + layerOffset + 1;
+			if (b == _element_list[a]._numBoundaryPointPerLayer - 1)
+			{
+				massIdx2 = layerOffset;
+			}
+			A2DVector pt1 = _element_list[a]._massList[massIdx1]._pos.GetA2DVector();
+			A2DVector pt2 = _element_list[a]._massList[massIdx2]._pos.GetA2DVector();
+			int frameIdx = StuffWorker::_interp_iter * SystemParams::_interpolation_factor;
+			_video_creator.DrawLine(pt1, pt2, _element_list[a]._color, frameIdx);
+			_video_creator.DrawRedCircle(frameIdx); // debug delete me
+
+		}
+	}
+
+	for (int i = 0; i < SystemParams::_interpolation_factor - 1; i++)
+	{
+		for (int a = 0; a < _element_list.size(); a++)
+		{
+			int layerOffset = i * _element_list[a]._numPointPerLayer;
+			for (int b = 0; b < _element_list[a]._numBoundaryPointPerLayer; b++)
+			{
+				int massIdx1 = b + layerOffset;
+				int massIdx2 = b + layerOffset + 1;
+				if (b == _element_list[a]._numBoundaryPointPerLayer - 1)
+				{
+					massIdx2 = layerOffset;
+				}
+				A2DVector pt1 = _element_list[a]._interp_massList[massIdx1]._pos.GetA2DVector();
+				A2DVector pt2 = _element_list[a]._interp_massList[massIdx2]._pos.GetA2DVector();
+
+				int frameIdx = (StuffWorker::_interp_iter * SystemParams::_interpolation_factor) + (i + 1);
+				_video_creator.DrawLine(pt1, pt2, _element_list[a]._color, frameIdx);
+
+			}
+		}
+	}*/
+	//}
+
+/*void StuffWorker::SaveFrames2()
+{
+	for (int a = 0; a < _element_list.size(); a++)
+	{
+		_element_list[a].CalculateLayerBoundaries_Drawing();
+	}
+
+	AVideoCreator vCreator;
+	vCreator.Init(SystemParams::_num_png_frame);
+
+	for (int l = 0; l < SystemParams::_num_png_frame; l++)
+	{
+		std::cout << l << "\n";
+		for (int a = 0; a < _element_list.size(); a++)
+		{
+			for (int b = 0; b < _element_list[a]._numBoundaryPointPerLayer; b++)
+			{
+				int massIdx1 = b;
+				int massIdx2 = b + 1;
+
+				if (massIdx2 == _element_list[a]._numBoundaryPointPerLayer)
+				{
+					massIdx2 = 0;
+				}
+				A2DVector pt1 = _element_list[a]._per_layer_boundary_drawing[l][massIdx1].GetA2DVector();
+				A2DVector pt2 = _element_list[a]._per_layer_boundary_drawing[l][massIdx2].GetA2DVector();
+				vCreator.DrawLine(pt1, pt2, _element_list[a]._color, l);
+			}
+		}
+	}
+
+	std::stringstream ss;
+	ss << SystemParams::_save_folder << "PNG\\";
+	vCreator.Save(ss.str());
+}*/
+
+
+/*void StuffWorker::SaveFrames()
+{
+
+	int numInterpolation = SystemParams::_interpolation_factor;
+
+	AVideoCreator vCreator;
+	vCreator.Init(numInterpolation);
+
+	// ----- shouldn't be deleted for interpolation mode -----
+	for (int l = 0; l < SystemParams::_num_layer; l++)
+	{
+
+		for (int a = 0; a < _element_list.size(); a++)
+		{
+			int layerOffset = l * _element_list[a]._numPointPerLayer;
+			for (int b = 0; b < _element_list[a]._numBoundaryPointPerLayer; b++)
+			{
+				int massIdx1 = b + layerOffset;
+				int massIdx2 = b + layerOffset + 1;
+				if (b == _element_list[a]._numBoundaryPointPerLayer - 1)
+					{ massIdx2 = layerOffset; }
+				A2DVector pt1 = _element_list[a]._massList[massIdx1]._pos.GetA2DVector();
+				A2DVector pt2 = _element_list[a]._massList[massIdx2]._pos.GetA2DVector();
+				vCreator.DrawLine(pt1, pt2, _element_list[a]._color, l * numInterpolation);
+				vCreator.DrawRedCircle(l * numInterpolation); // debug delete me
+
+			}
+		}
+	}
+	// ----- shouldn't be deleted for interpolation mode -----
+
+
+	// WARNING very messy nested loops
+	// only generate numInterpolation - 1 frames (one less)
+	for (int i = 1; i < numInterpolation; i++)
+	{
+		float interVal = ((float)i) / ((float)numInterpolation);
+
+		// one less layer
+		for (int l = 0; l < SystemParams::_num_layer - 1; l++)
+		{
+			for (int a = 0; a < _element_list.size(); a++)
+			{
+				int layerOffset = l * _element_list[a]._numPointPerLayer;
+				for (int b = 0; b < _element_list[a]._numBoundaryPointPerLayer; b++)
+				{
+					int massIdx1 = b + layerOffset;
+					int massIdx2 = b + layerOffset + 1;
+
+					if (b == _element_list[a]._numBoundaryPointPerLayer - 1)
+					{
+						massIdx2 = layerOffset;
+					}
+
+					int massIdx1_next = massIdx1 + _element_list[a]._numPointPerLayer; // next
+					int massIdx2_next = massIdx2 + _element_list[a]._numPointPerLayer; // next
+
+					A2DVector pt1 = _element_list[a]._massList[massIdx1]._pos.GetA2DVector();
+					A2DVector pt2 = _element_list[a]._massList[massIdx2]._pos.GetA2DVector();
+
+					A2DVector pt1_next = _element_list[a]._massList[massIdx1_next]._pos.GetA2DVector();
+					A2DVector pt2_next = _element_list[a]._massList[massIdx2_next]._pos.GetA2DVector();
+
+
+					A2DVector dir1 = pt1.DirectionTo(pt1_next);
+					A2DVector dir2 = pt2.DirectionTo(pt2_next);
+
+					float d1 = dir1.Length() * interVal;
+					float d2 = dir2.Length() * interVal;
+
+					dir1 = dir1.Norm();
+					dir2 = dir2.Norm();
+
+					A2DVector pt1_mid = pt1 + (dir1 * d1);
+					A2DVector pt2_mid = pt2 + (dir2 * d2);
+
+					//A2DVector pt1_mid = (pt1 + pt1_next) / 2.0;
+					//A2DVector pt2_mid = (pt2 + pt2_next) / 2.0;
+
+					int frameIdx = l * numInterpolation + i;
+
+					vCreator.DrawLine(pt1_mid, pt2_mid, _element_list[a]._color, frameIdx);
+				}
+			}
+		}
+	}
+
+	std::stringstream ss;
+	ss << SystemParams::_save_folder << "PNG\\";
+	vCreator.Save(ss.str());
+}*/
+
+//void StuffWorker::EnableInterpolationMode()
+//{
+	/*std::cout << "enable interpolation\n";
+
+	// ----- variables -----
+	StuffWorker::_interp_mode  = true;
+	StuffWorker::_interp_iter  = 0;
+//	StuffWorker::_interpolation_value = 0;
+//
+//	// -----  -----
+//
+	_video_creator.ClearFrames();
+
+	// ----- interpolation -----
+	for (int a = 0; a < _element_list.size(); a++)
+	{
+		_element_list[a].UpdateInterpMasses();
+	}
+
+	// ----- Enable ? -----
+	for (int a = 0; a < _element_list.size(); a++)
+	{
+		_element_list[a].Interp_ResetSpringRestLengths();
+	}*/
+	//	
+	//}
+
+	//void StuffWorker::DisableInterpolationMode()
+	//{
+	//	std::cout << "disable interpolation\n";
+	//
+	//	StuffWorker::_interp_mode  = false;
+	//	StuffWorker::_interp_iter  = 0;
+	////	StuffWorker::_interpolation_value = 0;
+	////
+	////	for (int a = 0; a < _element_list.size(); a++)
+	////	{
+	////		_element_list[a].DisableInterpolationMode();
+	////	}
+	//}
+
+
+//
+
+// INTERPOLATION
+//void StuffWorker::Interp_Update()
+//{
+	/*// ----- for closest point calculation -----
+	for (int a = 0; a < _element_list.size(); a++)
+	{
+		_element_list[a].Interp_UpdateLayerBoundaries();
+	}
+
+	// ----- update collision grid -----
+	std::vector<int> iters; // TODO can be better
+	for (int a = 0; a < _interp_c_grid_list.size(); a++)
+		{ iters.push_back(0); }
+
+	for (int a = 0; a < _element_list.size(); a++)
+	{
+		for (int b = 0; b < _element_list[a]._interp_massList.size(); b++)
+		{
+			int c_grid_idx = _element_list[a]._interp_massList[b]._layer_idx;
+			int layer_iter = iters[c_grid_idx];  // why is this called layer_iter?
+			A3DVector p1 = _element_list[a]._interp_massList[b]._pos;
+
+			// update pt
+			_interp_c_grid_list[c_grid_idx]->_objects[layer_iter]->_x = p1._x;
+			_interp_c_grid_list[c_grid_idx]->_objects[layer_iter]->_y = p1._y;
+
+			iters[c_grid_idx]++; // increment
+		}
+	}
+	for (int a = 0; a < _interp_c_grid_list.size(); a++)
+	{
+		_interp_c_grid_list[a]->MovePoints();
+		_interp_c_grid_list[a]->PrecomputeGraphIndices();
+	}
+
+	// ----- update closest points -----
+	for (int a = 0; a < _element_list.size(); a++)
+	{
+		for (int b = 0; b < _element_list[a]._interp_massList.size(); b++)
+		{
+			_element_list[a]._interp_massList[b].Interp_GetClosestPoint();
+		}
+
+	}
+
+	// move to another layer?
+	if (!Interp_HasOverlap())
+	{
+		Interp_SaveFrames();
+
+		StuffWorker::_interp_iter++;
+
+		if (StuffWorker::_interp_iter == SystemParams::_num_layer - 1)
+		{
+			std::stringstream ss;
+			ss << SystemParams::_save_folder << "PNG\\";
+			_video_creator.Save(ss.str());
+
+			DisableInterpolationMode();
+		}
+		else
+		{
+			// ----- interpolation -----
+			for (int a = 0; a < _element_list.size(); a++)
+			{
+				_element_list[a].UpdateInterpMasses();
+			}
+
+			// ----- Enable ? -----
+			for (int a = 0; a < _element_list.size(); a++)
+			{
+				_element_list[a].Interp_ResetSpringRestLengths();
+			}
+		}
+	}*/
+
+	//}
+
+
+//void StuffWorker::Interp_Reset()
+//{
+//	// update closest points
+//	/*for (int a = 0; a < _element_list.size(); a++)
+//	{
+//		for (int b = 0; b < _element_list[a]._interp_massList.size(); b++)
+//		{
+//			_element_list[a]._interp_massList[b].Init();
+//		}
+//
+//	}*/
+//}
+
+//void StuffWorker::Interp_Solve()
+//{
+//	/*for (int a = 0; a < _element_list.size(); a++)
+//	{
+//		_element_list[a].Interp_SolveForSprings2D();
+//
+//		for (int b = 0; b < _element_list[a]._interp_massList.size(); b++)
+//		{
+//			_element_list[a]._interp_massList[b].Solve(_containerWorker->_2d_container);
+//		}
+//	}*/
+//}
+
+//void StuffWorker::Interp_Simulate()
+//{
+//	/*for (int a = 0; a < _element_list.size(); a++)
+//	{
+//		for (int b = 0; b < _element_list[a]._interp_massList.size(); b++)
+//		{
+//			_element_list[a]._interp_massList[b].Interp_Simulate(SystemParams::_dt);
+//		}
+//	}*/
+//}
+//
+//bool StuffWorker::Interp_HasOverlap()
+//{
+//	/*for (int a = 0; a < _element_list.size(); a++)
+//	{
+//		if (_element_list[a].Interp_HasOverlap())
+//			return true;
+//	}*/
+//	return false;
 //}

@@ -48,12 +48,14 @@ public:
 	//void UpdateSpringLengths();
 	//void UpdateInterpMasses();
 	void UpdateZConstraint();
+	//void UpdateAvgLayerSpringLength();
 
 
 	void SolveForSprings3D();
 
 	bool IsInsideApprox(int layer_idx, A3DVector pos);
 	bool IsInside(int layer_idx, A3DVector pos, std::vector<A3DVector>& boundary_slice);
+	bool IsInside_Const(int layer_idx, A3DVector pos, std::vector<A3DVector>& boundary_slice) const;
 	
 		
 	void DrawRandomPoints(std::vector<A2DVector> randomPoints); // debug
@@ -115,6 +117,8 @@ public:
 	void UpdateSurfaceTriangleOgre3D();
 	void UpdateOverlapOgre3D();
 	void UpdateNegSpaceEdgeOgre3D();
+	void UpdateLayerSpringsOgre3D();
+	void UpdateAuxSpringsOgre3D();
 	void UpdateMassListOgre3D();
 	void UpdateForceOgre3D();
 	void UpdateTimeEdgesOgre3D();
@@ -175,6 +179,8 @@ public:
 	int _numPointPerLayer;   
 	int _numBoundaryPointPerLayer;
 
+	//float _avg_layer_springs_length;
+
 	// for growing
 	float _scale; // initially 1.0f, check SystemParamas
 	//float _maxScale; // check SystemParamas
@@ -221,19 +227,25 @@ public:
 	Ogre::SceneNode* _dock_node;
 	std::vector<int> _dock_mass_idx;
 
+	/* 0 */
+	DynamicLines*    _layer_springs_lines;
+	Ogre::SceneNode* _layer_springs_node;
 
-	DynamicLines*    _neg_space_edge_lines;
-	Ogre::SceneNode* _neg_space_edge_node;
+	/* 1 */
+	DynamicLines*    _time_springs_lines;
+	Ogre::SceneNode* _time_springs_node;
+
+	/* 2 */
+	DynamicLines*    _aux_springs_lines;
+	Ogre::SceneNode* _aux_springs_node;
+
+	/* 3 */
+	DynamicLines*    _neg_space_springs_lines;
+	Ogre::SceneNode* _neg_space_springs_node;
 
 	// testing surface triangle mesh
 	DynamicLines*    _surface_tri_lines;
-	Ogre::SceneNode* _surface_tri_node;
-	//DynamicLines*    _debug_lines_3;
-	//Ogre::SceneNode* _debugNode_3;
-
-	//
-	DynamicLines*    _time_edge_lines;
-	Ogre::SceneNode* _time_edge_node;
+	Ogre::SceneNode* _surface_tri_node;	
 
 	// testing closest slice
 	DynamicLines*    _closest_slice_lines; // for debugging repulsion forces
@@ -243,12 +255,13 @@ public:
 	DynamicLines*    _closest_tri_lines; // for debugging repulsion forces
 	Ogre::SceneNode* _closest_tri_node;  // for debugging repulsion forces
 
-	// testing closest points
-	DynamicLines*    _closet_pt_lines; // for debugging repulsion forces
-	Ogre::SceneNode* _closet_pt_node;  // for debugging repulsion forces
+	// repulsion forces
+	DynamicLines*    _exact_r_force_lines; // for debugging repulsion forces
+	Ogre::SceneNode* _exact_r_force_node;  // for debugging repulsion forces
 
-	DynamicLines*    _closet_pt_approx_lines; // for debugging repulsion forces
-	Ogre::SceneNode* _closet_pt_approx_node;  // for debugging repulsion forces
+	// repulsion forces
+	DynamicLines*    _approx_r_force_lines; // for debugging repulsion forces
+	Ogre::SceneNode* _approx_r_force_node;  // for debugging repulsion forces
 
 	// testing closest points
 	//DynamicLines*    _closet_pt_lines_back;

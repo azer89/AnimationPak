@@ -66,11 +66,30 @@ AMass::~AMass()
 	}*/
 }
 
+void  AMass::PrepareCPtsArrays() // see _c_pts and _c_pts_approx
+{
+	_c_pts_fill_size = 0;
+	_c_pts_approx_fill_size = 0;
+	_c_pts_max_size = 0;
+	_c_pts_approx_max_size = 0;
+
+	if (_is_boundary)
+	{
+		_c_pts_max_size = SystemParams::_max_exact_array_len; // to do: rename _max_exact_array_len
+		_c_pts = std::vector<A3DVector>(_c_pts_max_size, A3DVector(0, 0, 0));
+
+		_c_pts_approx_max_size = SystemParams::_max_exact_array_len; // to do: rename _max_exact_array_len
+		_c_pts_approx = std::vector<std::pair<A3DVector, int>>(_c_pts_approx_max_size, std::pair<A3DVector, int>(A3DVector(0, 0, 0), 0)); // very complicated
+	}
+}
+
 void AMass::CallMeFromConstructor()
 {
 	_closest_elem_idx = -1;
 
 	_ori_z_pos = _pos._z;
+
+	_valence = 0;
 
 	_velocity = A3DVector(0, 0, 0);
 
@@ -83,17 +102,13 @@ void AMass::CallMeFromConstructor()
 
 	_isDocked = false;
 
-	//_interpolation_mode = false;
+	//_c_pts_fill_size = 0;
+	//_c_pts_max_size = SystemParams::_max_exact_array_len; // to do: rename _max_exact_array_len
+	//_c_pts = std::vector<A3DVector>(_c_pts_max_size, A3DVector(0,0,0));
 
-	_c_pts_fill_size = 0;
-	_c_pts_max_size = SystemParams::_max_exact_array_len; // to do: rename _max_exact_array_len
-	_c_pts = std::vector<A3DVector>(_c_pts_max_size, A3DVector(0,0,0));
-
-	_c_pts_approx_fill_size = 0;
-	_c_pts_approx_max_size = SystemParams::_max_exact_array_len; // to do: rename _max_exact_array_len
-	_c_pts_approx = std::vector<std::pair<A3DVector, int>>(_c_pts_approx_max_size, std::pair<A3DVector, int>(A3DVector(0, 0, 0), 0)); // very complicated
-
-	//_closest_tri = std::vector<A3DVector>(3);
+	//_c_pts_approx_fill_size = 0;
+	//_c_pts_approx_max_size = SystemParams::_max_exact_array_len; // to do: rename _max_exact_array_len
+	//_c_pts_approx = std::vector<std::pair<A3DVector, int>>(_c_pts_approx_max_size, std::pair<A3DVector, int>(A3DVector(0, 0, 0), 0)); // very complicated
 
 	Init();
 }
@@ -288,7 +303,7 @@ void AMass::GetClosestPoint5(const CollisionGrid3D& c_grid, const std::vector<An
 	if (_closest_elem_idx != -1)
 	{
 		int layer_idx = StuffWorker::_element_list[_closest_elem_idx]._surfaceTriangles[closest_tri_idx]._layer_idx; // original
-		_is_inside = StuffWorker::_element_list[_closest_elem_idx].IsInside(layer_idx, _pos, _closest_boundary_slice);
+		_is_inside = StuffWorker::_element_list[_closest_elem_idx].IsInside_Const(layer_idx, _pos, _closest_boundary_slice);
 	}
 
 	// ----- approx closest point -----

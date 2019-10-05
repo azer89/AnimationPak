@@ -23,11 +23,11 @@ public:
 	//void InitElements(Ogre::SceneManager* scnMgr);
 	void InitElements2(Ogre::SceneManager* scnMgr);
 
-	void Interp_Update();
-	void Interp_Reset();          // reset forces to zero
-	void Interp_Solve();            // calculate forces
-	void Interp_Simulate();     // 
-	bool Interp_HasOverlap();
+	//void Interp_Update();
+	//void Interp_Reset();          // reset forces to zero
+	//void Interp_Solve();            // calculate forces
+	//void Interp_Simulate();     // 
+	//bool Interp_HasOverlap();
 
 	void Update();
 	void Reset();          // reset forces to zero
@@ -45,9 +45,9 @@ public:
 	void Solve_Prepare_Threads();
 	void Solve_Thread(int startIdx, int endIdx);
 
-	void Interp_SaveFrames();
-	void SaveFrames();
-	void SaveFrames2();
+	//void Interp_SaveFrames();
+	//void SaveFrames();
+	//void SaveFrames2();
 	void SaveFrames3();
 	void SaveFrames4();
 
@@ -59,8 +59,8 @@ public:
 	static std::vector<CollisionGrid2D*> _interp_c_grid_list;
 
 
-	void EnableInterpolationMode();
-	void DisableInterpolationMode();
+	//void EnableInterpolationMode();
+	//void DisableInterpolationMode();
 
 public:
 
@@ -73,7 +73,7 @@ public:
 	static CollisionGrid3D* _c_grid_3d; // collission grid 3D
 	//static CollisionGrid3D _c_grid_3d;
 
-	AVideoCreator _video_creator;
+	//AVideoCreator _video_creator;
 
 	//float _micro_1_thread;
 	//float _micro_n_thread;

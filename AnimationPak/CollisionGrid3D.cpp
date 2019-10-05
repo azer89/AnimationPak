@@ -802,7 +802,7 @@ void CollisionGrid3D::UpdateOgre3D()
 	}
 
 	// exact
-	if (SystemParams::_show_c_pt_cg)
+	/*if (SystemParams::_show_c_pt_cg)
 	{
 		for (unsigned int a = 0; a < _squares.size(); a++)
 		{
@@ -818,10 +818,10 @@ void CollisionGrid3D::UpdateOgre3D()
 				_c_pt_lines->addPoint(Ogre::Vector3(pos._x, pos._y + offsetVal, pos._z));
 			}
 		}
-	}
+	}*/
 
 	// approx
-	if (SystemParams::_show_c_pt_approx_cg)
+	/*if (SystemParams::_show_c_pt_approx_cg)
 	{
 		for (unsigned int a = 0; a < _squares.size(); a++)
 		{
@@ -837,7 +837,7 @@ void CollisionGrid3D::UpdateOgre3D()
 				_c_pt_approx_lines->addPoint(Ogre::Vector3(pos._x, pos._y + offsetVal, pos._z));
 			}
 		}
-	}
+	}*/
 
 	_plus_lines->update();
 	_filled_lines->update();

@@ -55,6 +55,8 @@ public:
 
 	static float _velocity_cap;
 
+	static float _self_intersection_threshold;
+
 	static float _bin_square_size;
 	//static int   _collission_block_radius;
 	static int _grid_radius_1;
@@ -80,7 +82,7 @@ public:
 	static float _sampling_density;
 	static float _boundary_sampling_factor;
 
-	static int _interpolation_factor;
+	//static int _interpolation_factor;
 	static int _num_png_frame;
 
 	static int _num_element_density;
@@ -94,11 +96,14 @@ public:
 	static bool _show_collision_grid;
 	static bool _show_collision_grid_object;
 	static bool _show_surface_tri;
-	static bool _show_time_edges;
-	static bool _show_negative_space_springs;
+	
+	static bool _show_layer_springs;          // 0
+	static bool _show_time_springs;           // 1
+	static bool _show_aux_springs;            // 2
+	static bool _show_negative_space_springs; // 3
 
-	static bool _show_c_pt_cg;
-	static bool _show_c_pt_approx_cg;
+	//static bool _show_c_pt_cg;
+	//static bool _show_c_pt_approx_cg;
 
 	static bool _show_force;
 	static bool _show_overlap;

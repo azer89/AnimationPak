@@ -67,6 +67,8 @@ void SystemParams::LoadParameters()
 
 	SystemParams::_velocity_cap = script.get<float>("_velocity_cap");
 
+	SystemParams::_self_intersection_threshold = script.get<float>("_self_intersection_threshold");
+
 	// temp
 	//SystemParams::_cube_length = 500.0f;
 	SystemParams::_num_layer = script.get<int>("_num_layer"); // plus one
@@ -78,7 +80,7 @@ void SystemParams::LoadParameters()
 	SystemParams::_sampling_density = script.get<float>("_sampling_density");
 	SystemParams::_boundary_sampling_factor = script.get<float>("_boundary_sampling_factor");
 
-	SystemParams::_interpolation_factor = script.get<int>("_interpolation_factor");
+	//SystemParams::_interpolation_factor = script.get<int>("_interpolation_factor");
 	SystemParams::_num_png_frame = script.get<int>("_num_png_frame");
 
 	SystemParams::_skin_offset = script.get<float>("_skin_offset");
@@ -92,6 +94,11 @@ void SystemParams::LoadParameters()
 	//std::cout << SystemParams::_save_folder << "\n";
 
 	std::cout << "SystemParams::LoadParameters done\n";
+
+	std::stringstream ss;
+	ss << "copy " << _lua_file << " " << SystemParams::_save_folder << "params.lua";
+	std::cout << ss.str() << "\n";
+	std::system(ss.str().c_str());
 
 }
 
@@ -130,6 +137,8 @@ float SystemParams::_k_dock = 0.0f;
 
 float SystemParams::_velocity_cap = 0.0f;
 
+float SystemParams::_self_intersection_threshold = 0.0f;
+
 float SystemParams::_bin_square_size = 0.0f;
 int SystemParams::_grid_radius_1 = 0;
 int SystemParams::_grid_radius_2 = 0;
@@ -154,7 +163,7 @@ float SystemParams::_skin_offset = 0.0f;
 float SystemParams::_sampling_density = 0.0f;
 float SystemParams::_boundary_sampling_factor = 0.0f;
 
-int SystemParams::_interpolation_factor = 0;
+//int SystemParams::_interpolation_factor = 0;
 int SystemParams::_num_png_frame = 0;
 
 int SystemParams::_num_element_density = 0;
@@ -168,11 +177,16 @@ bool SystemParams::_show_approx_repulsion_forces = false;
 bool SystemParams::_show_collision_grid = false;
 bool SystemParams::_show_collision_grid_object = false;
 bool SystemParams::_show_surface_tri = false;
-bool SystemParams::_show_time_edges = false;
-bool SystemParams::_show_negative_space_springs = false;
 
-bool SystemParams::_show_c_pt_cg        = false;
-bool SystemParams::_show_c_pt_approx_cg = false;
+
+
+bool SystemParams::_show_layer_springs = false;          // 0
+bool SystemParams::_show_time_springs = false;           // 1
+bool SystemParams::_show_aux_springs = false;            // 2
+bool SystemParams::_show_negative_space_springs = false; // 3
+
+//bool SystemParams::_show_c_pt_cg        = false;
+//bool SystemParams::_show_c_pt_approx_cg = false;
 
 bool SystemParams::_show_force       = false;
 bool SystemParams::_show_overlap     = false;

@@ -28,19 +28,22 @@ _num_thread_c_pt    = 20; -- closest point
 _num_thread_solve   = 20;
 
 --- Force parameters
-_k_edge_start                = 10.0;
-_k_edge_end                  = 1;
---_k_edge                = 4.0;	--- 0.5 edge force for filling elements
+_k_edge_start          = 5.0;
+_k_edge_end            = 5.0;
+--_k_edge              = 4.0;	--- 0.5 edge force for filling elements
 _k_z                   = 0.2;   --- preventing layers to stray away in z direction
-_k_time_edge           = 0;
-_k_neg_space_edge      = 0.001;	--- edge force for springs
---_k_edge_small_factor   = 12;
+_k_time_edge           = 0.001;
+_k_neg_space_edge      = 0.1;	--- edge force for springs
+--_k_edge_small_factor = 12;
 _k_repulsion           = 1;	--- 10 repulsion force
 _repulsion_soft_factor = 0.001;	--- soft factor for repulsion force
-_k_overlap             = 0.001;	    --- overlap force
+_k_overlap             = 0.5;	    --- overlap force
 _k_boundary            = 0.1;	--- 0.1 boundary force
 --_k_rotate              = 0;		--- 1
 _k_dock                = 1.0;
+
+-- Activating negative space springs
+_self_intersection_threshold = 2.0;
 
 --- capping the velocity
 _velocity_cap   = 20; -- [Do not edit]
@@ -52,8 +55,8 @@ _bin_square_size         = 20; -- 25
 --- 1 means considering all cells that are 1 block away from the query (3x3)
 --- 2 means considering all cells that are 2 block away from the query (5x5)
 --_collission_block_radius = 1;   -- one means checking 3x3 
-_grid_radius_1 = 2; -- exact
-_grid_radius_2 = 3; -- approx (Barnes-Hut)
+_grid_radius_1 = 1; -- exact
+_grid_radius_2 = 5; -- approx (Barnes-Hut)
 --_grid_radius_1_z = 1; -- NOT USED exact
 --_grid_radius_2_z = 1; -- NOT USED approx (Barnes-Hut)
 
@@ -63,32 +66,33 @@ _max_exact_array_len  = 5000;
 _max_approx_array_len = 10000;
 
 --- for growing
-_growth_scale_iter     = 0.005; -- 0.005
+_growth_scale_iter     = 0.002; -- 0.005
 _element_initial_scale = 0.1; 
-_element_max_scale     = 3.0;
+_element_max_scale     = 4.0;
 
 -- num layer in the simulation, not the png layers
 _num_layer = 50;
 
-_interpolation_factor = 5; -- how many interpolation between two layers
-_num_png_frame = 400;
+--_interpolation_factor = 5; -- how many interpolation between two layers
 
+_num_png_frame = 500;
 
 ---_show_time_springs = true;
+_skin_offset              = 20;  
 
-_skin_offset                = 25;  
-
+-- For triangulation
 --- density of random points inside the skin
 --- if the density is higher, you get more triangles
-_sampling_density               = 200;
+_sampling_density         = 50; -- For triangulation
+
 --- uniform sampling on the skin
-_boundary_sampling_factor   = 1.0;  -- lower means denser
+_boundary_sampling_factor = 1.0;  -- lower means denser
 
 
--- for frame rendering
+-- random point density, NOT triangulation !!!
+_num_element_density   = 100;
 
-
-_num_element_density       = 200;
-_num_element_pos_limit = 30;
+-- number of elements
+_num_element_pos_limit = 20;
 
 

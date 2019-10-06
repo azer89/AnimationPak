@@ -277,7 +277,7 @@ void AMass::GetClosestPoint5(const CollisionGrid3D& c_grid, const std::vector<An
 	int square_idx = c_grid.GetSquareIndexFromFloat(_pos._x, _pos._y, _pos._z);
 
 	//for (unsigned int a = 0; a < exact_pd.size(); a++)
-	float closest_dist = 10000000000;
+	_closest_dist = 10000000000;
 	float closest_tri_idx = -1;
 	A3DSquare* sq = c_grid._squares[square_idx];
 
@@ -291,9 +291,9 @@ void AMass::GetClosestPoint5(const CollisionGrid3D& c_grid, const std::vector<An
 
 		// closest element
 		float distSq = pt.DistanceSquared(_pos);
-		if (distSq < closest_dist)
+		if (distSq < _closest_dist)
 		{
-			closest_dist = distSq;
+			_closest_dist = distSq;
 			_closest_elem_idx = sq->_c_pt[a].first;
 			closest_tri_idx = sq->_c_pt[a].second;
 		}
@@ -468,7 +468,7 @@ void AMass::Solve(const std::vector<A2DVector>& container, const AnElement& pare
 			}
 
 			sumR *= SystemParams::_k_repulsion;
-			/*if (!sumR.IsBad())*/
+
 			{
 				this->_repulsionForce += sumR;
 			}

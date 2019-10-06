@@ -42,10 +42,10 @@ public:
 
 	//std::vector<AnIdxTriangle>    _timeTriangles; // for 3D collision grid
 
-	float closestDist; // for stop growing??? need to check
+	
 
 public:
-
+	float _closest_dist; // for stop growing??? need to check
 	int _closest_elem_idx;
 
 	// closest points (exact measurements)

@@ -169,6 +169,10 @@ private:
 	//std::vector<std::vector<A2DVector>> _temp_per_layer_boundary; // for interpolation mode	
 	std::vector<bool> _insideFlags; // for interpolation mode	
 
+	std::vector<bool> _growFlags; // see Grow()
+	bool _is_growing;              // see Grow()
+	
+
 //public:
 	//void EnableInterpolationMode();  // for interpolation mode	
 	//void DisableInterpolationMode(); // for interpolation mode	

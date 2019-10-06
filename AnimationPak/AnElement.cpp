@@ -59,6 +59,13 @@ AnElement::AnElement()
 	_z_pos_array = std::vector<float>(SystemParams::_num_layer, 0);
 
 	_k_edge = SystemParams::_k_edge_start;
+
+	//_growFlags
+	for (int a = 0; a < SystemParams::_num_layer; a++)
+	{
+		_growFlags.push_back(true);
+	}
+	_is_growing = true;
 }
 
 AnElement::~AnElement()
@@ -930,6 +937,12 @@ void AnElement::Grow(float growth_scale_iter, float dt)
 		return;
 	}
 
+	for (int a = 0; a < _massList.size(); a++)
+	{
+
+	}
+
+
 	_scale += growth_scale_iter * dt;
 
 	float ratio_val = (_scale - 1.0f) / (SystemParams::_element_max_scale - 1.0f);
@@ -1393,10 +1406,19 @@ void AnElement::UpdateNegSpaceEdgeOgre3D()
 
 		for (int l = 0; l < _neg_space_springs.size(); l++)
 		{
-			A3DVector pt1 = _massList[_neg_space_springs[l]._index0]._pos;
-			A3DVector pt2 = _massList[_neg_space_springs[l]._index1]._pos;
-			_neg_space_springs_lines->setPoint(idx++, Ogre::Vector3(pt1._x, pt1._y, pt1._z));
-			_neg_space_springs_lines->setPoint(idx++, Ogre::Vector3(pt2._x, pt2._y, pt2._z));
+			int layer_idx = _massList[_neg_space_springs[l]._index0]._layer_idx;
+			if (SystemParams::_layer_slider_int == -1 || layer_idx == SystemParams::_layer_slider_int)
+			{
+				A3DVector pt1 = _massList[_neg_space_springs[l]._index0]._pos;
+				A3DVector pt2 = _massList[_neg_space_springs[l]._index1]._pos;
+				_neg_space_springs_lines->setPoint(idx++, Ogre::Vector3(pt1._x, pt1._y, pt1._z));
+				_neg_space_springs_lines->setPoint(idx++, Ogre::Vector3(pt2._x, pt2._y, pt2._z));
+			}
+			else
+			{
+				_neg_space_springs_lines->setPoint(idx++, Ogre::Vector3(-100, -100, -100));
+				_neg_space_springs_lines->setPoint(idx++, Ogre::Vector3(-100, -100, -100));
+			}
 		}
 		_neg_space_springs_lines->update();
 	}

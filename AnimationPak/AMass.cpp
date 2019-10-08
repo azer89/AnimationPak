@@ -100,6 +100,8 @@ void AMass::CallMeFromConstructor()
 
 	_is_inside = false;
 
+	_closest_dist = 10000000000;
+
 	_isDocked = false;
 
 	//_c_pts_fill_size = 0;

@@ -77,6 +77,8 @@ void SystemParams::LoadParameters()
 	SystemParams::_element_max_scale = script.get<float>("_element_max_scale");
 	SystemParams::_element_initial_scale = script.get<float>("_element_initial_scale");
 
+	SystemParams::_growth_min_dist = script.get<float>("_growth_min_dist");
+
 	SystemParams::_sampling_density = script.get<float>("_sampling_density");
 	SystemParams::_boundary_sampling_factor = script.get<float>("_boundary_sampling_factor");
 
@@ -158,6 +160,7 @@ int SystemParams::_num_layer = 0.0f; // plus one
 float SystemParams::_growth_scale_iter = 0.0f;
 float SystemParams::_element_max_scale = 0.0f;
 float SystemParams::_element_initial_scale = 0.0f;
+float SystemParams::_growth_min_dist = 0.0f;
 
 float SystemParams::_skin_offset = 0.0f;
 float SystemParams::_sampling_density = 0.0f;
@@ -177,6 +180,8 @@ bool SystemParams::_show_approx_repulsion_forces = false;
 bool SystemParams::_show_collision_grid = false;
 bool SystemParams::_show_collision_grid_object = false;
 bool SystemParams::_show_surface_tri = false;
+
+bool SystemParams::_show_growing_elements = false;
 
 
 

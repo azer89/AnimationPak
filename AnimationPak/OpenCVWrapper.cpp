@@ -923,19 +923,19 @@ void OpenCVWrapper::Triangulate(std::vector<AnIdxTriangle>& myTriangles,
 		if (cv::pointPolygonTest(cvBoundary, cv::Point2f(centerPt.x, centerPt.y), true) < 0)
 		{
 			// 1 & 2
-			if (std::abs(idx1 - idx2) > 2)
+			if (std::abs(idx1 - idx2) > 1)
 			{
 				negSpaceEdges.push_back(AnIndexedLine(idx1, idx2));
 			}
 
 			// 2 & 3
-			if (std::abs(idx2 - idx3) > 2)
+			if (std::abs(idx2 - idx3) > 1)
 			{
 				negSpaceEdges.push_back(AnIndexedLine(idx2, idx3));
 			}
 
 			// 3 & 1
-			if (std::abs(idx3 - idx1) > 2)
+			if (std::abs(idx3 - idx1) > 1)
 			{
 				negSpaceEdges.push_back(AnIndexedLine(idx3, idx1));
 			}

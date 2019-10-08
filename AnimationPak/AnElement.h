@@ -120,8 +120,9 @@ public:
 	void UpdateLayerSpringsOgre3D();
 	void UpdateAuxSpringsOgre3D();
 	void UpdateMassListOgre3D();
-	void UpdateForceOgre3D();
+	void UpdateVelocityMagnitudeOgre3D();
 	void UpdateTimeEdgesOgre3D();
+	void UpdateGrowingOgre3D();
 	// ---------- Ogre 3D ----------
 
 	// ----- interpolation ----- 
@@ -167,10 +168,12 @@ public:
 
 private:
 	//std::vector<std::vector<A2DVector>> _temp_per_layer_boundary; // for interpolation mode	
-	std::vector<bool> _insideFlags; // for interpolation mode	
+	std::vector<bool> _insideFlags; 	
+	std::vector<float> _layer_scale_array;
+	std::vector<float> _layer_k_edge_array;
 
-	std::vector<bool> _growFlags; // see Grow()
-	bool _is_growing;              // see Grow()
+	//std::vector<bool> _growFlags; // see Grow()
+	//bool _is_growing;              // see Grow()
 	
 
 //public:
@@ -283,9 +286,15 @@ public:
 	DynamicLines*    _massList_lines;
 	Ogre::SceneNode* _massList_node;
 
-	// testing force
-	DynamicLines*    _force_lines;
-	Ogre::SceneNode* _force_node;
+	// velocity magnitude
+	DynamicLines*    _v_magnitude_lines;
+	Ogre::SceneNode* _v_magnitude_node;
+
+	DynamicLines*    _growing_elements_lines;
+	Ogre::SceneNode* _growing_elements_node;
+
+	DynamicLines*    _not_growing_elements_lines;
+	Ogre::SceneNode* _not_growing_elements_node;
 
 	//
 	int                                 _numTrianglePerLayer;  // number of triangle in just one layer

@@ -77,6 +77,8 @@ public:
 	static float _element_max_scale;
 	static float _element_initial_scale;
 
+	static float _growth_min_dist;
+
 	// ttriangularization
 	static float _skin_offset; // d_gap over 2
 	static float _sampling_density;
@@ -96,6 +98,8 @@ public:
 	static bool _show_collision_grid;
 	static bool _show_collision_grid_object;
 	static bool _show_surface_tri;
+
+	static bool _show_growing_elements;
 	
 	static bool _show_layer_springs;          // 0
 	static bool _show_time_springs;           // 1

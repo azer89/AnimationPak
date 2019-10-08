@@ -176,6 +176,7 @@ bool Display::frameStarted(const Ogre::FrameEvent& evt)
 	//ImGui::Checkbox("Exact closest points (debug)", &SystemParams::_show_c_pt_cg);
 	//ImGui::Checkbox("Approx closest points (debug)", &SystemParams::_show_c_pt_approx_cg);
 	ImGui::Checkbox("Surface triangles",       &SystemParams::_show_surface_tri);
+	ImGui::Checkbox("Growth", &SystemParams::_show_growing_elements);// SystemParams::_show_growing_elements
 
 
 	

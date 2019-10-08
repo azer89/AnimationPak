@@ -15,7 +15,7 @@ _upscaleFactor   = 500.0;
 _downscaleFactor = 1.0 / _upscaleFactor;
 
 --- Time step for numerical integration (euler method)
-_dt = 0.1;   --- do not set this higher than 0.1
+_dt = 0.05;   --- 0.05 for good result? (Do not set this higher than 0.1)
 
 --- random seed
 _seed = -1; --- negative means random
@@ -28,16 +28,16 @@ _num_thread_c_pt    = 20; -- closest point
 _num_thread_solve   = 20;
 
 --- Force parameters
-_k_edge_start          = 8.0;
-_k_edge_end            = 2.0;
+_k_edge_start          = 20.0;
+_k_edge_end            = 0.2;
 --_k_edge              = 4.0;	--- 0.5 edge force for filling elements
-_k_z                   = 1.0;   --- preventing layers to stray away in z direction
+_k_z                   = 1;   --- preventing layers to stray away in z direction
 _k_time_edge           = 0.01;
-_k_neg_space_edge      = 0.1;	--- edge force for springs
+_k_neg_space_edge      = 0;	--- 0.01 edge force for springs
 --_k_edge_small_factor = 12;
 _k_repulsion           = 2.0;	--- 10 repulsion force
-_repulsion_soft_factor = 0.001;	--- soft factor for repulsion force
-_k_overlap             = 1;	    --- overlap force
+_repulsion_soft_factor = 0.00001;	--- soft factor for repulsion force
+_k_overlap             = 0.1;	    --- overlap force
 _k_boundary            = 0.5;	--- 0.1 boundary force
 --_k_rotate              = 0;		--- 1
 _k_dock                = 1.0;
@@ -46,7 +46,7 @@ _k_dock                = 1.0;
 _self_intersection_threshold = 2.0;
 
 --- capping the velocity
-_velocity_cap   = 20; -- [Do not edit]
+_velocity_cap   = 30; -- [Do not edit]
 
 --- Grid for collision detection
 --- size of a cell
@@ -68,7 +68,10 @@ _max_approx_array_len = 10000;
 --- for growing
 _growth_scale_iter     = 0.005; -- 0.005
 _element_initial_scale = 0.1; 
-_element_max_scale     = 3.1;
+_element_max_scale     = 100;
+
+--- epsilon for halting the growth
+_growth_min_dist       = 3; 
 
 -- num layer in the simulation, not the png layers
 _num_layer = 100;

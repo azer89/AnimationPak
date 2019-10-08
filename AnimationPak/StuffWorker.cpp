@@ -163,6 +163,8 @@ void StuffWorker::Update()
 		
 	}
 
+	
+
 	// ----- update triangles -----
 	for (int a = 0; a < _element_list.size(); a++)
 	{
@@ -219,6 +221,8 @@ void StuffWorker::Update()
 	// ----- grow -----
 	for (int a = 0; a < _element_list.size(); a++)
 	{
+		//UpdatePerLayerInsideFlags()
+		_element_list[a].UpdatePerLayerInsideFlags();
 		_element_list[a].Grow(SystemParams::_growth_scale_iter, SystemParams::_dt);
 	}
 
@@ -446,10 +450,11 @@ void StuffWorker::UpdateOgre3D()
 		_element_list[a].UpdateAuxSpringsOgre3D();
 		_element_list[a].UpdateNegSpaceEdgeOgre3D();
 		_element_list[a].UpdateMassListOgre3D();
-		_element_list[a].UpdateForceOgre3D();
+		_element_list[a].UpdateVelocityMagnitudeOgre3D();
 		_element_list[a].UpdateTimeEdgesOgre3D();
 		_element_list[a].UpdateClosestSliceOgre3D();
 		_element_list[a].UpdateClosestTriOgre3D();
+		_element_list[a].UpdateGrowingOgre3D();
 	}
 
 	StuffWorker::_c_grid_3d->UpdateOgre3D();

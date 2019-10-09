@@ -929,6 +929,15 @@ void AnElement::CalculateRestStructure()
 	
 }
 
+void AnElement::PrintKEdgeArray()
+{
+	for (int a = 0; a < SystemParams::_num_layer; a++)
+	{
+		std::cout << _layer_k_edge_array[a] << "\n";
+	}
+	std::cout << "\n";
+}
+
 void AnElement::Grow(float growth_scale_iter, float dt)
 {
 	//if (_scale > SystemParams::_element_max_scale)
@@ -973,11 +982,15 @@ void AnElement::Grow(float growth_scale_iter, float dt)
 		_layer_k_edge_array[a] = ((1.0f - ratio_val) *  SystemParams::_k_edge_start) + (ratio_val * SystemParams::_k_edge_end);
 	}
 
+	if (_scale < SystemParams::_element_max_scale)
+	{
 
-	_scale += growth_scale_iter * dt;
+		_scale += growth_scale_iter * dt;
 
-	float ratio_val = (_scale - 1.0f) / (SystemParams::_element_max_scale - 1.0f);
-	_k_edge = ((1.0f - ratio_val) *  SystemParams::_k_edge_start) + (ratio_val * SystemParams::_k_edge_end);
+		float ratio_val = (_scale - 1.0f) / (SystemParams::_element_max_scale - 1.0f);
+		_k_edge = ((1.0f - ratio_val) *  SystemParams::_k_edge_start) + (ratio_val * SystemParams::_k_edge_end);
+
+	}
 
 	// iterate rest_mass_pos
 	for (int a = 0; a < _rest_mass_pos_array.size(); a++)
@@ -2468,14 +2481,14 @@ void AnElement::SolveForSprings3D()
 
 	// ----- 00000 Layer Spring -----
 	int tr_sz = _layer_springs.size();
-	//k = _k_edge; // original
+	k = _k_edge; // original
 	for (unsigned int a = 0; a < tr_sz; a++)
 	{
 		idx0 = _layer_springs[a]._index0;
 		idx1 = _layer_springs[a]._index1;
 
 		// new
-		k = _layer_k_edge_array[_massList[idx0]._layer_idx];
+		//k = _layer_k_edge_array[_massList[idx0]._layer_idx];
 
 		dir_not_unit = _massList[idx0].GetPos().DirectionTo(_massList[idx1].GetPos());
 		dir_not_unit.GetUnitAndDist(dir, dist);
@@ -2520,14 +2533,14 @@ void AnElement::SolveForSprings3D()
 
 	// ----- 22222 Auxiliary Spring -----
 	int aux_sz = _auxiliary_springs.size();
-	//k = _k_edge; original
+	k = _k_edge; // original
 	for (unsigned int a = 0; a < aux_sz; a++)
 	{
 		idx0 = _auxiliary_springs[a]._index0;
 		idx1 = _auxiliary_springs[a]._index1;
 
 		// new
-		k = _layer_k_edge_array[_massList[idx0]._layer_idx];
+		//k = _layer_k_edge_array[_massList[idx0]._layer_idx];
 
 		dir_not_unit = _massList[idx0].GetPos().DirectionTo(_massList[idx1].GetPos());
 		dir_not_unit.GetUnitAndDist(dir, dist);

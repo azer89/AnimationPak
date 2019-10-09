@@ -107,7 +107,7 @@ bool Display::frameStarted(const Ogre::FrameEvent& evt)
 	//bool show_another_window = false;
 	//ImGui::Begin("AnimationPak", &show_another_window, ImVec2(240, 540));
 	ImGui::SetNextWindowPos(ImVec2(5, 5), ImGuiCond_Always);
-	ImGui::SetNextWindowSize(ImVec2(320, 750), ImGuiCond_Always);
+	ImGui::SetNextWindowSize(ImVec2(330, 770), ImGuiCond_Always);
 	bool* p_open = NULL;
 	ImGuiWindowFlags window_flags = 0;
 	ImGui::Begin("AnimationPak", p_open, window_flags);
@@ -157,6 +157,7 @@ bool Display::frameStarted(const Ogre::FrameEvent& evt)
 	if (ImGui::Button("Save Triangles to PNGs")) { _sWorker->SaveFrames3(); }
 	if (ImGui::Button("Save Elements to PNGs")) { _sWorker->SaveFrames4(); }
 	if (ImGui::Button("Pause/Resume Simulation")) { _sWorker->_is_paused = !_sWorker->_is_paused; }
+	if (ImGui::Button("Print k edge")) { _sWorker->_element_list[0].PrintKEdgeArray(); }
 	//if (ImGui::Button("Button B")) {}
 	//if (ImGui::Button("Button C")) {}
 	

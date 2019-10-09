@@ -262,6 +262,7 @@ A3DVector AMass::GetClosestPtFromArray(int elem_idx, std::vector<A3DObject>& tem
 	}
 }*/
 
+// MULTITHREAD version
 void AMass::GetClosestPoint5(const CollisionGrid3D& c_grid, const std::vector<AnElement>& element_list)
 {
 	if (!_is_boundary) { return; }
@@ -334,6 +335,7 @@ void AMass::GetClosestPoint5(const CollisionGrid3D& c_grid, const std::vector<An
 	}
 }
 
+// SINGLE THREAD version
 void AMass::GetClosestPoint4()
 {
 	if (!_is_boundary) { return; }

@@ -961,6 +961,16 @@ void AnElement::Grow(float growth_scale_iter, float dt)
 		}
 	}
 
+	// update
+	for (int a = 0; a < SystemParams::_num_layer; a++)
+	{
+		if (_layer_scale_array[a] >= SystemParams::_element_max_scale)
+		{
+			// kinda stupid but for visualization and reduce unnecessary computation
+			_insideFlags[a] = true;
+		}
+	}
+
 	// scale values
 	for (int a = 0; a < SystemParams::_num_layer; a++)
 	{
@@ -998,7 +1008,7 @@ void AnElement::Grow(float growth_scale_iter, float dt)
 		int layer_idx = _massList[a]._layer_idx; // new
 
 
-		if (!_insideFlags[layer_idx] && _layer_scale_array[layer_idx] < SystemParams::_element_max_scale) // new
+		if (!_insideFlags[layer_idx]/* && _layer_scale_array[layer_idx] < SystemParams::_element_max_scale*/) // new
 		{
 			A2DVector pos = _ori_rest_mass_pos_array[a].GetA2DVector();
 			pos -= _layer_center_array[layer_idx];
@@ -2683,7 +2693,7 @@ std::vector<AnIndexedLine> AnElement::CreateBendingSprings(std::vector<AMass>& m
 		int idx2 = GetUnsharedVertexIndex(tris[e2t[a][1]], tEdges[a]);
 		if (idx2 < 0) { continue; }
 
-		if(mList[idx1]._valence == 2 || mList[idx2]._valence == 2)
+		//if(mList[idx1]._valence == 2 || mList[idx2]._valence == 2)
 		{
 			AnIndexedLine anEdge(idx1, idx2);
 			A2DVector pt1 = mList[idx1]._pos.GetA2DVector();

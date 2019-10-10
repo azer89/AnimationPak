@@ -31,8 +31,11 @@ public:
 	std::vector<A2DVector> _randomPositions;  // for elements
 
 private:
-	DynamicLines* _cube_lines;
-	Ogre::SceneNode* _cube_node;
+	DynamicLines* _container_3d_lines;
+	Ogre::SceneNode* _container_3d_node;
+
+	DynamicLines* _layer_container_3d_lines;
+	Ogre::SceneNode* _layer_container_3d_node;
 };
 
 #endif

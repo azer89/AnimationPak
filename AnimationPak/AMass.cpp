@@ -460,7 +460,7 @@ void AMass::Solve(const std::vector<A2DVector>& container, const AnElement& pare
 				dir = _c_pts[a].DirectionTo(_pos); // direction
 
 				distSq = dir.LengthSquared(); // distance
-				sumR += (dir.Norm() / (SystemParams::_repulsion_soft_factor + distSq));
+				sumR += (dir.Norm() / (SystemParams::_k_repulsion_soft_factor + distSq));
 			}
 
 
@@ -468,7 +468,7 @@ void AMass::Solve(const std::vector<A2DVector>& container, const AnElement& pare
 			{
 				dir = _c_pts_approx[a].first.DirectionTo(_pos); // direction
 				distSq = dir.LengthSquared(); // distance
-				sumR += (dir.Norm() *_c_pts_approx[a].second / (SystemParams::_repulsion_soft_factor + distSq));
+				sumR += (dir.Norm() *_c_pts_approx[a].second / (SystemParams::_k_repulsion_soft_factor + distSq));
 			}
 
 			sumR *= SystemParams::_k_repulsion;

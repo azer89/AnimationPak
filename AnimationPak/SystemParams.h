@@ -47,15 +47,19 @@ public:
 	static float _k_neg_space_edge;
 	//static float _k_edge_small_factor;
 	static float _k_repulsion;
-	static float _repulsion_soft_factor;
+	
 	static float _k_overlap;
 	static float _k_boundary;
 	//static float _k_rotate;
 	static float _k_dock;
 
+	static float _k_aux_threshold;
+	static float _k_neg_space_threshold;
+	static float _k_repulsion_soft_factor;
+
 	static float _velocity_cap;
 
-	static float _self_intersection_threshold;
+	//static float _self_intersection_threshold;
 
 	static float _bin_square_size;
 	//static int   _collission_block_radius;

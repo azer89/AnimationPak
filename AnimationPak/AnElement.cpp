@@ -2557,14 +2557,17 @@ void AnElement::SolveForSprings3D()
 
 		diff = dist - _auxiliary_springs[a]._dist;
 
-		// squared version
-		//signVal = 1;
-		//if (diff < 0) { signVal = -1; }
-		//eForce = dir * k *  diff * diff * signVal;
-		eForce = dir * k *  diff;
+		if(std::abs(diff) < _auxiliary_springs[a]._dist * SystemParams::_k_aux_threshold)
+		{
+			// squared version
+			//signVal = 1;
+			//if (diff < 0) { signVal = -1; }
+			//eForce = dir * k *  diff * diff * signVal;
+			eForce = dir * k *  diff;
 
-		_massList[idx0]._edgeForce += eForce;
-		_massList[idx1]._edgeForce -= eForce;
+			_massList[idx0]._edgeForce += eForce;
+			_massList[idx1]._edgeForce -= eForce;
+		}
 	}
 
 	// ----- 33333 Negative Space Spring -----
@@ -2578,9 +2581,9 @@ void AnElement::SolveForSprings3D()
 		dir_not_unit = _massList[idx0].GetPos().DirectionTo(_massList[idx1].GetPos());
 		dir_not_unit.GetUnitAndDist(dir, dist);
 
-		if (dist < SystemParams::_self_intersection_threshold)
+		if (dist < SystemParams::_k_neg_space_threshold)
 		{
-			diff = dist - SystemParams::_self_intersection_threshold;
+			diff = dist - SystemParams::_k_neg_space_threshold;
 
 			// squared version
 			//signVal = 1;

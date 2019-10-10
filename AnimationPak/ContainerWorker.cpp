@@ -48,8 +48,9 @@ void ContainerWorker::LoadContainer()
 		A2DVector pt((i->x * offst) - shiftOffst, (i->y * offst) - shiftOffst);
 
 		bool isInside = UtilityFunctions::InsidePolygon(_2d_container, pt.x, pt.y); 
+		float dist = UtilityFunctions::DistanceToClosedCurve(_2d_container, pt);
 
-		if (isInside)
+		if (isInside && dist > 10.0)
 		{
 			_randomPositions.push_back(pt);
 		}
@@ -72,7 +73,38 @@ void ContainerWorker::LoadContainer()
 
 void ContainerWorker::UpdateOgre3D()
 {
-	_cube_node->setVisible(SystemParams::_show_container);
+	if (SystemParams::_show_container)
+	{
+		
+		if (SystemParams::_layer_slider_int == -1)
+		{
+			_container_3d_node->setVisible(true);
+			_layer_container_3d_node->setVisible(false);
+		}
+		else
+		{
+			_container_3d_node->setVisible(false);
+			_layer_container_3d_node->setVisible(true);
+
+			_layer_container_3d_lines->clear();
+
+			float z_pos = -((float)SystemParams::_layer_slider_int) * (((float)SystemParams::_upscaleFactor) / ((float)SystemParams::_num_layer));
+			for (int i = 0; i < _2d_container.size() - 1; i++)
+			{
+				_layer_container_3d_lines->addPoint(Ogre::Vector3(_2d_container[i].x, _2d_container[i].y, z_pos));
+				_layer_container_3d_lines->addPoint(Ogre::Vector3(_2d_container[i + 1].x, _2d_container[i + 1].y, z_pos));
+			}
+			_layer_container_3d_lines->addPoint(Ogre::Vector3(_2d_container[_2d_container.size() - 1].x, _2d_container[_2d_container.size() - 1].y, z_pos));
+			_layer_container_3d_lines->addPoint(Ogre::Vector3(_2d_container[0].x, _2d_container[0].y, z_pos));
+
+			_layer_container_3d_lines->update();
+		}
+	}
+	else
+	{
+		_container_3d_node->setVisible(false);
+		_layer_container_3d_node->setVisible(false);
+	}
 }
 
 void ContainerWorker::CreateOgreContainer(Ogre::SceneManager* scnMgr)
@@ -80,54 +112,11 @@ void ContainerWorker::CreateOgreContainer(Ogre::SceneManager* scnMgr)
 	
 	float len = SystemParams::_upscaleFactor;
 
-	// cube
-	/*std::deque<Ogre::Vector3> cubePoints;
-	{
-		// front
-		cubePoints.push_back(Ogre::Vector3(0.0f, 0.0f, 0.0f));
-		cubePoints.push_back(Ogre::Vector3(len, 0.0f, 0.0f));
-
-		cubePoints.push_back(Ogre::Vector3(len, 0.0f, 0.0f));
-		cubePoints.push_back(Ogre::Vector3(500.0f, len, 0.0f));
-
-		cubePoints.push_back(Ogre::Vector3(len, len, 0.0f));
-		cubePoints.push_back(Ogre::Vector3(0.0f, len, 0.0f));
-
-		cubePoints.push_back(Ogre::Vector3(0.0f, len, 0.0f));
-		cubePoints.push_back(Ogre::Vector3(0.0f, 0.0f, 0.0f));
-
-		// back
-		cubePoints.push_back(Ogre::Vector3(0.0f, 0.0f, -len));
-		cubePoints.push_back(Ogre::Vector3(len, 0.0f, -len));
-
-		cubePoints.push_back(Ogre::Vector3(len, 0.0f, -len));
-		cubePoints.push_back(Ogre::Vector3(len, len, -len));
-
-		cubePoints.push_back(Ogre::Vector3(len, len, -len));
-		cubePoints.push_back(Ogre::Vector3(0.0f, len, -len));
-
-		cubePoints.push_back(Ogre::Vector3(0.0f, len, -len));
-		cubePoints.push_back(Ogre::Vector3(0.0f, 0.0f, -len));
-
-		// left
-		cubePoints.push_back(Ogre::Vector3(0.0f, len, 0.0f));
-		cubePoints.push_back(Ogre::Vector3(0.0f, len, -len));
-
-		cubePoints.push_back(Ogre::Vector3(0.0f, 0.0f, 0.0f));
-		cubePoints.push_back(Ogre::Vector3(0.0f, 0.0f, -len));
-
-		// right
-		cubePoints.push_back(Ogre::Vector3(len, len, 0.0f));
-		cubePoints.push_back(Ogre::Vector3(len, len, -len));
-
-		cubePoints.push_back(Ogre::Vector3(len, 0.0f, 0.0f));
-		cubePoints.push_back(Ogre::Vector3(len, 0.0f, -len));
-	}*/
 
 	//In the initialization somewhere, create the initial lines object :
 	// "Examples/BlueMat"
-	Ogre::MaterialPtr material = Ogre::MaterialManager::getSingleton().getByName("Examples/BlueMat");
-	_cube_lines = new DynamicLines(material, Ogre::RenderOperation::OT_LINE_LIST);
+	Ogre::MaterialPtr container_mat = Ogre::MaterialManager::getSingleton().getByName("Examples/BlueMat");
+	_container_3d_lines = new DynamicLines(container_mat, Ogre::RenderOperation::OT_LINE_LIST);
 	/*for (int i = 0; i<cubePoints.size(); i++) 
 	{
 		cube_lines->addPoint(cubePoints[i]);
@@ -135,29 +124,35 @@ void ContainerWorker::CreateOgreContainer(Ogre::SceneManager* scnMgr)
 	// ----- front ----- 
 	for (int i = 0; i < _2d_container.size() - 1; i++)
 	{
-		_cube_lines->addPoint(Ogre::Vector3(_2d_container[i].x, _2d_container[i].y, 0.0f));
-		_cube_lines->addPoint(Ogre::Vector3(_2d_container[i+1].x, _2d_container[i+1].y, 0.0f));
+		_container_3d_lines->addPoint(Ogre::Vector3(_2d_container[i].x, _2d_container[i].y, 0.0f));
+		_container_3d_lines->addPoint(Ogre::Vector3(_2d_container[i+1].x, _2d_container[i+1].y, 0.0f));
 	}
-	_cube_lines->addPoint(Ogre::Vector3(_2d_container[_2d_container.size() - 1].x, _2d_container[_2d_container.size() - 1].y, 0.0f));
-	_cube_lines->addPoint(Ogre::Vector3(_2d_container[0].x, _2d_container[0].y, 0.0f));
+	_container_3d_lines->addPoint(Ogre::Vector3(_2d_container[_2d_container.size() - 1].x, _2d_container[_2d_container.size() - 1].y, 0.0f));
+	_container_3d_lines->addPoint(Ogre::Vector3(_2d_container[0].x, _2d_container[0].y, 0.0f));
 	// ----- back ----- 
 	for (int i = 0; i < _2d_container.size() - 1; i++)
 	{
-		_cube_lines->addPoint(Ogre::Vector3(_2d_container[i].x, _2d_container[i].y, -len));
-		_cube_lines->addPoint(Ogre::Vector3(_2d_container[i + 1].x, _2d_container[i + 1].y, -len));
+		_container_3d_lines->addPoint(Ogre::Vector3(_2d_container[i].x, _2d_container[i].y, -len));
+		_container_3d_lines->addPoint(Ogre::Vector3(_2d_container[i + 1].x, _2d_container[i + 1].y, -len));
 	}
-	_cube_lines->addPoint(Ogre::Vector3(_2d_container[_2d_container.size() - 1].x, _2d_container[_2d_container.size() - 1].y, -len));
-	_cube_lines->addPoint(Ogre::Vector3(_2d_container[0].x, _2d_container[0].y, -len));
+	_container_3d_lines->addPoint(Ogre::Vector3(_2d_container[_2d_container.size() - 1].x, _2d_container[_2d_container.size() - 1].y, -len));
+	_container_3d_lines->addPoint(Ogre::Vector3(_2d_container[0].x, _2d_container[0].y, -len));
 	// ----- in between ----- 
 	for (int i = 0; i < _2d_container.size(); i++)
 	{
-		_cube_lines->addPoint(Ogre::Vector3(_2d_container[i].x, _2d_container[i].y, 0.0f));
-		_cube_lines->addPoint(Ogre::Vector3(_2d_container[i].x, _2d_container[i].y, -len));
+		_container_3d_lines->addPoint(Ogre::Vector3(_2d_container[i].x, _2d_container[i].y, 0.0f));
+		_container_3d_lines->addPoint(Ogre::Vector3(_2d_container[i].x, _2d_container[i].y, -len));
 	}
 
-	_cube_lines->update();
-	_cube_node = scnMgr->getRootSceneNode()->createChildSceneNode("ContainerNode");
-	_cube_node->attachObject(_cube_lines);
+	_container_3d_lines->update();
+	_container_3d_node = scnMgr->getRootSceneNode()->createChildSceneNode("Container_Node");
+	_container_3d_node->attachObject(_container_3d_lines);
 
+
+	// layer
+	_layer_container_3d_lines = new DynamicLines(container_mat, Ogre::RenderOperation::OT_LINE_LIST);
+	_layer_container_3d_lines->update();
+	_layer_container_3d_node = scnMgr->getRootSceneNode()->createChildSceneNode("Layer_Container_Node");
+	_layer_container_3d_node->attachObject(_layer_container_3d_lines);
 	
 }

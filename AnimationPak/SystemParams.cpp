@@ -21,6 +21,8 @@ SystemParams::~SystemParams()
 
 void SystemParams::LoadParameters()
 {
+	std::cout << "\n\nSystemParams::LoadParameters\n";
+
 	LuaScript script(_lua_file);
 
 	SystemParams::_window_title = script.get<std::string>("_window_title");
@@ -50,11 +52,16 @@ void SystemParams::LoadParameters()
 	SystemParams::_k_neg_space_edge = script.get<float>("_k_neg_space_edge");
 	//SystemParams::_k_edge_small_factor = script.get<float>("_k_edge_small_factor");
 	SystemParams::_k_repulsion = script.get<float>("_k_repulsion");
-	SystemParams::_repulsion_soft_factor = script.get<float>("_repulsion_soft_factor");
+	//SystemParams::_repulsion_soft_factor = script.get<float>("_repulsion_soft_factor");
 	SystemParams::_k_overlap = script.get<float>("_k_overlap");
 	SystemParams::_k_boundary = script.get<float>("_k_boundary");
 	//SystemParams::_k_rotate = script.get<float>("_k_rotate");
 	SystemParams::_k_dock = script.get<float>("_k_dock");
+
+
+	SystemParams::_k_aux_threshold = script.get<float>("_k_aux_threshold");
+	SystemParams::_k_neg_space_threshold = script.get<float>("_k_neg_space_threshold");
+	SystemParams::_k_repulsion_soft_factor = script.get<float>("_k_repulsion_soft_factor");
 
 	SystemParams::_bin_square_size = script.get<float>("_bin_square_size");
 	SystemParams::_grid_radius_1 = script.get<int>("_grid_radius_1");
@@ -67,7 +74,7 @@ void SystemParams::LoadParameters()
 
 	SystemParams::_velocity_cap = script.get<float>("_velocity_cap");
 
-	SystemParams::_self_intersection_threshold = script.get<float>("_self_intersection_threshold");
+	//SystemParams::_self_intersection_threshold = script.get<float>("_self_intersection_threshold");
 
 	// temp
 	//SystemParams::_cube_length = 500.0f;
@@ -95,7 +102,7 @@ void SystemParams::LoadParameters()
 	//std::cout << SystemParams::_window_title << "\n";
 	//std::cout << SystemParams::_save_folder << "\n";
 
-	std::cout << "SystemParams::LoadParameters done\n";
+	std::cout << "SystemParams::LoadParameters DONE\n\n";
 
 	std::stringstream ss;
 	ss << "copy " << _lua_file << " " << SystemParams::_save_folder << "params.lua";
@@ -131,15 +138,19 @@ float SystemParams::_k_time_edge = 0.0f;
 float SystemParams::_k_neg_space_edge = 0.0f;
 //float SystemParams::_k_edge_small_factor = 0.0f;
 float SystemParams::_k_repulsion = 0.0f;
-float SystemParams::_repulsion_soft_factor = 0.0f;
+
 float SystemParams::_k_overlap = 0.0f;
 float SystemParams::_k_boundary = 0.0f;
 //float SystemParams::_k_rotate = 0.0f;
 float SystemParams::_k_dock = 0.0f;
 
+float SystemParams::_k_aux_threshold = 0.0f;
+float SystemParams::_k_neg_space_threshold = 0.0f;
+float SystemParams::_k_repulsion_soft_factor = 0.0f;
+
 float SystemParams::_velocity_cap = 0.0f;
 
-float SystemParams::_self_intersection_threshold = 0.0f;
+//float SystemParams::_self_intersection_threshold = 0.0f;
 
 float SystemParams::_bin_square_size = 0.0f;
 int SystemParams::_grid_radius_1 = 0;

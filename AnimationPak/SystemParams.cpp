@@ -21,7 +21,7 @@ SystemParams::~SystemParams()
 
 void SystemParams::LoadParameters()
 {
-	std::cout << "\n\nSystemParams::LoadParameters\n";
+	
 
 	LuaScript script(_lua_file);
 
@@ -58,7 +58,7 @@ void SystemParams::LoadParameters()
 	//SystemParams::_k_rotate = script.get<float>("_k_rotate");
 	SystemParams::_k_dock = script.get<float>("_k_dock");
 
-
+	SystemParams::_k_aux_val_2_factor = script.get<float>("_k_aux_val_2_factor");
 	SystemParams::_k_aux_threshold = script.get<float>("_k_aux_threshold");
 	SystemParams::_k_neg_space_threshold = script.get<float>("_k_neg_space_threshold");
 	SystemParams::_k_repulsion_soft_factor = script.get<float>("_k_repulsion_soft_factor");
@@ -68,8 +68,11 @@ void SystemParams::LoadParameters()
 	SystemParams::_grid_radius_2 = script.get<int>("_grid_radius_2");
 	//SystemParams::_grid_radius_1_z = script.get<int>("_grid_radius_1_z");
 	//SystemParams::_grid_radius_2_z = script.get<int>("_grid_radius_2_z");
-	SystemParams::_max_exact_array_len = script.get<int>("_max_exact_array_len");
-	SystemParams::_max_approx_array_len = script.get<int>("_max_approx_array_len");
+	SystemParams::_max_cg_c_pts_len = script.get<int>("_max_cg_c_pts_len");
+	SystemParams::_max_cg_c_pts_approx_len = script.get<int>("_max_cg_c_pts_approx_len");
+
+	SystemParams::_max_m_c_pts_len = script.get<int>("_max_m_c_pts_len");
+	SystemParams::_max_m_c_pts_approx_len = script.get<int>("_max_m_c_pts_approx_len");
 	//SystemParams::_collission_block_radius = script.get<int>("_collission_block_radius");
 
 	SystemParams::_velocity_cap = script.get<float>("_velocity_cap");
@@ -102,7 +105,7 @@ void SystemParams::LoadParameters()
 	//std::cout << SystemParams::_window_title << "\n";
 	//std::cout << SystemParams::_save_folder << "\n";
 
-	std::cout << "SystemParams::LoadParameters DONE\n\n";
+	
 
 	std::stringstream ss;
 	ss << "copy " << _lua_file << " " << SystemParams::_save_folder << "params.lua";
@@ -145,6 +148,7 @@ float SystemParams::_k_boundary = 0.0f;
 float SystemParams::_k_dock = 0.0f;
 
 float SystemParams::_k_aux_threshold = 0.0f;
+float SystemParams::_k_aux_val_2_factor = 0.0f;
 float SystemParams::_k_neg_space_threshold = 0.0f;
 float SystemParams::_k_repulsion_soft_factor = 0.0f;
 
@@ -157,8 +161,11 @@ int SystemParams::_grid_radius_1 = 0;
 int SystemParams::_grid_radius_2 = 0;
 //int SystemParams::_grid_radius_1_z = 0;
 //int SystemParams::_grid_radius_2_z = 0;
-int SystemParams::_max_exact_array_len = 0;
-int SystemParams::_max_approx_array_len = 0;
+int SystemParams::_max_cg_c_pts_len = 0;
+int SystemParams::_max_cg_c_pts_approx_len = 0;
+
+int SystemParams::_max_m_c_pts_len = 0;
+int SystemParams::_max_m_c_pts_approx_len = 0;
 //int   SystemParams::_collission_block_radius = 0;
 
 
@@ -208,6 +215,6 @@ bool SystemParams::_show_force       = false;
 bool SystemParams::_show_overlap     = false;
 bool SystemParams::_show_closest_tri = false;
 
-bool SystemParams::_show_container   = false;
+bool SystemParams::_show_container   = true;
 
 int SystemParams::_layer_slider_int  = -1;

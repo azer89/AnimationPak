@@ -82,6 +82,9 @@ public:
 	int _c_pt_thread_t;
 	int _solve_thread_t;
 
+	int _max_c_pts;
+	int _max_c_pts_approx;
+
 
 public:
 };

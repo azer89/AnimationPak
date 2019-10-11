@@ -13,9 +13,6 @@
 
 #include "SystemParams.h"
 
-
-//namespace CVSystem
-//{
 struct AnIndexedLine
 {
 public:
@@ -24,18 +21,14 @@ public:
 
 	int _index0; // start index
 	int _index1; // end index 
-	//bool  _canGrow;
-	//float _angle;
 	float _scale;
 	
-	
-	
+	int _valence; // the lowest valence between two vertices, see SolveSprings3D()
+		
 	bool _isLayer2Layer; // is this an inter-layer edge
 
 public:
 	void SetDist(float d)  { _dist = d; _oriDist = _dist; }
-	//float GetDist() const  { return _dist; }
-	//float GetScale() const { return _scale; }
 
 public:
 
@@ -51,19 +44,9 @@ public:
 		this->_isLayer2Layer = isLayer2Layer;
 		//this->_canGrow = true;
 		this->_scale = 1.0f;
+
+		this->_valence = 0;
 	}
-	
-	/*AnIndexedLine(int index0, int index1, float dist, float oriDist, bool isLayer2Layer = false)
-	{
-		//this->_scale = 1.0f;
-		this->_index0 = index0;
-		this->_index1 = index1;
-		this->_dist = dist;
-		this->_oriDist = oriDist;
-		this->_isLayer2Layer = isLayer2Layer;
-		//this->_angle = 0.0f;
-		//this->_canGrow = true;
-	}*/
 	
 	// SET THIS BEFORE SIMULATION OK!
 	void SetActualOriDistance(float d)
@@ -72,43 +55,6 @@ public:
 		this->_oriDist = d;
 	}
 
-	/*AnIndexedLine(const AMass& m1, const AMass& m2, bool isLayer2Layer = false)
-	{
-		this->_index0 = m1._self_idx;
-		this->_index1 = m2._self_idx;
-		
-		A3DVector pt1 = m1._pos;
-		A3DVector pt2 = m2._pos;
-
-		this->_dist = pt1.Distance(pt2);
-		this->_oriDist = this->_dist;
-		this->_isLayer2Layer = isLayer2Layer;
-	}*/
-	
-	// Constructor
-	/*AnIndexedLine(int index0, int index1, float dist)
-	{
-		this->_scale = 1.0f;
-
-		this->_index0 = index0;
-		this->_index1 = index1;
-		this->_dist = dist;
-		this->_angle = 0.0f;
-
-		this->_canGrow = true;
-	}*/
-
-	// Construction without parameters
-	/*AnIndexedLine()
-	{
-		this->_index0 = -1;
-		this->_index1 = -1;
-		this->_dist = 0;
-		this->_angle = 0.0f;
-
-		this->_maxDist = 0;
-		this->_canGrow = true;
-	}*/
 
 	void MakeLonger(float growth_scale_iter, float dt)
 	{
@@ -124,6 +70,5 @@ public:
 		_index0 ^= _index1;
 	}
 };
-//}
 
 #endif

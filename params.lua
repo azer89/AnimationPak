@@ -29,21 +29,22 @@ _num_thread_solve   = 12;
 
 --- Force parameters
 _k_edge_start          = 20.0;
-_k_edge_end            = 2.0;
---_k_edge              = 4.0;	--- 0.5 edge force for filling elements
+_k_edge_end            = 0.6;
+--_k_edge              = 40;	--- 0.5 edge force for filling elements
 _k_z                   = 1;   --- preventing layers to stray away in z direction
-_k_time_edge           = 0.01;
+_k_time_edge           = 0.02;
 _k_neg_space_edge      = 0;	--- 0.01 edge force for springs
 --_k_edge_small_factor = 12;
 _k_repulsion           = 10.0;	--- 10 repulsion force
 
-_k_overlap             = 0.1;	    --- overlap force
-_k_boundary            = 1;	--- 0.1 boundary force
+_k_overlap             = 0.5;	    --- overlap force
+_k_boundary            = 5;	--- 0.1 boundary force
 --_k_rotate              = 0;		--- 1
 _k_dock                = 1.0;
 
 
-_k_aux_threshold = 0.4;
+_k_aux_threshold = 0.7;
+_k_aux_val_2_factor = 8;
 _k_neg_space_threshold = 2;
 _k_repulsion_soft_factor = 2;	--- soft factor for repulsion force
 
@@ -51,7 +52,7 @@ _k_repulsion_soft_factor = 2;	--- soft factor for repulsion force
 --_self_intersection_threshold = 2.0;
 
 --- capping the velocity
-_velocity_cap   = 30; -- [Do not edit]
+_velocity_cap   = 10; -- [Do not edit]
 
 --- Grid for collision detection
 --- size of a cell
@@ -67,13 +68,17 @@ _grid_radius_2 = 2; -- approx (Barnes-Hut)
 
 -- check A3DSquare.h and Mass.cpp
 -- if error, use Debug mode to detect array out of bound
-_max_exact_array_len  = 5000; 
-_max_approx_array_len = 10000;
+_max_cg_c_pts_len  = 3000; 
+_max_cg_c_pts_approx_len = 5000;
+
+_max_m_c_pts_len  = 1000; 
+_max_m_c_pts_approx_len = 1000;
+
 
 --- for growing
 _growth_scale_iter     = 0.01; -- 0.005
 _element_initial_scale = 0.1; 
-_element_max_scale     = 3.7;
+_element_max_scale     = 3.4;
 
 --- epsilon for halting the growth
 _growth_min_dist       = 3; 
@@ -91,16 +96,17 @@ _skin_offset              = 10;
 -- For triangulation
 --- density of random points inside the skin
 --- if the density is higher, you get more triangles
-_sampling_density         = 150; -- For triangulation
+_sampling_density         = 200; -- For triangulation
 
 --- uniform sampling on the skin
-_boundary_sampling_factor = 1.2;  -- lower means denser
+_boundary_sampling_factor = 1.4;  -- lower means denser
 
+-- TODO distance to boundary so that elements do not protrude outside
 
 -- random point density, NOT triangulation !!!
 _num_element_density   = 200;
 
 -- number of elements
-_num_element_pos_limit = 25;
+_num_element_pos_limit = 30;
 
 

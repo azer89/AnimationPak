@@ -11,6 +11,7 @@
 #include "dirent.h" // external
 
 #include <chrono> // debug delete me
+#include <algorithm> 
 
 // static variables
 std::vector<AnElement>  StuffWorker::_element_list = std::vector<AnElement>();
@@ -27,6 +28,9 @@ StuffWorker::StuffWorker() : _containerWorker(0), _is_paused(false)
 	_springs_thread_t = 0;
 	_c_pt_thread_t = 0;
 	_solve_thread_t = 0;
+
+	_max_c_pts = 0;
+	_max_c_pts_approx = 0;
 
 	_containerWorker = new ContainerWorker;
 	_containerWorker->LoadContainer();
@@ -217,7 +221,23 @@ void StuffWorker::Update()
 	GetClosestPt_Prepare_Threads();
 	auto elapsed2 = std::chrono::system_clock::now() - start2; // timing
 	_c_pt_thread_t = std::chrono::duration_cast<std::chrono::microseconds>(elapsed2).count(); // timing
-	
+
+	// statistics of c_pt and c_pt_approx
+	_max_c_pts = 0;
+	_max_c_pts_approx = 0;
+	/*for (int a = 0; a < _element_list.size(); a++)
+	{
+		for (int b = 0; b < _element_list[a]._massList.size(); b++)
+		{
+			_max_c_pts = std::max(_max_c_pts, _element_list[a]._massList[b]._c_pts_fill_size);
+			_max_c_pts_approx = std::max(_max_c_pts_approx, _element_list[a]._massList[b]._c_pts_approx_fill_size);
+		}
+	}*/
+	for (int a = 0; a < _c_grid_3d->_squares.size(); a++)
+	{
+		_max_c_pts = std::max(_max_c_pts, _c_grid_3d->_squares[a]->_c_pt_fill_size);
+		_max_c_pts_approx = std::max(_max_c_pts_approx, _c_grid_3d->_squares[a]->_c_pt_approx_fill_size);
+	}
 	// ----- grow -----
 	for (int a = 0; a < _element_list.size(); a++)
 	{

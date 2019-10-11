@@ -25,10 +25,10 @@ public:
 		_length(length)
 	{
 		//int sz = 5000;
-		_c_pt = new std::pair<int, int>[SystemParams::_max_exact_array_len];		
+		_c_pt = new std::pair<int, int>[SystemParams::_max_cg_c_pts_len];
 		_c_pt_fill_size = 0;
 
-		_c_pt_approx = new std::pair<int, int>[SystemParams::_max_approx_array_len];
+		_c_pt_approx = new std::pair<int, int>[SystemParams::_max_cg_c_pts_approx_len];
 		_c_pt_approx_fill_size = 0;
 		/*
 		std::vector< std::vector<int> > _approx_pd_actual_sizes;

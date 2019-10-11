@@ -107,7 +107,7 @@ bool Display::frameStarted(const Ogre::FrameEvent& evt)
 	//bool show_another_window = false;
 	//ImGui::Begin("AnimationPak", &show_another_window, ImVec2(240, 540));
 	ImGui::SetNextWindowPos(ImVec2(5, 5), ImGuiCond_Always);
-	ImGui::SetNextWindowSize(ImVec2(330, 770), ImGuiCond_Always);
+	ImGui::SetNextWindowSize(ImVec2(340, 800), ImGuiCond_Always);
 	bool* p_open = NULL;
 	ImGuiWindowFlags window_flags = 0;
 	ImGui::Begin("AnimationPak", p_open, window_flags);
@@ -138,6 +138,8 @@ bool Display::frameStarted(const Ogre::FrameEvent& evt)
 
 	ImGui::Text(("Scale = " + std::to_string(_sWorker->_element_list[0]._scale)).c_str());
 	ImGui::Text(("Num vertex = " + std::to_string(_sWorker->_num_vertex)).c_str());
+	ImGui::Text(("_max_c_pts = " + std::to_string(_sWorker->_max_c_pts)).c_str());
+	ImGui::Text(("_max_c_pts_approx = " + std::to_string(_sWorker->_max_c_pts_approx)).c_str());
 	
 
 	ImGui::Text(("_k_edge = " + std::to_string(_sWorker->_element_list[0]._k_edge)).c_str());
@@ -161,7 +163,7 @@ bool Display::frameStarted(const Ogre::FrameEvent& evt)
 	//if (ImGui::Button("Button B")) {}
 	//if (ImGui::Button("Button C")) {}
 	
-	ImGui::Text("Visualization:");
+	ImGui::Text("Viz:");
 	ImGui::Checkbox("Container",               &SystemParams::_show_container);
 	ImGui::Checkbox("Mass list",               &SystemParams::_show_mass_list);
 	ImGui::Checkbox("Element boundaries",      &SystemParams::_show_element_boundaries);
@@ -185,7 +187,7 @@ bool Display::frameStarted(const Ogre::FrameEvent& evt)
 	//bool SystemParams::_show_overlap = false;
 	ImGui::Checkbox("Velocity",                &SystemParams::_show_force);
 	ImGui::Checkbox("Overlap",                 &SystemParams::_show_overlap);
-	ImGui::Checkbox("Closest Triangle",        &SystemParams::_show_closest_tri);
+	//ImGui::Checkbox("Closest Triangle",        &SystemParams::_show_closest_tri);
 	ImGui::SliderInt("Layer select",                  &SystemParams::_layer_slider_int, -1, SystemParams::_num_layer - 1);
 	/*if (ImGui::Checkbox("Show time springs", &SystemParams::_show_time_springs))
 	{
@@ -194,9 +196,9 @@ bool Display::frameStarted(const Ogre::FrameEvent& evt)
 			_sWorker->_element_list[a].ShowTimeSprings(SystemParams::_show_time_springs);
 		}
 	}*/
-	ImGui::Text("Keys:");
-	ImGui::Text("C to activate or deactivate camera");
-	ImGui::Text("X to pause/resume simulation");
+	//ImGui::Text("Keys:");
+	ImGui::Text("Press C to activate or deactivate camera");
+	ImGui::Text("Press X to pause/resume simulation");
 	
 
 	/*Ogre::Vector3 camPos = _cameraNode->getPosition();
@@ -224,7 +226,7 @@ bool Display::frameStarted(const Ogre::FrameEvent& evt)
 void Display::setup()
 {
 	OgreBites::ApplicationContext::setup();
-	this->getRenderWindow()->resize(1400, 840); // window size
+	this->getRenderWindow()->resize(1400, 900); // window size
 	this->getRenderWindow()->reposition(5, 5);
 	addInputListener(this);
 

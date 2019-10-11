@@ -75,10 +75,10 @@ void  AMass::PrepareCPtsArrays() // see _c_pts and _c_pts_approx
 
 	if (_is_boundary)
 	{
-		_c_pts_max_size = SystemParams::_max_exact_array_len; // to do: rename _max_exact_array_len
+		_c_pts_max_size = SystemParams::_max_m_c_pts_len; // to do: rename _max_exact_array_len
 		_c_pts = std::vector<A3DVector>(_c_pts_max_size, A3DVector(0, 0, 0));
 
-		_c_pts_approx_max_size = SystemParams::_max_exact_array_len; // to do: rename _max_exact_array_len
+		_c_pts_approx_max_size = SystemParams::_max_m_c_pts_approx_len; // to do: rename _max_exact_array_len
 		_c_pts_approx = std::vector<std::pair<A3DVector, int>>(_c_pts_approx_max_size, std::pair<A3DVector, int>(A3DVector(0, 0, 0), 0)); // very complicated
 	}
 }

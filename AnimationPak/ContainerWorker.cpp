@@ -50,7 +50,9 @@ void ContainerWorker::LoadContainer()
 		bool isInside = UtilityFunctions::InsidePolygon(_2d_container, pt.x, pt.y); 
 		float dist = UtilityFunctions::DistanceToClosedCurve(_2d_container, pt);
 
-		if (isInside && dist > 10.0)
+		//std::cout << dist << "\n";
+
+		if (isInside && dist > 30.0)
 		{
 			_randomPositions.push_back(pt);
 		}

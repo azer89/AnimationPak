@@ -2509,10 +2509,10 @@ void AnElement::SolveForSprings3D()
 		//avg_l += dist;
 
 		// squared version
-		//signVal = 1;
-		//if (diff < 0) { signVal = -1; }
-		//eForce = dir * k *  diff * diff * signVal;
-		eForce = dir * k *  diff;
+		signVal = 1;
+		if (diff < 0) { signVal = -1; }
+		eForce = dir * k *  diff * diff * signVal;
+		//eForce = dir * k *  diff;
 
 		_massList[idx0]._edgeForce += eForce;
 		_massList[idx1]._edgeForce -= eForce;
@@ -2532,10 +2532,10 @@ void AnElement::SolveForSprings3D()
 		diff = dist - _time_springs[a]._dist;
 
 		// squared version
-		//signVal = 1;
-		//if (diff < 0) { signVal = -1; }
-		//eForce = dir * k *  diff * diff * signVal;
-		eForce = dir * k *  diff;
+		signVal = 1;
+		if (diff < 0) { signVal = -1; }
+		eForce = dir * k *  diff * diff * signVal;
+		//eForce = dir * k *  diff;
 
 		_massList[idx0]._edgeForce += eForce;
 		_massList[idx1]._edgeForce -= eForce;
@@ -2557,13 +2557,19 @@ void AnElement::SolveForSprings3D()
 
 		diff = dist - _auxiliary_springs[a]._dist;
 
-		if(std::abs(diff) < _auxiliary_springs[a]._dist * SystemParams::_k_aux_threshold)
+		//if(std::abs(diff) < _auxiliary_springs[a]._dist * SystemParams::_k_aux_threshold)
 		{
+			float k_aux = k;
+			if (_auxiliary_springs[a]._valence == 2)
+			{
+				k_aux = k * SystemParams::_k_aux_val_2_factor;
+			}
+
 			// squared version
-			//signVal = 1;
-			//if (diff < 0) { signVal = -1; }
-			//eForce = dir * k *  diff * diff * signVal;
-			eForce = dir * k *  diff;
+			signVal = 1;
+			if (diff < 0) { signVal = -1; }
+			eForce = dir * k_aux *  diff * diff * signVal;
+			//eForce = dir * k *  diff;
 
 			_massList[idx0]._edgeForce += eForce;
 			_massList[idx1]._edgeForce -= eForce;
@@ -2586,10 +2592,10 @@ void AnElement::SolveForSprings3D()
 			diff = dist - SystemParams::_k_neg_space_threshold;
 
 			// squared version
-			//signVal = 1;
-			//if (diff < 0) { signVal = -1; }
-			//eForce = dir * k *  diff * diff * signVal;
-			eForce = dir * k *  diff;
+			signVal = 1;
+			if (diff < 0) { signVal = -1; }
+			eForce = dir * k *  diff * diff * signVal;
+			//eForce = dir * k *  diff;
 
 			_massList[idx0]._edgeForce += eForce;
 			_massList[idx1]._edgeForce -= eForce;
@@ -2705,6 +2711,11 @@ std::vector<AnIndexedLine> AnElement::CreateBendingSprings(std::vector<AMass>& m
 			//anEdge._dist = pt1.Distance(pt2);
 			float d = pt1.Distance(pt2);
 			anEdge.SetDist(d);
+
+			if (mList[idx1]._valence == 2 || mList[idx2]._valence == 2)
+			{
+				anEdge._valence = 2;
+			}
 
 			// push to edge list
 			auxiliaryEdges.push_back(anEdge);

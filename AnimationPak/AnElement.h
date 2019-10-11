@@ -188,6 +188,8 @@ public:
 	int _numPointPerLayer;   
 	int _numBoundaryPointPerLayer;
 
+	
+
 	//float _avg_layer_springs_length;
 
 	// for growing

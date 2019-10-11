@@ -54,6 +54,7 @@ public:
 	static float _k_dock;
 
 	static float _k_aux_threshold;
+	static float _k_aux_val_2_factor;
 	static float _k_neg_space_threshold;
 	static float _k_repulsion_soft_factor;
 
@@ -68,8 +69,11 @@ public:
 	//static int _grid_radius_1_z;
 	//static int _grid_radius_2_z;
 
-	static int _max_exact_array_len;
-	static int _max_approx_array_len;
+	static int _max_cg_c_pts_len;
+	static int _max_cg_c_pts_approx_len;
+
+	static int _max_m_c_pts_len;
+	static int _max_m_c_pts_approx_len;
 
 
 	// temp

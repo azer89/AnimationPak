@@ -78,8 +78,8 @@ void StuffWorker::InitElements_OneMovingElement(Ogre::SceneManager* scnMgr)
 
 	std::cout << "Triangulation done...\n";
 
-	A2DVector startPt(90, 90);
-	A2DVector endPt(410, 410);
+	A2DVector startPt(100, 100);
+	A2DVector endPt(400, 400);
 	{
 		int idx = 0;
 
@@ -91,9 +91,14 @@ void StuffWorker::InitElements_OneMovingElement(Ogre::SceneManager* scnMgr)
 
 		elem.ScaleXY(initialScale);
 		elem.TranslateXY(startPt.x, startPt.y);
-		elem.DockEnds(startPt, endPt);
 
-		elem.CalculateRestStructure();
+		elem.UpdateLayerBoundaries(); // per_layer_boundary
+		elem.CalculateRestStructure(); // calculate rest
+
+		elem.DockEnds(startPt, endPt); // docking
+
+		elem.CalculateRestStructure(); // calculate rest
+
 		Ogre::SceneNode* pNode = scnMgr->getRootSceneNode()->createChildSceneNode("TubeNode" + std::to_string(idx));
 		elem.InitMeshOgre3D(scnMgr, pNode, "Tube_" + std::to_string(idx), "Examples/TransparentTest2");
 		_element_list.push_back(elem);

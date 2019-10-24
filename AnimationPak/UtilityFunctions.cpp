@@ -30,6 +30,20 @@ inline float DistSquared(const A2DVector& p, const A2DVector& other)
 ================================================================================
 ================================================================================
 */
+std::vector<A2DVector>  UtilityFunctions::Convert2Dto3D(std::vector<A3DVector> poly)
+{
+	std::vector<A2DVector> twoDArray;
+	for (unsigned int a = 0; a < poly.size(); a++)
+	{
+		twoDArray.push_back(A2DVector(poly[a]._x, poly[a]._y));
+	}
+	return twoDArray;
+}
+
+/*
+================================================================================
+================================================================================
+*/
 int UtilityFunctions::GetIndexFromIntList(const std::vector<int>& aList, int elem)
 {
 	for (unsigned int a = 0; a < aList.size(); a++)

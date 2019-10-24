@@ -71,6 +71,7 @@ public:
 	void RotateXY(float radAngle);
 	void ScaleXY(float scVal);
 	void TranslateXY(float x, float y);
+	void TranslateCenterXY(float x, float y);
 	//void AdjustEnds(A2DVector startPt2D, A2DVector endPt2D, bool lockEnds = true);
 
 	void CreateDockPoint(A2DVector queryPos, A2DVector lockPos, int layer_idx);

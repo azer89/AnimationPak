@@ -25,6 +25,10 @@ struct ABary;
 class UtilityFunctions
 {
 public:
+
+	// 2D to 3D
+	static std::vector<A2DVector> Convert2Dto3D(std::vector<A3DVector> poly);
+
 	// array index
 	static int GetIndexFromIntList(const std::vector<int>& aList, int elem);
 

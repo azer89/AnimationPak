@@ -214,7 +214,7 @@ void AnElement::CreateDockPoint(A2DVector queryPos, A2DVector lockPos, int layer
 	int massListIdx = -1;
 	float dist = 100000;
 	int l1 = layer_idx * _numPointPerLayer;
-	int l2 = l1 + _numBoundaryPointPerLayer;
+	int l2 = l1 + _numPointPerLayer; // consider all points in the layer
 	for (int a = l1; a < l2; a++)
 	{
 		//if (_massList[a]._layer_idx == layer_idx)
@@ -246,17 +246,30 @@ void AnElement::DockEnds(A2DVector startPt2D, A2DVector endPt2D, bool lockEnds)
 {
 	// ----- stuff -----
 	float zGap = SystemParams::_upscaleFactor / (float)(SystemParams::_num_layer - 1);
-	A2DVector startPt = _massList[0]._pos.GetA2DVector();
-	A2DVector dirVector = startPt.DirectionTo(endPt2D);
+	//A2DVector startPt = _massList[0]._pos.GetA2DVector();
+	//A2DVector dirVector = startPt.DirectionTo(endPt2D);
+	//A2DVector startPt = _massList[0]._pos.GetA2DVector();
+	A2DVector dirVector = startPt2D.DirectionTo(endPt2D);
 	float xyGap = dirVector.Length() / (float)(SystemParams::_num_layer - 1);
 	dirVector = dirVector.Norm();
+
+
+	// calculating offset based on bounding square
+	A2DRectangle bb = UtilityFunctions::GetBoundingBox(UtilityFunctions::Convert2Dto3D ( _per_layer_boundary[0]) );
+	float width_offset = bb.witdh;
+	if(bb.height > width_offset) width_offset = bb.height;
+	width_offset /= 2.0f;
+	//float half_width = bb.witdh / 2.0f;
+	//float half_height = bb.height / 2.0f;
 
 	for (int a = 0; a < _massList.size(); a++)
 	{
 		float which_layer = _massList[a]._layer_idx;
 		A2DVector moveVector2D = dirVector * (xyGap * which_layer);
-		_massList[a]._pos._x += moveVector2D.x;
-		_massList[a]._pos._y += moveVector2D.y;
+		//A2DVector ctrOffset = _layer_center_array[which_layer]; // offset by center
+
+		_massList[a]._pos._x += (moveVector2D.x - width_offset);
+		_massList[a]._pos._y += (moveVector2D.y - width_offset);
 		_massList[a]._pos._z = -(zGap * which_layer);
 	}
 
@@ -913,6 +926,7 @@ void AnElement::CalculateRestStructure()
 
 	//std::vector<A2DVector> _layer_center_array; // OpenCVWrapper::GetCenter
 	OpenCVWrapper cvWrapper;
+	_layer_center_array.clear();
 	for (int a = 0; a < SystemParams::_num_layer; a++)
 	{
 		A2DVector centerPt = cvWrapper.GetCenter(_per_layer_boundary[a]);
@@ -920,6 +934,7 @@ void AnElement::CalculateRestStructure()
 	}
 
 	//std::vector<A3DVector> _rest_mass_pos_array;
+	_ori_rest_mass_pos_array.clear();
 	_rest_mass_pos_array.clear();
 	for (int a = 0; a < _massList.size(); a++)
 	{

@@ -201,6 +201,8 @@ bool SystemParams::_show_surface_tri = false;
 
 bool SystemParams::_show_growing_elements = false;
 
+bool SystemParams::_show_dock_points = false;
+
 
 
 bool SystemParams::_show_layer_springs = false;          // 0

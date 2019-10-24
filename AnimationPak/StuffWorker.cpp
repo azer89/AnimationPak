@@ -47,7 +47,84 @@ StuffWorker::~StuffWorker()
 	if (_c_grid_3d) { delete _c_grid_3d; }
 }
 
-void StuffWorker::InitElements2(Ogre::SceneManager* scnMgr)
+void StuffWorker::InitElements_OneMovingElement(Ogre::SceneManager* scnMgr)
+{
+	// element files
+	PathIO pathIO;
+	std::vector<std::string> some_files = pathIO.LoadFiles(SystemParams::_element_folder); ////
+	std::vector<std::vector<std::vector<A2DVector>>> art_paths;
+	for (unsigned int a = 0; a < some_files.size(); a++)
+	{
+		// is path valid?
+		if (some_files[a] == "." || some_files[a] == "..") { continue; }
+		if (!UtilityFunctions::HasEnding(some_files[a], ".path")) { continue; }
+
+		art_paths.push_back(pathIO.LoadElement(SystemParams::_element_folder + some_files[a]));
+	}
+
+	//int elem_iter = 0;
+	int art_sz = art_paths.size();
+	float initialScale = SystemParams::_element_initial_scale; // 0.05
+
+	std::vector<AnElement> tempElems;
+	for (int a = 0; a < art_sz; a++)
+	{
+		AnElement elem;
+		elem.Triangularization(art_paths[a], a);
+		elem.ComputeBary();
+
+		tempElems.push_back(elem);
+	}
+
+	std::cout << "Triangulation done...\n";
+
+	A2DVector startPt(90, 90);
+	A2DVector endPt(410, 410);
+	{
+		int idx = 0;
+
+		AnElement elem = tempElems[idx % art_sz];
+		elem.SetIndex(idx);
+
+		float radAngle = float(rand() % 628) / 100.0;
+		elem.RotateXY(radAngle);
+
+		elem.ScaleXY(initialScale);
+		elem.TranslateXY(startPt.x, startPt.y);
+		elem.DockEnds(startPt, endPt);
+
+		elem.CalculateRestStructure();
+		Ogre::SceneNode* pNode = scnMgr->getRootSceneNode()->createChildSceneNode("TubeNode" + std::to_string(idx));
+		elem.InitMeshOgre3D(scnMgr, pNode, "Tube_" + std::to_string(idx), "Examples/TransparentTest2");
+		_element_list.push_back(elem);
+	}
+
+	for (int a = 0; a < SystemParams::_num_element_pos_limit; a++)
+	{
+		int idx = _element_list.size();
+
+		AnElement elem = tempElems[idx % art_sz];
+		elem.SetIndex(idx);
+
+		float radAngle = float(rand() % 628) / 100.0;
+		elem.RotateXY(radAngle);
+
+		elem.ScaleXY(initialScale);
+		elem.TranslateXY(_containerWorker->_randomPositions[a].x, _containerWorker->_randomPositions[a].y);
+
+		elem.CalculateRestStructure();
+		Ogre::SceneNode* pNode = scnMgr->getRootSceneNode()->createChildSceneNode("TubeNode" + std::to_string(idx));
+		elem.InitMeshOgre3D(scnMgr, pNode, "Tube_" + std::to_string(idx), "Examples/TransparentTest2");
+		_element_list.push_back(elem);
+
+		// dumb code
+		if (_element_list.size() == SystemParams::_num_element_pos_limit) { break; }
+	}
+
+	std::cout << "Elements done...\n";
+}
+
+void StuffWorker::InitElements_TwoMovingElements(Ogre::SceneManager* scnMgr)
 {
 	// element files
 	PathIO pathIO;
@@ -88,7 +165,7 @@ void StuffWorker::InitElements2(Ogre::SceneManager* scnMgr)
 
 	//_element_list = std::vector<AnElement>(SystemParams::_num_element_pos_limit);
 
-	std::vector<AnElement> tempElems;	
+	std::vector<AnElement> tempElems;
 	for (int a = 0; a < art_sz; a++)
 	{
 		AnElement elem;
@@ -100,13 +177,54 @@ void StuffWorker::InitElements2(Ogre::SceneManager* scnMgr)
 
 	std::cout << "Triangulation done...\n";
 
-	A2DVector startPt(80, 80);
-	A2DVector endPt(345, 345);
+	A2DVector startPt(90, 90);
+	A2DVector endPt(410, 410);
+	{
+		int idx = 0;
+
+		AnElement elem = tempElems[idx % art_sz];
+		elem.SetIndex(idx);
+
+		float radAngle = float(rand() % 628) / 100.0;
+		elem.RotateXY(radAngle);
+
+		elem.ScaleXY(initialScale);
+		elem.TranslateXY(startPt.x, startPt.y);
+		elem.DockEnds(startPt, endPt);
+
+		elem.CalculateRestStructure();
+		Ogre::SceneNode* pNode = scnMgr->getRootSceneNode()->createChildSceneNode("TubeNode" + std::to_string(idx));
+		elem.InitMeshOgre3D(scnMgr, pNode, "Tube_" + std::to_string(idx), "Examples/TransparentTest2");
+		_element_list.push_back(elem);
+	}
+
+	A2DVector startPt2(400, 90);
+	A2DVector endPt2(100, 410);
+	{
+		int idx = 1;
+
+		AnElement elem = tempElems[idx % art_sz];
+		elem.SetIndex(idx);
+
+		float radAngle = float(rand() % 628) / 100.0;
+		elem.RotateXY(radAngle);
+
+		elem.ScaleXY(initialScale);
+		elem.TranslateXY(startPt2.x, startPt2.y);
+		elem.DockEnds(startPt2, endPt2);
+
+		elem.CalculateRestStructure();
+		Ogre::SceneNode* pNode = scnMgr->getRootSceneNode()->createChildSceneNode("TubeNode" + std::to_string(idx));
+		elem.InitMeshOgre3D(scnMgr, pNode, "Tube_" + std::to_string(idx), "Examples/TransparentTest2");
+		_element_list.push_back(elem);
+	}
 
 	for (int a = 0; a < SystemParams::_num_element_pos_limit; a++)
 	{
-		AnElement elem = tempElems[a % art_sz];
-		elem.SetIndex(a);
+		int idx = _element_list.size();
+
+		AnElement elem = tempElems[idx % art_sz];
+		elem.SetIndex(idx);
 
 		float radAngle = float(rand() % 628) / 100.0;
 		elem.RotateXY(radAngle);
@@ -115,12 +233,22 @@ void StuffWorker::InitElements2(Ogre::SceneManager* scnMgr)
 		elem.TranslateXY(_containerWorker->_randomPositions[a].x, _containerWorker->_randomPositions[a].y);
 
 		elem.CalculateRestStructure();
-		Ogre::SceneNode* pNode = scnMgr->getRootSceneNode()->createChildSceneNode("TubeNode" + std::to_string(a));
-		elem.InitMeshOgre3D(scnMgr, pNode, "StarTube" + std::to_string(a), "Examples/TransparentTest2");
+		Ogre::SceneNode* pNode = scnMgr->getRootSceneNode()->createChildSceneNode("TubeNode" + std::to_string(idx));
+		elem.InitMeshOgre3D(scnMgr, pNode, "Tube_" + std::to_string(idx), "Examples/TransparentTest2");
 		_element_list.push_back(elem);
+
+		// dumb code
+		if (_element_list.size() == SystemParams::_num_element_pos_limit) { break; }
 	}
 
 	std::cout << "Elements done...\n";
+}
+
+void StuffWorker::InitElements2(Ogre::SceneManager* scnMgr)
+{
+	// Your scene here!
+	//InitElements_TwoMovingElements(scnMgr);
+	InitElements_OneMovingElement(scnMgr);
 
 	// ----- Collision grid 3D -----
 	StuffWorker::_c_grid_3d->Init();
@@ -315,8 +443,6 @@ void StuffWorker::SolveSprings_Thread(int startIdx, int endIdx)
 	}
 }
 
-
-// DOESNT WORK
 void StuffWorker::GetClosestPt_Prepare_Threads()
 {
 	int len = _element_list.size();
@@ -337,7 +463,6 @@ void StuffWorker::GetClosestPt_Prepare_Threads()
 	}
 }
 
-// DOESNT WORK
 void StuffWorker::GetClosestPt_Thread(int startIdx, int endIdx)
 {
 	for (unsigned int iter = startIdx; iter < endIdx; iter++)

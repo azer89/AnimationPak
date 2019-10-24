@@ -159,7 +159,7 @@ bool Display::frameStarted(const Ogre::FrameEvent& evt)
 	if (ImGui::Button("Save Triangles to PNGs")) { _sWorker->SaveFrames3(); }
 	if (ImGui::Button("Save Elements to PNGs")) { _sWorker->SaveFrames4(); }
 	if (ImGui::Button("Pause/Resume Simulation")) { _sWorker->_is_paused = !_sWorker->_is_paused; }
-	if (ImGui::Button("Print k edge")) { _sWorker->_element_list[0].PrintKEdgeArray(); }
+	//if (ImGui::Button("Print k edge")) { _sWorker->_element_list[0].PrintKEdgeArray(); }
 	//if (ImGui::Button("Button B")) {}
 	//if (ImGui::Button("Button C")) {}
 	
@@ -180,13 +180,14 @@ bool Display::frameStarted(const Ogre::FrameEvent& evt)
 	//ImGui::Checkbox("Approx closest points (debug)", &SystemParams::_show_c_pt_approx_cg);
 	ImGui::Checkbox("Surface triangles",       &SystemParams::_show_surface_tri);
 	ImGui::Checkbox("Growth", &SystemParams::_show_growing_elements);// SystemParams::_show_growing_elements
-
+	
 
 	
 	//bool SystemParams::_show_force = false;
 	//bool SystemParams::_show_overlap = false;
 	ImGui::Checkbox("Velocity",                &SystemParams::_show_force);
 	ImGui::Checkbox("Overlap",                 &SystemParams::_show_overlap);
+	ImGui::Checkbox("Docking", &SystemParams::_show_dock_points);
 	//ImGui::Checkbox("Closest Triangle",        &SystemParams::_show_closest_tri);
 	ImGui::SliderInt("Layer select",                  &SystemParams::_layer_slider_int, -1, SystemParams::_num_layer - 1);
 	/*if (ImGui::Checkbox("Show time springs", &SystemParams::_show_time_springs))

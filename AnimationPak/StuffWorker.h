@@ -22,6 +22,8 @@ public:
 
 	//void InitElements(Ogre::SceneManager* scnMgr);
 	void InitElements2(Ogre::SceneManager* scnMgr);
+	void InitElements_TwoMovingElements(Ogre::SceneManager* scnMgr); // SCENE
+	void InitElements_OneMovingElement(Ogre::SceneManager* scnMgr);
 
 	//void Interp_Update();
 	//void Interp_Reset();          // reset forces to zero
@@ -44,6 +46,8 @@ public:
 
 	void Solve_Prepare_Threads();
 	void Solve_Thread(int startIdx, int endIdx);
+
+	
 
 	//void Interp_SaveFrames();
 	//void SaveFrames();

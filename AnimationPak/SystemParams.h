@@ -108,6 +108,8 @@ public:
 	static bool _show_surface_tri;
 
 	static bool _show_growing_elements;
+
+	static bool _show_dock_points;
 	
 	static bool _show_layer_springs;          // 0
 	static bool _show_time_springs;           // 1

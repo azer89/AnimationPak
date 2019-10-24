@@ -262,8 +262,8 @@ void AnElement::DockEnds(A2DVector startPt2D, A2DVector endPt2D, bool lockEnds)
 
 	if(lockEnds)
 	{
-		CreateDockPoint(startPt2D + A2DVector(-40, -40), startPt2D, 0);
-		CreateDockPoint(endPt2D + A2DVector(40, 40), endPt2D, (SystemParams::_num_layer - 1));
+		CreateDockPoint(startPt2D/* + A2DVector(-40, -40)*/, startPt2D, 0);
+		CreateDockPoint(endPt2D/* + A2DVector(40, 40)*/, endPt2D, (SystemParams::_num_layer - 1));
 	}
 
 	// flag
@@ -929,14 +929,14 @@ void AnElement::CalculateRestStructure()
 	
 }
 
-void AnElement::PrintKEdgeArray()
+/*void AnElement::PrintKEdgeArray()
 {
 	for (int a = 0; a < SystemParams::_num_layer; a++)
 	{
 		std::cout << _layer_k_edge_array[a] << "\n";
 	}
 	std::cout << "\n";
-}
+}*/
 
 void AnElement::Grow(float growth_scale_iter, float dt)
 {
@@ -1327,7 +1327,15 @@ void AnElement::InitMeshOgre3D(Ogre::SceneManager* sceneMgr,
 		for (int a = 0; a < _dock_mass_idx.size(); a++)
 		{
 			int massIdx = _dock_mass_idx[a];
-			_dock_lines->addPoint(Ogre::Vector3(_massList[massIdx]._pos._x, _massList[massIdx]._pos._y, _massList[massIdx]._pos._z));
+			A3DVector dockedPt = _massList[massIdx]._pos;
+
+			float offsetVal = 2;
+			_dock_lines->addPoint(Ogre::Vector3(dockedPt._x - offsetVal, dockedPt._y, dockedPt._z));
+			_dock_lines->addPoint(Ogre::Vector3(dockedPt._x + offsetVal, dockedPt._y, dockedPt._z));
+			_dock_lines->addPoint(Ogre::Vector3(dockedPt._x, dockedPt._y - offsetVal, dockedPt._z));
+			_dock_lines->addPoint(Ogre::Vector3(dockedPt._x, dockedPt._y + offsetVal, dockedPt._z));
+
+			_dock_lines->addPoint(Ogre::Vector3(dockedPt._x,                      dockedPt._y,                      dockedPt._z));
 			_dock_lines->addPoint(Ogre::Vector3(_massList[massIdx]._dockPoint._x, _massList[massIdx]._dockPoint._y, _massList[massIdx]._dockPoint._z));
 		}
 
@@ -1499,16 +1507,37 @@ void AnElement::UpdateDockLinesOgre3D()
 {
 	if (_dock_mass_idx.size() == 0) { return; }
 
-	for (int a = 0; a < _dock_mass_idx.size(); a++)
+	if (SystemParams::_show_dock_points)
 	{
-		int idx1 = a * 2;
-		int idx2 = idx1 + 1;
-		int massIdx = _dock_mass_idx[a];
-		_dock_lines->setPoint(idx1, Ogre::Vector3(_massList[massIdx]._pos._x, _massList[massIdx]._pos._y, _massList[massIdx]._pos._z));
-		_dock_lines->setPoint(idx2, Ogre::Vector3(_massList[massIdx]._dockPoint._x, _massList[massIdx]._dockPoint._y, _massList[massIdx]._dockPoint._z));
+		_dock_node->setVisible(true);
+
+		int idx = 0;
+		for (int a = 0; a < _dock_mass_idx.size(); a++)
+		{
+			int idx1 = a * 2;
+			int idx2 = idx1 + 1;
+			int massIdx = _dock_mass_idx[a];
+
+			A3DVector dockedPt = _massList[massIdx]._pos;
+
+			float offsetVal = 2;
+			_dock_lines->setPoint(idx++, Ogre::Vector3(dockedPt._x - offsetVal, dockedPt._y, dockedPt._z));
+			_dock_lines->setPoint(idx++, Ogre::Vector3(dockedPt._x + offsetVal, dockedPt._y, dockedPt._z));
+			_dock_lines->setPoint(idx++, Ogre::Vector3(dockedPt._x, dockedPt._y - offsetVal, dockedPt._z));
+			_dock_lines->setPoint(idx++, Ogre::Vector3(dockedPt._x, dockedPt._y + offsetVal, dockedPt._z));
+
+			_dock_lines->setPoint(idx++, Ogre::Vector3(_massList[massIdx]._pos._x, _massList[massIdx]._pos._y, _massList[massIdx]._pos._z));
+			_dock_lines->setPoint(idx++, Ogre::Vector3(_massList[massIdx]._dockPoint._x, _massList[massIdx]._dockPoint._y, _massList[massIdx]._dockPoint._z));
+		}
+
+		_dock_lines->update();
+	}
+	else
+	{
+		_dock_node->setVisible(false);
 	}
 
-	_dock_lines->update();
+	
 }
 
 void AnElement::UpdateNegSpaceEdgeOgre3D()

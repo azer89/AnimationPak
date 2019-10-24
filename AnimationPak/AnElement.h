@@ -84,7 +84,7 @@ public:
 
 	void Grow(float growth_scale_iter, float dt);
 
-	void PrintKEdgeArray();
+	//void PrintKEdgeArray();
 
 	void CalculateRestStructure();
 

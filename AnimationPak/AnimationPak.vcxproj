@@ -23,7 +23,7 @@
     <ProjectGuid>{751A5510-4B15-43B4-AD0F-F7358BA7F7CD}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>AnimationPak</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.17134.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -155,7 +155,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>C:/Users/azer/workspace/ogre-sdk-1.11.5/lib;C:/Users/azer/workspace/ogre-sdk-1.11.5/lib/$(Configuration);C:\Users\azer\workspace\opencv_4_0_1\build\x64\vc15\lib;C:\Users\azer\workspace\CGAL-4.13.1\auxiliary\gmp\lib;C:\Users\azer\workspace\CGAL-4.13.1\bin\lib;C:\Users\azer\workspace\boost_1_70_0_\lib64-msvc-14.1;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>C:\Users\azer\workspace\AnimationPak\Release\OgreImgui.lib;C:\Users\azer\workspace\ogre-sdk-1.11.5\lib\OgreBites.lib;C:\Users\azer\workspace\ogre-sdk-1.11.5\lib\OgreHLMS.lib;C:\Users\azer\workspace\ogre-sdk-1.11.5\lib\OgreMeshLodGenerator.lib;C:\Users\azer\workspace\ogre-sdk-1.11.5\lib\OgreOverlay.lib;C:\Users\azer\workspace\ogre-sdk-1.11.5\lib\OgreProperty.lib;C:\Users\azer\workspace\ogre-sdk-1.11.5\lib\OgreRTShaderSystem.lib;C:\Users\azer\workspace\ogre-sdk-1.11.5\lib\OgreTerrain.lib;C:\Users\azer\workspace\ogre-sdk-1.11.5\lib\OgrePaging.lib;C:\Users\azer\workspace\ogre-sdk-1.11.5\lib\OgreVolume.lib;C:\Users\azer\workspace\ogre-sdk-1.11.5\lib\OgreMain.lib;C:\Users\azer\workspace\Lua533_vs2017\x64\Release\Lua533.lib;C:\Users\azer\workspace\opencv_4_0_1\build\x64\vc15\lib\opencv_world401.lib;libgmp-10.lib;libmpfr-4.lib</AdditionalDependencies>
+      <AdditionalDependencies>C:\Users\azer\workspace\AnimationPak\Release\OgreImgui.lib;C:\Users\azer\workspace\ogre-sdk-1.11.5\lib\OgreBites.lib;C:\Users\azer\workspace\ogre-sdk-1.11.5\lib\OgreHLMS.lib;C:\Users\azer\workspace\ogre-sdk-1.11.5\lib\OgreMeshLodGenerator.lib;C:\Users\azer\workspace\ogre-sdk-1.11.5\lib\OgreOverlay.lib;C:\Users\azer\workspace\ogre-sdk-1.11.5\lib\OgreProperty.lib;C:\Users\azer\workspace\ogre-sdk-1.11.5\lib\OgreRTShaderSystem.lib;C:\Users\azer\workspace\ogre-sdk-1.11.5\lib\OgreTerrain.lib;C:\Users\azer\workspace\ogre-sdk-1.11.5\lib\OgrePaging.lib;C:\Users\azer\workspace\ogre-sdk-1.11.5\lib\OgreVolume.lib;C:\Users\azer\workspace\ogre-sdk-1.11.5\lib\OgreMain.lib;C:\Users\azer\workspace\Lua533\x64\Release\Lua533.lib;C:\Users\azer\workspace\opencv_4_0_1\build\x64\vc15\lib\opencv_world401.lib;libgmp-10.lib;libmpfr-4.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>

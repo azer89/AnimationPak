@@ -149,11 +149,21 @@ bool Display::frameStarted(const Ogre::FrameEvent& evt)
 	int _springs_thread_t;
 	int _c_pt_thread_t;
 	int _solve_thread_t;*/
-	ImGui::Text(("_cg_thread_t      = " + std::to_string(_sWorker->_cg_thread_t)).c_str());
-	ImGui::Text(("_springs_thread_t = " + std::to_string(_sWorker->_springs_thread_t)).c_str());
-	ImGui::Text(("_c_pt_thread_t    = " + std::to_string(_sWorker->_c_pt_thread_t)).c_str());
-	ImGui::Text(("_solve_thread_t   = " + std::to_string(_sWorker->_solve_thread_t)).c_str());
 
+	if (SystemParams::_multithread_test)
+	{
+		ImGui::Text(("C grid multi - single         = " + std::to_string(_sWorker->_cg_thread_t)      + " - " + std::to_string(_sWorker->_cg_cpu_t)).c_str());
+		ImGui::Text(("Closest pts multi - single    = " + std::to_string(_sWorker->_c_pt_thread_t)    + " - " + std::to_string(_sWorker->_c_pt_cpu_t)).c_str());
+		ImGui::Text(("Solve springs multi - single  = " + std::to_string(_sWorker->_springs_thread_t) + " - " + std::to_string(_sWorker->_springs_cpu_t)).c_str());
+		ImGui::Text(("Solve forces multi - single   = " + std::to_string(_sWorker->_solve_thread_t)   + " - " + std::to_string(_sWorker->_solve_cpu_t)).c_str());
+	}
+	else
+	{
+		ImGui::Text(("C grid threads t         = " + std::to_string(_sWorker->_cg_thread_t)).c_str());	
+		ImGui::Text(("Closest pts threads t    = " + std::to_string(_sWorker->_c_pt_thread_t)).c_str());
+		ImGui::Text(("Solve springs threads t  = " + std::to_string(_sWorker->_springs_thread_t)).c_str());
+		ImGui::Text(("Solve forces threads t   = " + std::to_string(_sWorker->_solve_thread_t)).c_str());
+	}
 
 	if (ImGui::Button("Reload parameters")) { SystemParams::LoadParameters(); }
 	if (ImGui::Button("Save Triangles to PNGs")) { _sWorker->SaveFrames3(); }
@@ -188,6 +198,7 @@ bool Display::frameStarted(const Ogre::FrameEvent& evt)
 	ImGui::Checkbox("Velocity",                &SystemParams::_show_force);
 	ImGui::Checkbox("Overlap",                 &SystemParams::_show_overlap);
 	ImGui::Checkbox("Docking", &SystemParams::_show_dock_points);
+	ImGui::Checkbox("Multithread test", &SystemParams::_multithread_test);
 	//ImGui::Checkbox("Closest Triangle",        &SystemParams::_show_closest_tri);
 	ImGui::SliderInt("Layer select",                  &SystemParams::_layer_slider_int, -1, SystemParams::_num_layer - 1);
 	/*if (ImGui::Checkbox("Show time springs", &SystemParams::_show_time_springs))

@@ -333,27 +333,40 @@ void StuffWorker::Update()
 	}	
 	_c_grid_3d->MovePoints();
 	
+	if (SystemParams::_multithread_test)
+	{
+		auto start1_c = std::chrono::steady_clock::now(); // timing
+		_c_grid_3d->PrecomputeData();
+		auto elapsed1_c = std::chrono::steady_clock::now() - start1_c; // timing
+		_cg_cpu_t = std::chrono::duration_cast<std::chrono::milliseconds>(elapsed1_c).count(); // timing
+	}
 	
 	// ~~~~~ T ~~~~~
-	auto start1 = std::chrono::system_clock::now(); // timing
+	auto start1 = std::chrono::steady_clock::now(); // timing
 	_c_grid_3d->PrecomputeData_Prepare_Threads();
-	auto elapsed1 = std::chrono::system_clock::now() - start1; // timing
-	_cg_thread_t = std::chrono::duration_cast<std::chrono::microseconds>(elapsed1).count(); // timing
+	auto elapsed1 = std::chrono::steady_clock::now() - start1; // timing
+	_cg_thread_t = std::chrono::duration_cast<std::chrono::milliseconds>(elapsed1).count(); // timing
 	// ~~~~~ T ~~~~~
 
 	// ----- update closest points -----
-	/*for (int a = 0; a < _element_list.size(); a++)
+	if (SystemParams::_multithread_test)
 	{
-		for (int b = 0; b < _element_list[a]._massList.size(); b++)
+		auto start2_c = std::chrono::steady_clock::now(); // timing
+		for (int a = 0; a < _element_list.size(); a++)
 		{
-			_element_list[a]._massList[b].GetClosestPoint4();
+			for (int b = 0; b < _element_list[a]._massList.size(); b++)
+			{
+				_element_list[a]._massList[b].GetClosestPoint4();
+			}
 		}
-	}*/
+		auto elapsed2_c = std::chrono::steady_clock::now() - start2_c; // timing
+		_c_pt_cpu_t = std::chrono::duration_cast<std::chrono::milliseconds>(elapsed2_c).count(); // timing
+	}
 
-	auto start2 = std::chrono::system_clock::now(); // timing
+	auto start2 = std::chrono::steady_clock::now(); // timing
 	GetClosestPt_Prepare_Threads();
-	auto elapsed2 = std::chrono::system_clock::now() - start2; // timing
-	_c_pt_thread_t = std::chrono::duration_cast<std::chrono::microseconds>(elapsed2).count(); // timing
+	auto elapsed2 = std::chrono::steady_clock::now() - start2; // timing
+	_c_pt_thread_t = std::chrono::duration_cast<std::chrono::milliseconds>(elapsed2).count(); // timing
 
 	// statistics of c_pt and c_pt_approx
 	_max_c_pts = 0;
@@ -506,38 +519,43 @@ void StuffWorker::Solve()
 {
 	if (_is_paused) { return; }
 
-	//auto start1 = std::chrono::system_clock::now(); // timing
-	//for (int a = 0; a < _element_list.size(); a++)
-	//{
-	//	_element_list[a].SolveForSprings3D();
-	//}
-	//auto elapsed1 = std::chrono::system_clock::now() - start1; // timing
-	//_micro_1_thread = std::chrono::duration_cast<std::chrono::microseconds>(elapsed1).count(); // timing
-
+	if(SystemParams::_multithread_test)
+	{
+		auto start1_c = std::chrono::steady_clock ::now(); // timing
+		for (int a = 0; a < _element_list.size(); a++)
+		{
+			_element_list[a].SolveForSprings3D();
+		}
+		auto elapsed1_c = std::chrono::steady_clock ::now() - start1_c; // timing
+		_springs_cpu_t = std::chrono::duration_cast<std::chrono::milliseconds>(elapsed1_c).count(); // timing
+	}
 	//Reset();
 
 	// ~~~~~ T ~~~~~
-	auto start1 = std::chrono::system_clock::now();
+	auto start1 = std::chrono::steady_clock::now();
 	SolveSprings_Prepare_Threads();
-	auto elapsed1 = std::chrono::system_clock::now() - start1; // timing
-	_springs_thread_t = std::chrono::duration_cast<std::chrono::microseconds>(elapsed1).count(); // timing
+	auto elapsed1 = std::chrono::steady_clock::now() - start1; // timing
+	_springs_thread_t = std::chrono::duration_cast<std::chrono::milliseconds>(elapsed1).count(); // timing
 	// ~~~~~ T ~~~~~
 
-	/*auto start1 = std::chrono::system_clock::now(); // timing
-	for (int a = 0; a < _element_list.size(); a++)
+	if (SystemParams::_multithread_test)
 	{
-		for (int b = 0; b < _element_list[a]._massList.size(); b++)
+		auto start2_c = std::chrono::steady_clock ::now(); // timing
+		for (int a = 0; a < _element_list.size(); a++)
 		{
-			_element_list[a]._massList[b].Solve(_containerWorker->_2d_container, _element_list[a]);
+			for (int b = 0; b < _element_list[a]._massList.size(); b++)
+			{
+				_element_list[a]._massList[b].Solve(_containerWorker->_2d_container, _element_list[a]);
+			}
 		}
+		auto elapsed2_c = std::chrono::steady_clock ::now() - start2_c; // timing
+		_solve_cpu_t = std::chrono::duration_cast<std::chrono::milliseconds>(elapsed2_c).count(); // timing
 	}
-	auto elapsed1 = std::chrono::system_clock::now() - start1; // timing
-	_micro_1_thread = std::chrono::duration_cast<std::chrono::microseconds>(elapsed1).count(); // timing*/
 
-	auto start2 = std::chrono::system_clock::now();
+	auto start2 = std::chrono::steady_clock::now();
 	Solve_Prepare_Threads();
-	auto elapsed2 = std::chrono::system_clock::now() - start2; // timing
-	_solve_thread_t = std::chrono::duration_cast<std::chrono::microseconds>(elapsed2).count(); // timing
+	auto elapsed2 = std::chrono::steady_clock::now() - start2; // timing
+	_solve_thread_t = std::chrono::duration_cast<std::chrono::milliseconds>(elapsed2).count(); // timing
 }
 
 

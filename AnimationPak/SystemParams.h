@@ -116,6 +116,8 @@ public:
 	static bool _show_aux_springs;            // 2
 	static bool _show_negative_space_springs; // 3
 
+	static bool _multithread_test;
+
 	//static bool _show_c_pt_cg;
 	//static bool _show_c_pt_approx_cg;
 

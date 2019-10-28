@@ -23,7 +23,7 @@ _seed = -1; --- negative means random
 
 ---
 _num_thread_cg      = 12; -- collision grid
-_num_thread_springs = 10;
+_num_thread_springs = 4;
 _num_thread_c_pt    = 12; -- closest point
 _num_thread_solve   = 12;
 

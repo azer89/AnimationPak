@@ -203,7 +203,7 @@ bool SystemParams::_show_growing_elements = false;
 
 bool SystemParams::_show_dock_points = false;
 
-
+bool SystemParams::_multithread_test = false;
 
 bool SystemParams::_show_layer_springs = false;          // 0
 bool SystemParams::_show_time_springs = false;           // 1

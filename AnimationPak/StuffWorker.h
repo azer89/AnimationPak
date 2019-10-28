@@ -86,6 +86,11 @@ public:
 	int _c_pt_thread_t;
 	int _solve_thread_t;
 
+	int _cg_cpu_t;
+	int _springs_cpu_t;
+	int _c_pt_cpu_t;
+	int _solve_cpu_t;
+
 	int _max_c_pts;
 	int _max_c_pts_approx;
 

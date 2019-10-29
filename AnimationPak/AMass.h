@@ -93,7 +93,8 @@ public:
 	void ImposeConstraints();
 
 	void GetClosestPoint4();
-	void GetClosestPoint5(const CollisionGrid3D& c_grid, const std::vector<AnElement>& element_list);
+	//void GetClosestPoint5(const CollisionGrid3D& c_grid, const std::vector<AnElement>& element_list);
+	void GetClosestPoint5();
 
 	void Interp_GetClosestPoint();
 

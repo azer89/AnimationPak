@@ -263,7 +263,8 @@ A3DVector AMass::GetClosestPtFromArray(int elem_idx, std::vector<A3DObject>& tem
 }*/
 
 // MULTITHREAD version
-void AMass::GetClosestPoint5(const CollisionGrid3D& c_grid, const std::vector<AnElement>& element_list)
+//void AMass::GetClosestPoint5(const CollisionGrid3D& c_grid, const std::vector<AnElement>& element_list)
+void AMass::GetClosestPoint5()
 {
 	if (!_is_boundary) { return; }
 	//if (_parent_idx < 0 || _parent_idx >= StuffWorker::_element_list.size()) { return; } // why???
@@ -275,20 +276,22 @@ void AMass::GetClosestPoint5(const CollisionGrid3D& c_grid, const std::vector<An
 	_c_pts_approx_fill_size = 0;
 	_closest_elem_idx = -1;
 
-	//_closest_tri_array.clear(); // disabled :(
-
-	int square_idx = c_grid.GetSquareIndexFromFloat(_pos._x, _pos._y, _pos._z);
+	//int square_idx = c_grid.GetSquareIndexFromFloat(_pos._x, _pos._y, _pos._z);
+	int square_idx = StuffWorker::_c_grid_3d->GetSquareIndexFromFloat(_pos._x, _pos._y, _pos._z); // ???
 
 	//for (unsigned int a = 0; a < exact_pd.size(); a++)
 	_closest_dist = 10000000000;
 	float closest_tri_idx = -1;
-	A3DSquare* sq = c_grid._squares[square_idx];
+	//A3DSquare* sq = c_grid._squares[square_idx];
+	A3DSquare* sq = StuffWorker::_c_grid_3d->_squares[square_idx]; // ???
+	A3DSquare* neighbor_sq;// ???
 
 	// ----- exact closest point -----
 	for (unsigned int a = 0; a < sq->_c_pt_fill_size; a++)
 	{
 		if (sq->_c_pt[a].first == _parent_idx) { continue; }
-		A3DVector pt = element_list[sq->_c_pt[a].first].ClosestPtOnATriSurface_Const(sq->_c_pt[a].second, _pos);
+		//A3DVector pt = element_list[sq->_c_pt[a].first].ClosestPtOnATriSurface_Const(sq->_c_pt[a].second, _pos);
+		A3DVector pt = StuffWorker::_element_list[sq->_c_pt[a].first].ClosestPtOnATriSurface_Const(sq->_c_pt[a].second, _pos);// ???
 
 		_c_pts[_c_pts_fill_size++] = pt;
 
@@ -326,13 +329,22 @@ void AMass::GetClosestPoint5(const CollisionGrid3D& c_grid, const std::vector<An
 		{
 			current_sq_idx = temp_sq_idx;
 
-			_c_pts_approx[_c_pts_approx_fill_size].first = A3DVector(c_grid._squares[current_sq_idx]->_xCenter,
-				c_grid._squares[current_sq_idx]->_yCenter,
-				-c_grid._squares[current_sq_idx]->_zCenter); // negative
+			neighbor_sq = StuffWorker::_c_grid_3d->_squares[current_sq_idx]; // ???
+
+			//_c_pts_approx[_c_pts_approx_fill_size].first = A3DVector(c_grid._squares[current_sq_idx]->_xCenter,
+			//	c_grid._squares[current_sq_idx]->_yCenter,
+			//	-c_grid._squares[current_sq_idx]->_zCenter); // negative
+			_c_pts_approx[_c_pts_approx_fill_size].first = A3DVector(neighbor_sq->_xCenter,
+				neighbor_sq->_yCenter,
+				-neighbor_sq->_zCenter); // negative  // ???
+			
 			_c_pts_approx[_c_pts_approx_fill_size].second = 1;
 			_c_pts_approx_fill_size++;
 		}
 	}
+
+	sq = 0; // ???
+	neighbor_sq = 0;// ???
 }
 
 // SINGLE THREAD version

@@ -46,7 +46,7 @@ _k_dock                = 1.0;
 _k_aux_threshold = 0.7;
 _k_aux_val_2_factor = 8;
 _k_neg_space_threshold = 2;
-_k_repulsion_soft_factor = 2;	--- soft factor for repulsion force
+_k_repulsion_soft_factor = 1;	--- soft factor for repulsion force
 
 -- Activating negative space springs
 --_self_intersection_threshold = 2.0;
@@ -103,10 +103,12 @@ _boundary_sampling_factor = 1.4;  -- lower means denser
 
 -- TODO distance to boundary so that elements do not protrude outside
 
--- random point density, NOT triangulation !!!
-_num_element_density   = 200;
+
 
 -- number of elements
 _num_element_pos_limit = 30;
+
+-- random point density, NOT triangulation !!!
+_num_element_density   = 200;
 
 

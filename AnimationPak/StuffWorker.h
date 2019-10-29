@@ -58,9 +58,9 @@ public:
 public:
 	bool _is_paused;
 
-	static bool  _interp_mode;
-	static int   _interp_iter; // from zero to _interpolation_factor - 1
-	static std::vector<CollisionGrid2D*> _interp_c_grid_list;
+	//static bool  _interp_mode;
+	//static int   _interp_iter; // from zero to _interpolation_factor - 1
+	//static std::vector<CollisionGrid2D*> _interp_c_grid_list;
 
 
 	//void EnableInterpolationMode();

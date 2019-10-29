@@ -18,9 +18,9 @@ std::vector<AnElement>  StuffWorker::_element_list = std::vector<AnElement>();
 CollisionGrid3D* StuffWorker::_c_grid_3d = new CollisionGrid3D;
 
 // static variables for interpolation (need to delete these)
-bool  StuffWorker::_interp_mode = false;
-int   StuffWorker::_interp_iter = 0;
-std::vector<CollisionGrid2D*>  StuffWorker::_interp_c_grid_list = std::vector< CollisionGrid2D * >();
+//bool  StuffWorker::_interp_mode = false;
+//int   StuffWorker::_interp_iter = 0;
+//std::vector<CollisionGrid2D*>  StuffWorker::_interp_c_grid_list = std::vector< CollisionGrid2D * >();
 
 StuffWorker::StuffWorker() : _containerWorker(0), _is_paused(false)
 {
@@ -490,7 +490,8 @@ void StuffWorker::GetClosestPt_Thread(int startIdx, int endIdx)
 
 		for (int b = 0; b < _element_list[iter]._massList.size(); b++)
 		{
-			_element_list[iter]._massList[b].GetClosestPoint5(*StuffWorker::_c_grid_3d, _element_list);
+			//_element_list[iter]._massList[b].GetClosestPoint5(*StuffWorker::_c_grid_3d, _element_list);
+			_element_list[iter]._massList[b].GetClosestPoint5();
 		}
 
 	}

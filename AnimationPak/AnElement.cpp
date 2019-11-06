@@ -587,6 +587,14 @@ void AnElement::Triangularization(std::vector<std::vector<A2DVector>> art_path, 
 	}
 	// -----  triangulation ----- 
 
+	// move back
+	randomPoints = UtilityFunctions::MovePoly(randomPoints, newCenter, centerPt);
+	for (int a = 0; a < art_path.size(); a++)                                                          // moveee
+	{
+		_arts[a] = UtilityFunctions::MovePoly(_arts[a], newCenter, centerPt);
+	}
+	_layer_center = centerPt;
+
 	// ----- interpolation triangles -----	
 	/*for (int a = 0; a < SystemParams::_interpolation_factor - 1; a++)  // one less layer
 	{

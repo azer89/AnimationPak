@@ -47,11 +47,84 @@ StuffWorker::~StuffWorker()
 	if (_c_grid_3d) { delete _c_grid_3d; }
 }
 
+void StuffWorker::InitAnimated_Elements(Ogre::SceneManager* scnMgr)
+{
+	// element files
+	PathIO pathIO;
+	std::vector<std::string> some_files = pathIO.LoadFiles(SystemParams::_animated_element_folder); ////
+	std::vector<AnElement> temp_elements;
+	for (unsigned int a = 0; a < some_files.size(); a++)
+	{
+		// is path valid?
+		if (some_files[a] == "." || some_files[a] == "..") { continue; }
+		if (!UtilityFunctions::HasEnding(some_files[a], ".path")) { continue; }
+
+		temp_elements.push_back(pathIO.LoadAnimatedElement(SystemParams::_animated_element_folder + some_files[a]));
+	}
+
+	//int elem_iter = 0;
+	int temp_elem_sz = temp_elements.size();
+	float initialScale = SystemParams::_element_initial_scale; // 0.05
+
+	A2DVector startPt(100, 100);
+	A2DVector endPt(400, 400);
+	{
+		int idx = 0;
+
+		AnElement elem = temp_elements[idx % temp_elem_sz];
+		elem.TriangularizationThatIsnt(idx);
+		//elem.SetIndex(idx);
+
+		float radAngle = float(rand() % 628) / 100.0;
+		elem.RotateXY(radAngle);
+
+		elem.ScaleXY(initialScale);
+		elem.TranslateXY(startPt.x, startPt.y);
+
+		elem.UpdateLayerBoundaries(); // per_layer_boundary
+		elem.CalculateRestStructure(); // calculate rest
+
+		elem.DockEnds(startPt, endPt); // docking
+
+		elem.CalculateRestStructure(); // calculate rest
+
+		Ogre::SceneNode* pNode = scnMgr->getRootSceneNode()->createChildSceneNode("TubeNode" + std::to_string(idx));
+		elem.InitMeshOgre3D(scnMgr, pNode, "Tube_" + std::to_string(idx), "Examples/TransparentTest2");
+		_element_list.push_back(elem);
+	}
+
+	for (int a = 0; a < SystemParams::_num_element_pos_limit; a++)
+	{
+		int idx = _element_list.size();
+
+		AnElement elem = temp_elements[idx % temp_elem_sz];
+		//elem.SetIndex(idx);
+
+		elem.TriangularizationThatIsnt(idx);
+
+		float radAngle = float(rand() % 628) / 100.0;
+		elem.RotateXY(radAngle);
+
+		elem.ScaleXY(initialScale);
+		elem.TranslateXY(_containerWorker->_randomPositions[a].x, _containerWorker->_randomPositions[a].y);
+
+		elem.CalculateRestStructure();
+		Ogre::SceneNode* pNode = scnMgr->getRootSceneNode()->createChildSceneNode("TubeNode" + std::to_string(idx));
+		elem.InitMeshOgre3D(scnMgr, pNode, "Tube_" + std::to_string(idx), "Examples/TransparentTest2");
+		_element_list.push_back(elem);
+
+		// dumb code
+		if (_element_list.size() == SystemParams::_num_element_pos_limit) { break; }
+	}
+
+	std::cout << "Elements done...\n";
+}
+
 void StuffWorker::InitElements_OneMovingElement(Ogre::SceneManager* scnMgr)
 {
 	// element files
 	PathIO pathIO;
-	std::vector<std::string> some_files = pathIO.LoadFiles(SystemParams::_element_folder); ////
+	std::vector<std::string> some_files = pathIO.LoadFiles(SystemParams::_static_element_folder); ////
 	std::vector<std::vector<std::vector<A2DVector>>> art_paths;
 	for (unsigned int a = 0; a < some_files.size(); a++)
 	{
@@ -59,7 +132,7 @@ void StuffWorker::InitElements_OneMovingElement(Ogre::SceneManager* scnMgr)
 		if (some_files[a] == "." || some_files[a] == "..") { continue; }
 		if (!UtilityFunctions::HasEnding(some_files[a], ".path")) { continue; }
 
-		art_paths.push_back(pathIO.LoadElement(SystemParams::_element_folder + some_files[a]));
+		art_paths.push_back(pathIO.LoadElement(SystemParams::_static_element_folder + some_files[a]));
 	}
 
 	//int elem_iter = 0;
@@ -133,7 +206,7 @@ void StuffWorker::InitElements_TwoMovingElements(Ogre::SceneManager* scnMgr)
 {
 	// element files
 	PathIO pathIO;
-	std::vector<std::string> some_files = pathIO.LoadFiles(SystemParams::_element_folder); ////
+	std::vector<std::string> some_files = pathIO.LoadFiles(SystemParams::_static_element_folder); ////
 	std::vector<std::vector<std::vector<A2DVector>>> art_paths;
 	for (unsigned int a = 0; a < some_files.size(); a++)
 	{
@@ -141,7 +214,7 @@ void StuffWorker::InitElements_TwoMovingElements(Ogre::SceneManager* scnMgr)
 		if (some_files[a] == "." || some_files[a] == "..") { continue; }
 		if (!UtilityFunctions::HasEnding(some_files[a], ".path")) { continue; }
 
-		art_paths.push_back(pathIO.LoadElement(SystemParams::_element_folder + some_files[a]));
+		art_paths.push_back(pathIO.LoadElement(SystemParams::_static_element_folder + some_files[a]));
 	}
 
 	//int elem_iter = 0;
@@ -253,7 +326,8 @@ void StuffWorker::InitElements2(Ogre::SceneManager* scnMgr)
 {
 	// Your scene here!
 	//InitElements_TwoMovingElements(scnMgr);
-	InitElements_OneMovingElement(scnMgr);
+	//InitElements_OneMovingElement(scnMgr);
+	InitAnimated_Elements(scnMgr);
 
 	// ----- Collision grid 3D -----
 	StuffWorker::_c_grid_3d->Init();

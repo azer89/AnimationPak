@@ -4,9 +4,9 @@
 _window_title        = "1";
 --- A directory where we have to save output files
 _save_folder         = "C:\\Users\\azer\\OneDrive\\Images\\PhysicsPak_Snapshots_0" .. _window_title .. "\\";
-
-_element_folder      = "C:\\Users\\azer\\OneDrive\\Images\\_animation_pak_data\\stars\\";
-_element_file_name   = "C:\\Users\\azer\\OneDrive\\Images\\_animation_pak_data\\bear.path"; -- NOT USED ANYMORE
+_animated_element_folder= "C:\\Users\\azer\\OneDrive\\Images\\_animation_pak_data\\animated_butterfly\\"; 
+_static_element_folder      = "C:\\Users\\azer\\OneDrive\\Images\\_animation_pak_data\\stars\\";
+--_element_file_name   = "C:\\Users\\azer\\OneDrive\\Images\\_animation_pak_data\\bear.path"; -- NOT USED ANYMORE
 _container_file_name = "C:\\Users\\azer\\OneDrive\\Images\\_animation_pak_data\\containers\\circle.path";
 
 --- artboard dimension (do not edit this)
@@ -105,9 +105,9 @@ _boundary_sampling_factor = 1.4;  -- lower means denser
 
 
 
+-- CONSIDER EDITING BOTH !!!
 -- number of elements
-_num_element_pos_limit = 30;
-
+_num_element_pos_limit = 10;
 -- random point density, NOT triangulation !!!
 _num_element_density   = 200;
 

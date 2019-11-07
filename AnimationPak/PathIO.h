@@ -15,6 +15,7 @@ radhitya@uwaterloo.ca
 #include "dirent.h"
 
 #include "A2DVector.h"
+#include "AnElement.h"
 
 class PathIO
 {
@@ -23,6 +24,8 @@ public:
 	~PathIO();
 
 	std::vector<std::vector<A2DVector>> LoadElement(std::string filename);
+
+	AnElement LoadAnimatedElement(std::string filename);
 
 	std::vector<std::string> LoadFiles(std::string directoryPath); // read directory
 

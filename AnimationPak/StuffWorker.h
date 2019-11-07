@@ -24,6 +24,7 @@ public:
 	void InitElements2(Ogre::SceneManager* scnMgr);
 	void InitElements_TwoMovingElements(Ogre::SceneManager* scnMgr); // SCENE
 	void InitElements_OneMovingElement(Ogre::SceneManager* scnMgr);
+	void InitAnimated_Elements(Ogre::SceneManager* scnMgr);
 
 	//void Interp_Update();
 	//void Interp_Reset();          // reset forces to zero

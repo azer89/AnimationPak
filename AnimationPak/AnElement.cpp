@@ -211,15 +211,24 @@ void AnElement::TranslateXY(float x, float y)
 
 void AnElement::CreateDockPoint(A2DVector queryPos, A2DVector lockPos, int layer_idx)
 {
+	std::cout << "layer_idx = " << layer_idx << "\n";
+
 	int massListIdx = -1;
 	float dist = 100000;
 	int l1 = layer_idx * _numPointPerLayer;
 	int l2 = l1 + _numPointPerLayer; // consider all points in the layer
+	
+	std::cout << "l1 = " << l1 << "\n";
+	std::cout << "l2 = " << l2 << "\n";
+
 	for (int a = l1; a < l2; a++)
 	{
 		//if (_massList[a]._layer_idx == layer_idx)
 		//{
 		float d = _massList[a]._pos.GetA2DVector().Distance(queryPos);
+
+		//std::cout << d << "\n";
+
 		if (d < dist)
 		{
 			dist = d;
@@ -519,6 +528,179 @@ void AnElement::SetIndex(int idx)
 	}
 }
 
+// for animated element
+void AnElement::TriangularizationThatIsnt(int self_idx)
+{
+	this->_elem_idx = self_idx;
+
+	// layer center
+	// WARNING BAD CODE
+	A2DRectangle bb = UtilityFunctions::GetBoundingBox(_arts[0]);
+	_layer_center = bb.GetCenter();
+	std::cout << "layer_center = (" << _layer_center.x << ", " << _layer_center.y << ")\n";
+
+	// -----  mass -----
+	for (int a = 0; a < _massList.size(); a++)
+	{
+		_massList[a].PrepareCPtsArrays();
+		_massList[a]._parent_idx = this->_elem_idx;
+	}
+	// -----  triangle edge springs ----- 
+	for (unsigned int a = 0; a < _triangles.size(); a++)
+	{
+		int idx0 = _triangles[a].idx0;
+		int idx1 = _triangles[a].idx1;
+		int idx2 = _triangles[a].idx2;
+
+		TryToAddTriangleEdge(AnIndexedLine(idx0, idx1), a, _layer_springs, _edgeToTri); // 0 - 1		
+		TryToAddTriangleEdge(AnIndexedLine(idx1, idx2), a, _layer_springs, _edgeToTri); // 1 - 2		
+		TryToAddTriangleEdge(AnIndexedLine(idx2, idx0), a, _layer_springs, _edgeToTri); // 2 - 0
+
+		// ----- add triangles to mass -----
+		AnIdxTriangle tri(idx0, idx1, idx2);
+		_massList[idx0]._triangles.push_back(tri);
+		_massList[idx1]._triangles.push_back(tri);
+		_massList[idx2]._triangles.push_back(tri);
+	}
+
+	// calculate valence
+	for (int a = 0; a < _layer_springs.size(); a++)
+	{
+		_massList[_layer_springs[a]._index0]._valence++;
+		_massList[_layer_springs[a]._index1]._valence++;
+	}
+
+	// ----- bending springs ----- 
+	_auxiliary_springs = CreateBendingSprings(_massList, _triangles, _layer_springs, _edgeToTri);
+	// ----- bending springs ----- 
+
+	// ----- time triangles -----
+	//
+	//
+	// ----- cur_2 ---- next_2     --> layer t+1
+	//        |*         |
+	//        | *        |
+	//        |  *       |
+	//        |   *      |
+	//        |    *     |
+	//        |     *    |
+	//        |      *   |
+	//        |       *  |
+	//        |        * |
+	//        |         *|
+	// ----- cur_1 ---- next_1     --> layer t
+	int mass_sz = _massList.size();
+	for (int a = 0; a < SystemParams::_num_layer - 1; a++)
+	{
+		int massIdxOffset1 = a * _numPointPerLayer;
+		int massIdxOffset2 = massIdxOffset1 + _numPointPerLayer;
+		for (int b = 0; b < _numBoundaryPointPerLayer; b++)
+		{
+			int cur_1 = b + massIdxOffset1; // layer t
+			int cur_2 = b + massIdxOffset2; // layer t + 1
+
+			int next_1 = b + 1 + massIdxOffset1; // layer t
+			int next_2 = b + 1 + massIdxOffset2; // layer t + 1
+
+			// BE CAREFUL!!!!
+			if (b == _numBoundaryPointPerLayer - 1)
+			{
+				next_1 = massIdxOffset1;
+				next_2 = massIdxOffset2;
+			}
+
+			// BUG !!!
+			/*if (cur_1 >= mass_sz ||
+				cur_2 >= mass_sz ||
+				next_1 >= mass_sz ||
+				next_2 >= mass_sz) { continue; }*/
+
+				// layer_idx --> you want to know which layer a triangle belongs to
+			int layer_idx = min_of(_massList[cur_1]._layer_idx,
+				_massList[cur_2]._layer_idx,
+				_massList[next_1]._layer_idx,
+				_massList[next_2]._layer_idx);
+
+			// cur_1 next_1 cur_2
+			AnIdxTriangle tri1(cur_1, next_1, cur_2, layer_idx);
+			_surfaceTriangles.push_back(tri1);
+			//_massList[cur_1]._timeTriangles.push_back(tri1);
+			//_massList[next_1]._timeTriangles.push_back(tri1);
+			//_massList[cur_2]._timeTriangles.push_back(tri1);
+
+			// next_1 next_2 cur_2
+			AnIdxTriangle tri2(next_1, next_2, cur_2, layer_idx);
+			_surfaceTriangles.push_back(tri2);
+			//_massList[next_1]._timeTriangles.push_back(tri2);
+			//_massList[next_2]._timeTriangles.push_back(tri2);
+			//_massList[cur_2]._timeTriangles.push_back(tri2);
+		}
+	}
+	std::cout << "_surfaceTriangles size = " << _surfaceTriangles.size() << "\n";
+
+	//-----------------------
+	// cross-straight pattern
+	//-----------------------
+	for (int a = 0; a < SystemParams::_num_layer - 1; a++)
+	{
+		//int massIdxOffset1 = a * randomPoints.size();
+		int massIdxOffset1 = a * _numPointPerLayer;
+		int massIdxOffset2 = massIdxOffset1 + _numPointPerLayer;
+		for (int b = 0; b < _numBoundaryPointPerLayer; b++)
+		{
+			int idxA = b - 1; // prev
+			int idxB = b + 1; // next
+			if (b == 0)
+			{
+				idxA = _numBoundaryPointPerLayer - 1;
+			}
+			else if (b == _numBoundaryPointPerLayer - 1)
+			{
+				idxB = 0;
+			}
+
+			// straight
+			AddSpring(AnIndexedLine(b + massIdxOffset1, b + massIdxOffset2), _time_springs); // previously _triEdges
+
+			// cross
+			AddSpring(AnIndexedLine(b + massIdxOffset1, idxA + massIdxOffset2), _time_springs); // previously _triEdges
+
+			// cross
+			AddSpring(AnIndexedLine(b + massIdxOffset1, idxB + massIdxOffset2), _time_springs); // previously _triEdges
+
+		}
+	}
+	// -----  triangle edge springs ----- 
+
+	// reset !!!
+	ResetSpringRestLengths();
+	//Interp_ResetSpringRestLengths();
+
+
+	// ----- some precomputation ----- 
+	for (int a = 0; a < SystemParams::_num_layer; a++)
+	{
+		_per_layer_boundary.push_back(std::vector<A3DVector>());
+	}
+	for (int a = 0; a < _massList.size(); a++)
+	{
+		int perLayerIdx = a % _numPointPerLayer;
+		if (perLayerIdx < _numBoundaryPointPerLayer)
+		{
+			int layerIdx = _massList[a]._layer_idx;
+			_per_layer_boundary[layerIdx].push_back(_massList[a]._pos);
+		}
+	}
+
+	// for closest point
+	for (int a = 0; a < _numBoundaryPointPerLayer; a++)
+	{
+		_a_layer_boundary.push_back(A2DVector());
+		_a_layer_boundary_3d.push_back(A3DVector());
+	}
+
+}
+
 
 void AnElement::Triangularization(std::vector<std::vector<A2DVector>> art_path, int self_idx)
 {
@@ -816,69 +998,7 @@ void AnElement::Triangularization(std::vector<std::vector<A2DVector>> art_path, 
 	}
 	// -----  triangle edge springs ----- 
 
-	// ----- interpolation cross pattern -----
-	// ----- FIRST -----
-	/*for (int a = 0; a < _numBoundaryPointPerLayer; a++)
-	{
-		int idxA = a - 1; // prev
-		int idxB = a + 1; // next
-		if (a == 0)
-		{
-			idxA = _numBoundaryPointPerLayer - 1;
-		}
-		else if (a == _numBoundaryPointPerLayer - 1)
-		{
-			idxB = 0;
-		}
 
-		// first index is from original, second index is from interpolation
-		ForceAddTriangleEdge(AnIndexedLine(a, idxA, true), -1, _timeEdgesA, _interp_edgeToTriA);
-		ForceAddTriangleEdge(AnIndexedLine(a, idxB, true), -1, _timeEdgesA, _interp_edgeToTriA);
-	}*/
-
-	// ----- MID -----
-	/*for (int a = 0; a < SystemParams::_interpolation_factor - 2; a++) // two less
-	{
-		int massIdxOffset1 = a * _numPointPerLayer;
-		int massIdxOffset2 = massIdxOffset1 + _numPointPerLayer;
-		for (int b = 0; b < _numBoundaryPointPerLayer; b++)
-		{
-			int idxA = b - 1; // prev
-			int idxB = b + 1; // next
-			if (b == 0)
-			{
-				idxA = _numBoundaryPointPerLayer - 1;
-			}
-			else if (b == _numBoundaryPointPerLayer - 1)
-			{
-				idxB = 0;
-			}
-
-			TryToAddTriangleEdge(AnIndexedLine(b + massIdxOffset1, idxA + massIdxOffset2, true), -1, _interp_triEdges, _interp_edgeToTri);
-			TryToAddTriangleEdge(AnIndexedLine(b + massIdxOffset1, idxB + massIdxOffset2, true), -1, _interp_triEdges, _interp_edgeToTri);
-		}
-	}*/
-
-	// ----- END -----
-	/*int interp_factor = (SystemParams::_interpolation_factor - 2) * _numPointPerLayer;
-	int ori_factor = _numPointPerLayer;
-	for (int a = 0; a < _numBoundaryPointPerLayer; a++)
-	{
-		int idxA = a - 1; // prev
-		int idxB = a + 1; // next
-		if (a == 0)
-		{
-			idxA = _numBoundaryPointPerLayer - 1;
-		}
-		else if (a == _numBoundaryPointPerLayer - 1)
-		{
-			idxB = 0;
-		}
-
-		// first index is from interpolation, second index is from original
-		ForceAddTriangleEdge(AnIndexedLine(interp_factor + a, ori_factor + idxA, true), -1, _timeEdgesB, _interp_edgeToTriB);
-		ForceAddTriangleEdge(AnIndexedLine(interp_factor + a, ori_factor + idxB, true), -1, _timeEdgesB, _interp_edgeToTriB);
-	}*/
 
 	// rotate
 	CreateHelix();
@@ -912,20 +1032,6 @@ void AnElement::Triangularization(std::vector<std::vector<A2DVector>> art_path, 
 		_a_layer_boundary_3d.push_back(A3DVector());
 	}
 
-	// ----- some precomputation or interpolation ----- 
-	/*for (int a = 0; a < SystemParams::_interpolation_factor - 1; a++)
-	{
-		_interp_per_layer_boundary.push_back(std::vector<A2DVector>());
-	}
-	for (int a = 0; a < _interp_massList.size(); a++)
-	{
-		int perLayerIdx = a % _numPointPerLayer;
-		if (perLayerIdx < _numBoundaryPointPerLayer)
-		{
-			int layerIdx = _interp_massList[a]._layer_idx;
-			_interp_per_layer_boundary[layerIdx].push_back(_interp_massList[a]._pos.GetA2DVector());
-		}
-	}*/
 }
 
 void AnElement::CalculateRestStructure()
@@ -1087,9 +1193,9 @@ void AnElement::Grow(float growth_scale_iter, float dt)
 }
 
 void AnElement::CreateRandomPoints(std::vector<A2DVector> ornamentBoundary,
-							float img_length,
-							std::vector<A2DVector>& randomPoints,
-							int& boundaryPointNum)
+									float img_length,
+									std::vector<A2DVector>& randomPoints,
+									int& boundaryPointNum)
 {
 	// how many points (really weird code...)
 	float fVal = img_length / SystemParams::_upscaleFactor;

@@ -25,11 +25,12 @@ void SystemParams::LoadParameters()
 
 	LuaScript script(_lua_file);
 
-	SystemParams::_window_title = script.get<std::string>("_window_title");
-	SystemParams::_save_folder = script.get<std::string>("_save_folder");
-	SystemParams::_element_folder = script.get<std::string>("_element_folder");
-	SystemParams::_element_file_name = script.get<std::string>("_element_file_name");
-	SystemParams::_container_file_name = script.get<std::string>("_container_file_name");
+	SystemParams::_window_title            = script.get<std::string>("_window_title");
+	SystemParams::_save_folder             = script.get<std::string>("_save_folder");
+	SystemParams::_animated_element_folder = script.get<std::string>("_animated_element_folder");
+	SystemParams::_static_element_folder   = script.get<std::string>("_static_element_folder");
+	//SystemParams::_element_file_name     = script.get<std::string>("_element_file_name");
+	SystemParams::_container_file_name     = script.get<std::string>("_container_file_name");
 
 	SystemParams::_upscaleFactor = script.get<float>("_upscaleFactor");
 	SystemParams::_downscaleFactor = script.get<float>("_downscaleFactor");
@@ -115,9 +116,10 @@ void SystemParams::LoadParameters()
 }
 
 std::string SystemParams::_window_title        = "";
-std::string SystemParams::_element_folder      = "";
+std::string SystemParams::_animated_element_folder = "";
+std::string SystemParams::_static_element_folder      = "";
 std::string SystemParams::_save_folder         = "";
-std::string SystemParams::_element_file_name   = "";
+//std::string SystemParams::_element_file_name   = "";
 std::string SystemParams::_container_file_name = "";
 
 float SystemParams::_upscaleFactor = 0.0f;

@@ -4,7 +4,7 @@
 _window_title        = "1";
 --- A directory where we have to save output files
 _save_folder         = "C:\\Users\\azer\\OneDrive\\Images\\PhysicsPak_Snapshots_0" .. _window_title .. "\\";
-_animated_element_folder= "C:\\Users\\azer\\OneDrive\\Images\\_animation_pak_data\\animated_butterfly\\"; 
+_animated_element_folder= "C:\\Users\\azer\\OneDrive\\Images\\_animation_pak_data\\butterfly_ani\\"; 
 _static_element_folder      = "C:\\Users\\azer\\OneDrive\\Images\\_animation_pak_data\\stars\\";
 --_element_file_name   = "C:\\Users\\azer\\OneDrive\\Images\\_animation_pak_data\\bear.path"; -- NOT USED ANYMORE
 _container_file_name = "C:\\Users\\azer\\OneDrive\\Images\\_animation_pak_data\\containers\\circle.path";
@@ -77,7 +77,7 @@ _max_m_c_pts_approx_len = 1000;
 
 --- for growing
 _growth_scale_iter     = 0.01; -- 0.005
-_element_initial_scale = 0.1; 
+_element_initial_scale = 0.05; 
 _element_max_scale     = 3.4;
 
 --- epsilon for halting the growth
@@ -107,8 +107,8 @@ _boundary_sampling_factor = 1.4;  -- lower means denser
 
 -- CONSIDER EDITING BOTH !!!
 -- number of elements
-_num_element_pos_limit = 10;
+_num_element_pos_limit = 15;
 -- random point density, NOT triangulation !!!
-_num_element_density   = 200;
+_num_element_density   = 80;
 
 

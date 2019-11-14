@@ -59,16 +59,16 @@ file format:
 	[ 4 num_points_per_layer ]
 	[ 5 num_boundary_points_per_layer ]
 	[ 6 num_triangles_per_layer ]
-	x0 y0 z0 x1 y1 z1 z0 x2 y2 z2 ...  % all points (all layers)
-	idx_0_0 idx_0_1 idx_0_2 ...        % layer triangles (all layers)
-	idx_0_0 idx_0_1 ...                % neg space edges  (all layers)
-	x0 y0 z0 x1 y1 z1 x2 y2 z2 ...	   % art 1 (first layer only)
-	x0 y0 z0 x1 y1 z1 x2 y2 z2 ...	   % art 2 (first layer only)
+	x0 y0 z0 x1 y1 z1 z0 x2 y2 z2 ...  % all points (all layers)       7
+	idx_0_0 idx_0_1 idx_0_2 ...        % layer triangles (all layers)  8
+	idx_0_0 idx_0_1 ...                % neg space edges  (all layers) 9
+	x0 y0 z0 x1 y1 z1 x2 y2 z2 ...	   % art 1 (first layer only)      10
+	x0 y0 z0 x1 y1 z1 x2 y2 z2 ...	   % art 2 (first layer only) 
 	...
-	idx0 idx1 idx2 ... % art to tri
+	idx0 idx1 idx2 ... % art to tri     11
 	idx0 idx1 idx2 ... % art to tri
 	...
-	u0 v0 w0...        % bary of art 1
+	u0 v0 w0...        % bary of art 1  12
 	u0 v0 w0...        % bary of art 2
 	...
 */
@@ -107,7 +107,7 @@ AnElement PathIO::LoadAnimatedElement(std::string filename)
 	std::getline(myfile, line6);
 	int num_tri_per_layer = std::stoi(line6);
 
-	// x0 y0 z0 x1 y1 z1 z0 x2 y2 z2 ...  % all points (all layers)
+	// 7 x0 y0 z0 x1 y1 z1 z0 x2 y2 z2 ...  % all points (all layers)
 	std::string line7;
 	std::getline(myfile, line7);
 	std::vector<std::string> arrayTemp7 = UtilityFunctions::Split(line7, ' ');
@@ -136,7 +136,7 @@ AnElement PathIO::LoadAnimatedElement(std::string filename)
 		massCounter++;
 	}
 
-	// idx_0_0 idx_0_1 idx_0_2 ...        % layer triangles (all layers)
+	// 8 idx_0_0 idx_0_1 idx_0_2 ...        % layer triangles (all layers)
 	std::string line8;
 	std::getline(myfile, line8);
 	std::vector<std::string> arrayTemp8 = UtilityFunctions::Split(line8, ' ');
@@ -149,7 +149,7 @@ AnElement PathIO::LoadAnimatedElement(std::string filename)
 		elem._triangles.push_back(tri);
 	}
 
-	// idx_0_0 idx_0_1 ...                % neg space edges  (all layers)
+	// 9 idx_0_0 idx_0_1 ...                % neg space edges  (all layers)
 	std::string line9;
 	std::getline(myfile, line9);
 	std::vector<std::string> arrayTemp9 = UtilityFunctions::Split(line9, ' ');
@@ -162,20 +162,8 @@ AnElement PathIO::LoadAnimatedElement(std::string filename)
 		elem._neg_space_springs.push_back(AnIndexedLine(index0, index1));
 	}
 
-	// x0 y0 z0 x1 y1 z1 x2 y2 z2 ...	   % art (first layer only)
-	std::string line10;
-	std::getline(myfile, line10);
-	std::vector<std::string> arrayTemp10 = UtilityFunctions::Split(line10, ' ');
-	halfLength = arrayTemp10.size() / 2;
-	for (int a = 0; a < halfLength; a++)
-	{
-		int idx = a * 2;
-		int index0 = std::stoi(arrayTemp10[idx]);
-		int index1 = std::stoi(arrayTemp10[idx + 1]);
-		
-	}
-
 	/*
+	10
 	x0 y0 z0 x1 y1 z1 x2 y2 z2 ...	   % art (first layer only)
 	...
 	*/
@@ -183,48 +171,48 @@ AnElement PathIO::LoadAnimatedElement(std::string filename)
 	{
 		std::vector<A2DVector> anArt;
 
-		std::string line11;
-		std::getline(myfile, line11);
-		std::vector<std::string> arrayTemp11 = UtilityFunctions::Split(line11, ' ');
-		halfLength = arrayTemp11.size() / 2;
+		std::string line10;
+		std::getline(myfile, line10);
+		std::vector<std::string> arrayTemp10 = UtilityFunctions::Split(line10, ' ');
+		halfLength = arrayTemp10.size() / 2;
 		for (int b = 0; b < halfLength; b++)
 		{
 			int idx = b * 2;
-			float x = std::stof(arrayTemp11[idx]);
-			float y = std::stof(arrayTemp11[idx + 1]);
+			float x = std::stof(arrayTemp10[idx]);
+			float y = std::stof(arrayTemp10[idx + 1]);
 			anArt.push_back(A2DVector(x, y));
 		}
 		elem._arts.push_back(anArt);
 	}
 
-	// art to triangle indices
+	// 11 art to triangle indices
 	for (int a = 0; a < num_art; a++)
 	{
 		std::vector<int> a2t;
 
-		std::string line12;
-		std::getline(myfile, line12);
-		std::vector<std::string> arrayTemp12 = UtilityFunctions::Split(line12, ' ');
-		for (int b = 0; b < arrayTemp12.size(); b++)
+		std::string line11;
+		std::getline(myfile, line11);
+		std::vector<std::string> arrayTemp11 = UtilityFunctions::Split(line11, ' ');
+		for (int b = 0; b < arrayTemp11.size(); b++)
 		{
-			a2t.push_back(std::stoi(arrayTemp12[b]));
+			a2t.push_back(std::stoi(arrayTemp11[b]));
 		}
 		elem._arts2Triangles.push_back(a2t);
 	}
 
-	// barycentric coordinates
+	// 12 barycentric coordinates
 	for (int a = 0; a < num_art; a++)
 	{
 		std::vector<ABary> bCoords;
 
-		std::string line13;
-		std::getline(myfile, line13);
-		std::vector<std::string> arrayTemp13 = UtilityFunctions::Split(line13, ' ');
-		for (int b = 0; b < arrayTemp13.size(); b += 3)
+		std::string line12;
+		std::getline(myfile, line12);
+		std::vector<std::string> arrayTemp12 = UtilityFunctions::Split(line12, ' ');
+		for (int b = 0; b < arrayTemp12.size(); b += 3)
 		{
-			float u = std::stof(arrayTemp13[b]);
-			float v = std::stof(arrayTemp13[b + 1]);
-			float w = std::stof(arrayTemp13[b + 2]);
+			float u = std::stof(arrayTemp12[b]);
+			float v = std::stof(arrayTemp12[b + 1]);
+			float w = std::stof(arrayTemp12[b + 2]);
 			ABary bary(u, v, w);
 			bCoords.push_back(bary);
 		}

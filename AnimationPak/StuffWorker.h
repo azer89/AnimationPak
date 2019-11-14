@@ -11,6 +11,8 @@
 
 #include <vector>
 
+#include "ThreadPool.h"
+
 class ContainerWorker;
 
 class StuffWorker

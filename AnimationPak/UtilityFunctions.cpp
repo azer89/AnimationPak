@@ -583,3 +583,33 @@ ABary UtilityFunctions::Barycentric(A2DVector p, A2DVector A, A2DVector B, A2DVe
 
 	return bary;
 }
+
+/*
+================================================================================
+Return the angle between two vectors on a plane
+The angle is from vector 1 to vector 2, positive anticlockwise
+The result is between -pi -> pi
+================================================================================
+*/
+float UtilityFunctions::Angle2D(float x1, float y1, float x2, float y2)
+{
+	// atan2(vector.y, vector.x) = the angle between the vector and the X axis
+
+	float dtheta, theta1, theta2;
+
+	theta1 = atan2(y1, x1);
+	theta2 = atan2(y2, x2);
+	dtheta = theta2 - theta1;
+
+	while (dtheta > PI)
+	{
+		dtheta -= PI2;
+	}
+
+	while (dtheta < -PI)
+	{
+		dtheta += PI2;
+	}
+
+	return dtheta;
+}

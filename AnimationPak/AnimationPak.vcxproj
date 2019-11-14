@@ -194,6 +194,7 @@
     <ClInclude Include="SystemParams.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="TetWrapper.h" />
+    <ClInclude Include="ThreadPool.h" />
     <ClInclude Include="Tubes.h" />
     <ClInclude Include="UtilityFunctions.h" />
   </ItemGroup>

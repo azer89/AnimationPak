@@ -75,7 +75,9 @@ void StuffWorker::InitAnimated_Elements(Ogre::SceneManager* scnMgr)
 		elem.TriangularizationThatIsnt(idx);
 		//elem.SetIndex(idx);
 
-		float radAngle = float(rand() % 628) / 100.0;
+		A2DVector move_dir = startPt.DirectionTo(endPt);
+		float radAngle = UtilityFunctions::Angle2D(0, -1, move_dir.x, move_dir.y);
+		//float radAngle = float(rand() % 628) / 100.0;
 		elem.RotateXY(radAngle);
 
 		elem.ScaleXY(initialScale);
@@ -364,7 +366,6 @@ void StuffWorker::InitElements2(Ogre::SceneManager* scnMgr)
 
 void StuffWorker::Update()
 {
-
 	if (_is_paused) { return; }
 
 	// ----- for closest point calculation -----
@@ -373,8 +374,6 @@ void StuffWorker::Update()
 		_element_list[a].UpdateLayerBoundaries();
 		
 	}
-
-	
 
 	// ----- update triangles -----
 	for (int a = 0; a < _element_list.size(); a++)

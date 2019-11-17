@@ -2538,6 +2538,30 @@ void AnElement::UpdateLayerBoundaries()
 //
 
 
+// call it exactly once before simulation
+// or the collision grid gets angry
+// see StuffWorker::Update()
+// see StuffWorker::InitElements2(Ogre::SceneManager* scnMgr)
+void AnElement::InitSurfaceTriangleMidPts()
+{
+	for (int b = 0; b < _surfaceTriangles.size(); b++)
+	{
+		AnIdxTriangle tri = _surfaceTriangles[b];
+		A3DVector p1 = _massList[tri.idx0]._pos;
+		A3DVector p2 = _massList[tri.idx1]._pos;
+		A3DVector p3 = _massList[tri.idx2]._pos;
+		A3DVector midPt((p1._x + p2._x + p3._x) * 0.33333333333,
+			(p1._y + p2._y + p3._y) * 0.33333333333,
+			(p1._z + p2._z + p3._z) * 0.33333333333);
+
+		_surfaceTriangles[b]._temp_1_3d = p1;
+		_surfaceTriangles[b]._temp_2_3d = p2;
+		_surfaceTriangles[b]._temp_3_3d = p3;
+		_surfaceTriangles[b]._temp_center_3d = midPt;
+
+	}
+}
+
 
 void AnElement::ResetSpringRestLengths()
 {

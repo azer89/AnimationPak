@@ -22,12 +22,12 @@ CollisionGrid3D* StuffWorker::_c_grid_3d = new CollisionGrid3D;
 //int   StuffWorker::_interp_iter = 0;
 //std::vector<CollisionGrid2D*>  StuffWorker::_interp_c_grid_list = std::vector< CollisionGrid2D * >();
 
-StuffWorker::StuffWorker() : _containerWorker(0), _is_paused(false)
+StuffWorker::StuffWorker() : _containerWorker(0), _is_paused(false), _my_thread_pool(0)
 {
-	_cg_thread_t = 0;
-	_springs_thread_t = 0;
-	_c_pt_thread_t = 0;
-	_solve_thread_t = 0;
+	//_almostall_multi_t = 0;
+	//_almostall_single_t = 0;
+	//_cg_multi_t = 0;
+	//_cg_single_t = 0;
 
 	_max_c_pts = 0;
 	_max_c_pts_approx = 0;
@@ -35,6 +35,7 @@ StuffWorker::StuffWorker() : _containerWorker(0), _is_paused(false)
 	_containerWorker = new ContainerWorker;
 	_containerWorker->LoadContainer();
 
+	_my_thread_pool = new ThreadPool(SystemParams::_num_threads);
 	//_video_creator.Init(SystemParams::_interpolation_factor);
 }
 
@@ -45,6 +46,7 @@ StuffWorker::~StuffWorker()
 	_element_list.clear();
 
 	if (_c_grid_3d) { delete _c_grid_3d; }
+	if (_my_thread_pool) { delete _my_thread_pool; }
 }
 
 void StuffWorker::InitAnimated_Elements(Ogre::SceneManager* scnMgr)
@@ -76,7 +78,7 @@ void StuffWorker::InitAnimated_Elements(Ogre::SceneManager* scnMgr)
 		//elem.SetIndex(idx);
 
 		A2DVector move_dir = startPt.DirectionTo(endPt);
-		float radAngle = UtilityFunctions::Angle2D(0, -1, move_dir.x, move_dir.y);
+		float radAngle = UtilityFunctions::Angle2D(-1, 0, move_dir.x, move_dir.y);
 		//float radAngle = float(rand() % 628) / 100.0;
 		elem.RotateXY(radAngle);
 
@@ -340,16 +342,25 @@ void StuffWorker::InitElements2(Ogre::SceneManager* scnMgr)
 		// time triangle
 		for (unsigned int b = 0; b < _element_list[a]._surfaceTriangles.size(); b++)
 		{
-			AnIdxTriangle tri = _element_list[a]._surfaceTriangles[b];
-			A3DVector p1 = _element_list[a]._massList[tri.idx0]._pos;
-			A3DVector p2 = _element_list[a]._massList[tri.idx1]._pos;
-			A3DVector p3 = _element_list[a]._massList[tri.idx2]._pos;
+			_element_list[a].InitSurfaceTriangleMidPts();
 
+			AnIdxTriangle tri = _element_list[a]._surfaceTriangles[b];
+			//A3DVector p1 = _element_list[a]._massList[tri.idx0]._pos;
+			//A3DVector p2 = _element_list[a]._massList[tri.idx1]._pos;
+			//A3DVector p3 = _element_list[a]._massList[tri.idx2]._pos;
+
+			_c_grid_3d->InsertAPoint(tri._temp_center_3d._x,
+				tri._temp_center_3d._y,
+				tri._temp_center_3d._z,
+				a,  // which element
+				b); // which triangle
+
+			/*
 			_c_grid_3d->InsertAPoint((p1._x + p2._x + p3._x) * 0.333,
 				(p1._y + p2._y + p3._y) * 0.333,
 				(p1._z + p2._z + p3._z) * 0.333,
 				a,  // which element
-				b); // which triangle		
+				b); // which triangle*/		
 		}
 	}
 	std::cout << "Collision grid done...\n";
@@ -368,34 +379,7 @@ void StuffWorker::Update()
 {
 	if (_is_paused) { return; }
 
-	// ----- for closest point calculation -----
-	for (int a = 0; a < _element_list.size(); a++)
-	{
-		_element_list[a].UpdateLayerBoundaries();
-		
-	}
-
-	// ----- update triangles -----
-	for (int a = 0; a < _element_list.size(); a++)
-	{
-		for (int b = 0; b < _element_list[a]._surfaceTriangles.size(); b++)
-		{
-			AnIdxTriangle tri = _element_list[a]._surfaceTriangles[b];
-			A3DVector p1 = _element_list[a]._massList[tri.idx0]._pos;
-			A3DVector p2 = _element_list[a]._massList[tri.idx1]._pos;
-			A3DVector p3 = _element_list[a]._massList[tri.idx2]._pos;
-			A3DVector midPt((p1._x + p2._x + p3._x) * 0.33333333333,
-				            (p1._y + p2._y + p3._y) * 0.33333333333,
-				            (p1._z + p2._z + p3._z) * 0.33333333333);
-
-			_element_list[a]._surfaceTriangles[b]._temp_1_3d = p1;
-			_element_list[a]._surfaceTriangles[b]._temp_2_3d = p2;
-			_element_list[a]._surfaceTriangles[b]._temp_3_3d = p3;
-			_element_list[a]._surfaceTriangles[b]._temp_center_3d = midPt;
-			
-		}
-	}
-
+	// Collision grid
 	float iter = 0;
 	for (int a = 0; a < _element_list.size(); a++)
 	{
@@ -408,38 +392,20 @@ void StuffWorker::Update()
 	
 	if (SystemParams::_multithread_test)
 	{
+		// Collision grid
 		auto start1_c = std::chrono::steady_clock::now(); // timing
 		_c_grid_3d->PrecomputeData();
 		auto elapsed1_c = std::chrono::steady_clock::now() - start1_c; // timing
-		_cg_cpu_t = std::chrono::duration_cast<std::chrono::milliseconds>(elapsed1_c).count(); // timing
+		_cg_single_t.AddTime(std::chrono::duration_cast<std::chrono::microseconds>(elapsed1_c).count()); // timing
 	}
 	
 	// ~~~~~ T ~~~~~
 	auto start1 = std::chrono::steady_clock::now(); // timing
-	_c_grid_3d->PrecomputeData_Prepare_Threads();
+	//_c_grid_3d->PrecomputeData_Prepare_Threads();
+	CollisionGrid_PrepareThreadPool();
 	auto elapsed1 = std::chrono::steady_clock::now() - start1; // timing
-	_cg_thread_t = std::chrono::duration_cast<std::chrono::milliseconds>(elapsed1).count(); // timing
+	_cg_multi_t.AddTime( std::chrono::duration_cast<std::chrono::microseconds>(elapsed1).count() ); // timing
 	// ~~~~~ T ~~~~~
-
-	// ----- update closest points -----
-	if (SystemParams::_multithread_test)
-	{
-		auto start2_c = std::chrono::steady_clock::now(); // timing
-		for (int a = 0; a < _element_list.size(); a++)
-		{
-			for (int b = 0; b < _element_list[a]._massList.size(); b++)
-			{
-				_element_list[a]._massList[b].GetClosestPoint4();
-			}
-		}
-		auto elapsed2_c = std::chrono::steady_clock::now() - start2_c; // timing
-		_c_pt_cpu_t = std::chrono::duration_cast<std::chrono::milliseconds>(elapsed2_c).count(); // timing
-	}
-
-	auto start2 = std::chrono::steady_clock::now(); // timing
-	GetClosestPt_Prepare_Threads();
-	auto elapsed2 = std::chrono::steady_clock::now() - start2; // timing
-	_c_pt_thread_t = std::chrono::duration_cast<std::chrono::milliseconds>(elapsed2).count(); // timing
 
 	// statistics of c_pt and c_pt_approx
 	_max_c_pts = 0;
@@ -457,6 +423,125 @@ void StuffWorker::Update()
 		_max_c_pts = std::max(_max_c_pts, _c_grid_3d->_squares[a]->_c_pt_fill_size);
 		_max_c_pts_approx = std::max(_max_c_pts_approx, _c_grid_3d->_squares[a]->_c_pt_approx_fill_size);
 	}
+
+	//// ----- update closest points -----
+	//if (SystemParams::_multithread_test)
+	//{
+	//	auto start2_c = std::chrono::steady_clock::now(); // timing
+	//	for (int a = 0; a < _element_list.size(); a++)
+	//	{
+	//		for (int b = 0; b < _element_list[a]._massList.size(); b++)
+	//		{
+	//			_element_list[a]._massList[b].GetClosestPoint4();
+	//		}
+	//	}
+	//	auto elapsed2_c = std::chrono::steady_clock::now() - start2_c; // timing
+	//	_c_pt_cpu_t = std::chrono::duration_cast<std::chrono::microseconds>(elapsed2_c).count(); // timing
+	//}
+
+	//auto start2 = std::chrono::steady_clock::now(); // timing
+	//GetClosestPt_Prepare_Threads();
+	//auto elapsed2 = std::chrono::steady_clock::now() - start2; // timing
+	//_c_pt_thread_t = std::chrono::duration_cast<std::chrono::microseconds>(elapsed2).count(); // timing
+
+	
+
+	//// ----- for closest point calculation -----
+	//for (int a = 0; a < _element_list.size(); a++)
+	//{
+	//	_element_list[a].UpdateLayerBoundaries();
+
+	//}
+
+	//// ----- update triangles -----
+	//for (int a = 0; a < _element_list.size(); a++)
+	//{
+	//	for (int b = 0; b < _element_list[a]._surfaceTriangles.size(); b++)
+	//	{
+	//		AnIdxTriangle tri = _element_list[a]._surfaceTriangles[b];
+	//		A3DVector p1 = _element_list[a]._massList[tri.idx0]._pos;
+	//		A3DVector p2 = _element_list[a]._massList[tri.idx1]._pos;
+	//		A3DVector p3 = _element_list[a]._massList[tri.idx2]._pos;
+	//		A3DVector midPt((p1._x + p2._x + p3._x) * 0.33333333333,
+	//						(p1._y + p2._y + p3._y) * 0.33333333333,
+	//						(p1._z + p2._z + p3._z) * 0.33333333333);
+
+	//		_element_list[a]._surfaceTriangles[b]._temp_1_3d = p1;
+	//		_element_list[a]._surfaceTriangles[b]._temp_2_3d = p2;
+	//		_element_list[a]._surfaceTriangles[b]._temp_3_3d = p3;
+	//		_element_list[a]._surfaceTriangles[b]._temp_center_3d = midPt;
+
+	//	}
+	//}
+
+
+	//// ----- grow -----
+	//for (int a = 0; a < _element_list.size(); a++)
+	//{
+	//	//UpdatePerLayerInsideFlags()
+	//	_element_list[a].UpdatePerLayerInsideFlags();
+	//	_element_list[a].Grow(SystemParams::_growth_scale_iter, SystemParams::_dt);
+	//}
+
+}
+
+void  StuffWorker::AlmostAllUrShit()
+{
+	if (SystemParams::_multithread_test)
+	{
+		auto start1 = std::chrono::steady_clock::now(); // timing
+		AlmostAllUrShit_SingleThread();
+		auto elapsed1 = std::chrono::steady_clock::now() - start1; // timing
+		_almostall_single_t.AddTime(std::chrono::duration_cast<std::chrono::microseconds>(elapsed1).count()); // timing
+	}
+	auto start2 = std::chrono::steady_clock::now(); // timing
+	AlmostAllUrShit_PrepareThreadPool();
+	auto elapsed2 = std::chrono::steady_clock::now() - start2; // timing
+	_almostall_multi_t.AddTime(std::chrono::duration_cast<std::chrono::microseconds>(elapsed2).count()); // timing
+}
+
+void  StuffWorker::AlmostAllUrShit_SingleThread()
+{
+	if (_is_paused) { return; }
+
+	// ----- UPDATE ----- 
+	for (int a = 0; a < _element_list.size(); a++)
+	{
+		for (int b = 0; b < _element_list[a]._massList.size(); b++)
+		{
+			_element_list[a]._massList[b].GetClosestPoint4();
+		}
+	}
+
+	// ----- stuff -----
+	for (int a = 0; a < _element_list.size(); a++)
+	{
+		_element_list[a].UpdateLayerBoundaries();
+
+	}
+
+	// ----- update triangles -----
+	for (int a = 0; a < _element_list.size(); a++)
+	{
+		for (int b = 0; b < _element_list[a]._surfaceTriangles.size(); b++)
+		{
+			AnIdxTriangle tri = _element_list[a]._surfaceTriangles[b];
+			A3DVector p1 = _element_list[a]._massList[tri.idx0]._pos;
+			A3DVector p2 = _element_list[a]._massList[tri.idx1]._pos;
+			A3DVector p3 = _element_list[a]._massList[tri.idx2]._pos;
+			A3DVector midPt((p1._x + p2._x + p3._x) * 0.33333333333,
+				(p1._y + p2._y + p3._y) * 0.33333333333,
+				(p1._z + p2._z + p3._z) * 0.33333333333);
+
+			_element_list[a]._surfaceTriangles[b]._temp_1_3d = p1;
+			_element_list[a]._surfaceTriangles[b]._temp_2_3d = p2;
+			_element_list[a]._surfaceTriangles[b]._temp_3_3d = p3;
+			_element_list[a]._surfaceTriangles[b]._temp_center_3d = midPt;
+
+		}
+	}
+
+
 	// ----- grow -----
 	for (int a = 0; a < _element_list.size(); a++)
 	{
@@ -465,14 +550,158 @@ void StuffWorker::Update()
 		_element_list[a].Grow(SystemParams::_growth_scale_iter, SystemParams::_dt);
 	}
 
-	// update k_edge
+	
+	// ----- RESET ----- 
+	for (int a = 0; a < _element_list.size(); a++)
+	{
+		for (int b = 0; b < _element_list[a]._massList.size(); b++)
+		{
+			_element_list[a]._massList[b].Init();
+		}
 
+	}
+
+	// -----  SOLVE ----- 
+	for (int a = 0; a < _element_list.size(); a++)
+	{
+		_element_list[a].SolveForSprings3D();
+		for (int b = 0; b < _element_list[a]._massList.size(); b++)
+		{
+			_element_list[a]._massList[b].Solve(_containerWorker->_2d_container, _element_list[a]);
+		}
+	}
+
+	// ----- SIMULATE ----- 
+	for (int a = 0; a < _element_list.size(); a++)
+	{
+		for (int b = 0; b < _element_list[a]._massList.size(); b++)
+		{
+			_element_list[a]._massList[b].Simulate(SystemParams::_dt);
+		}
+	}
+
+	// -----  IMPOSE CONSTRAINT ----- 
+	for (int a = 0; a < _element_list.size(); a++)
+	{
+		_element_list[a].UpdateZConstraint();
+	}
+
+	for (int a = 0; a < _element_list.size(); a++)
+	{
+		for (int b = 0; b < _element_list[a]._massList.size(); b++)
+		{
+			_element_list[a]._massList[b].ImposeConstraints();
+		}
+	}
+}
+
+void StuffWorker::AlmostAllUrShit_PrepareThreadPool()
+{
+	int len = _element_list.size();
+	int num_threads = SystemParams::_num_threads;
+	int thread_stride = (len + num_threads - 1) / num_threads;
+
+	for (int a = 0; a < num_threads; a++)
+	{
+		int startIdx = a * thread_stride;
+		int endIdx = startIdx + thread_stride;
+		_my_thread_pool->submit(&StuffWorker::AlmostAllUrShit_ThreadTask, this, startIdx, endIdx);
+	}
+
+	_my_thread_pool->waitFinished();
+}
+
+void StuffWorker::AlmostAllUrShit_ThreadTask(int startIdx, int endIdx)
+{
+	for (unsigned int iter = startIdx; iter < endIdx; iter++)
+	{
+		// make sure...
+		if (iter >= _element_list.size()) { break; }
+
+		// UPDATE
+		for (int b = 0; b < _element_list[iter]._massList.size(); b++)
+		{
+			_element_list[iter]._massList[b].GetClosestPoint5();
+		}
+
+		// stuff
+		_element_list[iter].UpdateLayerBoundaries();
+
+		// ----- update triangles -----
+		// IS THIS THE PROPER PLACE???
+		for (int b = 0; b < _element_list[iter]._surfaceTriangles.size(); b++)
+		{
+			AnIdxTriangle tri = _element_list[iter]._surfaceTriangles[b];
+			A3DVector p1 = _element_list[iter]._massList[tri.idx0]._pos;
+			A3DVector p2 = _element_list[iter]._massList[tri.idx1]._pos;
+			A3DVector p3 = _element_list[iter]._massList[tri.idx2]._pos;
+			A3DVector midPt((p1._x + p2._x + p3._x) * 0.33333333333,
+							(p1._y + p2._y + p3._y) * 0.33333333333,
+							(p1._z + p2._z + p3._z) * 0.33333333333);
+
+			_element_list[iter]._surfaceTriangles[b]._temp_1_3d = p1;
+			_element_list[iter]._surfaceTriangles[b]._temp_2_3d = p2;
+			_element_list[iter]._surfaceTriangles[b]._temp_3_3d = p3;
+			_element_list[iter]._surfaceTriangles[b]._temp_center_3d = midPt;
+
+		}
+
+		// ----- grow -----
+		_element_list[iter].UpdatePerLayerInsideFlags();
+		_element_list[iter].Grow(SystemParams::_growth_scale_iter, SystemParams::_dt);
+
+		// RESET
+		for (int b = 0; b < _element_list[iter]._massList.size(); b++)
+		{
+			_element_list[iter]._massList[b].Init();
+		}
+
+		// SOLVE
+		_element_list[iter].SolveForSprings3D();
+		for (int b = 0; b < _element_list[iter]._massList.size(); b++)
+		{
+			_element_list[iter]._massList[b].Solve(_containerWorker->_2d_container, _element_list[iter]);
+		}
+
+		// SIMULATE
+		for (int b = 0; b < _element_list[iter]._massList.size(); b++)
+		{
+			_element_list[iter]._massList[b].Simulate(SystemParams::_dt);
+		}
+
+		// IMPOSE CONSTRAINT
+		_element_list[iter].UpdateZConstraint();
+		for (int b = 0; b < _element_list[iter]._massList.size(); b++)
+		{
+			_element_list[iter]._massList[b].ImposeConstraints();
+		}
+	}
+}
+
+void StuffWorker::CollisionGrid_PrepareThreadPool()
+{
+	// prepare vector
+	int len = _c_grid_3d->_squares.size();
+	int num_threads = SystemParams::_num_threads;
+	int thread_stride = (len + num_threads - 1) / num_threads;
+	//int half_len = len / 2;
+
+
+	//std::vector<std::thread> t_list;
+	for (int a = 0; a < num_threads; a++)
+	{
+		int startIdx = a * thread_stride;
+		int endIdx = startIdx + thread_stride;
+		_my_thread_pool->submit(&CollisionGrid3D::PrecomputeData_Thread, _c_grid_3d, startIdx, endIdx);
+	}
+
+	_my_thread_pool->waitFinished();
 }
 
 void StuffWorker::Solve_Prepare_Threads()
 {
 	int len = _element_list.size();
-	int num_threads = SystemParams::_num_thread_springs;
+	int num_threads = SystemParams::_num_threads;
 	int thread_stride = (len + num_threads - 1) / num_threads;
 
 	std::vector<std::thread> t_list;
@@ -506,7 +735,7 @@ void StuffWorker::Solve_Thread(int startIdx, int endIdx)
 void StuffWorker::SolveSprings_Prepare_Threads()
 {
 	int len = _element_list.size();
-	int num_threads = SystemParams::_num_thread_springs;
+	int num_threads = SystemParams::_num_threads;
 	int thread_stride = (len + num_threads - 1) / num_threads;
 
 	std::vector<std::thread> t_list;
@@ -537,7 +766,7 @@ void StuffWorker::SolveSprings_Thread(int startIdx, int endIdx)
 void StuffWorker::GetClosestPt_Prepare_Threads()
 {
 	int len = _element_list.size();
-	int num_threads = SystemParams::_num_thread_c_pt;
+	int num_threads = SystemParams::_num_threads;
 	int thread_stride = (len + num_threads - 1) / num_threads;
 
 	std::vector<std::thread> t_list;
@@ -574,68 +803,68 @@ void StuffWorker::GetClosestPt_Thread(int startIdx, int endIdx)
 
 void StuffWorker::Reset()
 {
-	if (_is_paused) { return; }
+	//if (_is_paused) { return; }
 
-	// update closest points
-	for (int a = 0; a < _element_list.size(); a++)
-	{
-		for (int b = 0; b < _element_list[a]._massList.size(); b++)
-		{
-			_element_list[a]._massList[b].Init();
-		}
+	//// update closest points
+	//for (int a = 0; a < _element_list.size(); a++)
+	//{
+	//	for (int b = 0; b < _element_list[a]._massList.size(); b++)
+	//	{
+	//		_element_list[a]._massList[b].Init();
+	//	}
 
-	}
+	//}
 }
 
 
 
 void StuffWorker::Solve()
 {
-	if (_is_paused) { return; }
+	//if (_is_paused) { return; }
 
-	if(SystemParams::_multithread_test)
-	{
-		auto start1_c = std::chrono::steady_clock ::now(); // timing
-		for (int a = 0; a < _element_list.size(); a++)
-		{
-			_element_list[a].SolveForSprings3D();
-		}
-		auto elapsed1_c = std::chrono::steady_clock ::now() - start1_c; // timing
-		_springs_cpu_t = std::chrono::duration_cast<std::chrono::milliseconds>(elapsed1_c).count(); // timing
-	}
-	//Reset();
+	//if(SystemParams::_multithread_test)
+	//{
+	//	auto start1_c = std::chrono::steady_clock ::now(); // timing
+	//	for (int a = 0; a < _element_list.size(); a++)
+	//	{
+	//		_element_list[a].SolveForSprings3D();
+	//	}
+	//	auto elapsed1_c = std::chrono::steady_clock ::now() - start1_c; // timing
+	//	_springs_cpu_t = std::chrono::duration_cast<std::chrono::microseconds>(elapsed1_c).count(); // timing
+	//}
+	////Reset();
 
-	// ~~~~~ T ~~~~~
-	auto start1 = std::chrono::steady_clock::now();
-	SolveSprings_Prepare_Threads();
-	auto elapsed1 = std::chrono::steady_clock::now() - start1; // timing
-	_springs_thread_t = std::chrono::duration_cast<std::chrono::milliseconds>(elapsed1).count(); // timing
-	// ~~~~~ T ~~~~~
+	//// ~~~~~ T ~~~~~
+	//auto start1 = std::chrono::steady_clock::now();
+	//SolveSprings_Prepare_Threads();
+	//auto elapsed1 = std::chrono::steady_clock::now() - start1; // timing
+	//_springs_thread_t = std::chrono::duration_cast<std::chrono::microseconds>(elapsed1).count(); // timing
+	//// ~~~~~ T ~~~~~
 
-	if (SystemParams::_multithread_test)
-	{
-		auto start2_c = std::chrono::steady_clock ::now(); // timing
-		for (int a = 0; a < _element_list.size(); a++)
-		{
-			for (int b = 0; b < _element_list[a]._massList.size(); b++)
-			{
-				_element_list[a]._massList[b].Solve(_containerWorker->_2d_container, _element_list[a]);
-			}
-		}
-		auto elapsed2_c = std::chrono::steady_clock ::now() - start2_c; // timing
-		_solve_cpu_t = std::chrono::duration_cast<std::chrono::milliseconds>(elapsed2_c).count(); // timing
-	}
+	//if (SystemParams::_multithread_test)
+	//{
+	//	auto start2_c = std::chrono::steady_clock ::now(); // timing
+	//	for (int a = 0; a < _element_list.size(); a++)
+	//	{
+	//		for (int b = 0; b < _element_list[a]._massList.size(); b++)
+	//		{
+	//			_element_list[a]._massList[b].Solve(_containerWorker->_2d_container, _element_list[a]);
+	//		}
+	//	}
+	//	auto elapsed2_c = std::chrono::steady_clock ::now() - start2_c; // timing
+	//	_solve_cpu_t = std::chrono::duration_cast<std::chrono::microseconds>(elapsed2_c).count(); // timing
+	//}
 
-	auto start2 = std::chrono::steady_clock::now();
-	Solve_Prepare_Threads();
-	auto elapsed2 = std::chrono::steady_clock::now() - start2; // timing
-	_solve_thread_t = std::chrono::duration_cast<std::chrono::milliseconds>(elapsed2).count(); // timing
+	//auto start2 = std::chrono::steady_clock::now();
+	//Solve_Prepare_Threads();
+	//auto elapsed2 = std::chrono::steady_clock::now() - start2; // timing
+	//_solve_thread_t = std::chrono::duration_cast<std::chrono::microseconds>(elapsed2).count(); // timing
 }
 
 
 void StuffWorker::Simulate()
 {
-	if (_is_paused) { return; }
+	/*if (_is_paused) { return; }
 
 	for (int a = 0; a < _element_list.size(); a++)
 	{
@@ -643,7 +872,7 @@ void StuffWorker::Simulate()
 		{
 			_element_list[a]._massList[b].Simulate(SystemParams::_dt);
 		}
-	}
+	}*/
 }
 
 /*void StuffWorker::Interp_ImposeConstraints()
@@ -659,7 +888,7 @@ void StuffWorker::Simulate()
 
 void StuffWorker::ImposeConstraints()
 {
-	if (_is_paused) { return; }
+	/*if (_is_paused) { return; }
 
 	for (int a = 0; a < _element_list.size(); a++)
 	{
@@ -672,7 +901,7 @@ void StuffWorker::ImposeConstraints()
 		{
 			_element_list[a]._massList[b].ImposeConstraints();
 		}
-	}
+	}*/
 
 	
 }

@@ -172,6 +172,7 @@
     <ClInclude Include="AnIdxTriangle.h" />
     <ClInclude Include="AnIndexedLine.h" />
     <ClInclude Include="A2DObject.h" />
+    <ClInclude Include="ATimerStat.h" />
     <ClInclude Include="AVideoCreator.h" />
     <ClInclude Include="ClipperWrapper.h" />
     <ClInclude Include="CollisionGrid2D.h" />

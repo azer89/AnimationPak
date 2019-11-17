@@ -12,6 +12,7 @@
 #include <vector>
 
 #include "ThreadPool.h"
+#include "ATimerStat.h"
 
 class ContainerWorker;
 
@@ -33,6 +34,13 @@ public:
 	//void Interp_Solve();            // calculate forces
 	//void Interp_Simulate();     // 
 	//bool Interp_HasOverlap();
+
+	void AlmostAllUrShit();
+	void AlmostAllUrShit_SingleThread();
+	void AlmostAllUrShit_PrepareThreadPool();
+	void AlmostAllUrShit_ThreadTask(int startIdx, int endIdx);
+	void CollisionGrid_PrepareThreadPool();
+
 
 	void Update();
 	void Reset();          // reset forces to zero
@@ -81,18 +89,23 @@ public:
 	//static CollisionGrid3D _c_grid_3d;
 
 	//AVideoCreator _video_creator;
+	ThreadPool* _my_thread_pool;
 
 	//float _micro_1_thread;
 	//float _micro_n_thread;
-	int _cg_thread_t;
-	int _springs_thread_t;
-	int _c_pt_thread_t;
-	int _solve_thread_t;
+	
+	//int _springs_thread_t;
+	//int _c_pt_thread_t;
+	//int _solve_thread_t;
 
-	int _cg_cpu_t;
-	int _springs_cpu_t;
-	int _c_pt_cpu_t;
-	int _solve_cpu_t;
+	ATimerStat _almostall_multi_t;
+	ATimerStat _almostall_single_t;
+
+	ATimerStat _cg_multi_t;
+	ATimerStat _cg_single_t;
+	//int _springs_cpu_t;
+	//int _c_pt_cpu_t;
+	//int _solve_cpu_t;
 
 	int _max_c_pts;
 	int _max_c_pts_approx;

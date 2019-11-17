@@ -299,32 +299,28 @@ void CollisionGrid3D::InsertAPoint(float x, float y, float z, int info1, int inf
 }
 void CollisionGrid3D::PrecomputeData_Prepare_Threads()
 {
-	// prepare vector
-	int len = _squares.size();
-	int num_threads = SystemParams::_num_thread_cg;
-	int thread_stride = (len + num_threads - 1) / num_threads;
-	//int half_len = len / 2;
+	//// prepare vector
+	//int len = _squares.size();
+	//int num_threads = SystemParams::_num_threads;
+	//int thread_stride = (len + num_threads - 1) / num_threads;
+	////int half_len = len / 2;
 
 
-	std::vector<std::thread> t_list;
-	for (int a = 0; a < num_threads; a++)
-	{
-		int startIdx = a * thread_stride;
-		int endIdx = startIdx + thread_stride;
-		t_list.push_back(std::thread(&CollisionGrid3D::PrecomputeData_Thread, this, startIdx, endIdx));
-	}
+	//std::vector<std::thread> t_list;
+	//for (int a = 0; a < num_threads; a++)
+	//{
+	//	int startIdx = a * thread_stride;
+	//	int endIdx = startIdx + thread_stride;
+	//	t_list.push_back(std::thread(&CollisionGrid3D::PrecomputeData_Thread, this, startIdx, endIdx));
+	//	//_my_thread_pool->submit(&CollisionGrid3D::PrecomputeData_Thread, this, startIdx, endIdx);
+	//}
 
-	for (int a = 0; a < num_threads; a++)
-	{
-		t_list[a].join();
-	}
+	//for (int a = 0; a < num_threads; a++)
+	//{
+	//	t_list[a].join();
+	//}
 
-
-	//std::thread t1(&CollisionGrid3D::PrecomputeData_Threads, this, 0, half_len);
-	//std::thread t2(&CollisionGrid3D::PrecomputeData_Threads, this, half_len, len);
 	
-	//t1.join();
-	//t2.join();
 }
 
 void CollisionGrid3D::PrecomputeData_Thread(int startIdx, int endIdx)

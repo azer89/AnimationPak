@@ -385,7 +385,7 @@ void AMass::GetClosestPoint4()
 		_closest_tri_array.push_back(tri);
 		*/
 
-		_c_pts[_c_pts_fill_size++] = pt;
+		//_c_pts[_c_pts_fill_size++] = pt;
 
 		// closest element
 		float distSq = pt.DistanceSquared(_pos);

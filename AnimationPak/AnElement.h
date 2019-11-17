@@ -28,6 +28,13 @@ public:
 	AnElement();
 	~AnElement();
 
+
+	// call it exactly once before simulation
+	// or the collision grid gets angry
+	// see StuffWorker::Update()
+	// see StuffWorker::InitElements2(Ogre::SceneManager* scnMgr)
+	void InitSurfaceTriangleMidPts();
+
 	//void CreateStarTube(int self_idx);
 	void ResetSpringRestLengths();
 	void CreateHelix();

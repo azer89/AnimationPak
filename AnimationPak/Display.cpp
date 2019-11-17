@@ -86,12 +86,14 @@ bool Display::frameStarted(const Ogre::FrameEvent& evt)
 	}
 	else*/
 	{
-		
+	/*	_sWorker->Update();
 		_sWorker->Reset();
 		_sWorker->Solve();
 		_sWorker->Simulate();	
-		_sWorker->ImposeConstraints();
+		_sWorker->ImposeConstraints();*/
 		_sWorker->Update();
+		_sWorker->AlmostAllUrShit();
+
 		_sWorker->UpdateOgre3D(); // drawing
 	}
 	
@@ -150,19 +152,38 @@ bool Display::frameStarted(const Ogre::FrameEvent& evt)
 	int _c_pt_thread_t;
 	int _solve_thread_t;*/
 
+	/*
+	int _almostall_multi_t;
+	int _almostall_single_t;
+
+	int _cg_multi_t;
+	int _cg_single_t;
+	
+	*/
+
 	if (SystemParams::_multithread_test)
 	{
+		/*
 		ImGui::Text(("C grid multi - single         = " + std::to_string(_sWorker->_cg_thread_t)      + " - " + std::to_string(_sWorker->_cg_cpu_t)).c_str());
 		ImGui::Text(("Closest pts multi - single    = " + std::to_string(_sWorker->_c_pt_thread_t)    + " - " + std::to_string(_sWorker->_c_pt_cpu_t)).c_str());
 		ImGui::Text(("Solve springs multi - single  = " + std::to_string(_sWorker->_springs_thread_t) + " - " + std::to_string(_sWorker->_springs_cpu_t)).c_str());
 		ImGui::Text(("Solve forces multi - single   = " + std::to_string(_sWorker->_solve_thread_t)   + " - " + std::to_string(_sWorker->_solve_cpu_t)).c_str());
+		*/
+
+		ImGui::Text(("C grid (N vs 1)          = " + std::to_string((int)_sWorker->_cg_multi_t.Avg()) + " vs " + std::to_string((int)_sWorker->_cg_single_t.Avg())).c_str());
+		ImGui::Text(("Everything else (N vs 1) = " + std::to_string((int)_sWorker->_almostall_multi_t.Avg()) + " vs " + std::to_string((int)_sWorker->_almostall_single_t.Avg())).c_str());
 	}
 	else
 	{
+		/*
 		ImGui::Text(("C grid threads t         = " + std::to_string(_sWorker->_cg_thread_t)).c_str());	
 		ImGui::Text(("Closest pts threads t    = " + std::to_string(_sWorker->_c_pt_thread_t)).c_str());
 		ImGui::Text(("Solve springs threads t  = " + std::to_string(_sWorker->_springs_thread_t)).c_str());
 		ImGui::Text(("Solve forces threads t   = " + std::to_string(_sWorker->_solve_thread_t)).c_str());
+		*/
+
+		ImGui::Text(("C grid          = " + std::to_string((int)_sWorker->_cg_multi_t.Avg())).c_str());
+		ImGui::Text(("Everything else = " + std::to_string((int)_sWorker->_almostall_multi_t.Avg())).c_str());
 	}
 
 	if (ImGui::Button("Reload parameters")) { SystemParams::LoadParameters(); }

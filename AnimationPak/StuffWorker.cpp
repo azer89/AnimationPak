@@ -950,6 +950,8 @@ void StuffWorker::SaveFrames4()
 
 	//for (int l = 0; l < SystemParams::_num_png_frame; l++)
 	//{
+
+	float yCenter = SystemParams::_upscaleFactor / 2;
 	
 	for (int i = 0; i < _element_list.size(); i++)
 	{
@@ -959,7 +961,7 @@ void StuffWorker::SaveFrames4()
 		for (int l = 0; l < per_layer_triangle_drawing.size(); l++)
 		{
 			std::vector<std::vector<A2DVector>> triangles_in_a_layer = per_layer_triangle_drawing[l];
-			std::vector<std::vector<A2DVector>> arts = _element_list[i].GetBilinearInterpolatedArt(triangles_in_a_layer);
+			std::vector<std::vector<A2DVector>> arts = UtilityFunctions::FlipY(_element_list[i].GetBilinearInterpolatedArt(triangles_in_a_layer), yCenter);
 			vCreator.DrawFilledArt(arts, col, l);
 		}
 	}
@@ -984,6 +986,8 @@ void StuffWorker::SaveFrames3()
 	//std::cout << l << "\n";
 	MyColor blk_col(0, 0, 0);
 
+	float yCenter = SystemParams::_upscaleFactor / 2;
+
 	for (int i = 0; i < _element_list.size(); i++)
 	{
 		MyColor col = _element_list[i]._color;
@@ -992,15 +996,15 @@ void StuffWorker::SaveFrames3()
 		for (int l = 0; l < per_layer_triangle_drawing.size(); l++)
 		{
 			std::vector<std::vector<A2DVector>> triangles_in_a_layer = per_layer_triangle_drawing[l];
-			std::vector<std::vector<A2DVector>> arts = _element_list[i].GetBilinearInterpolatedArt(triangles_in_a_layer);
+			std::vector<std::vector<A2DVector>> arts = UtilityFunctions::FlipY( _element_list[i].GetBilinearInterpolatedArt(triangles_in_a_layer), yCenter);
 			vCreator.DrawFilledArt(arts, col, l);
 
 			for (int a = 0; a < triangles_in_a_layer.size(); a++)
 			{
 				// iterate triangle
-				A2DVector pt1 = triangles_in_a_layer[a][0];
-				A2DVector pt2 = triangles_in_a_layer[a][1];
-				A2DVector pt3 = triangles_in_a_layer[a][2];
+				A2DVector pt1 = UtilityFunctions::FlipY( triangles_in_a_layer[a][0], yCenter);
+				A2DVector pt2 = UtilityFunctions::FlipY( triangles_in_a_layer[a][1], yCenter);
+				A2DVector pt3 = UtilityFunctions::FlipY( triangles_in_a_layer[a][2], yCenter);
 
 				vCreator.DrawLine(pt1, pt2, blk_col, l);
 				vCreator.DrawLine(pt2, pt3, blk_col, l);

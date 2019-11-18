@@ -613,3 +613,34 @@ float UtilityFunctions::Angle2D(float x1, float y1, float x2, float y2)
 
 	return dtheta;
 }
+
+std::vector < std::vector<A2DVector>> UtilityFunctions::FlipY(std::vector < std::vector<A2DVector>> polys, float yCenter)
+{
+	std::vector < std::vector<A2DVector>> flipped_polys;
+	for (int a = 0; a < polys.size(); a++)
+	{
+		flipped_polys.push_back(UtilityFunctions::FlipY(polys[a], yCenter));
+	}
+	return flipped_polys;
+}
+
+std::vector<A2DVector> UtilityFunctions::FlipY(std::vector<A2DVector> poly, float yCenter)
+{
+	std::vector<A2DVector> flipped_poly(poly.size());
+
+	for (unsigned int a = 0; a < poly.size(); a++)
+	{
+		float y_delta = yCenter - poly[a].y;
+		flipped_poly[a].x = poly[a].x;
+		flipped_poly[a].y = yCenter + y_delta;
+	}
+
+	return flipped_poly;
+}
+
+A2DVector UtilityFunctions::FlipY(A2DVector pt, float yCenter)
+{
+	float y_delta = yCenter - pt.y;
+
+	return A2DVector(pt.x, yCenter + y_delta);
+}

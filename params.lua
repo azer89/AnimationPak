@@ -108,7 +108,7 @@ _boundary_sampling_factor = 1.4;  -- lower means denser
 
 -- CONSIDER EDITING BOTH !!!
 -- number of elements
-_num_element_pos_limit = 15;
+_num_element_pos_limit = 1;
 -- random point density, NOT triangulation !!!
 _num_element_density   = 100;
 

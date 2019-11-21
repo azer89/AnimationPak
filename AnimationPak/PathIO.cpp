@@ -28,6 +28,8 @@ PathIO::~PathIO()
 {
 }
 
+
+
 /*
 ================================================================================
 IO
@@ -282,4 +284,83 @@ std::vector<std::vector<A2DVector>> PathIO::LoadElement(std::string filename)
 	myfile.close();
 
 	return duhRegions;
+}
+
+/*
+file format
+	1 num_layer
+	2 num_path
+	3 num_position
+	x0 y0 z0 l0.... % path 1
+	...
+	x0 y0 x1 y1... % all positions
+*/
+/*
+std::vector<A2DVector> _positions;
+std::vector < std::vector<A3DVector>> _paths; //[a path][layer]
+*/
+void PathIO::LoadPaths(std::vector <std::vector<A3DVector>>& paths,
+					   std::vector<std::vector<int>> layer_indices,
+	                   std::vector<A2DVector>& positions, 
+					   std::string filename)
+{
+	std::ifstream myfile(filename);
+
+	// 1 num_layer
+	std::string line1;
+	std::getline(myfile, line1);
+	int num_layer = std::stoi(line1);
+
+	// 2 num_path
+	std::string line2;
+	std::getline(myfile, line2);
+	int num_paths = std::stoi(line2);
+
+	// 3 num_position
+	std::string line3;
+	std::getline(myfile, line3);
+	int num_positions = std::stoi(line3);
+
+	/*
+	x0 y0 z0 l0.... % path 1
+	...
+	*/
+	for (int a = 0; a < num_paths; a++)
+	{
+		std::vector<A3DVector> aPath;
+		std::vector<int> indices;
+
+		std::string line4;
+		std::getline(myfile, line4);
+		std::vector<std::string> arrayTemp4 = UtilityFunctions::Split(line4, ' ');
+		for (int a = 0; a < arrayTemp4.size(); a += 4)
+		{
+			float x = std::stof(arrayTemp4[a]);
+			float y = std::stof(arrayTemp4[a + 1]);
+			float z = std::stof(arrayTemp4[a + 2]);
+			int l = std::stoi(arrayTemp4[a + 3]);
+
+			aPath.push_back(A3DVector(x, y, z));
+			indices.push_back(l);
+		}
+
+		paths.push_back(aPath);
+		layer_indices.push_back(indices);
+	}
+
+	// x0 y0 x1 y1... % all positions
+	std::string line5;
+	std::getline(myfile, line5);
+	std::vector<std::string> arrayTemp5 = UtilityFunctions::Split(line5, ' ');
+	size_t halfLength = arrayTemp5.size() / 2;
+	for (int a = 0; a < halfLength; a++)
+	{
+		int idx = a * 2;
+		float xpos = std::stof(arrayTemp5[idx]);
+		float ypos = std::stof(arrayTemp5[idx + 1]);
+
+		positions.push_back(A2DVector(xpos, ypos));
+	}
+
+	myfile.close();
 }

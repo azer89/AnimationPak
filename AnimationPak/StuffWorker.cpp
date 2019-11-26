@@ -49,10 +49,67 @@ StuffWorker::~StuffWorker()
 	if (_my_thread_pool) { delete _my_thread_pool; }
 }
 
+void StuffWorker::DockELements(std::vector <std::vector<A3DVector>> paths, 
+	                           std::vector<std::vector<int>> layer_indices,
+	                           std::vector<AnElement> temp_elements,
+	                           Ogre::SceneManager* scnMgr)
+{
+	int temp_elem_sz = temp_elements.size();
+	float initialScale = SystemParams::_element_initial_scale; // 0.05
+
+	for (int a = 0; a < paths.size(); a++)
+	{
+		int idx = a;
+
+		AnElement elem = temp_elements[idx % temp_elem_sz];
+		elem.TriangularizationThatIsnt(idx);
+
+		float len = paths[a].size();
+
+		// TODO: from one dockpoint to the next one, not start to finish
+		A2DVector move_dir = paths[a][0].GetA2DVector().DirectionTo(paths[a][len - 1].GetA2DVector());
+		float radAngle = UtilityFunctions::Angle2D(0, 1, move_dir.x, move_dir.y);
+		elem.RotateXY(radAngle);
+
+		elem.ScaleXY(initialScale);
+
+		// TODO: more than two dock points
+		A2DVector startPt = paths[a][0].GetA2DVector();
+		A2DVector endPt = paths[a][len - 1].GetA2DVector();
+
+		//elem.TranslateXY(startPt.x, startPt.y);
+
+		elem.UpdateLayerBoundaries(); // per_layer_boundary
+		elem.CalculateRestStructure(); // calculate rest, why???
+
+		//elem.DockEnds(startPt, endPt); // docking
+		elem.Docking(paths[a], layer_indices[a]);
+
+		elem.CalculateRestStructure(); // calculate rest, why???
+
+		Ogre::SceneNode* pNode = scnMgr->getRootSceneNode()->createChildSceneNode("TubeNode" + std::to_string(idx));
+		elem.InitMeshOgre3D(scnMgr, pNode, "Tube_" + std::to_string(idx), "Examples/TransparentTest2");
+		_element_list.push_back(elem);
+	}
+}
+
+void StuffWorker::ConnectTubeEnds()
+{
+
+}
+
 void StuffWorker::InitAnimated_Elements(Ogre::SceneManager* scnMgr)
 {
 	// element files
 	PathIO pathIO;
+
+	// scene
+	std::vector <std::vector<A3DVector>> paths;
+	std::vector<std::vector<int>> layer_indices;
+	std::vector<A2DVector> positions;
+	pathIO.LoadScenes(paths, layer_indices, positions, SystemParams::_scene_file_name);
+
+	// elements
 	std::vector<std::string> some_files = pathIO.LoadFiles(SystemParams::_animated_element_folder); ////
 	std::vector<AnElement> temp_elements;
 	for (unsigned int a = 0; a < some_files.size(); a++)
@@ -68,7 +125,10 @@ void StuffWorker::InitAnimated_Elements(Ogre::SceneManager* scnMgr)
 	int temp_elem_sz = temp_elements.size();
 	float initialScale = SystemParams::_element_initial_scale; // 0.05
 
-	A2DVector startPt(100, 100);
+	DockELements(paths, layer_indices, temp_elements, scnMgr);
+
+
+	/*A2DVector startPt(100, 100);
 	A2DVector endPt(400, 400);
 	{
 		int idx = 0;
@@ -95,9 +155,11 @@ void StuffWorker::InitAnimated_Elements(Ogre::SceneManager* scnMgr)
 		Ogre::SceneNode* pNode = scnMgr->getRootSceneNode()->createChildSceneNode("TubeNode" + std::to_string(idx));
 		elem.InitMeshOgre3D(scnMgr, pNode, "Tube_" + std::to_string(idx), "Examples/TransparentTest2");
 		_element_list.push_back(elem);
-	}
+	}*/
 
-	for (int a = 0; a < SystemParams::_num_element_pos_limit; a++)
+
+	//for (int a = 0; a < SystemParams::_num_element_pos_limit; a++)
+	for (int a = 0; a < positions.size(); a++)
 	{
 		int idx = _element_list.size();
 
@@ -110,7 +172,8 @@ void StuffWorker::InitAnimated_Elements(Ogre::SceneManager* scnMgr)
 		elem.RotateXY(radAngle);
 
 		elem.ScaleXY(initialScale);
-		elem.TranslateXY(_containerWorker->_randomPositions[a].x, _containerWorker->_randomPositions[a].y);
+		//elem.TranslateXY(_containerWorker->_randomPositions[a].x, _containerWorker->_randomPositions[a].y);
+		elem.TranslateXY(positions[a].x, positions[a].y);
 
 		elem.CalculateRestStructure();
 		Ogre::SceneNode* pNode = scnMgr->getRootSceneNode()->createChildSceneNode("TubeNode" + std::to_string(idx));
@@ -345,22 +408,12 @@ void StuffWorker::InitElements2(Ogre::SceneManager* scnMgr)
 			_element_list[a].InitSurfaceTriangleMidPts();
 
 			AnIdxTriangle tri = _element_list[a]._surfaceTriangles[b];
-			//A3DVector p1 = _element_list[a]._massList[tri.idx0]._pos;
-			//A3DVector p2 = _element_list[a]._massList[tri.idx1]._pos;
-			//A3DVector p3 = _element_list[a]._massList[tri.idx2]._pos;
 
 			_c_grid_3d->InsertAPoint(tri._temp_center_3d._x,
 				tri._temp_center_3d._y,
 				tri._temp_center_3d._z,
 				a,  // which element
 				b); // which triangle
-
-			/*
-			_c_grid_3d->InsertAPoint((p1._x + p2._x + p3._x) * 0.333,
-				(p1._y + p2._y + p3._y) * 0.333,
-				(p1._z + p2._z + p3._z) * 0.333,
-				a,  // which element
-				b); // which triangle*/		
 		}
 	}
 	std::cout << "Collision grid done...\n";

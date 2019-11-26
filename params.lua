@@ -4,10 +4,11 @@
 _window_title        = "1";
 --- A directory where we have to save output files
 _save_folder         = "C:\\Users\\azer\\OneDrive\\Images\\PhysicsPak_Snapshots_0" .. _window_title .. "\\";
-_animated_element_folder= "C:\\Users\\azer\\OneDrive\\Images\\_animation_pak_data\\birb_ani\\"; 
+_animated_element_folder= "C:\\Users\\azer\\OneDrive\\Images\\_animation_pak_data\\penguin_ani\\"; 
 _static_element_folder      = "C:\\Users\\azer\\OneDrive\\Images\\_animation_pak_data\\stars\\";
 --_element_file_name   = "C:\\Users\\azer\\OneDrive\\Images\\_animation_pak_data\\bear.path"; -- NOT USED ANYMORE
 _container_file_name = "C:\\Users\\azer\\OneDrive\\Images\\_animation_pak_data\\containers\\circle.path";
+_scene_file_name = "C:\\Users\\azer\\OneDrive\\Images\\_animation_pak_data\\containers\\circle_loop.scene";
 
 --- artboard dimension (do not edit this)
 --- the parameter below means the artboard size is 500x500

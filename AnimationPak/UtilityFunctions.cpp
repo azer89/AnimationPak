@@ -644,3 +644,37 @@ A2DVector UtilityFunctions::FlipY(A2DVector pt, float yCenter)
 
 	return A2DVector(pt.x, yCenter + y_delta);
 }
+
+// new
+A2DVector UtilityFunctions::FlipX(A2DVector pt, float xCenter)
+{
+	float x_delta = xCenter - pt.x;
+
+	return A2DVector(xCenter + x_delta, pt.y);
+}
+
+// new
+std::vector < std::vector<A2DVector>> UtilityFunctions::FlipX(std::vector < std::vector<A2DVector>> polys, float xCenter)
+{
+	std::vector < std::vector<A2DVector>> flipped_polys;
+	for (int a = 0; a < polys.size(); a++)
+	{
+		flipped_polys.push_back(UtilityFunctions::FlipX(polys[a], xCenter));
+	}
+	return flipped_polys;
+}
+
+// new
+std::vector<A2DVector> UtilityFunctions::FlipX(std::vector<A2DVector> poly, float xCenter)
+{
+	std::vector<A2DVector> flipped_poly(poly.size());
+
+	for (unsigned int a = 0; a < poly.size(); a++)
+	{
+		float x_delta = xCenter - poly[a].x;
+		flipped_poly[a].x = xCenter + x_delta;
+		flipped_poly[a].y = poly[a].y;
+	}
+
+	return flipped_poly;
+}

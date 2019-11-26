@@ -129,6 +129,9 @@
     <ClInclude Include="ATimerStat.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="TubeConnector.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">

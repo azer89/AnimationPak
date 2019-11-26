@@ -22,6 +22,8 @@
 
 #include "ABary.h"
 
+#include "TubeConnector.h"
+
 class AnElement
 {
 public:
@@ -80,11 +82,13 @@ public:
 	void RotateXY(float radAngle);
 	void ScaleXY(float scVal);
 	void TranslateXY(float x, float y);
+	void TranslateXY(float x, float y, int start_mass_idx, int end_mass_idx);
 	void TranslateCenterXY(float x, float y);
 	//void AdjustEnds(A2DVector startPt2D, A2DVector endPt2D, bool lockEnds = true);
 
 	void CreateDockPoint(A2DVector queryPos, A2DVector lockPos, int layer_idx);
 	void DockEnds(A2DVector startPt2D, A2DVector endPt2D, bool lockEnds = true);
+	void Docking(std::vector<A3DVector> aPath, std::vector<int> layer_indices);
 
 	//A2DVector ClosestPtOnALayer(A2DVector pt, int layer_idx);
 
@@ -177,6 +181,9 @@ public:
 	A2DVector _layer_center; // for some transformation
 
 	std::vector<float> _z_pos_array; // for UpdateZConstaint();
+
+
+	std::vector<TubeConnector> _t_connectors;
 
 private:
 	//std::vector<std::vector<A2DVector>> _temp_per_layer_boundary; // for interpolation mode	

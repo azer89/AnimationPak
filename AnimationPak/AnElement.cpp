@@ -191,20 +191,24 @@ void AnElement::ScaleXY(float scVal)
 	ResetSpringRestLengths();
 }
 
-void AnElement::TranslateXY(float x, float y)
+void AnElement::TranslateXY(float x, float y, int start_mass_idx, int end_mass_idx)
 {
-
-	for (int a = 0; a < _massList.size(); a++)
+	for (int a = start_mass_idx; a < end_mass_idx; a++)
 	{
 		A3DVector pos = _massList[a]._pos;
 		_massList[a]._pos = A3DVector(pos._x + x, pos._y + y, pos._z);
 	}
 
-	/*for (int a = 0; a < _interp_massList.size(); a++)
+	ResetSpringRestLengths();
+}
+
+void AnElement::TranslateXY(float x, float y)
+{
+	for (int a = 0; a < _massList.size(); a++)
 	{
-		A3DVector pos = _interp_massList[a]._pos;
-		_interp_massList[a]._pos = A3DVector(pos._x + x, pos._y + y, pos._z);
-	}*/
+		A3DVector pos = _massList[a]._pos;
+		_massList[a]._pos = A3DVector(pos._x + x, pos._y + y, pos._z);
+	}
 
 	ResetSpringRestLengths();
 }
@@ -249,6 +253,73 @@ void AnElement::CreateDockPoint(A2DVector queryPos, A2DVector lockPos, int layer
 	_dock_mass_idx.push_back(massListIdx);
 	//_debug_lines_2->addPoint(Ogre::Vector3(_massList[massListIdx]._pos._x, _massList[massListIdx]._pos._y, _massList[massListIdx]._pos._z));
 	//_debug_lines_2->addPoint(Ogre::Vector3(_massList[massListIdx]._dockPoint._x, _massList[massListIdx]._dockPoint._y, _massList[massListIdx]._dockPoint._z));
+}
+
+void AnElement::Docking(std::vector<A3DVector> aPath, std::vector<int> layer_indices)
+{
+	// 
+	float zGap = SystemParams::_upscaleFactor / (float)(SystemParams::_num_layer - 1);
+
+	// calculating offset based on bounding square
+	A2DRectangle bb = UtilityFunctions::GetBoundingBox(UtilityFunctions::Convert2Dto3D(_per_layer_boundary[0]));
+	float width_offset = bb.witdh;
+	if (bb.height > width_offset) width_offset = bb.height;
+	width_offset /= 2.0f;
+
+	for (int a = 0; a < layer_indices.size() - 1; a++) // between two keyframes
+	{
+		int layer_idx_1 = layer_indices[a];
+		int layer_idx_2 = layer_indices[a + 1];
+
+		if (layer_idx_2 == SystemParams::_num_layer - 1)
+		{
+			layer_idx_2 += 1;
+		}
+
+		A3DVector startPt = aPath[a];		
+		A3DVector endPt = aPath[a + 1];
+
+		A2DVector dirVector = startPt.GetA2DVector().DirectionTo(endPt.GetA2DVector());
+		//float xyGap = dirVector.Length() / (float)(SystemParams::_num_layer - 1);
+		float xyGap = dirVector.Length() / (float)(layer_idx_2 - layer_idx_1);
+		dirVector = dirVector.Norm();
+
+		for (int b = layer_idx_1; b < layer_idx_2; b++) // iterate layers
+		{
+			int start_mass_idx = _numPointPerLayer * b;
+			int end_mass_idx = start_mass_idx + _numPointPerLayer;
+
+			// fugly
+			/*if (layer_idx_2 == SystemParams::_num_layer - 1)
+			{
+				end_mass_idx += _numPointPerLayer;
+			}*/
+
+			A2DVector startPt2D = startPt.GetA2DVector();
+			TranslateXY(startPt2D.x, startPt2D.y, start_mass_idx, end_mass_idx); // MOVEEE
+
+			for (int c = start_mass_idx; c < end_mass_idx; c++) // iterate masses
+			{
+				//float which_layer = _massList[a]._layer_idx;
+				//A2DVector moveVector2D = dirVector * (xyGap * which_layer);
+				float which_layer = _massList[c]._layer_idx;
+				A2DVector moveVector2D = dirVector * (xyGap * (which_layer - layer_idx_1));
+
+				_massList[c]._pos._x += (moveVector2D.x - width_offset);
+				_massList[c]._pos._y += (moveVector2D.y - width_offset);
+				_massList[c]._pos._z = -(zGap * b);
+			}
+
+		}
+	}
+
+	// lock
+	for (int a = 0; a < layer_indices.size(); a++) // between two keyframes
+	{
+		CreateDockPoint(aPath[a].GetA2DVector(), aPath[a].GetA2DVector(), layer_indices[a]);
+	}
+
+	ResetSpringRestLengths();
 }
 
 void AnElement::DockEnds(A2DVector startPt2D, A2DVector endPt2D, bool lockEnds)

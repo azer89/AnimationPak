@@ -79,7 +79,12 @@ public:
 
 	static std::vector<A2DVector> FlipY(std::vector<A2DVector> poly, float yCenter);
 	static std::vector < std::vector<A2DVector>> FlipY(std::vector < std::vector<A2DVector>> polys, float yCenter);
+	
 	static A2DVector FlipY(A2DVector pt, float yCenter);
+
+	static std::vector<A2DVector> FlipX(std::vector<A2DVector> poly, float xCenter);
+	static A2DVector FlipX(A2DVector pt, float xCenter);
+	static std::vector < std::vector<A2DVector>> FlipX(std::vector < std::vector<A2DVector>> polys, float xCenter);
 };
 
 #endif

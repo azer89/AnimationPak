@@ -13,6 +13,7 @@
 
 #include "ThreadPool.h"
 #include "ATimerStat.h"
+#include "TubeConnector.h"
 
 class ContainerWorker;
 
@@ -24,10 +25,17 @@ public:
 	~StuffWorker();
 
 	//void InitElements(Ogre::SceneManager* scnMgr);
+	void DockELements(std::vector <std::vector<A3DVector>> paths, 
+		              std::vector<std::vector<int>> layer_indices,
+		              std::vector<AnElement> temp_elements,
+					  Ogre::SceneManager* scnMgr);
+
 	void InitElements2(Ogre::SceneManager* scnMgr);
 	void InitElements_TwoMovingElements(Ogre::SceneManager* scnMgr); // SCENE
 	void InitElements_OneMovingElement(Ogre::SceneManager* scnMgr);
 	void InitAnimated_Elements(Ogre::SceneManager* scnMgr);
+
+	void ConnectTubeEnds();
 
 	//void Interp_Update();
 	//void Interp_Reset();          // reset forces to zero
@@ -84,6 +92,8 @@ public:
 	ContainerWorker* _containerWorker;
 
 	static std::vector<AnElement> _element_list;
+
+	//std::vector<TubeConnector> _tube_connectors;
 
 	static CollisionGrid3D* _c_grid_3d; // collission grid 3D
 	//static CollisionGrid3D _c_grid_3d;

@@ -30,8 +30,8 @@ public:
 	std::vector<std::string> LoadFiles(std::string directoryPath); // read directory
 
 	// scripted initial placement
-	void LoadPaths(std::vector <std::vector<A3DVector>>& paths,
-				   std::vector<std::vector<int>> layer_indices,
+	void LoadScenes(std::vector <std::vector<A3DVector>>& paths,
+				   std::vector<std::vector<int>>& layer_indices,
 		           std::vector<A2DVector>& positions, 
 		           std::string filename);
 

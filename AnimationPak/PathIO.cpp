@@ -299,8 +299,8 @@ file format
 std::vector<A2DVector> _positions;
 std::vector < std::vector<A3DVector>> _paths; //[a path][layer]
 */
-void PathIO::LoadPaths(std::vector <std::vector<A3DVector>>& paths,
-					   std::vector<std::vector<int>> layer_indices,
+void PathIO::LoadScenes(std::vector <std::vector<A3DVector>>& paths,
+					   std::vector<std::vector<int>>& layer_indices,
 	                   std::vector<A2DVector>& positions, 
 					   std::string filename)
 {

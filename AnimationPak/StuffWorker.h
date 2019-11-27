@@ -25,7 +25,7 @@ public:
 	~StuffWorker();
 
 	//void InitElements(Ogre::SceneManager* scnMgr);
-	void DockELements(std::vector <std::vector<A3DVector>> paths, 
+	void DockElementsOnPaths(std::vector <std::vector<A3DVector>> paths, 
 		              std::vector<std::vector<int>> layer_indices,
 		              std::vector<AnElement> temp_elements,
 					  Ogre::SceneManager* scnMgr);

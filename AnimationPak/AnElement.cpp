@@ -271,10 +271,6 @@ void AnElement::Docking(std::vector<A3DVector> aPath, std::vector<int> layer_ind
 		int layer_idx_1 = layer_indices[a];
 		int layer_idx_2 = layer_indices[a + 1];
 
-		if (layer_idx_2 == SystemParams::_num_layer - 1)
-		{
-			layer_idx_2 += 1;
-		}
 
 		A3DVector startPt = aPath[a];		
 		A3DVector endPt = aPath[a + 1];
@@ -284,16 +280,13 @@ void AnElement::Docking(std::vector<A3DVector> aPath, std::vector<int> layer_ind
 		float xyGap = dirVector.Length() / (float)(layer_idx_2 - layer_idx_1);
 		dirVector = dirVector.Norm();
 
-		for (int b = layer_idx_1; b < layer_idx_2; b++) // iterate layers
+		int end_idx = layer_idx_2; // ugly code, need to move the last layer
+		if (layer_idx_2 == SystemParams::_num_layer - 1) { end_idx += 1; }  // ugly code, need to move the last layer
+
+		for (int b = layer_idx_1; b < end_idx; b++) // iterate layers  // ugly code
 		{
 			int start_mass_idx = _numPointPerLayer * b;
 			int end_mass_idx = start_mass_idx + _numPointPerLayer;
-
-			// fugly
-			/*if (layer_idx_2 == SystemParams::_num_layer - 1)
-			{
-				end_mass_idx += _numPointPerLayer;
-			}*/
 
 			A2DVector startPt2D = startPt.GetA2DVector();
 			TranslateXY(startPt2D.x, startPt2D.y, start_mass_idx, end_mass_idx); // MOVEEE
@@ -2350,9 +2343,9 @@ void AnElement::RandomizeLayerSize()
 	}
 }
 
-void  AnElement::CreateHelix()
+void  AnElement::CreateHelix(float val)
 {
-	float ggg = 6.28318530718 * 2.0;
+	float ggg = 6.28318530718 * val;
 
 	int randVal = rand() % 2;
 	if (randVal == 0)
@@ -2372,6 +2365,30 @@ void  AnElement::CreateHelix()
 	}
 }
 
+void AnElement::AddConnector(int other_elem_idx, int ur_layer_idx, int their_layer_idx)
+{
+	TubeConnector tc;
+
+	tc._elem_1 = this->_elem_idx;
+	tc._elem_2 = other_elem_idx;
+
+	int start_mass_idx = ur_layer_idx * _numPointPerLayer;
+	int end_mass_idx = start_mass_idx + _numPointPerLayer;
+	for (int a = start_mass_idx; a < end_mass_idx; a++)
+	{
+		tc._elem_1_indices.push_back(a);
+	}
+
+
+	start_mass_idx = their_layer_idx * _numPointPerLayer;
+	end_mass_idx = start_mass_idx + _numPointPerLayer;
+	for (int a = start_mass_idx; a < end_mass_idx; a++)
+	{
+		tc._elem_2_indices.push_back(a);
+	}
+
+	_t_connectors.push_back(tc);
+}
 
 
 std::vector<std::vector<A2DVector>> AnElement::GetBilinearInterpolatedArt(std::vector<std::vector<A2DVector>> triangles)
@@ -2864,6 +2881,39 @@ void AnElement::SolveForSprings3D()
 
 		_massList[idx0]._edgeForce += eForce;
 		_massList[idx1]._edgeForce -= eForce;*/
+	}
+
+	A2DVector dir2d;
+	A2DVector dir_not_unit2d;
+	A2DVector eForce2d;
+	k = SystemParams::_k_connector;
+	for (int a = 0; a < _t_connectors.size(); a++)
+	{
+		for (int b = 0; b < _t_connectors[a]._elem_1_indices.size(); b++)
+		{
+			int other_elem_idx = _t_connectors[a]._elem_2;
+			int idx0 = _t_connectors[a]._elem_1_indices[b];
+			int idx1 = _t_connectors[a]._elem_2_indices[b];
+
+			A2DVector pos1 = _massList[idx0].GetPos().GetA2DVector();
+			A2DVector pos2 = StuffWorker::_element_list[other_elem_idx]._massList[idx1].GetPos().GetA2DVector();
+
+			dir_not_unit2d = pos1.DirectionTo(pos2);
+			dir_not_unit2d.GetUnitAndDist(dir2d, dist);
+
+			diff = dist;
+
+			// for neg space springs
+			//avg_l += dist;
+
+			// squared version
+			signVal = 1;
+			if (diff < 0) { signVal = -1; }
+			eForce2d = dir2d * k *  diff * diff * signVal;
+			//eForce = dir * k *  diff;
+
+			_massList[idx0]._edgeForce += A3DVector(eForce2d.x, eForce2d.y, 0);
+		}
 	}
 }
 

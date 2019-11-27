@@ -49,7 +49,7 @@ StuffWorker::~StuffWorker()
 	if (_my_thread_pool) { delete _my_thread_pool; }
 }
 
-void StuffWorker::DockELements(std::vector <std::vector<A3DVector>> paths, 
+void StuffWorker::DockElementsOnPaths(std::vector <std::vector<A3DVector>> paths,
 	                           std::vector<std::vector<int>> layer_indices,
 	                           std::vector<AnElement> temp_elements,
 	                           Ogre::SceneManager* scnMgr)
@@ -63,6 +63,8 @@ void StuffWorker::DockELements(std::vector <std::vector<A3DVector>> paths,
 
 		AnElement elem = temp_elements[idx % temp_elem_sz];
 		elem.TriangularizationThatIsnt(idx);
+
+		elem.CreateHelix(0.5);
 
 		float len = paths[a].size();
 
@@ -91,6 +93,15 @@ void StuffWorker::DockELements(std::vector <std::vector<A3DVector>> paths,
 		elem.InitMeshOgre3D(scnMgr, pNode, "Tube_" + std::to_string(idx), "Examples/TransparentTest2");
 		_element_list.push_back(elem);
 	}
+
+	// scripted!
+	int last_layer_idx = SystemParams::_num_layer - 1;
+	_element_list[0].AddConnector(1, 0, last_layer_idx);
+	_element_list[1].AddConnector(0, last_layer_idx, 0);
+
+	// scripted!
+	_element_list[0].AddConnector(1, last_layer_idx, 0);
+	_element_list[1].AddConnector(0, 0, last_layer_idx);
 }
 
 void StuffWorker::ConnectTubeEnds()
@@ -124,8 +135,8 @@ void StuffWorker::InitAnimated_Elements(Ogre::SceneManager* scnMgr)
 	//int elem_iter = 0;
 	int temp_elem_sz = temp_elements.size();
 	float initialScale = SystemParams::_element_initial_scale; // 0.05
-
-	DockELements(paths, layer_indices, temp_elements, scnMgr);
+	 
+	DockElementsOnPaths(paths, layer_indices, temp_elements, scnMgr);
 
 
 	/*A2DVector startPt(100, 100);
@@ -178,7 +189,13 @@ void StuffWorker::InitAnimated_Elements(Ogre::SceneManager* scnMgr)
 		elem.CalculateRestStructure();
 		Ogre::SceneNode* pNode = scnMgr->getRootSceneNode()->createChildSceneNode("TubeNode" + std::to_string(idx));
 		elem.InitMeshOgre3D(scnMgr, pNode, "Tube_" + std::to_string(idx), "Examples/TransparentTest2");
+		
+		
+		elem.AddConnector(idx, 0, SystemParams::_num_layer - 1);
+		
 		_element_list.push_back(elem);
+
+
 
 		// dumb code
 		if (_element_list.size() == SystemParams::_num_element_pos_limit) { break; }
@@ -1009,7 +1026,8 @@ void StuffWorker::SaveFrames4()
 	for (int i = 0; i < _element_list.size(); i++)
 	{
 		std::cout << "elem=" << i << "\n";
-		MyColor col = _element_list[i]._color;
+		//MyColor col = _element_list[i]._color;
+		MyColor col(41, 102, 211);
 		std::vector<std::vector<std::vector<A2DVector>>> per_layer_triangle_drawing = _element_list[i]._per_layer_triangle_drawing;
 		for (int l = 0; l < per_layer_triangle_drawing.size(); l++)
 		{

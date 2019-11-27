@@ -42,6 +42,7 @@ public:
 	static int _seed;
 
 	//static float _k_edge;
+	static float _k_connector;
 	static float _k_edge_start;
 	static float _k_edge_end;
 	

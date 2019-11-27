@@ -39,7 +39,7 @@ public:
 
 	//void CreateStarTube(int self_idx);
 	void ResetSpringRestLengths();
-	void CreateHelix();
+	void CreateHelix(float val = 2.0f);
 	void RandomizeLayerSize();
 	
 	void BiliniearInterpolation(std::vector<A3DVector>& boundaryA, 
@@ -182,6 +182,9 @@ public:
 
 	std::vector<float> _z_pos_array; // for UpdateZConstaint();
 
+public:
+	
+	void AddConnector(int other_elem_idx, int ur_layer_idx, int their_layer_idx);
 
 	std::vector<TubeConnector> _t_connectors;
 

@@ -113,6 +113,16 @@ public:
 		return std::sqrt(xDist * xDist + yDist * yDist);
 	}
 
+	void GetUnitAndDist(A2DVector& unitVec, float& dist)
+	{
+
+		dist = std::sqrt(x * x + y * y);
+
+		unitVec = A2DVector(this->x / dist,
+			this->y / dist);
+
+	}
+
 	// Euclidean distance
 	float Distance(float otherX, float otherY)
 	{

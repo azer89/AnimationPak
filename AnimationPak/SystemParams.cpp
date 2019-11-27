@@ -45,6 +45,7 @@ void SystemParams::LoadParameters()
 	//SystemParams::_num_thread_c_pt = script.get<int>("_num_thread_c_pt");
 	//SystemParams::_num_thread_solve = script.get<int>("_num_thread_solve");
 
+	SystemParams::_k_connector = script.get<float>("_k_connector");
 	//SystemParams::_k_edge = script.get<float>("_k_edge");
 	SystemParams::_k_edge_start = script.get<float>("_k_edge_start");
 	SystemParams::_k_edge_end = script.get<float>("_k_edge_end");
@@ -139,6 +140,7 @@ int SystemParams::_num_threads = 0;
 //int SystemParams::_num_thread_solve = 0;
 
 //float SystemParams::_k_edge = 0.0f;
+float SystemParams::_k_connector = 0.0f;
 float SystemParams::_k_edge_start = 0.0f;
 float SystemParams::_k_edge_end = 0.0f;
 

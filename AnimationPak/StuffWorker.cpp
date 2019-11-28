@@ -61,7 +61,8 @@ void StuffWorker::DockElementsOnPaths(std::vector <std::vector<A3DVector>> paths
 	{
 		int idx = a;
 
-		AnElement elem = temp_elements[idx % temp_elem_sz];
+		//AnElement elem = temp_elements[idx % temp_elem_sz];
+		AnElement elem = temp_elements[0];
 		elem.TriangularizationThatIsnt(idx);
 
 		elem.CreateHelix(0.5);
@@ -174,7 +175,8 @@ void StuffWorker::InitAnimated_Elements(Ogre::SceneManager* scnMgr)
 	{
 		int idx = _element_list.size();
 
-		AnElement elem = temp_elements[idx % temp_elem_sz];
+		//AnElement elem = temp_elements[idx % temp_elem_sz];
+		AnElement elem = temp_elements[1];
 		//elem.SetIndex(idx);
 
 		elem.TriangularizationThatIsnt(idx);

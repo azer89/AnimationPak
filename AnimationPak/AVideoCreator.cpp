@@ -41,6 +41,18 @@ void AVideoCreator::DrawFilledArt(std::vector<std::vector<A2DVector>> arts, MyCo
 	}
 }
 
+void  AVideoCreator::DrawFilledArt(std::vector<std::vector<A2DVector>> arts,
+									std::vector <MyColor> b_colors,
+									std::vector <MyColor> f_colors,
+									int frameIdx)
+{
+	for (int a = arts.size() - 1; a >= 0; a--) // backward
+	{
+		_cvWrapper.DrawFilledPoly(_frames[frameIdx], arts[a], b_colors[a], _img_scale);
+		_cvWrapper.DrawPolyOnCVImage(_frames[frameIdx]._img, arts[a], f_colors[a], true, 1.0f, _img_scale);
+	}
+}
+
 void AVideoCreator::ClearFrames()
 {
 	for (int a = 0; a < _frames.size(); a++)

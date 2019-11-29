@@ -221,6 +221,27 @@ AnElement PathIO::LoadAnimatedElement(std::string filename)
 		elem._baryCoords.push_back(bCoords);
 	}
 
+	// 13 foreground colors
+	std::string line13;
+	std::getline(myfile, line13);
+	std::vector<std::string> arrayTemp13 = UtilityFunctions::Split(line13, ' ');
+	for (int a = 0; a < arrayTemp13.size(); a++)
+	{
+		std::vector<std::string> col_array = UtilityFunctions::Split(arrayTemp13[a], ',');
+		elem._art_f_colors.push_back(MyColor(stoi(col_array[0]), stoi(col_array[1]), stoi(col_array[2])));
+	}
+
+
+	// 14 background colors
+	std::string line14;
+	std::getline(myfile, line14);
+	std::vector<std::string> arrayTemp14 = UtilityFunctions::Split(line14, ' ');
+	for (int a = 0; a < arrayTemp14.size(); a++)
+	{
+		std::vector<std::string> col_array = UtilityFunctions::Split(arrayTemp14[a], ',');
+		elem._art_b_colors.push_back(MyColor(stoi(col_array[0]), stoi(col_array[1]), stoi(col_array[2])));
+	}
+
 	// stuff
 	elem._numPointPerLayer = num_points_per_layer;
 	elem._numBoundaryPointPerLayer = num_boundary_points_per_layer;

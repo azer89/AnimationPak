@@ -323,6 +323,8 @@ public:
 	//
 	int                                 _numTrianglePerLayer;  // number of triangle in just one layer
 	std::vector<std::vector<A2DVector>> _arts;                 // vector graphics
+	std::vector<MyColor> _art_f_colors;
+	std::vector<MyColor> _art_b_colors;
 	std::vector<std::vector<int>>       _arts2Triangles;       // mapping vector graphics to triangles
 	std::vector<std::vector<ABary>>     _baryCoords;           // barycentric coordinates
 };

@@ -1029,13 +1029,14 @@ void StuffWorker::SaveFrames4()
 	{
 		std::cout << "elem=" << i << "\n";
 		//MyColor col = _element_list[i]._color;
-		MyColor col(41, 102, 211);
+		//MyColor col(41, 102, 211);
 		std::vector<std::vector<std::vector<A2DVector>>> per_layer_triangle_drawing = _element_list[i]._per_layer_triangle_drawing;
 		for (int l = 0; l < per_layer_triangle_drawing.size(); l++)
 		{
 			std::vector<std::vector<A2DVector>> triangles_in_a_layer = per_layer_triangle_drawing[l];
 			std::vector<std::vector<A2DVector>> arts = UtilityFunctions::FlipY(_element_list[i].GetBilinearInterpolatedArt(triangles_in_a_layer), yCenter);
-			vCreator.DrawFilledArt(arts, col, l);
+			//vCreator.DrawFilledArt(arts, col, l);
+			vCreator.DrawFilledArt(arts, _element_list[i]._art_b_colors, _element_list[i]._art_f_colors, l);
 		}
 	}
 

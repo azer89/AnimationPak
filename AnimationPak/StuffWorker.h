@@ -30,10 +30,14 @@ public:
 		              std::vector<AnElement> temp_elements,
 					  Ogre::SceneManager* scnMgr);
 
-	void InitElements2(Ogre::SceneManager* scnMgr);
+	void JitterPosAndRotation(float pos_max_offset, A2DVector& pos_offset, float& rot_val);
+
+	void InitElementsAndCGrid(Ogre::SceneManager* scnMgr);
 	void InitElements_TwoMovingElements(Ogre::SceneManager* scnMgr); // SCENE
 	void InitElements_OneMovingElement(Ogre::SceneManager* scnMgr);
 	void InitAnimated_Elements(Ogre::SceneManager* scnMgr);
+
+	void InitSavedScenes(Ogre::SceneManager* scnMgr); // for testing purpose
 
 	void ConnectTubeEnds();
 
@@ -48,6 +52,10 @@ public:
 	void AlmostAllUrShit_PrepareThreadPool();
 	void AlmostAllUrShit_ThreadTask(int startIdx, int endIdx);
 	void CollisionGrid_PrepareThreadPool();
+
+	void SaveScene();
+	void SaveStatistics();
+	bool StillGrowing();
 
 
 	void Update();
@@ -117,8 +125,13 @@ public:
 	//int _c_pt_cpu_t;
 	//int _solve_cpu_t;
 
+	// additional
+	ATimerStat _cg_move_points;
+
 	int _max_c_pts;
 	int _max_c_pts_approx;
+
+	int _num_iteration;
 
 
 public:

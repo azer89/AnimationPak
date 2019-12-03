@@ -97,6 +97,7 @@ public:
 	A3DVector ClosestPtOnATriSurface_Const(int triIdx, A3DVector pos) const;
 
 	void Grow(float growth_scale_iter, float dt);
+	bool StillGrowing();
 
 	//void PrintKEdgeArray();
 
@@ -167,6 +168,8 @@ public:
 
 public:
 	int _elem_idx; // for identification
+
+	std::string _name;
 
 	//bool _predefined_time_path; // time path isn't straight
 
@@ -327,6 +330,8 @@ public:
 	std::vector<MyColor> _art_b_colors;
 	std::vector<std::vector<int>>       _arts2Triangles;       // mapping vector graphics to triangles
 	std::vector<std::vector<ABary>>     _baryCoords;           // barycentric coordinates
+
+	
 };
 
 #endif

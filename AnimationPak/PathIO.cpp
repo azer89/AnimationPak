@@ -52,6 +52,17 @@ std::vector<std::string> PathIO::LoadFiles(std::string directoryPath)
 	return fileStr;
 }
 
+void PathIO::SaveText(std::string content_string, std::string filename)
+{
+	std::ofstream* f = new std::ofstream();
+	f->open(filename);
+
+	*f << content_string;
+
+	f->close();
+	delete f;
+
+}
 
 /*
 file format:
@@ -61,18 +72,158 @@ file format:
 	[ 4 num_points_per_layer ]
 	[ 5 num_boundary_points_per_layer ]
 	[ 6 num_triangles_per_layer ]
-	x0 y0 z0 x1 y1 z1 z0 x2 y2 z2 ...  % all points (all layers)       7
-	idx_0_0 idx_0_1 idx_0_2 ...        % layer triangles (all layers)  8
-	idx_0_0 idx_0_1 ...                % neg space edges  (all layers) 9
-	x0 y0 z0 x1 y1 z1 x2 y2 z2 ...	   % art 1 (first layer only)      10
-	x0 y0 z0 x1 y1 z1 x2 y2 z2 ...	   % art 2 (first layer only) 
-	...
-	idx0 idx1 idx2 ... % art to tri     11
-	idx0 idx1 idx2 ... % art to tri
-	...
-	u0 v0 w0...        % bary of art 1  12
-	u0 v0 w0...        % bary of art 2
-	...
+	7  x0 y0 z0 x1 y1 z1 z0 x2 y2 z2 ...  % all points (all layers)
+	8  idx_0_0 idx_0_1 idx_0_2 ...        % layer triangles (all layers)
+	9  idx_0_0 idx_0_1 ...                % neg space edges  (all layers)
+	10 x0 y0 z0 x1 y1 z1 x2 y2 z2 ...	   % art 1 (first layer only)
+	   x0 y0 z0 x1 y1 z1 x2 y2 z2 ...	   % art 2 (first layer only)
+	   ...
+	11 idx0 idx1 idx2 ... % art to tri
+	   idx0 idx1 idx2 ... % art to tri
+	   ...
+	12 u0 v0 w0...        % bary of art 1
+	   u0 v0 w0...        % bary of art 2
+	   ...
+	13 r,g,b r,g,b r,g,b ...  % foreground colors for arts
+	13 r,g,b r,g,b r,g,b ...  % background colors for arts
+*/
+void PathIO::SaveAnimatedElement(AnElement elem, std::string filename)
+{
+	std::ofstream* f = new std::ofstream();
+	f->open(filename);
+
+	// ----- 1 num_all_points ----- 
+	*f << elem._massList.size() << "\n";
+
+	// ----- 2 num_layer ----- 
+	*f << SystemParams::_num_layer << "\n";
+
+	// ----- 3 num arts -----
+	*f << elem._arts.size() << "\n";
+
+	// ----- 4 num_points_per_layer----- 
+	*f << elem._numPointPerLayer << "\n";
+
+	// ----- 5 num_boundary_points_per_layer----- 
+	*f << elem._numBoundaryPointPerLayer << "\n";
+
+	// ----- 6 num_triangles_per_layer----- 
+	*f << elem._numTrianglePerLayer << "\n";
+
+	// ----- mass pos ----- 
+	for (int a = 0; a < elem._massList.size(); a++)
+	{
+		*f << std::setprecision(20) << elem._massList[a]._pos._x << " " << std::setprecision(20) << elem._massList[a]._pos._y << " " << std::setprecision(20) << elem._massList[a]._pos._z;
+		if (a < elem._massList.size() - 1) { *f << " "; }
+	}
+	*f << "\n";
+
+	// ----- layer triangles ----- 
+	for (int a = 0; a < elem._triangles.size(); a++)
+	{
+		*f << elem._triangles[a].idx0 << " "
+			<< elem._triangles[a].idx1 << " "
+			<< elem._triangles[a].idx2;
+		if (a < elem._triangles.size() - 1) { *f << " "; }
+	}
+	*f << "\n";
+
+	// _neg_space_springs
+	for (int a = 0; a < elem._neg_space_springs.size(); a++)
+	{
+		*f << elem._neg_space_springs[a]._index0 << " " << elem._neg_space_springs[a]._index1;
+		if (a < elem._neg_space_springs.size() - 1) { *f << " "; }
+	}
+	*f << "\n";
+
+	// arts
+	for (int a = 0; a < elem._arts.size(); a++)
+	{
+		for (int b = 0; b < elem._arts[a].size(); b++)
+		{
+			*f << std::setprecision(20)
+				<< elem._arts[a][b].x << " "
+				<< std::setprecision(20)
+				<< elem._arts[a][b].y;
+			if (b < elem._arts[a].size() - 1) { *f << " "; }
+		}
+		*f << "\n";
+	}
+
+	// art to triangle indices
+	for (int a = 0; a < elem._arts2Triangles.size(); a++)
+	{
+		for (int b = 0; b < elem._arts2Triangles[a].size(); b++)
+		{
+			*f << elem._arts2Triangles[a][b];
+			if (b < elem._arts2Triangles[a].size() - 1) { *f << " "; }
+		}
+		*f << "\n";
+	}
+
+	// barycentric coordinates
+	for (int a = 0; a < elem._baryCoords.size(); a++)
+	{
+		for (int b = 0; b < elem._baryCoords[a].size(); b++)
+		{
+			*f << std::setprecision(20)
+				<< elem._baryCoords[a][b]._u << " "
+				<< std::setprecision(20)
+				<< elem._baryCoords[a][b]._v << " "
+				<< std::setprecision(20)
+				<< elem._baryCoords[a][b]._w;
+			if (b < elem._baryCoords[a].size() - 1) { *f << " "; }
+		}
+		if (a < elem._baryCoords.size() - 1) { *f << "\n"; }
+	}
+
+
+	*f << "\n";
+
+	// foreground colors for arts
+	for (int a = 0; a < elem._art_f_colors.size(); a++)
+	{
+		MyColor col = elem._art_f_colors[a];
+		*f << col._r << "," << col._g << "," << col._b;
+		if (a < elem._art_f_colors.size() - 1) { *f << " "; }
+	}
+	*f << "\n";
+
+	// background colors for arts
+	for (int a = 0; a < elem._art_b_colors.size(); a++)
+	{
+		MyColor col = elem._art_b_colors[a];
+		*f << col._r << "," << col._g << "," << col._b;
+		if (a < elem._art_b_colors.size() - 1) { *f << " "; }
+	}
+
+	f->close();
+
+	delete f;
+}
+
+/*
+file format:
+	[ 1 num_all_points ]
+	[ 2 num_layer ]
+	[ 3 num_art ]
+	[ 4 num_points_per_layer ]
+	[ 5 num_boundary_points_per_layer ]
+	[ 6 num_triangles_per_layer ]
+	7  x0 y0 z0 x1 y1 z1 z0 x2 y2 z2 ...  % all points (all layers)
+	8  idx_0_0 idx_0_1 idx_0_2 ...        % layer triangles (all layers)
+	9  idx_0_0 idx_0_1 ...                % neg space edges  (all layers)
+	10 x0 y0 z0 x1 y1 z1 x2 y2 z2 ...	   % art 1 (first layer only)
+		x0 y0 z0 x1 y1 z1 x2 y2 z2 ...	   % art 2 (first layer only)
+		...
+	11 idx0 idx1 idx2 ... % art to tri
+		idx0 idx1 idx2 ... % art to tri
+		...
+	12 u0 v0 w0...        % bary of art 1
+		u0 v0 w0...        % bary of art 2
+		...
+	13 r,g,b r,g,b r,g,b ...  % foreground colors for arts
+	13 r,g,b r,g,b r,g,b ...  % background colors for arts
 */
 AnElement PathIO::LoadAnimatedElement(std::string filename)
 {
@@ -241,6 +392,12 @@ AnElement PathIO::LoadAnimatedElement(std::string filename)
 		std::vector<std::string> col_array = UtilityFunctions::Split(arrayTemp14[a], ',');
 		elem._art_b_colors.push_back(MyColor(stoi(col_array[0]), stoi(col_array[1]), stoi(col_array[2])));
 	}
+
+	// name
+	std::vector<std::string> string_elems = UtilityFunctions::Split(filename, '\\');
+	std::vector<std::string> name_only_array = UtilityFunctions::Split(string_elems[string_elems.size() - 1], '.');
+	std::string name_only_no_ext = name_only_array[0];
+	elem._name = name_only_no_ext;
 
 	// stuff
 	elem._numPointPerLayer = num_points_per_layer;

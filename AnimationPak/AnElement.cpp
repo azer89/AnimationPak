@@ -69,6 +69,8 @@ AnElement::AnElement()
 		_layer_k_edge_array.push_back(0.0f);
 	}
 	//_is_growing = true;
+
+	_name = "";
 }
 
 AnElement::~AnElement()
@@ -597,11 +599,15 @@ void AnElement::TriangularizationThatIsnt(int self_idx)
 {
 	this->_elem_idx = self_idx;
 
+	// add name (important!)
+	_name += "_" + std::to_string(_elem_idx);
+	//std::cout << elem._name << "\n";
+
 	// layer center
 	// WARNING BAD CODE
 	A2DRectangle bb = UtilityFunctions::GetBoundingBox(_arts[0]);
 	_layer_center = bb.GetCenter();
-	std::cout << "layer_center = (" << _layer_center.x << ", " << _layer_center.y << ")\n";
+	//std::cout << "layer_center = (" << _layer_center.x << ", " << _layer_center.y << ")\n";
 
 	// -----  mass -----
 	for (int a = 0; a < _massList.size(); a++)
@@ -1131,6 +1137,18 @@ void AnElement::CalculateRestStructure()
 	std::cout << "\n";
 }*/
 
+bool AnElement::StillGrowing()
+{
+	for (int a = 0; a < SystemParams::_num_layer; a++)
+	{
+		if (_layer_scale_array[a] < SystemParams::_element_max_scale)
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
 void AnElement::Grow(float growth_scale_iter, float dt)
 {
 	//if (_scale > SystemParams::_element_max_scale)
@@ -1199,7 +1217,6 @@ void AnElement::Grow(float growth_scale_iter, float dt)
 	for (int a = 0; a < _rest_mass_pos_array.size(); a++)
 	{
 		int layer_idx = _massList[a]._layer_idx; // new
-
 
 		if (!_insideFlags[layer_idx]/* && _layer_scale_array[layer_idx] < SystemParams::_element_max_scale*/) // new
 		{

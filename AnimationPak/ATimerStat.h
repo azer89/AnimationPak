@@ -23,6 +23,11 @@ public:
 		_average = _total_time / _counter;
 	}
 
+	float GetTotal()
+	{
+		return _total_time;
+	}
+
 	float Avg()
 	{
 		return _average;

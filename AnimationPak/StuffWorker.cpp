@@ -28,6 +28,7 @@ StuffWorker::StuffWorker() : _containerWorker(0), _is_paused(false), _my_thread_
 	//_almostall_single_t = 0;
 	//_cg_multi_t = 0;
 	//_cg_single_t = 0;
+	_num_iteration = 0;
 
 	_max_c_pts = 0;
 	_max_c_pts_approx = 0;
@@ -107,9 +108,72 @@ void StuffWorker::DockElementsOnPaths(std::vector <std::vector<A3DVector>> paths
 
 void StuffWorker::ConnectTubeEnds()
 {
+	// why does this function exist?
 
 }
 
+void StuffWorker::InitSavedScenes(Ogre::SceneManager* scnMgr)
+{
+	// element files
+	PathIO pathIO;
+
+	std::vector<std::string> some_files = pathIO.LoadFiles(SystemParams::_animated_element_folder); ////
+
+	for (unsigned int a = 0; a < some_files.size(); a++)
+	{
+		// is path valid?
+		if (some_files[a] == "." || some_files[a] == "..") { continue; }
+		if (!UtilityFunctions::HasEnding(some_files[a], ".path")) { continue; }
+
+		_element_list.push_back(pathIO.LoadAnimatedElement(SystemParams::_animated_element_folder + some_files[a]));
+	}
+
+	for (int a = 0; a < _element_list.size(); a++)
+	{
+		//int idx = _element_list.size();
+
+		//AnElement elem = temp_elements[1];
+
+		_element_list[a].TriangularizationThatIsnt(a);
+
+		//float radAngle = float(rand() % 628) / 100.0;
+		//elem.RotateXY(radAngle);
+
+		//elem.ScaleXY(initialScale);
+		//elem.TranslateXY(_containerWorker->_randomPositions[a].x, _containerWorker->_randomPositions[a].y);
+		//elem.TranslateXY(positions[a].x, positions[a].y);
+
+		_element_list[a].CalculateRestStructure();
+		Ogre::SceneNode* pNode = scnMgr->getRootSceneNode()->createChildSceneNode("TubeNode" + std::to_string(a));
+		_element_list[a].InitMeshOgre3D(scnMgr, pNode, "Tube_" + std::to_string(a), "Examples/TransparentTest2");
+
+
+		// don't work...
+		//_element_list[a].AddConnector(idx, 0, SystemParams::_num_layer - 1);
+		
+
+		//_element_list.push_back(elem);
+
+
+
+		// dumb code
+		//if (_element_list.size() == SystemParams::_num_element_pos_limit) { break; }
+	}
+}
+
+void StuffWorker::JitterPosAndRotation(float pos_max_offset, A2DVector& pos_offset, float& rot_val)
+{
+	// https_//stackoverflow.com/questions/686353/random-float-number-generation
+
+	pos_offset.x = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / pos_max_offset));
+	pos_offset.y = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / pos_max_offset));
+
+	float PI = 3.14159265359;
+
+	rot_val = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / PI));
+}
+
+// USE THIS!!!!
 void StuffWorker::InitAnimated_Elements(Ogre::SceneManager* scnMgr)
 {
 	// element files
@@ -194,6 +258,8 @@ void StuffWorker::InitAnimated_Elements(Ogre::SceneManager* scnMgr)
 		
 		
 		elem.AddConnector(idx, 0, SystemParams::_num_layer - 1);
+
+		
 		
 		_element_list.push_back(elem);
 
@@ -206,6 +272,7 @@ void StuffWorker::InitAnimated_Elements(Ogre::SceneManager* scnMgr)
 	std::cout << "Elements done...\n";
 }
 
+// DON'T USE THIS!!!!
 void StuffWorker::InitElements_OneMovingElement(Ogre::SceneManager* scnMgr)
 {
 	// element files
@@ -288,6 +355,7 @@ void StuffWorker::InitElements_OneMovingElement(Ogre::SceneManager* scnMgr)
 	std::cout << "Elements done...\n";
 }
 
+// DON'T USE THIS!!!!
 void StuffWorker::InitElements_TwoMovingElements(Ogre::SceneManager* scnMgr)
 {
 	// element files
@@ -408,12 +476,14 @@ void StuffWorker::InitElements_TwoMovingElements(Ogre::SceneManager* scnMgr)
 	std::cout << "Elements done...\n";
 }
 
-void StuffWorker::InitElements2(Ogre::SceneManager* scnMgr)
+// THIS WILL CALL ANOTHER FUNCTION
+void StuffWorker::InitElementsAndCGrid(Ogre::SceneManager* scnMgr)
 {
 	// Your scene here!
 	//InitElements_TwoMovingElements(scnMgr);
 	//InitElements_OneMovingElement(scnMgr);
 	InitAnimated_Elements(scnMgr);
+	//InitSavedScenes(scnMgr);  <-- only for reloading finished simulation
 
 	// ----- Collision grid 3D -----
 	StuffWorker::_c_grid_3d->Init();
@@ -445,13 +515,113 @@ void StuffWorker::InitElements2(Ogre::SceneManager* scnMgr)
 	}
 }
 
+void StuffWorker::SaveScene()
+{
+	PathIO pIO;
+	for (int a = 0; a < _element_list.size(); a++)
+	{
+		pIO.SaveAnimatedElement(_element_list[a], SystemParams::_save_folder + _element_list[a]._name + ".path");
+	}
+}
+
+void StuffWorker::SaveStatistics()
+{
+	std::stringstream ss;
+
+	// time (_cg_move_points, cg_multi_t, _almostall_multi_t)
+	ss << "_cg_move_points (seconds)    = " << _cg_move_points.GetTotal() / 1000000 << "\n";
+	ss << "_cg_multi_t (seconds)        = " << _cg_multi_t.GetTotal() / 1000000 << "\n";
+	ss << "_almostall_multi_t (seconds) = " << _almostall_multi_t.GetTotal() / 1000000 << "\n";
+	
+	// total time _cg_move_points + cg_multi_t + _almostall_multi_t
+	ss << "total (microsec)             = " << (_cg_move_points.GetTotal() + _cg_multi_t.GetTotal() + _almostall_multi_t.GetTotal()) / 1000000 << "\n";
+
+	// avg skin offset ??? NOPE save the scene!
+
+	// https_//stackoverflow.com/questions/1406029/how-to-calculate-the-volume-of-a-3d-mesh-object-the-surface-of-which-is-made-up
+	// fill ratio (area of triangles, approx) ??? NOPE save the scene!
+
+	// num elements
+	ss << "num elements = " << _element_list.size() << "\n";
+
+	// num layer springs
+	int num_l_springs = 0;
+	for (int a = 0; a < _element_list.size(); a++)
+	{
+		num_l_springs += _element_list[a]._layer_springs.size();
+	}
+	ss << "num layer springs = " << num_l_springs << "\n";
+
+	// num aux springs
+	int num_aux_springs = 0;
+	for (int a = 0; a < _element_list.size(); a++)
+	{
+		num_aux_springs += _element_list[a]._auxiliary_springs.size();
+	}
+	ss << "num auxiliary springs = " << num_aux_springs << "\n";
+
+	// num time springs
+	int num_time_springs = 0;
+	for (int a = 0; a < _element_list.size(); a++)
+	{
+		num_time_springs += _element_list[a]._time_springs.size();
+	}
+	ss << "num time springs = " << num_time_springs << "\n";
+
+	// num neg space springs
+	int num_neg_space_springs = 0;
+	for (int a = 0; a < _element_list.size(); a++)
+	{
+		num_neg_space_springs += _element_list[a]._neg_space_springs.size();
+	}
+	ss << "num neg space springs = " << num_neg_space_springs << "\n";
+
+	// num all springs
+	ss << "num all springs = " << num_l_springs + num_aux_springs + num_time_springs + num_neg_space_springs << "\n";
+
+	//  num vertices
+	int num_v = 0;
+	for (int a = 0; a < _element_list.size(); a++)
+	{
+		num_v += _element_list[a]._massList.size();
+	}
+	ss << "num vertices = " << num_v << "\n";
+
+	// num triangles
+	int num_t = 0;
+	for (int a = 0; a < _element_list.size(); a++)
+	{
+		num_t += _element_list[a]._triangles.size();
+	}
+	ss << "num triangles = " << num_t << "\n";
+
+	// seeds
+	ss << "seeds = " << SystemParams::_seed << "\n";
+
+
+	PathIO pIO;
+	pIO.SaveText(ss.str(), SystemParams::_save_folder + "run_info.txt");
+}
+
+bool StuffWorker::StillGrowing()
+{
+	for (int a = 0; a < _element_list.size(); a++)
+	{
+		if (_element_list[a].StillGrowing()) { return true; }
+	}
+	return false;
+}
 
 
 void StuffWorker::Update()
 {
 	if (_is_paused) { return; }
 
+	// for statistics!
+	_num_iteration++;
+
 	// Collision grid
+	auto start0 = std::chrono::steady_clock::now(); // timing
 	float iter = 0;
 	for (int a = 0; a < _element_list.size(); a++)
 	{
@@ -461,6 +631,8 @@ void StuffWorker::Update()
 		}
 	}	
 	_c_grid_3d->MovePoints();
+	auto elapsed0 = std::chrono::steady_clock::now() - start0; // timing
+	_cg_move_points.AddTime(std::chrono::duration_cast<std::chrono::microseconds>(elapsed0).count());
 	
 	if (SystemParams::_multithread_test)
 	{
@@ -1041,7 +1213,7 @@ void StuffWorker::SaveFrames4()
 	}
 
 	std::stringstream ss;
-	ss << SystemParams::_save_folder << "PNG\\";
+	ss << SystemParams::_save_folder;
 	vCreator.Save(ss.str());
 }
 
@@ -1088,7 +1260,7 @@ void StuffWorker::SaveFrames3()
 	}
 
 	std::stringstream ss;
-	ss << SystemParams::_save_folder << "PNG\\";
+	ss << SystemParams::_save_folder;
 	vCreator.Save(ss.str());
 }
 

@@ -96,6 +96,12 @@ bool Display::frameStarted(const Ogre::FrameEvent& evt)
 
 		_sWorker->UpdateOgre3D(); // drawing
 	}
+
+	bool shouldQuit = false;
+	if (!_sWorker->StillGrowing())
+	{
+		shouldQuit = true;
+	}
 	
 	//UpdateSpringDisplay(); // init CreateSpringLines()
 	//UpdatePerLayerBoundary();
@@ -143,7 +149,6 @@ bool Display::frameStarted(const Ogre::FrameEvent& evt)
 	ImGui::Text(("_max_c_pts = " + std::to_string(_sWorker->_max_c_pts)).c_str());
 	ImGui::Text(("_max_c_pts_approx = " + std::to_string(_sWorker->_max_c_pts_approx)).c_str());
 	
-
 	ImGui::Text(("_k_edge = " + std::to_string(_sWorker->_element_list[0]._k_edge)).c_str());
 	//ImGui::Text(("_micro_1_thread = " + std::to_string(_sWorker->_micro_1_thread)).c_str());
 	//ImGui::Text(("_micro_n_thread = " + std::to_string(_sWorker->_micro_n_thread)).c_str());
@@ -163,36 +168,33 @@ bool Display::frameStarted(const Ogre::FrameEvent& evt)
 
 	if (SystemParams::_multithread_test)
 	{
-		/*
-		ImGui::Text(("C grid multi - single         = " + std::to_string(_sWorker->_cg_thread_t)      + " - " + std::to_string(_sWorker->_cg_cpu_t)).c_str());
-		ImGui::Text(("Closest pts multi - single    = " + std::to_string(_sWorker->_c_pt_thread_t)    + " - " + std::to_string(_sWorker->_c_pt_cpu_t)).c_str());
-		ImGui::Text(("Solve springs multi - single  = " + std::to_string(_sWorker->_springs_thread_t) + " - " + std::to_string(_sWorker->_springs_cpu_t)).c_str());
-		ImGui::Text(("Solve forces multi - single   = " + std::to_string(_sWorker->_solve_thread_t)   + " - " + std::to_string(_sWorker->_solve_cpu_t)).c_str());
-		*/
-
 		ImGui::Text(("C grid (N vs 1)          = " + std::to_string((int)_sWorker->_cg_multi_t.Avg()) + " vs " + std::to_string((int)_sWorker->_cg_single_t.Avg())).c_str());
 		ImGui::Text(("Everything else (N vs 1) = " + std::to_string((int)_sWorker->_almostall_multi_t.Avg()) + " vs " + std::to_string((int)_sWorker->_almostall_single_t.Avg())).c_str());
 	}
 	else
 	{
-		/*
-		ImGui::Text(("C grid threads t         = " + std::to_string(_sWorker->_cg_thread_t)).c_str());	
-		ImGui::Text(("Closest pts threads t    = " + std::to_string(_sWorker->_c_pt_thread_t)).c_str());
-		ImGui::Text(("Solve springs threads t  = " + std::to_string(_sWorker->_springs_thread_t)).c_str());
-		ImGui::Text(("Solve forces threads t   = " + std::to_string(_sWorker->_solve_thread_t)).c_str());
-		*/
-
 		ImGui::Text(("C grid          = " + std::to_string((int)_sWorker->_cg_multi_t.Avg())).c_str());
 		ImGui::Text(("Everything else = " + std::to_string((int)_sWorker->_almostall_multi_t.Avg())).c_str());
 	}
 
 	if (ImGui::Button("Reload parameters")) { SystemParams::LoadParameters(); }
 	if (ImGui::Button("Save Triangles to PNGs")) { _sWorker->SaveFrames3(); }
-	if (ImGui::Button("Save Elements to PNGs")) { _sWorker->SaveFrames4(); }
+	if (ImGui::Button("Save Elements to PNGs")) 
+	{ 
+		// delete folder
+		std::stringstream ss;
+		ss << "del /Q " << SystemParams::_save_folder << "*.*";
+		std::system(ss.str().c_str());
+
+		// stuff
+		_sWorker->SaveFrames4();
+		_sWorker->SaveStatistics();
+		_sWorker->SaveScene();
+	}
 	if (ImGui::Button("Pause/Resume Simulation")) { _sWorker->_is_paused = !_sWorker->_is_paused; }
-	//if (ImGui::Button("Print k edge")) { _sWorker->_element_list[0].PrintKEdgeArray(); }
-	//if (ImGui::Button("Button B")) {}
-	//if (ImGui::Button("Button C")) {}
+
+	//bool shouldQuit = false;
+	//if (ImGui::Button("Quit")) { shouldQuit = true; }
 	
 	ImGui::Text("Viz:");
 	ImGui::Checkbox("Container",               &SystemParams::_show_container);
@@ -233,17 +235,9 @@ bool Display::frameStarted(const Ogre::FrameEvent& evt)
 	ImGui::Text("Press C to activate or deactivate camera");
 	ImGui::Text("Press X to pause/resume simulation");
 	
-
-	/*Ogre::Vector3 camPos = _cameraNode->getPosition();
-	ImGui::Text("Camera position = ");
-	ImGui::Text( (std::to_string(camPos.x)).c_str());
-	ImGui::Text((std::to_string(camPos.y)).c_str());
-	ImGui::Text((std::to_string(camPos.z)).c_str());*/
-	//ImGui::Text( ("Camera position = " + std::to_string(camPos.x) + ", " + std::to_string(camPos.y) + ", " + std::to_string(camPos.z)).c_str()  );
-	// //Ogre::Vector3 camPos = _cameraNode->getPosition();
-	
 	ImGui::End();
-	//ImGui::Render();
+
+	//if (shouldQuit) { return false; } // you do this to quit
 
 	return true;
 }
@@ -331,7 +325,7 @@ void Display::setup()
 	*/
 
 	_sWorker = new StuffWorker;
-	_sWorker->InitElements2(_scnMgr);
+	_sWorker->InitElementsAndCGrid(_scnMgr); // NEVER REPLACE THIS FUNCTION
 	_sWorker->_containerWorker->CreateOgreContainer(_scnMgr);
 
 	//CreateCubeFromLines();

@@ -40,12 +40,13 @@ min_of(const T& a, const T& b, const Args& ...args)
 
 AnElement::AnElement()
 {
+	this->_center_mass_idx = 0;
 	this->_tubeObject          = 0;
 	this->_sceneNode           = 0;
 	this->_numPointPerLayer    = 0;
 	this->_numBoundaryPointPerLayer = 0;
 
-	this->_layer_center = A2DVector(250, 250);
+	this->_layer_center = A2DVector(250, 250); // TriangulationThatIsnt()
 
 	this->_scale = 1.0f;
 	//this->_maxScale = SystemParams::_element_max_scale;
@@ -100,6 +101,25 @@ AnElement::~AnElement()
 	_sceneNode = 0;
 	}*/
 
+}
+
+void AnElement::GetCenterMassIdx() // See TriangulationThatIsnt()
+{
+	//_layer_center
+	float dist = 100000000000;
+
+	OpenCVWrapper cvWrapper;
+	A2DVector ctr = cvWrapper.GetCenter(UtilityFunctions::Convert3Dto2D(_per_layer_boundary[0]));
+
+	for (int a = _numBoundaryPointPerLayer; a < _numPointPerLayer; a++)
+	{
+		float d = _massList[a]._pos.GetA2DVector().Distance(ctr);
+		if (d < dist)
+		{
+			dist = d;
+			_center_mass_idx = a;
+		}
+	}
 }
 
 void AnElement::UpdatePerLayerInsideFlags()
@@ -219,7 +239,7 @@ void AnElement::CreateDockPoint(A2DVector queryPos, A2DVector lockPos, int layer
 {
 	std::cout << "layer_idx = " << layer_idx << "\n";
 
-	int massListIdx = -1;
+	/*int massListIdx = -1;
 	float dist = 100000;
 	int l1 = layer_idx * _numPointPerLayer;
 	int l2 = l1 + _numPointPerLayer; // consider all points in the layer
@@ -229,32 +249,26 @@ void AnElement::CreateDockPoint(A2DVector queryPos, A2DVector lockPos, int layer
 
 	for (int a = l1; a < l2; a++)
 	{
-		//if (_massList[a]._layer_idx == layer_idx)
-		//{
 		float d = _massList[a]._pos.GetA2DVector().Distance(queryPos);
-
-		//std::cout << d << "\n";
 
 		if (d < dist)
 		{
 			dist = d;
 			massListIdx = a;
 		}
-		//}
 	}
 
 	if (massListIdx == -1)
 	{
 		std::cout << "error massListIdx == -1\n";
-	}
+	}*/
+	int massListIdx = (layer_idx * _numPointPerLayer) + _center_mass_idx;
 
 	_massList[massListIdx]._isDocked = true;
 	// you probably want the dockpoint be 2D?
 	_massList[massListIdx]._dockPoint = A3DVector(lockPos.x, lockPos.y, _massList[massListIdx]._pos._z);
 
 	_dock_mass_idx.push_back(massListIdx);
-	//_debug_lines_2->addPoint(Ogre::Vector3(_massList[massListIdx]._pos._x, _massList[massListIdx]._pos._y, _massList[massListIdx]._pos._z));
-	//_debug_lines_2->addPoint(Ogre::Vector3(_massList[massListIdx]._dockPoint._x, _massList[massListIdx]._dockPoint._y, _massList[massListIdx]._dockPoint._z));
 }
 
 void AnElement::Docking(std::vector<A3DVector> aPath, std::vector<int> layer_indices)
@@ -263,7 +277,7 @@ void AnElement::Docking(std::vector<A3DVector> aPath, std::vector<int> layer_ind
 	float zGap = SystemParams::_upscaleFactor / (float)(SystemParams::_num_layer - 1);
 
 	// calculating offset based on bounding square
-	A2DRectangle bb = UtilityFunctions::GetBoundingBox(UtilityFunctions::Convert2Dto3D(_per_layer_boundary[0]));
+	A2DRectangle bb = UtilityFunctions::GetBoundingBox(UtilityFunctions::Convert3Dto2D(_per_layer_boundary[0]));
 	float width_offset = bb.witdh;
 	if (bb.height > width_offset) width_offset = bb.height;
 	width_offset /= 2.0f;
@@ -330,7 +344,7 @@ void AnElement::DockEnds(A2DVector startPt2D, A2DVector endPt2D, bool lockEnds)
 
 
 	// calculating offset based on bounding square
-	A2DRectangle bb = UtilityFunctions::GetBoundingBox(UtilityFunctions::Convert2Dto3D ( _per_layer_boundary[0]) );
+	A2DRectangle bb = UtilityFunctions::GetBoundingBox(UtilityFunctions::Convert3Dto2D( _per_layer_boundary[0]) );
 	float width_offset = bb.witdh;
 	if(bb.height > width_offset) width_offset = bb.height;
 	width_offset /= 2.0f;
@@ -607,7 +621,7 @@ void AnElement::TriangularizationThatIsnt(int self_idx)
 	// WARNING BAD CODE
 	A2DRectangle bb = UtilityFunctions::GetBoundingBox(_arts[0]);
 	_layer_center = bb.GetCenter();
-	//std::cout << "layer_center = (" << _layer_center.x << ", " << _layer_center.y << ")\n";
+	
 
 	// -----  mass -----
 	for (int a = 0; a < _massList.size(); a++)
@@ -761,6 +775,9 @@ void AnElement::TriangularizationThatIsnt(int self_idx)
 			_per_layer_boundary[layerIdx].push_back(_massList[a]._pos);
 		}
 	}
+
+	// for docking !!!!
+	GetCenterMassIdx();
 
 	// for closest point
 	for (int a = 0; a < _numBoundaryPointPerLayer; a++)
@@ -1110,11 +1127,11 @@ void AnElement::CalculateRestStructure()
 
 	//std::vector<A2DVector> _layer_center_array; // OpenCVWrapper::GetCenter
 	OpenCVWrapper cvWrapper;
-	_layer_center_array.clear();
+	_ori_layer_center_array.clear();
 	for (int a = 0; a < SystemParams::_num_layer; a++)
 	{
 		A2DVector centerPt = cvWrapper.GetCenter(_per_layer_boundary[a]);
-		_layer_center_array.push_back(centerPt);
+		_ori_layer_center_array.push_back(centerPt);
 	}
 
 	//std::vector<A3DVector> _rest_mass_pos_array;
@@ -1137,16 +1154,17 @@ void AnElement::CalculateRestStructure()
 	std::cout << "\n";
 }*/
 
-bool AnElement::StillGrowing()
+int AnElement::StillGrowing()
 {
+	int ctr = 0;
 	for (int a = 0; a < SystemParams::_num_layer; a++)
 	{
-		if (_layer_scale_array[a] < SystemParams::_element_max_scale)
+		if (/*_layer_scale_array[a] < SystemParams::_element_max_scale && */ !_insideFlags[a])
 		{
-			return true;
+			ctr++;
 		}
 	}
-	return false;
+	return ctr;
 }
 
 void AnElement::Grow(float growth_scale_iter, float dt)
@@ -1221,10 +1239,10 @@ void AnElement::Grow(float growth_scale_iter, float dt)
 		if (!_insideFlags[layer_idx]/* && _layer_scale_array[layer_idx] < SystemParams::_element_max_scale*/) // new
 		{
 			A2DVector pos = _ori_rest_mass_pos_array[a].GetA2DVector();
-			pos -= _layer_center_array[layer_idx];
+			pos -= _ori_layer_center_array[layer_idx];
 			//pos *= _scale; // old
 			pos *= _layer_scale_array[layer_idx];
-			pos += _layer_center_array[layer_idx];
+			pos += _ori_layer_center_array[layer_idx];
 			_rest_mass_pos_array[a]._x = pos.x;
 			_rest_mass_pos_array[a]._y = pos.y;
 		}
@@ -1633,8 +1651,140 @@ void AnElement::InitMeshOgre3D(Ogre::SceneManager* sceneMgr,
 	_not_growing_elements_node->attachObject(_not_growing_elements_lines);
 	// ------------------------------------------
 
-	// CHECK DynamicLines.cpp !!!
-	// mBox.setExtents(Vector3(-50000, -50000, -50000), Vector3(50000, 50000, 50000));
+	//_arts_lines;
+	//_arts_node;
+	Ogre::MaterialPtr arts_mat = Ogre::MaterialManager::getSingleton().getByName("Examples/RedMat")->clone("arts_mat_" + std::to_string(_elem_idx));
+	arts_mat->getTechnique(0)->getPass(0)->setDiffuse(Ogre::ColourValue(0, 0, 1, 1));
+	_arts_lines = new DynamicLines(arts_mat, Ogre::RenderOperation::OT_LINE_LIST);
+	for (int a = 0; a < _arts.size(); a++)
+	{
+		int len = _arts[a].size();
+		for (int b = 0; b < len - 1; b++)
+		{
+			A2DVector pt1 = _arts[a][b];
+			A2DVector pt2 = _arts[a][b + 1];
+			_arts_lines->addPoint(Ogre::Vector3(pt1.x, pt1.y, 0));
+			_arts_lines->addPoint(Ogre::Vector3(pt2.x, pt2.y, 0));
+		}
+		A2DVector pt1 = _arts[a][0];
+		A2DVector pt2 = _arts[a][len - 1];
+		_arts_lines->addPoint(Ogre::Vector3(pt1.x, pt1.y, 0));
+		_arts_lines->addPoint(Ogre::Vector3(pt2.x, pt2.y, 0));
+	}
+	_arts_lines->update();
+	_arts_node = _sceneMgr->getRootSceneNode()->createChildSceneNode("arts_node_" + std::to_string(_elem_idx));
+	_arts_node->attachObject(_arts_lines);
+
+	//_center_node
+	//_center_lines
+	/*Ogre::MaterialPtr center_mat = Ogre::MaterialManager::getSingleton().getByName("Examples/RedMat")->clone("center_mat_" + std::to_string(_elem_idx));
+	center_mat->getTechnique(0)->getPass(0)->setDiffuse(Ogre::ColourValue(1, 0, 0, 1));
+	_center_lines = new DynamicLines(center_mat, Ogre::RenderOperation::OT_LINE_LIST);
+	
+	for (int a = 0; a < SystemParams::_num_layer; a++)
+	{
+		A3DVector pt(0, 0, 0);
+
+		float offsetVal = 2;
+		_center_lines->addPoint(Ogre::Vector3(pt._x - offsetVal, pt._y, pt._z));
+		_center_lines->addPoint(Ogre::Vector3(pt._x + offsetVal, pt._y, pt._z));
+		_center_lines->addPoint(Ogre::Vector3(pt._x, pt._y - offsetVal, pt._z));
+		_center_lines->addPoint(Ogre::Vector3(pt._x, pt._y + offsetVal, pt._z));
+	}
+
+	_center_lines->update();
+	_center_node = _sceneMgr->getRootSceneNode()->createChildSceneNode("center_node_" + std::to_string(_elem_idx));
+	_center_node->attachObject(_center_lines);*/
+}
+
+void AnElement::RecalculateArts()
+{
+	AnIdxTriangle tri(0, 0, 0);
+	ABary bary(0, 0, 0);
+
+	int idx_offset = 0;
+	if (SystemParams::_layer_slider_int > 0)
+	{
+		idx_offset = SystemParams::_layer_slider_int * _numTrianglePerLayer;
+	}
+
+	int art_sz = _arts.size();
+	for (unsigned int a = 0; a < art_sz; a++)
+	{
+		int art_sz_2 = _arts[a].size();
+		for (unsigned int b = 0; b < art_sz_2; b++)
+		{
+			tri = _triangles[_arts2Triangles[a][b] + idx_offset];
+
+			bary = _baryCoords[a][b];
+			_arts[a][b] = _massList[tri.idx0]._pos.GetA2DVector() * bary._u +
+				_massList[tri.idx1]._pos.GetA2DVector() * bary._v +
+				_massList[tri.idx2]._pos.GetA2DVector() * bary._w;
+		}
+	}
+}
+
+void AnElement::UpdateArtsOgre3D()
+{
+	if(SystemParams::_show_arts)
+	{
+
+		RecalculateArts();
+
+		_arts_node->setVisible(true);
+
+		int idx = 0;
+
+		float z_pos = 0;
+		if (SystemParams::_layer_slider_int > 0)
+		{
+			float z_gap = -((float)SystemParams::_upscaleFactor / (float)SystemParams::_num_layer);
+			z_pos = SystemParams::_layer_slider_int * z_gap;
+		}
+
+		for (int a = 0; a < _arts.size(); a++)
+		{
+			int len = _arts[a].size();
+			for (int b = 0; b < len - 1; b++)
+			{
+				A2DVector pt1 = _arts[a][b];
+				A2DVector pt2 = _arts[a][b + 1];
+				_arts_lines->setPoint(idx++, Ogre::Vector3(pt1.x, pt1.y, z_pos));
+				_arts_lines->setPoint(idx++, Ogre::Vector3(pt2.x, pt2.y, z_pos));
+			}
+			A2DVector pt1 = _arts[a][0];
+			A2DVector pt2 = _arts[a][len - 1];
+			_arts_lines->setPoint(idx++, Ogre::Vector3(pt1.x, pt1.y, z_pos));
+			_arts_lines->setPoint(idx++, Ogre::Vector3(pt2.x, pt2.y, z_pos));
+		}
+
+		_arts_lines->update();
+	}
+	else
+	{
+		_arts_node->setVisible(false);
+	}
+}
+
+void  AnElement::UpdateCenterOgre3D()
+{
+	/*int idx = 0;
+
+
+	float z_gap = -((float)SystemParams::_upscaleFactor / (float)SystemParams::_num_layer);
+	for (int a = 0; a < SystemParams::_num_layer; a++)
+	{
+		A2DVector pt = _ori_layer_center_array[a];
+		float z_pos = z_gap * a;
+
+		float offsetVal = 2;
+		_center_lines->addPoint(Ogre::Vector3(pt.x - offsetVal, pt.y, z_pos));
+		_center_lines->addPoint(Ogre::Vector3(pt.x + offsetVal, pt.y, z_pos));
+		_center_lines->addPoint(Ogre::Vector3(pt.x, pt.y - offsetVal, z_pos));
+		_center_lines->addPoint(Ogre::Vector3(pt.x, pt.y + offsetVal, z_pos));
+	}
+
+	_center_lines->update();*/
 }
 
 void AnElement::UpdateClosestTriOgre3D()
@@ -2423,6 +2573,13 @@ std::vector<std::vector<A2DVector>> AnElement::GetBilinearInterpolatedArt(std::v
 			A2DVector pt = triangles[_arts2Triangles[a][b]][0] * bary._u +
 				           triangles[_arts2Triangles[a][b]][1] * bary._v + 
 						   triangles[_arts2Triangles[a][b]][2] * bary._w;
+
+			// 
+			if (pt.x < -100 || pt.x > SystemParams::_upscaleFactor + 100 || pt.y < -100 || pt.y > SystemParams::_upscaleFactor + 100 || pt.IsBad())
+			{
+				std::cout << "error, pt = ( " << pt.x << ", " << pt.y << "), bary = (" << bary._u << ", " << bary._v << ", " << bary._w << ")\n";
+			}
+
 			a_array.push_back(pt);
 		}
 		transformedArts.push_back(a_array);
@@ -2430,8 +2587,8 @@ std::vector<std::vector<A2DVector>> AnElement::GetBilinearInterpolatedArt(std::v
 	return transformedArts;
 }
 
-void AnElement::BiliniearInterpolationTriangle(std::vector<std::vector<A3DVector>>& triangleA,      // 3D
-											   std::vector<std::vector<A3DVector>>& triangleB,      // 3D
+void AnElement::BiliniearInterpolationTriangle(const std::vector<std::vector<A3DVector>>& triangleA,      // 3D
+											   const std::vector<std::vector<A3DVector>>& triangleB,      // 3D
 											   std::vector<std::vector<A2DVector>>& triangleInterp, // 2D
 											   float interVal)
 {
@@ -2446,13 +2603,36 @@ void AnElement::BiliniearInterpolationTriangle(std::vector<std::vector<A3DVector
 			float dir1_len;
 			A3DVector dir1_unit;
 			dir1.GetUnitAndDist(dir1_unit, dir1_len);
-			aTri2D.push_back( (pt1 + (dir1_unit * dir1_len * interVal)).GetA2DVector() );
+
+			A2DVector tPt = (pt1 + (dir1_unit * dir1_len * interVal)).GetA2DVector();
+
+			if (tPt.x < -100 || tPt.x > SystemParams::_upscaleFactor + 100 || tPt.y < -100 || tPt.y > SystemParams::_upscaleFactor + 100 || tPt.IsBad())
+			{
+				std::cout << "e1, tPt = (" << tPt.x << ", " << tPt.y << ")\n";
+				tPt = triangleA[a][b].GetA2DVectorConst();
+			}
+
+			if (tPt.x < -100 || tPt.x > SystemParams::_upscaleFactor + 100 || tPt.y < -100 || tPt.y > SystemParams::_upscaleFactor + 100 || tPt.IsBad())
+			{
+				std::cout << "e2, tPt = (" << tPt.x << ", " << tPt.y << ")\n";
+				tPt = triangleB[a][b].GetA2DVectorConst();
+			}
+
+			if (tPt.x < -100 || tPt.x > SystemParams::_upscaleFactor + 100 || tPt.y < -100 || tPt.y > SystemParams::_upscaleFactor + 100 || tPt.IsBad())
+			{
+				std::cout << "e3, tPt = (" << tPt.x << ", " << tPt.y << ")\n";
+			}
+
+			aTri2D.push_back(tPt);
 		}
 		triangleInterp.push_back(aTri2D);
 	}
 }
 
-void AnElement::BiliniearInterpolation(std::vector<A3DVector>& boundaryA, std::vector<A3DVector>& boundaryB, std::vector<A3DVector>& boundaryInterp, float interVal)
+void AnElement::BiliniearInterpolation(std::vector<A3DVector>& boundaryA, 
+	                                   std::vector<A3DVector>& boundaryB, 
+									   std::vector<A3DVector>& boundaryInterp, 
+	                                   float interVal)
 {
 	for (int b = 0; b < _numBoundaryPointPerLayer; b++)
 	{
@@ -2476,9 +2656,33 @@ void AnElement::CalculateLayerTriangles_Drawing()
 	for (unsigned int a = 0; a < _triangles.size(); a++)
 	{
 		std::vector<A3DVector> tri;
-		tri.push_back( _massList[_triangles[a].idx0]._pos );
-		tri.push_back( _massList[_triangles[a].idx1]._pos );
-		tri.push_back( _massList[_triangles[a].idx2]._pos );
+
+		A3DVector pt1 = _massList[_triangles[a].idx0]._pos;
+		A3DVector pt2 = _massList[_triangles[a].idx1]._pos;
+		A3DVector pt3 = _massList[_triangles[a].idx2]._pos;
+
+		// debug delete me
+		if (a < _numTrianglePerLayer)
+		{
+			if (pt1.IsBad()) 
+			{
+				std::cout << "pt1 = (" << pt1._x << ", " << pt1._y << ", " << pt1._z << "). _triangles[a].idx0 ="  << _triangles[a].idx0 << ". _masslist size = " << _massList.size() << " \n";
+			}
+
+			if (pt2.IsBad())
+			{
+				std::cout << "pt2 = (" << pt2._x << ", " << pt2._y << ", " << pt2._z << "). _triangles[a].idx1 =" << _triangles[a].idx1 << ". _masslist size = " << _massList.size() << " \n";
+			}
+
+			if (pt3.IsBad())
+			{
+				std::cout << "pt3 = (" << pt3._x << ", " << pt3._y << ", " << pt3._z << "). _triangles[a].idx2 =" << _triangles[a].idx2 << ". _masslist size = " << _massList.size() << " \n";
+			}
+		}
+
+		tri.push_back(pt1);
+		tri.push_back(pt2);
+		tri.push_back(pt3);
 		allActualTriangles3D.push_back(tri);
 	}
 	
@@ -2519,19 +2723,24 @@ void AnElement::CalculateLayerTriangles_Drawing()
 
 		if (z_iter < cur_layer_z_pos && z_iter > next_layer_z_pos)
 		{
+			std::cout << ">";
+
 			// create a new frame!
 			float l_2_l = -(next_layer_z_pos - cur_layer_z_pos); // positive, layer to layer dist
 			float p_2_l = -(z_iter - cur_layer_z_pos);           // positive, png to layer dist
 			float interp_ratio = p_2_l / l_2_l;
 
-			// interpolation code here
-			// dammi* the wost code I've ever had
-			
-			//std::vector<std::vector<A3DVector>> triangleA(&allActualTriangles3D[(tube_layer_iter) * _numTrianglePerLayer],     &allActualTriangles3D[(tube_layer_iter + 1) * _numTrianglePerLayer]); // 3D, tube_layer_iter
+			//std::cout << interp_ratio << " ";
+
+			//if (l_2_l < 1e-10)
+			//{
+			//	std::cout << "error!";
+			//}
+
 			first_iter = allActualTriangles3D.begin() + ((tube_layer_iter) * _numTrianglePerLayer);
 			last_iter = allActualTriangles3D.begin() + ((tube_layer_iter + 1) * _numTrianglePerLayer);
 			std::vector<std::vector<A3DVector>> triangleA(first_iter, last_iter);
-			//std::vector<std::vector<A3DVector>> triangleB(&allActualTriangles3D[(tube_layer_iter + 1) * _numTrianglePerLayer], &allActualTriangles3D[(tube_layer_iter + 2) * _numTrianglePerLayer]); // 3D, tube_layer_iter + 1
+
 			first_iter = allActualTriangles3D.begin() + ((tube_layer_iter + 1) * _numTrianglePerLayer);
 			last_iter = allActualTriangles3D.begin() + ((tube_layer_iter + 2) * _numTrianglePerLayer);
 			std::vector<std::vector<A3DVector>> triangleB(first_iter, last_iter);
@@ -2543,11 +2752,15 @@ void AnElement::CalculateLayerTriangles_Drawing()
 			z_iter -= z_step;
 			png_iter++;
 		}
-		else if (z_iter < next_layer_z_pos)		{
+		else /*if (z_iter < next_layer_z_pos)*/ // make sure not infinite loop		
+		{
+			std::cout << "-";
 			// move on			
 			tube_layer_iter++;
 		}
 	}
+
+	std::cout << "\n";
 
 	// last one
 	{
@@ -2801,8 +3014,11 @@ void AnElement::SolveForSprings3D()
 		eForce = dir * k *  diff * diff * signVal;
 		//eForce = dir * k *  diff;
 
+		if(!eForce.IsBad())
+		{
 		_massList[idx0]._edgeForce += eForce;
 		_massList[idx1]._edgeForce -= eForce;
+		}
 	}
 
 	// ----- 11111 Time Spring -----
@@ -2824,8 +3040,11 @@ void AnElement::SolveForSprings3D()
 		eForce = dir * k *  diff * diff * signVal;
 		//eForce = dir * k *  diff;
 
-		_massList[idx0]._edgeForce += eForce;
-		_massList[idx1]._edgeForce -= eForce;
+		if (!eForce.IsBad())
+		{
+			_massList[idx0]._edgeForce += eForce;
+			_massList[idx1]._edgeForce -= eForce;
+		}
 	}
 
 	// ----- 22222 Auxiliary Spring -----
@@ -2858,8 +3077,11 @@ void AnElement::SolveForSprings3D()
 			eForce = dir * k_aux *  diff * diff * signVal;
 			//eForce = dir * k *  diff;
 
-			_massList[idx0]._edgeForce += eForce;
-			_massList[idx1]._edgeForce -= eForce;
+			if (!eForce.IsBad())
+			{
+				_massList[idx0]._edgeForce += eForce;
+				_massList[idx1]._edgeForce -= eForce;
+			}
 		}
 	}
 
@@ -2884,8 +3106,11 @@ void AnElement::SolveForSprings3D()
 			eForce = dir * k *  diff * diff * signVal;
 			//eForce = dir * k *  diff;
 
-			_massList[idx0]._edgeForce += eForce;
-			_massList[idx1]._edgeForce -= eForce;
+			if (!eForce.IsBad())
+			{
+				_massList[idx0]._edgeForce += eForce;
+				_massList[idx1]._edgeForce -= eForce;
+			}
 		}
 
 		/*diff = dist - _neg_space_springs[a]._dist;

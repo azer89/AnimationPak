@@ -164,9 +164,10 @@ void StuffWorker::InitSavedScenes(Ogre::SceneManager* scnMgr)
 void StuffWorker::JitterPosAndRotation(float pos_max_offset, A2DVector& pos_offset, float& rot_val)
 {
 	// https_//stackoverflow.com/questions/686353/random-float-number-generation
+	float twice_offset = pos_max_offset * 2.0f;
 
-	pos_offset.x = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / pos_max_offset));
-	pos_offset.y = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / pos_max_offset));
+	pos_offset.x = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / pos_max_offset)) - twice_offset;
+	pos_offset.y = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / pos_max_offset)) - twice_offset;
 
 	float PI = 3.14159265359;
 
@@ -203,49 +204,26 @@ void StuffWorker::InitAnimated_Elements(Ogre::SceneManager* scnMgr)
 	 
 	DockElementsOnPaths(paths, layer_indices, temp_elements, scnMgr);
 
+	
 
-	/*A2DVector startPt(100, 100);
-	A2DVector endPt(400, 400);
-	{
-		int idx = 0;
-
-		AnElement elem = temp_elements[idx % temp_elem_sz];
-		elem.TriangularizationThatIsnt(idx);
-		//elem.SetIndex(idx);
-
-		A2DVector move_dir = startPt.DirectionTo(endPt);
-		float radAngle = UtilityFunctions::Angle2D(-1, 0, move_dir.x, move_dir.y);
-		//float radAngle = float(rand() % 628) / 100.0;
-		elem.RotateXY(radAngle);
-
-		elem.ScaleXY(initialScale);
-		elem.TranslateXY(startPt.x, startPt.y);
-
-		elem.UpdateLayerBoundaries(); // per_layer_boundary
-		elem.CalculateRestStructure(); // calculate rest
-
-		elem.DockEnds(startPt, endPt); // docking
-
-		elem.CalculateRestStructure(); // calculate rest
-
-		Ogre::SceneNode* pNode = scnMgr->getRootSceneNode()->createChildSceneNode("TubeNode" + std::to_string(idx));
-		elem.InitMeshOgre3D(scnMgr, pNode, "Tube_" + std::to_string(idx), "Examples/TransparentTest2");
-		_element_list.push_back(elem);
-	}*/
-
+	std::random_shuffle(positions.begin(), positions.end());
 
 	//for (int a = 0; a < SystemParams::_num_element_pos_limit; a++)
 	for (int a = 0; a < positions.size(); a++)
 	{
 		int idx = _element_list.size();
 
-		//AnElement elem = temp_elements[idx % temp_elem_sz];
-		AnElement elem = temp_elements[1];
+		int temp_elem_idx = (a % (temp_elem_sz - 1)) + 1;
+		AnElement elem = temp_elements[temp_elem_idx];
 		//elem.SetIndex(idx);
 
 		elem.TriangularizationThatIsnt(idx);
 
-		float radAngle = float(rand() % 628) / 100.0;
+		//float radAngle = float(rand() % 628) / 100.0;
+		//elem.RotateXY(radAngle);
+		float radAngle;
+		A2DVector offset;
+		JitterPosAndRotation(3, offset, radAngle);
 		elem.RotateXY(radAngle);
 
 		elem.ScaleXY(initialScale);
@@ -603,13 +581,14 @@ void StuffWorker::SaveStatistics()
 	pIO.SaveText(ss.str(), SystemParams::_save_folder + "run_info.txt");
 }
 
-bool StuffWorker::StillGrowing()
+int StuffWorker::StillGrowing()
 {
+	int ctr = 0;
 	for (int a = 0; a < _element_list.size(); a++)
 	{
-		if (_element_list[a].StillGrowing()) { return true; }
+		ctr += _element_list[a].StillGrowing();
 	}
-	return false;
+	return ctr;
 }
 
 
@@ -1170,6 +1149,8 @@ void StuffWorker::UpdateOgre3D()
 		_element_list[a].UpdateClosestSliceOgre3D();
 		_element_list[a].UpdateClosestTriOgre3D();
 		_element_list[a].UpdateGrowingOgre3D();
+		_element_list[a].UpdateCenterOgre3D();
+		_element_list[a].UpdateArtsOgre3D();
 	}
 
 	StuffWorker::_c_grid_3d->UpdateOgre3D();
@@ -1186,6 +1167,7 @@ void StuffWorker::SaveFrames4()
 {
 	for (int a = 0; a < _element_list.size(); a++)
 	{
+		std::cout << "(a) elem=" << a << "\n";
 		_element_list[a].CalculateLayerTriangles_Drawing();
 	}
 
@@ -1199,16 +1181,14 @@ void StuffWorker::SaveFrames4()
 	
 	for (int i = 0; i < _element_list.size(); i++)
 	{
-		std::cout << "elem=" << i << "\n";
-		//MyColor col = _element_list[i]._color;
-		//MyColor col(41, 102, 211);
+		std::cout << "(b) elem=" << i << "\n";
 		std::vector<std::vector<std::vector<A2DVector>>> per_layer_triangle_drawing = _element_list[i]._per_layer_triangle_drawing;
 		for (int l = 0; l < per_layer_triangle_drawing.size(); l++)
 		{
 			std::vector<std::vector<A2DVector>> triangles_in_a_layer = per_layer_triangle_drawing[l];
 			std::vector<std::vector<A2DVector>> arts = UtilityFunctions::FlipY(_element_list[i].GetBilinearInterpolatedArt(triangles_in_a_layer), yCenter);
-			//vCreator.DrawFilledArt(arts, col, l);
 			vCreator.DrawFilledArt(arts, _element_list[i]._art_b_colors, _element_list[i]._art_f_colors, l);
+
 		}
 	}
 

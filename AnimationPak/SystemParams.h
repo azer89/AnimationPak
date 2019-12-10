@@ -110,6 +110,7 @@ public:
 	static bool _show_collision_grid;
 	static bool _show_collision_grid_object;
 	static bool _show_surface_tri;
+	static bool _show_arts;
 
 	static bool _show_growing_elements;
 
@@ -133,6 +134,8 @@ public:
 
 	static int _layer_slider_int;
 
+
+	static int _num_layer_growing_threshold;
 };
 
 #endif

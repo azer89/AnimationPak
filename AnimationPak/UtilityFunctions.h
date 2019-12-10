@@ -26,8 +26,8 @@ class UtilityFunctions
 {
 public:
 
-	// 2D to 3D
-	static std::vector<A2DVector> Convert2Dto3D(std::vector<A3DVector> poly);
+	// 3D to 2D
+	static std::vector<A2DVector> Convert3Dto2D(std::vector<A3DVector> poly);
 
 	// array index
 	static int GetIndexFromIntList(const std::vector<int>& aList, int elem);

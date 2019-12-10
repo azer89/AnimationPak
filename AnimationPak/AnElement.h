@@ -30,6 +30,9 @@ public:
 	AnElement();
 	~AnElement();
 
+	int _center_mass_idx;
+	void GetCenterMassIdx();
+
 
 	// call it exactly once before simulation
 	// or the collision grid gets angry
@@ -46,8 +49,8 @@ public:
 		                        std::vector<A3DVector>& boundaryB, 
 		                        std::vector<A3DVector>& boundaryInterp, 
 		                        float interVal);
-	void BiliniearInterpolationTriangle(std::vector<std::vector<A3DVector>>& triangleA,
-		                                std::vector<std::vector<A3DVector>>& triangleB,
+	void BiliniearInterpolationTriangle(const std::vector<std::vector<A3DVector>>& triangleA,
+		                                const std::vector<std::vector<A3DVector>>& triangleB,
 		                                std::vector<std::vector<A2DVector>>& triangleInterp,
 		                                float interVal);
 	std::vector<std::vector<A2DVector>> GetBilinearInterpolatedArt(std::vector<std::vector<A2DVector>> triangles);
@@ -97,7 +100,7 @@ public:
 	A3DVector ClosestPtOnATriSurface_Const(int triIdx, A3DVector pos) const;
 
 	void Grow(float growth_scale_iter, float dt);
-	bool StillGrowing();
+	int StillGrowing();
 
 	//void PrintKEdgeArray();
 
@@ -140,8 +143,13 @@ public:
 	void UpdateVelocityMagnitudeOgre3D();
 	void UpdateTimeEdgesOgre3D();
 	void UpdateGrowingOgre3D();
+	void UpdateCenterOgre3D();
+	void UpdateArtsOgre3D();
 	// ---------- Ogre 3D ----------
-
+	
+	
+	void RecalculateArts();
+	
 	// ----- interpolation ----- 
 	//A2DVector Interp_ClosestPtOnALayer(A2DVector pt, int layer_idx);
 	//void Interp_UpdateLayerBoundaries();
@@ -218,7 +226,7 @@ public:
 	// for growing
 	float _scale; // initially 1.0f, check SystemParamas
 	//float _maxScale; // check SystemParamas
-	std::vector<A2DVector> _layer_center_array; // 
+	std::vector<A2DVector> _ori_layer_center_array; // 
 	std::vector<A3DVector> _ori_rest_mass_pos_array; // before scaling
 	std::vector<A3DVector> _rest_mass_pos_array; // after scaling
 
@@ -303,8 +311,9 @@ public:
 
 	//DynamicLines*    _closet_pt_approx_lines_back;
 	//Ogre::SceneNode* _closet_pt_approx_node_back;
-
-
+	//DynamicLines*    _center_lines;
+	//Ogre::SceneNode* _center_node;
+	
 	// testing overlap
 	DynamicLines*    _overlap_lines;
 	Ogre::SceneNode* _overlap_node;
@@ -322,6 +331,9 @@ public:
 
 	DynamicLines*    _not_growing_elements_lines;
 	Ogre::SceneNode* _not_growing_elements_node;
+
+	DynamicLines*    _arts_lines;
+	Ogre::SceneNode* _arts_node;
 
 	//
 	int                                 _numTrianglePerLayer;  // number of triangle in just one layer

@@ -190,6 +190,7 @@
     <ClInclude Include="PathIO.h" />
     <ClInclude Include="PointCloud2D.h" />
     <ClInclude Include="PoissonGenerator.h" />
+    <ClInclude Include="SelfIntersectionFixer.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="StuffWorker.h" />
     <ClInclude Include="SystemParams.h" />
@@ -219,6 +220,7 @@
     <ClCompile Include="Octree.cpp" />
     <ClCompile Include="OpenCVWrapper.cpp" />
     <ClCompile Include="PathIO.cpp" />
+    <ClCompile Include="SelfIntersectionFixer.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>

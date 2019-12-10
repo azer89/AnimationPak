@@ -55,7 +55,7 @@ public:
 
 	void SaveScene();
 	void SaveStatistics();
-	bool StillGrowing();
+	int StillGrowing();
 
 
 	void Update();

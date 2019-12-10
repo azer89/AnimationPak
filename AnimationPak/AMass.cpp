@@ -457,7 +457,8 @@ void AMass::Solve(const std::vector<A2DVector>& container, const AnElement& pare
 				sumO += dir;
 			}
 			sumO *= SystemParams::_k_overlap;
-			 
+			
+			if (!sumO.IsBad())
 			{ this->_overlapForce += sumO; }
 		}
 		else
@@ -485,6 +486,7 @@ void AMass::Solve(const std::vector<A2DVector>& container, const AnElement& pare
 
 			sumR *= SystemParams::_k_repulsion;
 
+			if(!sumR.IsBad())
 			{
 				this->_repulsionForce += sumR;
 			}

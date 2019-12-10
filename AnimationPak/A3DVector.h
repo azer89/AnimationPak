@@ -294,6 +294,11 @@ public:
 	//{
 	//	return (_x < 0 || _x > SystemParams::_upscaleFactor || _y < 0 || _y > SystemParams::_upscaleFactor || _z < 0 || _z > SystemParams::_upscaleFactor);
 	//}
+	A2DVector GetA2DVectorConst() const
+	{
+		return A2DVector(_x, _y);
+	}
+
 
 	A2DVector GetA2DVector()
 	{

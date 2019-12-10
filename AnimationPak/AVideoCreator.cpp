@@ -1,7 +1,7 @@
 #include "AVideoCreator.h"
 #include "SystemParams.h"
 
-AVideoCreator::AVideoCreator() : _img_scale(2.0f)
+AVideoCreator::AVideoCreator() : _img_scale(4.0f)
 {
 
 }
@@ -52,10 +52,15 @@ void  AVideoCreator::DrawFilledArt(std::vector<std::vector<A2DVector>> arts,
 		{
 			_cvWrapper.DrawFilledPoly(_frames[frameIdx], arts[a], b_colors[a], _img_scale);
 		}
+		
 
 		if (f_colors[a].IsValid())
 		{
 			_cvWrapper.DrawPolyOnCVImage(_frames[frameIdx]._img, arts[a], f_colors[a], true, 1.0f, _img_scale);
+		}
+		else
+		{
+			_cvWrapper.DrawPolyOnCVImage(_frames[frameIdx]._img, arts[a], MyColor(0, 0, 0), true, 1.0f, _img_scale);
 		}
 	}
 }

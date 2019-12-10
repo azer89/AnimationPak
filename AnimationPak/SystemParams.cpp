@@ -109,7 +109,7 @@ void SystemParams::LoadParameters()
 	//std::cout << SystemParams::_window_title << "\n";
 	//std::cout << SystemParams::_save_folder << "\n";
 
-	
+	SystemParams::_num_layer_growing_threshold = script.get<int>("_num_layer_growing_threshold");
 
 	std::stringstream ss;
 	ss << "copy " << _lua_file << " " << SystemParams::_save_folder << "params.lua";
@@ -206,6 +206,7 @@ bool SystemParams::_show_approx_repulsion_forces = false;
 bool SystemParams::_show_collision_grid = false;
 bool SystemParams::_show_collision_grid_object = false;
 bool SystemParams::_show_surface_tri = false;
+bool SystemParams::_show_arts = false;
 
 bool SystemParams::_show_growing_elements = false;
 
@@ -228,3 +229,5 @@ bool SystemParams::_show_closest_tri = false;
 bool SystemParams::_show_container   = true;
 
 int SystemParams::_layer_slider_int  = -1;
+
+int SystemParams::_num_layer_growing_threshold = 0;

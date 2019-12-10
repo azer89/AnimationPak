@@ -3154,7 +3154,10 @@ void AnElement::SolveForSprings3D()
 			eForce2d = dir2d * k *  diff * diff * signVal;
 			//eForce = dir * k *  diff;
 
-			_massList[idx0]._edgeForce += A3DVector(eForce2d.x, eForce2d.y, 0);
+			if(!eForce2d.IsBad())
+			{
+				_massList[idx0]._edgeForce += A3DVector(eForce2d.x, eForce2d.y, 0);
+			}
 		}
 	}
 }

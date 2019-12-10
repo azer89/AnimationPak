@@ -16,7 +16,7 @@ _upscaleFactor   = 500.0;
 _downscaleFactor = 1.0 / _upscaleFactor;
 
 --- Time step for numerical integration (euler method)
-_dt = 0.2;   --- 0.05 for good result? (Do not set this higher than 0.1)
+_dt = 0.05; --- 0.05 for good result? (Do not set this higher than 0.1)
 
 --- random seed
 _seed = -1; --- negative means random
@@ -31,8 +31,8 @@ _num_threads = 12;
 
 --- Force parameters
 _k_connector           = 10;
-_k_edge_start          = 1.0;   -- 5 edge force for filling elements
-_k_edge_end            = 0.1;     --- 5 edge force for filling elements
+_k_edge_start          = 20;   -- 5 edge force for filling elements
+_k_edge_end            = 5;     --- 5 edge force for filling elements
 --_k_edge              = 40;	--- 0.5 edge force for filling elements
 _k_z                   = 1;   --- preventing layers to stray away in z direction
 _k_time_edge           = 0.002;
@@ -40,7 +40,7 @@ _k_neg_space_edge      = 0.1;	--- 0.01 edge force for springs
 --_k_edge_small_factor = 12;
 _k_repulsion           = 10.0;	--- 10 repulsion force
 
-_k_overlap             = 1;	    --- overlap force
+_k_overlap             = 5;	    --- overlap force
 _k_boundary            = 5;	--- 0.1 boundary force
 --_k_rotate              = 0;		--- 1
 _k_dock                = 0.1;
@@ -79,7 +79,7 @@ _max_m_c_pts_approx_len = 1000;
 
 
 --- for growing
-_growth_scale_iter     = 0.03; -- 0.01
+_growth_scale_iter     = 0.01; -- 0.01
 _element_initial_scale = 0.08; 
 _element_max_scale     = 8.5;  -- 8.25
 
@@ -115,5 +115,5 @@ _num_element_pos_limit = 1;
 _num_element_density   = 100;
 
 -- stopping criteria
-_num_layer_growing_threshold = 500; --100
+_num_layer_growing_threshold = 100; --100
 

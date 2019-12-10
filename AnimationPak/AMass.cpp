@@ -502,8 +502,10 @@ void AMass::Solve(const std::vector<A2DVector>& container, const AnElement& pare
 		A2DVector cPt = UtilityFunctions::GetClosestPtOnClosedCurve(container, pos2D);
 		A2DVector dirDist = pos2D.DirectionTo(cPt); // not normalized
 		A2DVector bForce = dirDist * k_boundary;
-		/*if (!bForce.IsBad())*/ 
-		{ this->_boundaryForce += A3DVector(bForce.x, bForce.y, 0); } // z is always 0 !!!
+		if (!bForce.IsBad()) 
+		{ 
+			this->_boundaryForce += A3DVector(bForce.x, bForce.y, 0); 
+		} // z is always 0 !!!
 	}
 
 	// --------- DOCKING FORCE	
@@ -514,7 +516,7 @@ void AMass::Solve(const std::vector<A2DVector>& container, const AnElement& pare
 		float dist = dir.Length();
 		dir = dir.Norm();
 		A3DVector eForce = (dir * SystemParams::_k_dock * dist);
-		/*if (!eForce.IsBad())*/
+		if (!eForce.IsBad())
 		{
 			_edgeForce += eForce;	
 		}
@@ -524,5 +526,9 @@ void AMass::Solve(const std::vector<A2DVector>& container, const AnElement& pare
 	float k_z = SystemParams::_k_z;
 	float z_dist = _ori_z_pos - _pos._z;
 	_zForce = A3DVector(0, 0, z_dist) * k_z;
+	if (_zForce.IsBad())
+	{
+		_zForce = A3DVector(0, 0, 0);
+	}
 
 }

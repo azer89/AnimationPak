@@ -30,7 +30,7 @@ _num_threads = 12;
 --_num_thread_solve   = 12;
 
 --- Force parameters
-_k_connector           = 10;
+_k_connector           = 5;
 _k_edge_start          = 20;   -- 5 edge force for filling elements
 _k_edge_end            = 5;     --- 5 edge force for filling elements
 --_k_edge              = 40;	--- 0.5 edge force for filling elements
@@ -81,7 +81,7 @@ _max_m_c_pts_approx_len = 1000;
 --- for growing
 _growth_scale_iter     = 0.01; -- 0.01
 _element_initial_scale = 0.08; 
-_element_max_scale     = 8.5;  -- 8.25
+_element_max_scale     = 9.0;  -- 8.25
 
 --- epsilon for halting the growth
 _growth_min_dist       = 3; 
@@ -105,8 +105,6 @@ _sampling_density         = 150; -- For triangulation
 _boundary_sampling_factor = 1.4;  -- lower means denser
 
 -- TODO distance to boundary so that elements do not protrude outside
-
-
 
 -- CONSIDER EDITING BOTH !!!
 -- number of elements

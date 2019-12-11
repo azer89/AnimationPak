@@ -98,12 +98,22 @@ void StuffWorker::DockElementsOnPaths(std::vector <std::vector<A3DVector>> paths
 
 	// scripted!
 	int last_layer_idx = SystemParams::_num_layer - 1;
-	_element_list[0].AddConnector(1, 0, last_layer_idx);
-	_element_list[1].AddConnector(0, last_layer_idx, 0);
+	_element_list[0].AddConnector(1,               // other_elem_idx
+		                          0,               // ur_layer_idx
+		                          last_layer_idx); // their_layer_idx
+
+	_element_list[1].AddConnector(0,               // other_elem_idx
+		                          last_layer_idx,  // ur_layer_idx
+		                          0);              // their_layer_idx
 
 	// scripted!
-	_element_list[0].AddConnector(1, last_layer_idx, 0);
-	_element_list[1].AddConnector(0, 0, last_layer_idx);
+	_element_list[0].AddConnector(1,              // other_elem_idx
+		                          last_layer_idx, // ur_layer_idx
+		                          0);             // their_layer_idx
+
+	_element_list[1].AddConnector(0,              // other_elem_idx
+		                          0,              // ur_layer_idx
+		                          last_layer_idx);// their_layer_idx
 }
 
 void StuffWorker::ConnectTubeEnds()
@@ -234,8 +244,12 @@ void StuffWorker::InitAnimated_Elements(Ogre::SceneManager* scnMgr)
 		Ogre::SceneNode* pNode = scnMgr->getRootSceneNode()->createChildSceneNode("TubeNode" + std::to_string(idx));
 		elem.InitMeshOgre3D(scnMgr, pNode, "Tube_" + std::to_string(idx), "Examples/TransparentTest2");
 		
-		
-		elem.AddConnector(idx, 0, SystemParams::_num_layer - 1);
+		// other_elem_idx
+		// int ur_layer_idx 
+		// int their_layer_idx
+		elem.AddConnector(idx, 
+			              0, 
+			              SystemParams::_num_layer - 1);
 
 		
 		

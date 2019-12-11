@@ -2666,17 +2666,17 @@ void AnElement::CalculateLayerTriangles_Drawing()
 		{
 			if (pt1.IsBad()) 
 			{
-				std::cout << "pt1 = (" << pt1._x << ", " << pt1._y << ", " << pt1._z << "). _triangles[a].idx0 ="  << _triangles[a].idx0 << ". _masslist size = " << _massList.size() << " \n";
+				std::cout << "pt1 = (" << pt1._x << ", " << pt1._y << ", " << pt1._z << "). _triangles[" << a << "].idx0 ="  << _triangles[a].idx0 << ". _masslist size = " << _massList.size() << " \n";
 			}
 
 			if (pt2.IsBad())
 			{
-				std::cout << "pt2 = (" << pt2._x << ", " << pt2._y << ", " << pt2._z << "). _triangles[a].idx1 =" << _triangles[a].idx1 << ". _masslist size = " << _massList.size() << " \n";
+				std::cout << "pt2 = (" << pt2._x << ", " << pt2._y << ", " << pt2._z << "). _triangles[" << a << "].idx1 =" << _triangles[a].idx1 << ". _masslist size = " << _massList.size() << " \n";
 			}
 
 			if (pt3.IsBad())
 			{
-				std::cout << "pt3 = (" << pt3._x << ", " << pt3._y << ", " << pt3._z << "). _triangles[a].idx2 =" << _triangles[a].idx2 << ". _masslist size = " << _massList.size() << " \n";
+				std::cout << "pt3 = (" << pt3._x << ", " << pt3._y << ", " << pt3._z << "). _triangles[" << a << "].idx2 =" << _triangles[a].idx2 << ". _masslist size = " << _massList.size() << " \n";
 			}
 		}
 
@@ -3143,20 +3143,30 @@ void AnElement::SolveForSprings3D()
 			dir_not_unit2d = pos1.DirectionTo(pos2);
 			dir_not_unit2d.GetUnitAndDist(dir2d, dist);
 
-			diff = dist;
+			//diff = dist;
 
+			if (dist <  std::numeric_limits<double>::epsilon() &&
+				dist > -std::numeric_limits<double>::epsilon()) 
+			{
+				continue;
+			}
 			// for neg space springs
 			//avg_l += dist;
 
 			// squared version
 			signVal = 1;
-			if (diff < 0) { signVal = -1; }
-			eForce2d = dir2d * k *  diff * diff * signVal;
+			if (dist < 0) { signVal = -1; }
+			eForce2d = dir2d * k *  dist * dist * signVal;
 			//eForce = dir * k *  diff;
 
 			if(!eForce2d.IsBad())
 			{
 				_massList[idx0]._edgeForce += A3DVector(eForce2d.x, eForce2d.y, 0);
+
+				if (other_elem_idx == _elem_idx) // OWN
+				{
+					_massList[idx1]._edgeForce -= A3DVector(eForce2d.x, eForce2d.y, 0);
+				}
 			}
 		}
 	}

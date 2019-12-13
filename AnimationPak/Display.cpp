@@ -34,9 +34,12 @@ Display::~Display()
 // called first before destructor
 void Display::shutdown()
 {
+	std::cout << "quit 2\n";
 	//std::cout << "shutdownshutdownshutdownshutdownshutdownshutdownshutdownshutdownshutdownshutdownshutdownshutdown";
 	if (_sWorker) { delete _sWorker; }
+	std::cout << "stuff worker destroyed\n";
 	OgreBites::ApplicationContext::shutdown();
+	std::cout << "ApplicationContext::shutdown <-- did this\n";
 }
 
 // loop
@@ -151,6 +154,8 @@ bool Display::frameStarted(const Ogre::FrameEvent& evt)
 		_sWorker->SaveFrames4();
 		_sWorker->SaveStatistics();
 		_sWorker->SaveScene();
+
+		std::cout << "quit 1\n";
 
 		return false;
 	}

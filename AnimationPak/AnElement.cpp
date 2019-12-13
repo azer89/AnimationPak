@@ -78,10 +78,13 @@ AnElement::~AnElement()
 {
 	// still can't create proper destructor ???
 	// maybe they're automatically deleted???
+	
 	_tubeObject = 0;
 	_sceneNode = 0;
 	_sceneMgr = 0;
-	_material.reset();
+	//std::cout << "_tubeObject _sceneNode _sceneMgr\n";
+
+	//_material.reset();
 
 
 	/*if (_tubeObject)
@@ -2326,7 +2329,7 @@ void AnElement::UpdateSpringDisplayOgre3D()
 // visualization
 void AnElement::UpdateMeshOgre3D()
 {
-	if (_tubeObject->getDynamic() == true && _tubeObject->getNumSections() > 0)
+	/*if (_tubeObject->getDynamic() == true && _tubeObject->getNumSections() > 0)
 		_tubeObject->beginUpdate(0);
 	else
 		_tubeObject->begin(_material->getName());
@@ -2451,7 +2454,7 @@ void AnElement::UpdateMeshOgre3D()
 	}
 
 	_tubeObject->end();
-
+	*/
 }
 
 

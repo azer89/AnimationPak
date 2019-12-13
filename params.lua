@@ -8,7 +8,7 @@ _animated_element_folder= "C:\\Users\\azer\\OneDrive\\Images\\_animation_pak_dat
 _static_element_folder      = "C:\\Users\\azer\\OneDrive\\Images\\_animation_pak_data\\stars\\";
 --_element_file_name   = "C:\\Users\\azer\\OneDrive\\Images\\_animation_pak_data\\bear.path"; -- NOT USED ANYMORE
 _container_file_name = "C:\\Users\\azer\\OneDrive\\Images\\_animation_pak_data\\containers\\circle.path";
-_scene_file_name = "C:\\Users\\azer\\OneDrive\\Images\\_animation_pak_data\\containers\\circle.scene";
+_scene_file_name = "C:\\Users\\azer\\OneDrive\\Images\\_animation_pak_data\\containers\\circle_30.scene";
 
 --- artboard dimension (do not edit this)
 --- the parameter below means the artboard size is 500x500
@@ -74,14 +74,14 @@ _grid_radius_2 = 2; -- approx (Barnes-Hut)
 _max_cg_c_pts_len  = 7000; 
 _max_cg_c_pts_approx_len = 10000;
 
-_max_m_c_pts_len  = 1000; 
-_max_m_c_pts_approx_len = 1000;
+_max_m_c_pts_len  = 2000; 
+_max_m_c_pts_approx_len = 2000;
 
 
 --- for growing
 _growth_scale_iter     = 0.01; -- 0.01
 _element_initial_scale = 0.08; 
-_element_max_scale     = 9.0;  -- 8.25
+_element_max_scale     = 9.5;  -- 8.25
 
 --- epsilon for halting the growth
 _growth_min_dist       = 3; 

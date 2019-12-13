@@ -255,7 +255,7 @@ public:
 	// ---------- Ogre 3D ----------
 	Ogre::SceneManager* _sceneMgr;
 	Ogre::SceneNode*    _sceneNode;
-	Ogre::MaterialPtr   _material;
+	//Ogre::MaterialPtr   _material;
 	Ogre::ManualObject* _tubeObject;
 
 	// ---------- Ogre 3D ----------

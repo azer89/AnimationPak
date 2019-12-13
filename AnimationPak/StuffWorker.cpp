@@ -43,11 +43,15 @@ StuffWorker::StuffWorker() : _containerWorker(0), _is_paused(false), _my_thread_
 StuffWorker::~StuffWorker()
 {
 	if (_containerWorker) { delete _containerWorker; }
+	std::cout << "container worker destroyed\n";	
+	if (_my_thread_pool) { delete _my_thread_pool; }
+	std::cout << "threadpool destroyed\n";
+	
+	if (_c_grid_3d) { delete _c_grid_3d; }
+	std::cout << "collision grid destroyed\n";
 
 	_element_list.clear();
-
-	if (_c_grid_3d) { delete _c_grid_3d; }
-	if (_my_thread_pool) { delete _my_thread_pool; }
+	std::cout << "elements destroyed\n";
 }
 
 void StuffWorker::DockElementsOnPaths(std::vector <std::vector<A3DVector>> paths,

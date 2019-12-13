@@ -60,10 +60,10 @@ AMass::AMass(A3DVector pos)
 
 AMass::~AMass()
 {
-	/*if(_closestPoints3D)
-	{
-		delete[] _closestPoints3D;
-	}*/
+	_c_pts.clear();
+	_c_pts_approx.clear();
+	_closest_boundary_slice.clear();
+	_closestGraphIndices.clear();
 }
 
 void  AMass::PrepareCPtsArrays() // see _c_pts and _c_pts_approx

@@ -242,7 +242,8 @@ void StuffWorker::InitAnimated_Elements(Ogre::SceneManager* scnMgr)
 
 		elem.ScaleXY(initialScale);
 		//elem.TranslateXY(_containerWorker->_randomPositions[a].x, _containerWorker->_randomPositions[a].y);
-		elem.TranslateXY(positions[a].x, positions[a].y);
+		//elem.TranslateXY(positions[a].x, positions[a].y);
+		elem.MoveXY(positions[a].x, positions[a].y);
 
 		elem.CalculateRestStructure();
 		Ogre::SceneNode* pNode = scnMgr->getRootSceneNode()->createChildSceneNode("TubeNode" + std::to_string(idx));

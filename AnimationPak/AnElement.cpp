@@ -216,6 +216,38 @@ void AnElement::ScaleXY(float scVal)
 	ResetSpringRestLengths();
 }
 
+void AnElement::MoveXY(float x, float y)
+{
+	UpdateLayerBoundaries(); // need to update _per_layer_boundary needed by line below
+	CalculateRestStructure(); // need to update _ori_layer_center_array
+
+	for (int a = 0; a < _massList.size(); a++)
+	{
+		A3DVector pos = _massList[a]._pos;
+		int layer_idx = _massList[a]._layer_idx;
+		A2DVector ctrPos = _ori_layer_center_array[layer_idx];
+		_massList[a]._pos = A3DVector(pos._x - ctrPos.x + x, pos._y - ctrPos.y + y, pos._z);
+	}
+
+	ResetSpringRestLengths();
+}
+
+void AnElement::MoveXY(float x, float y, int start_mass_idx, int end_mass_idx)
+{
+	UpdateLayerBoundaries(); // need to update _per_layer_boundary needed by line below
+	CalculateRestStructure(); // need to update _ori_layer_center_array
+
+	for (int a = start_mass_idx; a < end_mass_idx; a++)
+	{
+		A3DVector pos = _massList[a]._pos;
+		int layer_idx = _massList[a]._layer_idx;
+		A2DVector ctrPos = _ori_layer_center_array[layer_idx];
+		_massList[a]._pos = A3DVector(pos._x - ctrPos.x + x, pos._y - ctrPos.y + y, pos._z);
+	}
+
+	ResetSpringRestLengths();
+}
+
 void AnElement::TranslateXY(float x, float y, int start_mass_idx, int end_mass_idx)
 {
 	for (int a = start_mass_idx; a < end_mass_idx; a++)
@@ -308,7 +340,8 @@ void AnElement::Docking(std::vector<A3DVector> aPath, std::vector<int> layer_ind
 			int end_mass_idx = start_mass_idx + _numPointPerLayer;
 
 			A2DVector startPt2D = startPt.GetA2DVector();
-			TranslateXY(startPt2D.x, startPt2D.y, start_mass_idx, end_mass_idx); // MOVEEE
+			//TranslateXY(startPt2D.x, startPt2D.y, start_mass_idx, end_mass_idx); // MOVEEE
+			MoveXY(startPt2D.x, startPt2D.y, start_mass_idx, end_mass_idx); // MOVEEE
 
 			for (int c = start_mass_idx; c < end_mass_idx; c++) // iterate masses
 			{

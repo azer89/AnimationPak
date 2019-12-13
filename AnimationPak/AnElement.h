@@ -86,8 +86,8 @@ public:
 	void ScaleXY(float scVal);
 	void TranslateXY(float x, float y);
 	void TranslateXY(float x, float y, int start_mass_idx, int end_mass_idx);
-	void TranslateCenterXY(float x, float y);
-	//void AdjustEnds(A2DVector startPt2D, A2DVector endPt2D, bool lockEnds = true);
+	void MoveXY(float x, float y);
+	void MoveXY(float x, float y, int start_mass_idx, int end_mass_idx);
 
 	void CreateDockPoint(A2DVector queryPos, A2DVector lockPos, int layer_idx);
 	void DockEnds(A2DVector startPt2D, A2DVector endPt2D, bool lockEnds = true);

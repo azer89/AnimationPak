@@ -67,10 +67,11 @@ void StuffWorker::DockElementsOnPaths(std::vector <std::vector<A3DVector>> paths
 		int idx = a;
 
 		//AnElement elem = temp_elements[idx % temp_elem_sz];
-		AnElement elem = temp_elements[0];
+		AnElement elem = temp_elements[a];
 		elem.TriangularizationThatIsnt(idx);
 
-		elem.CreateHelix(0.5);
+		// for marine_life
+		//elem.CreateHelix(0.5);
 
 		float len = paths[a].size();
 
@@ -95,13 +96,20 @@ void StuffWorker::DockElementsOnPaths(std::vector <std::vector<A3DVector>> paths
 
 		elem.CalculateRestStructure(); // calculate rest, why???
 
+		// script for rotating arms
+		elem.AddConnector(idx,
+							0,
+							SystemParams::_num_layer - 1);
+
 		Ogre::SceneNode* pNode = scnMgr->getRootSceneNode()->createChildSceneNode("TubeNode" + std::to_string(idx));
 		elem.InitMeshOgre3D(scnMgr, pNode, "Tube_" + std::to_string(idx), "Examples/TransparentTest2");
 		_element_list.push_back(elem);
 	}
 
-	// scripted!
-	int last_layer_idx = SystemParams::_num_layer - 1;
+	
+
+	// script for marine_life (delete above connector)
+	/*int last_layer_idx = SystemParams::_num_layer - 1;
 	_element_list[0].AddConnector(1,               // other_elem_idx
 		                          0,               // ur_layer_idx
 		                          last_layer_idx); // their_layer_idx
@@ -117,7 +125,7 @@ void StuffWorker::DockElementsOnPaths(std::vector <std::vector<A3DVector>> paths
 
 	_element_list[1].AddConnector(0,              // other_elem_idx
 		                          0,              // ur_layer_idx
-		                          last_layer_idx);// their_layer_idx
+		                          last_layer_idx);// their_layer_idx*/
 }
 
 void StuffWorker::ConnectTubeEnds()
@@ -188,6 +196,130 @@ void StuffWorker::JitterPosAndRotation(float pos_max_offset, A2DVector& pos_offs
 	rot_val = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / PI));
 }
 
+void StuffWorker::InitRotatingArms(Ogre::SceneManager* scnMgr)
+{
+
+	// element files
+	PathIO pathIO;
+
+	// scene
+	std::vector <std::vector<A3DVector>> paths;
+	std::vector<std::vector<int>> layer_indices;
+	std::vector<A2DVector> positions;
+	pathIO.LoadScenes(paths, layer_indices, positions, SystemParams::_scene_file_name);
+
+	// elements
+	std::vector<std::string> some_files = pathIO.LoadFiles(SystemParams::_animated_element_folder); ////
+	std::vector<AnElement> temp_elements;
+	for (unsigned int a = 0; a < some_files.size(); a++)
+	{
+		// is path valid?
+		if (some_files[a] == "." || some_files[a] == "..") { continue; }
+		if (!UtilityFunctions::HasEnding(some_files[a], ".path")) { continue; }
+
+		temp_elements.push_back(pathIO.LoadAnimatedElement(SystemParams::_animated_element_folder + some_files[a]));
+	}
+
+	//int elem_iter = 0;
+	int temp_elem_sz = temp_elements.size();
+	float initialScale = SystemParams::_element_initial_scale; // 0.05
+
+	//DockElementsOnPaths(paths, layer_indices, temp_elements, scnMgr);
+	// NON-DOCKED ELEMENTS
+	std::cout << "+++++++++++++ path size = " << paths.size() << "\n";
+	for (int a = 0; a < paths.size(); a++)
+	{
+		int idx = a;
+
+		AnElement elem = temp_elements[a];
+		//elem.SetIndex(idx);
+
+		elem.TriangularizationThatIsnt(idx);
+
+		//float radAngle = float(rand() % 628) / 100.0;
+		//elem.RotateXY(radAngle);
+		//float radAngle;
+		//A2DVector offset;
+		//JitterPosAndRotation(3, offset, radAngle);
+		//elem.RotateXY(radAngle);
+
+		elem.ScaleXY(initialScale);
+		//elem.TranslateXY(_containerWorker->_randomPositions[a].x, _containerWorker->_randomPositions[a].y);
+		//elem.TranslateXY(positions[a].x, positions[a].y);
+		elem.MoveXY(paths[a][0]._x, paths[a][0]._y);
+
+		elem.CalculateRestStructure();
+		Ogre::SceneNode* pNode = scnMgr->getRootSceneNode()->createChildSceneNode("TubeNode" + std::to_string(idx));
+		elem.InitMeshOgre3D(scnMgr, pNode, "Tube_" + std::to_string(idx), "Examples/TransparentTest2");
+
+		// other_elem_idx
+		// int ur_layer_idx 
+		// int their_layer_idx
+		elem.AddConnector(idx,
+			0,
+			SystemParams::_num_layer - 1);
+
+
+
+		_element_list.push_back(elem);
+
+
+
+		// dumb code
+		//if (_element_list.size() == SystemParams::_num_element_pos_limit) { break; }
+	}
+
+
+	std::random_shuffle(positions.begin(), positions.end());
+
+	// NON-DOCKED ELEMENTS
+	for (int a = 0; a < positions.size(); a++)
+	{
+		int idx = _element_list.size();
+
+		int num_dock_elem = 2; // CHANGE THIS
+		int temp_elem_idx = (a % (temp_elem_sz - num_dock_elem)) + num_dock_elem;
+		AnElement elem = temp_elements[temp_elem_idx];
+		//elem.SetIndex(idx);
+
+		elem.TriangularizationThatIsnt(idx);
+
+		//float radAngle = float(rand() % 628) / 100.0;
+		//elem.RotateXY(radAngle);
+		//float radAngle;
+		//A2DVector offset;
+		//JitterPosAndRotation(3, offset, radAngle);
+		//elem.RotateXY(radAngle);
+
+		elem.ScaleXY(initialScale);
+		//elem.TranslateXY(_containerWorker->_randomPositions[a].x, _containerWorker->_randomPositions[a].y);
+		//elem.TranslateXY(positions[a].x, positions[a].y);
+		elem.MoveXY(positions[a].x, positions[a].y);
+
+		elem.CalculateRestStructure();
+		Ogre::SceneNode* pNode = scnMgr->getRootSceneNode()->createChildSceneNode("TubeNode" + std::to_string(idx));
+		elem.InitMeshOgre3D(scnMgr, pNode, "Tube_" + std::to_string(idx), "Examples/TransparentTest2");
+
+		// other_elem_idx
+		// int ur_layer_idx 
+		// int their_layer_idx
+		elem.AddConnector(idx,
+			0,
+			SystemParams::_num_layer - 1);
+
+
+
+		_element_list.push_back(elem);
+
+
+
+		// dumb code
+		//if (_element_list.size() == SystemParams::_num_element_pos_limit) { break; }
+	}
+
+	std::cout << "Elements done...\n";
+}
+
 // USE THIS!!!!
 void StuffWorker::InitAnimated_Elements(Ogre::SceneManager* scnMgr)
 {
@@ -222,12 +354,13 @@ void StuffWorker::InitAnimated_Elements(Ogre::SceneManager* scnMgr)
 
 	std::random_shuffle(positions.begin(), positions.end());
 
-	//for (int a = 0; a < SystemParams::_num_element_pos_limit; a++)
+	// NON-DOCKED ELEMENTS
 	for (int a = 0; a < positions.size(); a++)
 	{
 		int idx = _element_list.size();
 
-		int temp_elem_idx = (a % (temp_elem_sz - 1)) + 1;
+		int num_dock_elem = 2; // CHANGE THIS
+		int temp_elem_idx = (a % (temp_elem_sz - num_dock_elem)) + num_dock_elem;
 		AnElement elem = temp_elements[temp_elem_idx];
 		//elem.SetIndex(idx);
 
@@ -235,14 +368,15 @@ void StuffWorker::InitAnimated_Elements(Ogre::SceneManager* scnMgr)
 
 		//float radAngle = float(rand() % 628) / 100.0;
 		//elem.RotateXY(radAngle);
-		float radAngle;
-		A2DVector offset;
-		JitterPosAndRotation(3, offset, radAngle);
-		elem.RotateXY(radAngle);
+		//float radAngle;
+		//A2DVector offset;
+		//JitterPosAndRotation(3, offset, radAngle);
+		//elem.RotateXY(radAngle);
 
 		elem.ScaleXY(initialScale);
 		//elem.TranslateXY(_containerWorker->_randomPositions[a].x, _containerWorker->_randomPositions[a].y);
-		elem.TranslateXY(positions[a].x, positions[a].y);
+		//elem.TranslateXY(positions[a].x, positions[a].y);
+		elem.MoveXY(positions[a].x, positions[a].y);
 
 		elem.CalculateRestStructure();
 		Ogre::SceneNode* pNode = scnMgr->getRootSceneNode()->createChildSceneNode("TubeNode" + std::to_string(idx));
@@ -264,6 +398,41 @@ void StuffWorker::InitAnimated_Elements(Ogre::SceneManager* scnMgr)
 		// dumb code
 		if (_element_list.size() == SystemParams::_num_element_pos_limit) { break; }
 	}
+
+
+	// debugging
+	//DynamicLines*    _pos_lines;
+	//Ogre::SceneNode* _pos_node;
+	/*Ogre::MaterialPtr _pos_material = Ogre::MaterialManager::getSingleton().getByName("Examples/RedMat")->clone("_pos_material_");
+	_pos_material->getTechnique(0)->getPass(0)->setDiffuse(Ogre::ColourValue(1, 0, 0, 1));
+	_pos_lines = new DynamicLines(_pos_material, Ogre::RenderOperation::OT_LINE_LIST);
+
+	for (int a = 0; a < paths.size(); a++)
+	{
+		A3DVector pt = paths[a][0];
+
+		float offsetVal = 2;
+		_pos_lines->addPoint(Ogre::Vector3(pt._x - offsetVal, pt._y, 0));
+		_pos_lines->addPoint(Ogre::Vector3(pt._x + offsetVal, pt._y, 0));
+		_pos_lines->addPoint(Ogre::Vector3(pt._x, pt._y - offsetVal, 0));
+		_pos_lines->addPoint(Ogre::Vector3(pt._x, pt._y + offsetVal, 0));
+	}
+
+
+	for (int a = 0; a < positions.size(); a++)
+	{
+		A3DVector pt(positions[a].x, positions[a].y, 0);
+
+		float offsetVal = 2;
+		_pos_lines->addPoint(Ogre::Vector3(pt._x - offsetVal, pt._y, 0));
+		_pos_lines->addPoint(Ogre::Vector3(pt._x + offsetVal, pt._y, 0));
+		_pos_lines->addPoint(Ogre::Vector3(pt._x, pt._y - offsetVal, 0));
+		_pos_lines->addPoint(Ogre::Vector3(pt._x, pt._y + offsetVal, 0));
+	}
+
+	_pos_lines->update();
+	_pos_node = scnMgr->getRootSceneNode()->createChildSceneNode("_ps_node_");
+	_pos_node->attachObject(_pos_lines);*/
 
 	std::cout << "Elements done...\n";
 }
@@ -478,7 +647,8 @@ void StuffWorker::InitElementsAndCGrid(Ogre::SceneManager* scnMgr)
 	// Your scene here!
 	//InitElements_TwoMovingElements(scnMgr);
 	//InitElements_OneMovingElement(scnMgr);
-	InitAnimated_Elements(scnMgr);
+	//InitAnimated_Elements(scnMgr);
+	InitRotatingArms(scnMgr);
 	//InitSavedScenes(scnMgr);  <-- only for reloading finished simulation
 
 	// ----- Collision grid 3D -----

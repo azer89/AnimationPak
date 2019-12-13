@@ -36,6 +36,7 @@ public:
 	void InitElements_TwoMovingElements(Ogre::SceneManager* scnMgr); // SCENE
 	void InitElements_OneMovingElement(Ogre::SceneManager* scnMgr);
 	void InitAnimated_Elements(Ogre::SceneManager* scnMgr);
+	void InitRotatingArms(Ogre::SceneManager* scnMgr);
 
 	void InitSavedScenes(Ogre::SceneManager* scnMgr); // for testing purpose
 
@@ -124,6 +125,10 @@ public:
 	//int _springs_cpu_t;
 	//int _c_pt_cpu_t;
 	//int _solve_cpu_t;
+
+	// for initial placement
+	DynamicLines*    _pos_lines;
+	Ogre::SceneNode* _pos_node;
 
 	// additional
 	ATimerStat _cg_move_points;

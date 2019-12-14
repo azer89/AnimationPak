@@ -86,6 +86,7 @@ public:
 	void ScaleXY(float scVal);
 	void TranslateXY(float x, float y);
 	void TranslateXY(float x, float y, int start_mass_idx, int end_mass_idx);
+
 	void MoveXY(float x, float y);
 	void MoveXY(float x, float y, int start_mass_idx, int end_mass_idx);
 	//void AdjustEnds(A2DVector startPt2D, A2DVector endPt2D, bool lockEnds = true);
@@ -177,6 +178,8 @@ public:
 
 public:
 	int _elem_idx; // for identification
+
+	bool _is_rotating_arms;
 
 	std::string _name;
 

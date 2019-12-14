@@ -40,6 +40,8 @@ min_of(const T& a, const T& b, const Args& ...args)
 
 AnElement::AnElement()
 {
+	this->_is_rotating_arms = false;
+
 	this->_center_mass_idx = 0;
 	this->_tubeObject          = 0;
 	this->_sceneNode           = 0;
@@ -3039,6 +3041,10 @@ void AnElement::SolveForSprings3D()
 	// ----- 00000 Layer Spring -----
 	int tr_sz = _layer_springs.size();
 	k = _k_edge; // original
+	if (_is_rotating_arms)
+	{
+		k *= 3;
+	}
 	for (unsigned int a = 0; a < tr_sz; a++)
 	{
 		idx0 = _layer_springs[a]._index0;
@@ -3071,6 +3077,10 @@ void AnElement::SolveForSprings3D()
 	// ----- 11111 Time Spring -----
 	tr_sz = _time_springs.size();
 	k = SystemParams::_k_time_edge;
+	if (_is_rotating_arms)
+	{
+		k *= 200000;
+	}
 	for (unsigned int a = 0; a < tr_sz; a++)
 	{
 		idx0 = _time_springs[a]._index0;
@@ -3097,6 +3107,10 @@ void AnElement::SolveForSprings3D()
 	// ----- 22222 Auxiliary Spring -----
 	int aux_sz = _auxiliary_springs.size();
 	k = _k_edge; // original
+	if (_is_rotating_arms)
+	{
+		k *= 3;
+	}
 	for (unsigned int a = 0; a < aux_sz; a++)
 	{
 		idx0 = _auxiliary_springs[a]._index0;

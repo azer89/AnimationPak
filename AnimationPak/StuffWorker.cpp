@@ -225,7 +225,6 @@ void StuffWorker::InitRotatingArms(Ogre::SceneManager* scnMgr)
 	float initialScale = SystemParams::_element_initial_scale; // 0.05
 
 	//DockElementsOnPaths(paths, layer_indices, temp_elements, scnMgr);
-	// NON-DOCKED ELEMENTS
 	std::cout << "+++++++++++++ path size = " << paths.size() << "\n";
 	for (int a = 0; a < paths.size(); a++)
 	{
@@ -243,6 +242,9 @@ void StuffWorker::InitRotatingArms(Ogre::SceneManager* scnMgr)
 		//JitterPosAndRotation(3, offset, radAngle);
 		//elem.RotateXY(radAngle);
 
+		// ROTATING ARMS
+		elem._is_rotating_arms = true;
+
 		elem.ScaleXY(initialScale);
 		//elem.TranslateXY(_containerWorker->_randomPositions[a].x, _containerWorker->_randomPositions[a].y);
 		//elem.TranslateXY(positions[a].x, positions[a].y);
@@ -255,9 +257,9 @@ void StuffWorker::InitRotatingArms(Ogre::SceneManager* scnMgr)
 		// other_elem_idx
 		// int ur_layer_idx 
 		// int their_layer_idx
-		elem.AddConnector(idx,
-			0,
-			SystemParams::_num_layer - 1);
+		//elem.AddConnector(idx,
+		//	0,
+		//	SystemParams::_num_layer - 1);
 
 
 
@@ -303,9 +305,9 @@ void StuffWorker::InitRotatingArms(Ogre::SceneManager* scnMgr)
 		// other_elem_idx
 		// int ur_layer_idx 
 		// int their_layer_idx
-		elem.AddConnector(idx,
-			0,
-			SystemParams::_num_layer - 1);
+		//elem.AddConnector(idx,
+		//	0,
+		//	SystemParams::_num_layer - 1);
 
 
 

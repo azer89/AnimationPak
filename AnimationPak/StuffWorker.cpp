@@ -188,6 +188,86 @@ void StuffWorker::JitterPosAndRotation(float pos_max_offset, A2DVector& pos_offs
 	rot_val = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / PI));
 }
 
+void  StuffWorker::InitStar_Elements(Ogre::SceneManager* scnMgr)
+{
+	// element files
+	PathIO pathIO;
+
+	// scene
+	std::vector <std::vector<A3DVector>> paths;
+	std::vector<std::vector<int>> layer_indices;
+	std::vector<A2DVector> positions;
+	pathIO.LoadScenes(paths, layer_indices, positions, SystemParams::_scene_file_name);
+
+	// elements
+	std::vector<std::string> some_files = pathIO.LoadFiles(SystemParams::_animated_element_folder); ////
+	std::vector<AnElement> temp_elements;
+	for (unsigned int a = 0; a < some_files.size(); a++)
+	{
+		// is path valid?
+		if (some_files[a] == "." || some_files[a] == "..") { continue; }
+		if (!UtilityFunctions::HasEnding(some_files[a], ".path")) { continue; }
+
+		temp_elements.push_back(pathIO.LoadAnimatedElement(SystemParams::_animated_element_folder + some_files[a]));
+	}
+
+	//int elem_iter = 0;
+	int temp_elem_sz = temp_elements.size();
+	float initialScale = SystemParams::_element_initial_scale; // 0.05
+
+	//DockElementsOnPaths(paths, layer_indices, temp_elements, scnMgr);
+
+
+
+	std::random_shuffle(positions.begin(), positions.end());
+
+	//for (int a = 0; a < SystemParams::_num_element_pos_limit; a++)
+	for (int a = 0; a < positions.size(); a++)
+	{
+		int idx = _element_list.size();
+
+		int temp_elem_idx = a % temp_elem_sz;
+		AnElement elem = temp_elements[temp_elem_idx];
+		//elem.SetIndex(idx);
+
+		elem.TriangularizationThatIsnt(idx);
+
+		//float radAngle = float(rand() % 628) / 100.0;
+		//elem.RotateXY(radAngle);
+		float radAngle;
+		A2DVector offset;
+		JitterPosAndRotation(3, offset, radAngle);
+		elem.RotateXY(radAngle);
+
+		elem.ScaleXY(initialScale);
+		//elem.TranslateXY(_containerWorker->_randomPositions[a].x, _containerWorker->_randomPositions[a].y);
+		//elem.TranslateXY(positions[a].x, positions[a].y);
+		elem.MoveXY(positions[a].x, positions[a].y);
+
+		elem.CalculateRestStructure();
+		Ogre::SceneNode* pNode = scnMgr->getRootSceneNode()->createChildSceneNode("TubeNode" + std::to_string(idx));
+		elem.InitMeshOgre3D(scnMgr, pNode, "Tube_" + std::to_string(idx), "Examples/TransparentTest2");
+
+		// other_elem_idx
+		// int ur_layer_idx 
+		// int their_layer_idx
+		elem.AddConnector(idx,
+			0,
+			SystemParams::_num_layer - 1);
+
+
+
+		_element_list.push_back(elem);
+
+
+
+		// dumb code
+		//if (_element_list.size() == SystemParams::_num_element_pos_limit) { break; }
+	}
+
+	std::cout << "Elements done...\n";
+}
+
 // USE THIS!!!!
 void StuffWorker::InitAnimated_Elements(Ogre::SceneManager* scnMgr)
 {
@@ -479,7 +559,7 @@ void StuffWorker::InitElementsAndCGrid(Ogre::SceneManager* scnMgr)
 	// Your scene here!
 	//InitElements_TwoMovingElements(scnMgr);
 	//InitElements_OneMovingElement(scnMgr);
-	InitAnimated_Elements(scnMgr);
+	InitStar_Elements(scnMgr);
 	//InitSavedScenes(scnMgr);  <-- only for reloading finished simulation
 
 	// ----- Collision grid 3D -----

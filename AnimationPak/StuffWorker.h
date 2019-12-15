@@ -36,6 +36,7 @@ public:
 	void InitElements_TwoMovingElements(Ogre::SceneManager* scnMgr); // SCENE
 	void InitElements_OneMovingElement(Ogre::SceneManager* scnMgr);
 	void InitAnimated_Elements(Ogre::SceneManager* scnMgr);
+	void InitStar_Elements(Ogre::SceneManager* scnMgr);
 
 	void InitSavedScenes(Ogre::SceneManager* scnMgr); // for testing purpose
 

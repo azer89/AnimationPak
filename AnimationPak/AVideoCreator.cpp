@@ -57,7 +57,7 @@ void  AVideoCreator::DrawFilledArt(std::vector<std::vector<A2DVector>> arts,
 		// stroke
 		if (f_colors[a].IsValid())
 		{
-			_cvWrapper.DrawPolyOnCVImage(_frames[frameIdx]._img, arts[a], f_colors[a], true, 1.0f, _img_scale);
+			_cvWrapper.DrawPolyOnCVImage(_frames[frameIdx]._img, arts[a], f_colors[a], true, 3.0f, _img_scale);
 		}
 		//else
 		//{

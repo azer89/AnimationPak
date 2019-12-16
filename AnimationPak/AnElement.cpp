@@ -3180,7 +3180,7 @@ void AnElement::SolveTorsionalForce()
 				rotationDIr = A2DVector(0, 0);
 			}
 
-			A2DVector rForce = rotationDIr * SystemParams::_k_rotate;
+			A2DVector rForce = rotationDIr * SystemParams::_k_rotate * (std::abs(angleVal) / PI);
 			if (!rForce.IsBad())
 			{
 				_massList[a]._rotationForce += A3DVector(rForce.x, rForce.y, 0);	// _massList[idx0]._distToBoundary;

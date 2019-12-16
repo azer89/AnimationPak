@@ -37,6 +37,9 @@ min_of(const T& a, const T& b, const Args& ...args)
 	return min_of(std::min(a, b), args...);
 }
 
+#define PI 3.14159265359
+#define PI2 6.28318530718
+
 
 AnElement::AnElement()
 {
@@ -568,6 +571,26 @@ bool AnElement::IsInside(int layer_idx, A3DVector pos, std::vector<A3DVector>& b
 	return UtilityFunctions::InsidePolygon(_a_layer_boundary, pos._x, pos._y);
 }
 
+// do not update, only for initialization
+void AnElement::CalculateVecToCenterArray()
+{
+	// See CalculateRestStructure()
+
+	for (int a = 0; a < _massList.size(); a++)
+	{
+		int layer_idx = _massList[a]._layer_idx;
+
+		int ptOffset = layer_idx * _numPointPerLayer;
+
+		if (a < ptOffset + _numBoundaryPointPerLayer)
+		{
+			// ori_layer_center
+			_normFromCenterArray.push_back((_massList[a]._pos.GetA2DVector() - _ori_layer_center_array[layer_idx]).Norm());
+		}
+	}
+
+}
+
 void AnElement::RecalculateCenters()
 {
 	// See TriangulationThatIsnt()
@@ -876,6 +899,12 @@ void AnElement::TriangularizationThatIsnt(int self_idx)
 	}
 	ComputeBaryForCenters();
 	RecalculateCenters();
+
+	// For torsional forces
+	for (int a = 0; a < _massList.size(); a++)
+	{
+		_normFromCenterArray.push_back(A2DVector(0, 0));
+	}
 
 	// for docking !!!!
 	GetCenterMassIdx();
@@ -1246,7 +1275,7 @@ void AnElement::CalculateRestStructure()
 		_rest_mass_pos_array.push_back(_massList[a]._pos);
 	}
 
-	
+	CalculateVecToCenterArray();
 
 	/*_layer_center_array.clear();
 	for (int a = 0; a < SystemParams::_num_layer; a++)
@@ -1788,13 +1817,17 @@ void AnElement::InitMeshOgre3D(Ogre::SceneManager* sceneMgr,
 
 	//_center_node
 	//_center_lines
-	/*Ogre::MaterialPtr center_mat = Ogre::MaterialManager::getSingleton().getByName("Examples/RedMat")->clone("center_mat_" + std::to_string(_elem_idx));
+	Ogre::MaterialPtr center_mat = Ogre::MaterialManager::getSingleton().getByName("Examples/RedMat")->clone("center_mat_" + std::to_string(_elem_idx));
 	center_mat->getTechnique(0)->getPass(0)->setDiffuse(Ogre::ColourValue(1, 0, 0, 1));
 	_center_lines = new DynamicLines(center_mat, Ogre::RenderOperation::OT_LINE_LIST);
 	
+	float z_gap = -((float)SystemParams::_upscaleFactor / (float)SystemParams::_num_layer);
+	
 	for (int a = 0; a < SystemParams::_num_layer; a++)
 	{
-		A3DVector pt(0, 0, 0);
+		float z_pos = a * z_gap;
+
+		A3DVector pt(_layer_center_array[a].x, _layer_center_array[a].y, z_pos);
 
 		float offsetVal = 2;
 		_center_lines->addPoint(Ogre::Vector3(pt._x - offsetVal, pt._y, pt._z));
@@ -1805,7 +1838,7 @@ void AnElement::InitMeshOgre3D(Ogre::SceneManager* sceneMgr,
 
 	_center_lines->update();
 	_center_node = _sceneMgr->getRootSceneNode()->createChildSceneNode("center_node_" + std::to_string(_elem_idx));
-	_center_node->attachObject(_center_lines);*/
+	_center_node->attachObject(_center_lines);
 }
 
 void AnElement::RecalculateArts()
@@ -1879,23 +1912,33 @@ void AnElement::UpdateArtsOgre3D()
 
 void  AnElement::UpdateCenterOgre3D()
 {
-	/*int idx = 0;
-
-
-	float z_gap = -((float)SystemParams::_upscaleFactor / (float)SystemParams::_num_layer);
-	for (int a = 0; a < SystemParams::_num_layer; a++)
+	if(SystemParams::_show_centers)
 	{
-		A2DVector pt = _ori_layer_center_array[a];
-		float z_pos = z_gap * a;
 
-		float offsetVal = 2;
-		_center_lines->addPoint(Ogre::Vector3(pt.x - offsetVal, pt.y, z_pos));
-		_center_lines->addPoint(Ogre::Vector3(pt.x + offsetVal, pt.y, z_pos));
-		_center_lines->addPoint(Ogre::Vector3(pt.x, pt.y - offsetVal, z_pos));
-		_center_lines->addPoint(Ogre::Vector3(pt.x, pt.y + offsetVal, z_pos));
+		int idx = 0;
+
+		float z_gap = -((float)SystemParams::_upscaleFactor / (float)SystemParams::_num_layer);
+		for (int a = 0; a < SystemParams::_num_layer; a++)
+		{
+			A2DVector pt = _layer_center_array[a];
+			float z_pos = z_gap * a;
+
+			float offsetVal = 2;
+			_center_lines->setPoint(idx++, Ogre::Vector3(pt.x - offsetVal, pt.y, z_pos));
+			_center_lines->setPoint(idx++, Ogre::Vector3(pt.x + offsetVal, pt.y, z_pos));
+			_center_lines->setPoint(idx++, Ogre::Vector3(pt.x, pt.y - offsetVal, z_pos));
+			_center_lines->setPoint(idx++, Ogre::Vector3(pt.x, pt.y + offsetVal, z_pos));
+		}
+
+		_center_lines->update();
+
+		_center_node->setVisible(true);
+
 	}
-
-	_center_lines->update();*/
+	else
+	{
+		_center_node->setVisible(false);
+	}
 }
 
 void AnElement::UpdateClosestTriOgre3D()
@@ -3078,7 +3121,75 @@ A3DVector AnElement::ClosestPtOnTriSurfaces(std::vector<int>& triIndices, A3DVec
 	return closestPt;
 }
 
+void AnElement::SolveTorsionalForce()
+{
+	float eps_rot = 3.14 * 0.1;
 
+/*	std::vector<float> angleValAvg_array;
+	for (int a = 0; a < SystemParams::_num_layer; a++) { angleValAvg_array.push_back(0); }
+
+	for (unsigned int a = 0; a < _massList.size(); a++)
+	{
+		int layer_idx = _massList[a]._layer_idx;
+		int ptOffset = layer_idx * _numPointPerLayer;
+
+		if (a < ptOffset + _numBoundaryPointPerLayer)
+		{
+			A2DVector targetVector = _normFromCenterArray[layer_idx]; 
+			A2DVector curNorm = (_massList[a]._pos.GetA2DVector() - _layer_center_array[layer_idx]).Norm();
+			float angleVal = UtilityFunctions::Angle2D(curNorm.x, curNorm.y, targetVector.x, targetVector.y);
+			angleValAvg_array[layer_idx] += angleVal;
+		}
+	}
+	for (int a = 0; a < SystemParams::_num_layer; a++)
+	{
+		angleValAvg_array[a] += ((float)_numBoundaryPointPerLayer);
+	}*/
+
+	for (unsigned int a = 0; a < _massList.size(); a++)
+	{
+		int layer_idx = _massList[a]._layer_idx;
+		int ptOffset = layer_idx * _numPointPerLayer;
+
+		if (a < ptOffset + _numBoundaryPointPerLayer)
+		{
+			//float angleVal = angleValAvg_array[layer_idx];
+			A2DVector targetVector = _normFromCenterArray[layer_idx];
+			A2DVector curNorm = (_massList[a]._pos.GetA2DVector() - _layer_center_array[layer_idx]).Norm();
+			float angleVal = UtilityFunctions::Angle2D(curNorm.x, curNorm.y, targetVector.x, targetVector.y);
+
+			A2DVector rotationDIr;
+			if (std::abs(angleVal) > eps_rot)
+			{
+				A2DVector curNorm = (_massList[a]._pos.GetA2DVector() - _layer_center_array[layer_idx]).Norm();
+
+				if (angleVal > 0)
+				{
+					// anticlockwise
+					A2DVector dRIght(-curNorm.y, curNorm.x); // this is left
+					rotationDIr = dRIght;
+				}
+				else
+				{
+					A2DVector dLeft(curNorm.y, -curNorm.x);  // this is right
+					rotationDIr = dLeft;
+				}
+			}
+			else
+			{
+				rotationDIr = A2DVector(0, 0);
+			}
+
+			A2DVector rForce = rotationDIr * SystemParams::_k_rotate;
+			if (!rForce.IsBad())
+			{
+				_massList[a]._rotationForce += A3DVector(rForce.x, rForce.y, 0);	// _massList[idx0]._distToBoundary;
+			}
+
+		}
+	}
+
+}
 
 // 33333333333333333333333333333333
 void AnElement::SolveForSprings3D()

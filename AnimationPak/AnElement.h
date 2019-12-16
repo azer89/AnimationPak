@@ -240,12 +240,14 @@ public:
 	//std::vector<std::vector<A2DVector>> _actualTriangles;
 
 	// for orientation force
-	std::vector<A2DVector> _normFromCentroidArray;
+	std::vector<A2DVector> _normFromCenterArray;
 	float _angleVal;
-	std::vector<A2DVector> _rotateArray;
+	//std::vector<A2DVector> _rotateArray;
 
 	void ComputeBaryForCenters();
 	void RecalculateCenters();
+	void CalculateVecToCenterArray();
+	void SolveTorsionalForce();
 
 	// ---------- important stuff ----------
 	std::vector<AMass>            _massList;       // list of the masses
@@ -328,8 +330,9 @@ public:
 
 	//DynamicLines*    _closet_pt_approx_lines_back;
 	//Ogre::SceneNode* _closet_pt_approx_node_back;
-	//DynamicLines*    _center_lines;
-	//Ogre::SceneNode* _center_node;
+	
+	DynamicLines*    _center_lines;
+	Ogre::SceneNode* _center_node;
 	
 	// testing overlap
 	DynamicLines*    _overlap_lines;

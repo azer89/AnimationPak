@@ -188,6 +188,65 @@ void StuffWorker::JitterPosAndRotation(float pos_max_offset, A2DVector& pos_offs
 	rot_val = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / PI));
 }
 
+void StuffWorker::InitDaichi_Elements(Ogre::SceneManager* scnMgr)
+{
+	// element files
+	PathIO pathIO;
+
+	// scene
+	std::vector <std::vector<A3DVector>> paths;
+	std::vector<std::vector<int>> layer_indices;
+	std::vector<A2DVector> positions;
+	pathIO.LoadScenes(paths, layer_indices, positions, SystemParams::_scene_file_name);
+
+	// elements
+	std::vector<std::string> some_files = pathIO.LoadFiles(SystemParams::_animated_element_folder); ////
+	std::vector<AnElement> temp_elements;
+	for (unsigned int a = 0; a < some_files.size(); a++)
+	{
+		// is path valid?
+		if (some_files[a] == "." || some_files[a] == "..") { continue; }
+		if (!UtilityFunctions::HasEnding(some_files[a], ".path")) { continue; }
+
+		temp_elements.push_back(pathIO.LoadAnimatedElement(SystemParams::_animated_element_folder + some_files[a]));
+	}
+
+	//int elem_iter = 0;
+	int temp_elem_sz = temp_elements.size();
+	float initialScale = SystemParams::_element_initial_scale; // 0.05
+
+	std::random_shuffle(positions.begin(), positions.end());
+
+	//for (int a = 0; a < SystemParams::_num_element_pos_limit; a++)
+	for (int a = 0; a < positions.size(); a++)
+	{
+		int idx = _element_list.size();
+
+		int temp_elem_idx = a % temp_elem_sz;
+		AnElement elem = temp_elements[temp_elem_idx];
+
+		elem.TriangularizationThatIsnt(idx);
+
+		elem.ScaleXY(initialScale);
+		elem.MoveXY(positions[a].x, positions[a].y);
+
+		elem.CalculateRestStructure();
+		Ogre::SceneNode* pNode = scnMgr->getRootSceneNode()->createChildSceneNode("TubeNode" + std::to_string(idx));
+		elem.InitMeshOgre3D(scnMgr, pNode, "Tube_" + std::to_string(idx), "Examples/TransparentTest2");
+
+		// other_elem_idx
+		// int ur_layer_idx 
+		// int their_layer_idx
+		elem.AddConnector(idx,
+			0,
+			SystemParams::_num_layer - 1); 
+
+		_element_list.push_back(elem);
+	}
+
+	std::cout << "Elements done...\n";
+}
+
 void  StuffWorker::InitStar_Elements(Ogre::SceneManager* scnMgr)
 {
 	// element files
@@ -559,7 +618,7 @@ void StuffWorker::InitElementsAndCGrid(Ogre::SceneManager* scnMgr)
 	// Your scene here!
 	//InitElements_TwoMovingElements(scnMgr);
 	//InitElements_OneMovingElement(scnMgr);
-	InitStar_Elements(scnMgr);
+	InitDaichi_Elements(scnMgr);
 	//InitSavedScenes(scnMgr);  <-- only for reloading finished simulation
 
 	// ----- Collision grid 3D -----
@@ -948,6 +1007,7 @@ void StuffWorker::AlmostAllUrShit_ThreadTask(int startIdx, int endIdx)
 
 		// stuff
 		_element_list[iter].UpdateLayerBoundaries();
+		_element_list[iter].RecalculateCenters();
 
 		// ----- update triangles -----
 		// IS THIS THE PROPER PLACE???
@@ -980,6 +1040,7 @@ void StuffWorker::AlmostAllUrShit_ThreadTask(int startIdx, int endIdx)
 
 		// SOLVE
 		_element_list[iter].SolveForSprings3D();
+		_element_list[iter].SolveTorsionalForce();
 		for (int b = 0; b < _element_list[iter]._massList.size(); b++)
 		{
 			_element_list[iter]._massList[b].Solve(_containerWorker->_2d_container, _element_list[iter]);

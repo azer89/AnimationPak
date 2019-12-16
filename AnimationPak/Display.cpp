@@ -71,35 +71,12 @@ bool Display::frameStarted(const Ogre::FrameEvent& evt)
 	
 	// IMGUI
 	ImGui::SetNextWindowPos(ImVec2(5, 5), ImGuiCond_Always);
-	ImGui::SetNextWindowSize(ImVec2(340, 800), ImGuiCond_Always);
+	ImGui::SetNextWindowSize(ImVec2(340, 850), ImGuiCond_Always);
 	bool* p_open = NULL;
 	ImGuiWindowFlags window_flags = 0;
 	ImGui::Begin("AnimationPak", p_open, window_flags);
 
-	ImGui::Text(("Num elements = " + std::to_string(_sWorker->_element_list.size())).c_str());
-
-	if (evt.timeSinceLastFrame > 0) { ImGui::Text(("FPS: " + std::to_string(1.0f / evt.timeSinceLastFrame)).c_str()); }
-	else { ImGui::Text("FPS : -"); }
-
-	ImGui::Text(("Scale = " + std::to_string(_sWorker->_element_list[0]._scale)).c_str());
-	ImGui::Text(("Num vertex = " + std::to_string(_sWorker->_num_vertex)).c_str());
-	ImGui::Text(("_max_c_pts = " + std::to_string(_sWorker->_max_c_pts)).c_str());
-	ImGui::Text(("_max_c_pts_approx = " + std::to_string(_sWorker->_max_c_pts_approx)).c_str());
 	
-	ImGui::Text(("_k_edge = " + std::to_string(_sWorker->_element_list[0]._k_edge)).c_str());
-
-	ImGui::Text(("num_layer_growing = " + std::to_string(num_layer_growing)).c_str());
-	
-	if (SystemParams::_multithread_test)
-	{
-		ImGui::Text(("C grid (N vs 1)          = " + std::to_string((int)_sWorker->_cg_multi_t.Avg()) + " vs " + std::to_string((int)_sWorker->_cg_single_t.Avg())).c_str());
-		ImGui::Text(("Everything else (N vs 1) = " + std::to_string((int)_sWorker->_almostall_multi_t.Avg()) + " vs " + std::to_string((int)_sWorker->_almostall_single_t.Avg())).c_str());
-	}
-	else
-	{
-		ImGui::Text(("C grid          = " + std::to_string((int)_sWorker->_cg_multi_t.Avg())).c_str());
-		ImGui::Text(("Everything else = " + std::to_string((int)_sWorker->_almostall_multi_t.Avg())).c_str());
-	}
 
 	if (ImGui::Button("Reload parameters")) { SystemParams::LoadParameters(); }
 	if (ImGui::Button("Save Triangles to PNGs")) { _sWorker->SaveFrames3(); }
@@ -141,7 +118,33 @@ bool Display::frameStarted(const Ogre::FrameEvent& evt)
 	
 	ImGui::Checkbox("Multithread test",           &SystemParams::_multithread_test);
 	ImGui::Checkbox("Arts", &SystemParams::_show_arts);
+	ImGui::Checkbox("Centers", &SystemParams::_show_centers);
 	ImGui::SliderInt("Layer select",              &SystemParams::_layer_slider_int, -1, SystemParams::_num_layer - 1);
+
+	ImGui::Text(("Num elements = " + std::to_string(_sWorker->_element_list.size())).c_str());
+
+	if (evt.timeSinceLastFrame > 0) { ImGui::Text(("FPS: " + std::to_string(1.0f / evt.timeSinceLastFrame)).c_str()); }
+	else { ImGui::Text("FPS : -"); }
+
+	ImGui::Text(("Scale = " + std::to_string(_sWorker->_element_list[0]._scale)).c_str());
+	ImGui::Text(("Num vertex = " + std::to_string(_sWorker->_num_vertex)).c_str());
+	ImGui::Text(("_max_c_pts = " + std::to_string(_sWorker->_max_c_pts)).c_str());
+	ImGui::Text(("_max_c_pts_approx = " + std::to_string(_sWorker->_max_c_pts_approx)).c_str());
+
+	ImGui::Text(("_k_edge = " + std::to_string(_sWorker->_element_list[0]._k_edge)).c_str());
+
+	ImGui::Text(("num_layer_growing = " + std::to_string(num_layer_growing)).c_str());
+
+	if (SystemParams::_multithread_test)
+	{
+		ImGui::Text(("C grid (N vs 1)          = " + std::to_string((int)_sWorker->_cg_multi_t.Avg()) + " vs " + std::to_string((int)_sWorker->_cg_single_t.Avg())).c_str());
+		ImGui::Text(("Everything else (N vs 1) = " + std::to_string((int)_sWorker->_almostall_multi_t.Avg()) + " vs " + std::to_string((int)_sWorker->_almostall_single_t.Avg())).c_str());
+	}
+	else
+	{
+		ImGui::Text(("C grid          = " + std::to_string((int)_sWorker->_cg_multi_t.Avg())).c_str());
+		ImGui::Text(("Everything else = " + std::to_string((int)_sWorker->_almostall_multi_t.Avg())).c_str());
+	}
 
 	ImGui::Text("Press C to activate or deactivate camera");
 	ImGui::Text("Press X to pause/resume simulation");

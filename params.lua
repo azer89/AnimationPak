@@ -4,11 +4,11 @@
 _window_title        = "1";
 --- A directory where we have to save output files
 _save_folder         = "C:\\Users\\azer\\OneDrive\\Images\\PhysicsPak_Snapshots_0" .. _window_title .. "\\";
-_animated_element_folder= "C:\\Users\\azer\\OneDrive\\Images\\_animation_pak_data\\pink_stars_ani\\"; 
+_animated_element_folder= "C:\\Users\\azer\\OneDrive\\Images\\_animation_pak_data\\daichi_ani\\"; 
 _static_element_folder      = "C:\\Users\\azer\\OneDrive\\Images\\_animation_pak_data\\stars\\";
 --_element_file_name   = "C:\\Users\\azer\\OneDrive\\Images\\_animation_pak_data\\bear.path"; -- NOT USED ANYMORE
-_container_file_name = "C:\\Users\\azer\\OneDrive\\Images\\_animation_pak_data\\containers\\pink_star_container.path";
-_scene_file_name = "C:\\Users\\azer\\OneDrive\\Images\\_animation_pak_data\\containers\\pink_star_container.scene";
+_container_file_name = "C:\\Users\\azer\\OneDrive\\Images\\_animation_pak_data\\containers\\fireball.path";
+_scene_file_name = "C:\\Users\\azer\\OneDrive\\Images\\_animation_pak_data\\containers\\fireball.scene";
 
 --- artboard dimension (do not edit this)
 --- the parameter below means the artboard size is 500x500
@@ -81,7 +81,7 @@ _max_m_c_pts_approx_len = 2000;
 --- for growing
 _growth_scale_iter     = 0.01; -- 0.01
 _element_initial_scale = 0.08; 
-_element_max_scale     = 5.5;  -- 8.25
+_element_max_scale     = 10.0;  -- 8.25
 
 --- epsilon for halting the growth
 _growth_min_dist       = 5; 

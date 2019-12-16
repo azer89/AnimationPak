@@ -207,6 +207,7 @@ bool SystemParams::_show_collision_grid = false;
 bool SystemParams::_show_collision_grid_object = false;
 bool SystemParams::_show_surface_tri = false;
 bool SystemParams::_show_arts = false;
+bool SystemParams::_show_centers = false;
 
 bool SystemParams::_show_growing_elements = false;
 

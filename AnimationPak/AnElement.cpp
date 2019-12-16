@@ -114,7 +114,7 @@ void AnElement::GetCenterMassIdx() // See TriangulationThatIsnt()
 	OpenCVWrapper cvWrapper;
 	A2DVector ctr = cvWrapper.GetCenter(UtilityFunctions::Convert3Dto2D(_per_layer_boundary[0]));
 
-	for (int a = _numBoundaryPointPerLayer; a < _numPointPerLayer; a++)
+	for (int a = 0; a < _numPointPerLayer; a++)
 	{
 		float d = _massList[a]._pos.GetA2DVector().Distance(ctr);
 		if (d < dist)
@@ -568,6 +568,73 @@ bool AnElement::IsInside(int layer_idx, A3DVector pos, std::vector<A3DVector>& b
 	return UtilityFunctions::InsidePolygon(_a_layer_boundary, pos._x, pos._y);
 }
 
+void AnElement::RecalculateCenters()
+{
+	// See TriangulationThatIsnt()
+
+	// int _center2Triangles;  // mapping to triangles
+	// ABary _centerBaryCoord; // barycentric coordinate
+
+	for (int a = 0; a < SystemParams::_num_layer; a++)
+	{
+		int idx_offset = _numTrianglePerLayer * a;
+		AnIdxTriangle tri = _triangles[_center2Triangles + idx_offset];
+
+		_layer_center_array[a] = _massList[tri.idx0]._pos.GetA2DVector() * _centerBaryCoord._u +
+								 _massList[tri.idx1]._pos.GetA2DVector() * _centerBaryCoord._v +
+								 _massList[tri.idx2]._pos.GetA2DVector() * _centerBaryCoord._w;
+	}
+}
+
+void AnElement::ComputeBaryForCenters()
+{
+	// int _center2Triangles;  // mapping to triangles
+	// ABary _centerBaryCoord; // barycentric coordinate
+
+	// NEED TO CALCULATE _layer_center first, see CalculateRestStructure() and TriangulationThatIsnt()
+
+	// calculate triangles
+	std::vector<std::vector<A2DVector>> actualTriangles;
+	for (unsigned int c = 0; c < _numTrianglePerLayer; c++) // first layer only
+	{
+		std::vector<A2DVector> tri(3);
+		tri[0] = _massList[_triangles[c].idx0]._pos.GetA2DVector();
+		tri[1] = _massList[_triangles[c].idx1]._pos.GetA2DVector();
+		tri[2] = _massList[_triangles[c].idx2]._pos.GetA2DVector();
+		actualTriangles.push_back(tri);
+	}
+
+	_center2Triangles = -1;
+	for (unsigned int c = 0; c < _numTrianglePerLayer; c++)  // first layer only
+	{
+		if (UtilityFunctions::InsidePolygon(actualTriangles[c], _layer_center.x, _layer_center.y))
+		{
+			_center2Triangles = c;
+			break;
+		}
+	}
+
+	if (_center2Triangles == -1)
+	{
+		float dist = 100000000;
+		for (unsigned int c = 0; c < _numTrianglePerLayer; c++)  // first layer only
+		{
+			float d = UtilityFunctions::DistanceToClosedCurve(actualTriangles[c], _layer_center);
+			if (d < dist)
+			{
+				dist = d;
+				_center2Triangles = c;
+			}
+		}
+	}
+
+	_centerBaryCoord = UtilityFunctions::Barycentric(_layer_center,
+			actualTriangles[_center2Triangles][0],
+			actualTriangles[_center2Triangles][1],
+			actualTriangles[_center2Triangles][2]);
+
+}
+
 void AnElement::ComputeBary()
 {
 	// calculate triangles
@@ -654,9 +721,9 @@ void AnElement::TriangularizationThatIsnt(int self_idx)
 	//std::cout << elem._name << "\n";
 
 	// layer center
-	// WARNING BAD CODE
-	A2DRectangle bb = UtilityFunctions::GetBoundingBox(_arts[0]);
-	_layer_center = bb.GetCenter();
+	// CODE NEAR THE END OF FUNCTION
+	//A2DRectangle bb = UtilityFunctions::GetBoundingBox(_arts[0]);
+	//_layer_center = bb.GetCenter();
 	
 
 	// -----  mass -----
@@ -729,12 +796,6 @@ void AnElement::TriangularizationThatIsnt(int self_idx)
 				next_2 = massIdxOffset2;
 			}
 
-			// BUG !!!
-			/*if (cur_1 >= mass_sz ||
-				cur_2 >= mass_sz ||
-				next_1 >= mass_sz ||
-				next_2 >= mass_sz) { continue; }*/
-
 				// layer_idx --> you want to know which layer a triangle belongs to
 			int layer_idx = min_of(_massList[cur_1]._layer_idx,
 				_massList[cur_2]._layer_idx,
@@ -744,16 +805,10 @@ void AnElement::TriangularizationThatIsnt(int self_idx)
 			// cur_1 next_1 cur_2
 			AnIdxTriangle tri1(cur_1, next_1, cur_2, layer_idx);
 			_surfaceTriangles.push_back(tri1);
-			//_massList[cur_1]._timeTriangles.push_back(tri1);
-			//_massList[next_1]._timeTriangles.push_back(tri1);
-			//_massList[cur_2]._timeTriangles.push_back(tri1);
 
 			// next_1 next_2 cur_2
 			AnIdxTriangle tri2(next_1, next_2, cur_2, layer_idx);
 			_surfaceTriangles.push_back(tri2);
-			//_massList[next_1]._timeTriangles.push_back(tri2);
-			//_massList[next_2]._timeTriangles.push_back(tri2);
-			//_massList[cur_2]._timeTriangles.push_back(tri2);
 		}
 	}
 	std::cout << "_surfaceTriangles size = " << _surfaceTriangles.size() << "\n";
@@ -794,7 +849,6 @@ void AnElement::TriangularizationThatIsnt(int self_idx)
 
 	// reset !!!
 	ResetSpringRestLengths();
-	//Interp_ResetSpringRestLengths();
 
 
 	// ----- some precomputation ----- 
@@ -812,8 +866,21 @@ void AnElement::TriangularizationThatIsnt(int self_idx)
 		}
 	}
 
+	// CENTER
+	OpenCVWrapper cvWrapper;
+	_layer_center = cvWrapper.GetCenter(_per_layer_boundary[0]);
+	_layer_center_array.clear();
+	for (int a = 0; a < SystemParams::_num_layer; a++)
+	{
+		_layer_center_array.push_back(A2DVector(0, 0));
+	}
+	ComputeBaryForCenters();
+	RecalculateCenters();
+
 	// for docking !!!!
 	GetCenterMassIdx();
+
+	
 
 	// for closest point
 	for (int a = 0; a < _numBoundaryPointPerLayer; a++)
@@ -1159,18 +1226,18 @@ void AnElement::Triangularization(std::vector<std::vector<A2DVector>> art_path, 
 
 void AnElement::CalculateRestStructure()
 {
-	//UpdateLayerBoundaries(); // update per_layer_boundary
-
-	//std::vector<A2DVector> _layer_center_array; // OpenCVWrapper::GetCenter
 	OpenCVWrapper cvWrapper;
 	_ori_layer_center_array.clear();
 	for (int a = 0; a < SystemParams::_num_layer; a++)
 	{
 		A2DVector centerPt = cvWrapper.GetCenter(_per_layer_boundary[a]);
+
+		// fugly code
+		if (a == 0) { _layer_center = centerPt; }
+
 		_ori_layer_center_array.push_back(centerPt);
 	}
 
-	//std::vector<A3DVector> _rest_mass_pos_array;
 	_ori_rest_mass_pos_array.clear();
 	_rest_mass_pos_array.clear();
 	for (int a = 0; a < _massList.size(); a++)
@@ -1178,6 +1245,14 @@ void AnElement::CalculateRestStructure()
 		_ori_rest_mass_pos_array.push_back(_massList[a]._pos);
 		_rest_mass_pos_array.push_back(_massList[a]._pos);
 	}
+
+	
+
+	/*_layer_center_array.clear();
+	for (int a = 0; a < SystemParams::_num_layer; a++)
+	{
+
+	}*/
 	
 }
 
@@ -2953,8 +3028,6 @@ void AnElement::ResetSpringRestLengths()
 	{
 		_massList[a]._ori_z_pos = _massList[a]._pos._z;
 	}
-	
-	
 }
 
 

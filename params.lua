@@ -42,7 +42,7 @@ _k_repulsion           = 10.0;	--- 10 repulsion force
 
 _k_overlap             = 5;	    --- overlap force
 _k_boundary            = 5;	--- 0.1 boundary force
---_k_rotate              = 0;		--- 1
+_k_rotate              = 1;		--- 1
 _k_dock                = 0.1;
 
 

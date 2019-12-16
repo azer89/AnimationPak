@@ -54,7 +54,7 @@ public:
 	
 	static float _k_overlap;
 	static float _k_boundary;
-	//static float _k_rotate;
+	static float _k_rotate;
 	static float _k_dock;
 
 	static float _k_aux_threshold;

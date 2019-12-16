@@ -59,7 +59,7 @@ void SystemParams::LoadParameters()
 	//SystemParams::_repulsion_soft_factor = script.get<float>("_repulsion_soft_factor");
 	SystemParams::_k_overlap = script.get<float>("_k_overlap");
 	SystemParams::_k_boundary = script.get<float>("_k_boundary");
-	//SystemParams::_k_rotate = script.get<float>("_k_rotate");
+	SystemParams::_k_rotate = script.get<float>("_k_rotate");
 	SystemParams::_k_dock = script.get<float>("_k_dock");
 
 	SystemParams::_k_aux_val_2_factor = script.get<float>("_k_aux_val_2_factor");
@@ -152,7 +152,7 @@ float SystemParams::_k_repulsion = 0.0f;
 
 float SystemParams::_k_overlap = 0.0f;
 float SystemParams::_k_boundary = 0.0f;
-//float SystemParams::_k_rotate = 0.0f;
+float SystemParams::_k_rotate = 0.0f;
 float SystemParams::_k_dock = 0.0f;
 
 float SystemParams::_k_aux_threshold = 0.0f;

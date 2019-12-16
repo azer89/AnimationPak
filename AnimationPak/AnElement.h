@@ -214,6 +214,9 @@ private:
 	//void DisableInterpolationMode(); // for interpolation mode	
 	//void ShowTimeSprings(bool yesno);
 
+
+	
+
 public:
 	// DO NOT CONFUSE BETWEEN THESE TWO!
 	int _numPointPerLayer;   
@@ -229,6 +232,20 @@ public:
 	std::vector<A2DVector> _ori_layer_center_array; // 
 	std::vector<A3DVector> _ori_rest_mass_pos_array; // before scaling
 	std::vector<A3DVector> _rest_mass_pos_array; // after scaling
+
+	// for orientation force
+	std::vector<A2DVector> _layer_center_array;
+	int       _center2Triangles;       // mapping vector graphics to triangles
+	ABary     _centerBaryCoord;           // barycentric coordinates
+	//std::vector<std::vector<A2DVector>> _actualTriangles;
+
+	// for orientation force
+	std::vector<A2DVector> _normFromCentroidArray;
+	float _angleVal;
+	std::vector<A2DVector> _rotateArray;
+
+	void ComputeBaryForCenters();
+	void RecalculateCenters();
 
 	// ---------- important stuff ----------
 	std::vector<AMass>            _massList;       // list of the masses

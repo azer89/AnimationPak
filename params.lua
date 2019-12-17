@@ -80,7 +80,7 @@ _max_m_c_pts_approx_len = 2000;
 
 --- for growing
 _growth_scale_iter     = 0.01; -- 0.01
-_element_initial_scale = 0.08; 
+_element_initial_scale = 0.2; 
 _element_max_scale     = 10.0;  -- 8.25
 
 --- epsilon for halting the growth

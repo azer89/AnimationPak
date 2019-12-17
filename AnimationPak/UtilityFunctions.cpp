@@ -584,6 +584,11 @@ ABary UtilityFunctions::Barycentric(A2DVector p, A2DVector A, A2DVector B, A2DVe
 	return bary;
 }
 
+//float UtilityFunctions::Angle2D_new(A2DVector va, A2DVector vb)
+//{
+	// https_//stackoverflow.com/questions/5188561/signed-angle-between-two-3d-vectors-with-same-origin-within-the-same-plane
+//}
+
 /*
 ================================================================================
 Return the angle between two vectors on a plane
@@ -593,6 +598,8 @@ The result is between -pi -> pi
 */
 float UtilityFunctions::Angle2D(float x1, float y1, float x2, float y2)
 {
+	// https_//stackoverflow.com/questions/21483999/using-atan2-to-find-angle-between-two-vectors
+
 	// atan2(vector.y, vector.x) = the angle between the vector and the X axis
 
 	float dtheta, theta1, theta2;

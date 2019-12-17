@@ -84,6 +84,7 @@ public:
 		return std::isinf(x) || std::isnan(x) || std::isinf(y) || std::isnan(y);
 	}
 
+	
 	// if a point is (-1, -1)
 	bool IsInvalid()
 	{

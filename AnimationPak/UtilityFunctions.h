@@ -77,6 +77,8 @@ public:
 
 	static float Angle2D(float x1, float y1, float x2, float y2);
 
+	static float Angle2D_new(A2DVector va, A2DVector vb);
+
 	static std::vector<A2DVector> FlipY(std::vector<A2DVector> poly, float yCenter);
 	static std::vector < std::vector<A2DVector>> FlipY(std::vector < std::vector<A2DVector>> polys, float yCenter);
 	

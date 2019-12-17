@@ -575,20 +575,22 @@ bool AnElement::IsInside(int layer_idx, A3DVector pos, std::vector<A3DVector>& b
 void AnElement::CalculateVecToCenterArray()
 {
 	// See CalculateRestStructure()
-
+	_normFromCenterArray.clear();
 	for (int a = 0; a < _massList.size(); a++)
 	{
 		int layer_idx = _massList[a]._layer_idx;
 
-		int ptOffset = layer_idx * _numPointPerLayer;
+		//int ptOffset = layer_idx * _numPointPerLayer;
 
-		if (a < ptOffset + _numBoundaryPointPerLayer)
-		{
+		//if (a < ptOffset + _numBoundaryPointPerLayer)
+		//{
 			// ori_layer_center
-			_normFromCenterArray.push_back((_massList[a]._pos.GetA2DVector() - _ori_layer_center_array[layer_idx]).Norm());
-		}
-	}
+		A2DVector normVec = (_massList[a]._pos.GetA2DVector() - _ori_layer_center_array[layer_idx]).Norm();
+		_normFromCenterArray.push_back(normVec);
 
+		//normVec.Print();
+		//}
+	}
 }
 
 void AnElement::RecalculateCenters()
@@ -1255,6 +1257,9 @@ void AnElement::Triangularization(std::vector<std::vector<A2DVector>> art_path, 
 
 void AnElement::CalculateRestStructure()
 {
+	// why it's here???
+	UpdateLayerBoundaries();
+
 	OpenCVWrapper cvWrapper;
 	_ori_layer_center_array.clear();
 	for (int a = 0; a < SystemParams::_num_layer; a++)
@@ -2359,12 +2364,17 @@ void AnElement::UpdateVelocityMagnitudeOgre3D()
 
 				A3DVector pos1 = _massList[a]._pos;
 
-				A3DVector vel = _massList[a]._velocity;
+				//A3DVector vel = _massList[a]._velocity;
+				A3DVector vel = _massList[a]._rotationForce;
+
 				A3DVector norm;
 				float dist;
 				vel.GetUnitAndDist(norm, dist);
 
 				A3DVector pos2 = pos1 + norm * dist * 20;
+
+				//A3DVector vel = A3DVector(_normFromCenterArray[a].x, _normFromCenterArray[a].y, 0);
+				//A3DVector pos2 = pos1 + vel * 20;
 
 				_v_magnitude_lines->setPoint(idx++, Ogre::Vector3(pos1._x, pos1._y, pos1._z));
 				_v_magnitude_lines->setPoint(idx++, Ogre::Vector3(pos2._x, pos2._y, pos2._z));
@@ -3123,7 +3133,7 @@ A3DVector AnElement::ClosestPtOnTriSurfaces(std::vector<int>& triIndices, A3DVec
 
 void AnElement::SolveTorsionalForce()
 {
-	float eps_rot = 3.14 * 0.1;
+	float eps_rot = 3.14 * 0.001;
 
 /*	std::vector<float> angleValAvg_array;
 	for (int a = 0; a < SystemParams::_num_layer; a++) { angleValAvg_array.push_back(0); }
@@ -3154,14 +3164,14 @@ void AnElement::SolveTorsionalForce()
 		if (a < ptOffset + _numBoundaryPointPerLayer)
 		{
 			//float angleVal = angleValAvg_array[layer_idx];
-			A2DVector targetVector = _normFromCenterArray[layer_idx];
+			A2DVector targetVector = _normFromCenterArray[a];
 			A2DVector curNorm = (_massList[a]._pos.GetA2DVector() - _layer_center_array[layer_idx]).Norm();
 			float angleVal = UtilityFunctions::Angle2D(curNorm.x, curNorm.y, targetVector.x, targetVector.y);
 
 			A2DVector rotationDIr;
 			if (std::abs(angleVal) > eps_rot)
 			{
-				A2DVector curNorm = (_massList[a]._pos.GetA2DVector() - _layer_center_array[layer_idx]).Norm();
+				//A2DVector curNorm = (_massList[a]._pos.GetA2DVector() - _layer_center_array[layer_idx]).Norm();
 
 				if (angleVal > 0)
 				{
@@ -3180,8 +3190,8 @@ void AnElement::SolveTorsionalForce()
 				rotationDIr = A2DVector(0, 0);
 			}
 
-			A2DVector rForce = rotationDIr * SystemParams::_k_rotate * (std::abs(angleVal) / PI);
-			if (!rForce.IsBad())
+			A2DVector rForce = rotationDIr * SystemParams::_k_rotate/* * (std::abs(angleVal) / PI)*/;
+			//if (!rForce.IsBad())
 			{
 				_massList[a]._rotationForce += A3DVector(rForce.x, rForce.y, 0);	// _massList[idx0]._distToBoundary;
 			}

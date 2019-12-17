@@ -35,14 +35,13 @@ _k_edge_start          = 20;   -- 5 edge force for filling elements
 _k_edge_end            = 4;     --- 5 edge force for filling elements
 --_k_edge              = 40;	--- 0.5 edge force for filling elements
 _k_z                   = 1;   --- preventing layers to stray away in z direction
-_k_time_edge           = 0.1;
+_k_time_edge           = 0.002;
 _k_neg_space_edge      = 0.1;	--- 0.01 edge force for springs
 --_k_edge_small_factor = 12;
 _k_repulsion           = 10.0;	--- 10 repulsion force
-
 _k_overlap             = 5;	    --- overlap force
 _k_boundary            = 5;	--- 0.1 boundary force
-_k_rotate              = 1;		--- 1
+_k_rotate              = 0.1;		--- 1
 _k_dock                = 0.1;
 
 
@@ -77,14 +76,13 @@ _max_cg_c_pts_approx_len = 10000;
 _max_m_c_pts_len  = 2000; 
 _max_m_c_pts_approx_len = 2000;
 
-
 --- for growing
 _growth_scale_iter     = 0.01; -- 0.01
 _element_initial_scale = 0.2; 
-_element_max_scale     = 10.0;  -- 8.25
+_element_max_scale     = 15.0;  -- 8.25
 
 --- epsilon for halting the growth
-_growth_min_dist       = 5; 
+_growth_min_dist       = 3; 
 
 -- num layer in the simulation, not the png layers
 _num_layer = 100;
@@ -113,5 +111,5 @@ _num_element_pos_limit = 1;
 _num_element_density   = 100;
 
 -- stopping criteria
-_num_layer_growing_threshold = 100; --100
+_num_layer_growing_threshold = 50; --100
 

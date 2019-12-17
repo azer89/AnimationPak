@@ -2364,8 +2364,8 @@ void AnElement::UpdateVelocityMagnitudeOgre3D()
 
 				A3DVector pos1 = _massList[a]._pos;
 
-				//A3DVector vel = _massList[a]._velocity;
-				A3DVector vel = _massList[a]._rotationForce;
+				A3DVector vel = _massList[a]._velocity;
+				//A3DVector vel = _massList[a]._rotationForce;
 
 				A3DVector norm;
 				float dist;

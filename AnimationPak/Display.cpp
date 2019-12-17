@@ -153,6 +153,11 @@ bool Display::frameStarted(const Ogre::FrameEvent& evt)
 
 	if (shouldQuit)
 	{
+		// delete folder
+		std::stringstream ss;
+		ss << "del /Q " << SystemParams::_save_folder << "*.*";
+		std::system(ss.str().c_str());
+
 		// stuff
 		_sWorker->SaveFrames4();
 		_sWorker->SaveStatistics();

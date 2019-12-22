@@ -27,6 +27,7 @@ public:
 	void UpdateOgre3D();
 
 	std::vector<A2DVector> _2d_container;
+	std::vector<A2DVector> _hole;
 
 	std::vector<A2DVector> _randomPositions;  // for elements
 

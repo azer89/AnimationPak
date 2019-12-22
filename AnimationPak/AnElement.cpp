@@ -317,8 +317,10 @@ void AnElement::Docking(std::vector<A3DVector> aPath, std::vector<int> layer_ind
 	// calculating offset based on bounding square
 	A2DRectangle bb = UtilityFunctions::GetBoundingBox(UtilityFunctions::Convert3Dto2D(_per_layer_boundary[0]));
 	float width_offset = bb.witdh;
-	if (bb.height > width_offset) width_offset = bb.height;
+	float height_offset = bb.height;
+	//if (bb.height > width_offset) width_offset = bb.height;
 	width_offset /= 2.0f;
+	height_offset /= 2.0f;
 
 	for (int a = 0; a < layer_indices.size() - 1; a++) // between two keyframes
 	{
@@ -354,7 +356,7 @@ void AnElement::Docking(std::vector<A3DVector> aPath, std::vector<int> layer_ind
 				A2DVector moveVector2D = dirVector * (xyGap * (which_layer - layer_idx_1));
 
 				_massList[c]._pos._x += (moveVector2D.x - width_offset);
-				_massList[c]._pos._y += (moveVector2D.y - width_offset);
+				_massList[c]._pos._y += (moveVector2D.y - height_offset);
 				_massList[c]._pos._z = -(zGap * b);
 			}
 
@@ -2678,11 +2680,11 @@ void  AnElement::CreateHelix(float val)
 {
 	float ggg = 6.28318530718 * val;
 
-	int randVal = rand() % 2;
-	if (randVal == 0)
-	{
-		ggg = -ggg;
-	}
+	//int randVal = rand() % 2;
+	//if (randVal == 0)
+	//{
+	//	ggg = -ggg;
+	//}
 
 	for (int a = 0; a < _massList.size(); a++)
 	{

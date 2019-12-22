@@ -436,7 +436,7 @@ void AMass::Grow(float growth_scale_iter, float dt)
 	// nothing happens
 }
 
-void AMass::Solve(const std::vector<A2DVector>& container, const AnElement& parentElem)
+void AMass::Solve(const std::vector<A2DVector>& container, const std::vector<A2DVector>& hole_container, const AnElement& parentElem)
 {
 	if(_is_boundary)
 	{
@@ -505,6 +505,18 @@ void AMass::Solve(const std::vector<A2DVector>& container, const AnElement& pare
 		if (!bForce.IsBad()) 
 		{ 
 			this->_boundaryForce += A3DVector(bForce.x, bForce.y, 0); 
+		} // z is always 0 !!!
+	}
+
+	if (UtilityFunctions::InsidePolygon(hole_container, _pos._x, _pos._y))
+	{
+		A2DVector pos2D = _pos.GetA2DVector();
+		A2DVector cPt = UtilityFunctions::GetClosestPtOnClosedCurve(container, pos2D);
+		A2DVector dirDist = pos2D.DirectionTo(cPt); // not normalized
+		A2DVector bForce = dirDist * k_boundary;
+		if (!bForce.IsBad())
+		{
+			this->_boundaryForce += A3DVector(bForce.x, bForce.y, 0);
 		} // z is always 0 !!!
 	}
 

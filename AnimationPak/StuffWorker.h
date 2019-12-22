@@ -30,12 +30,19 @@ public:
 		              std::vector<AnElement> temp_elements,
 					  Ogre::SceneManager* scnMgr);
 
+	//void InitElements(Ogre::SceneManager* scnMgr);
+	void DockChaseElements(std::vector <std::vector<A3DVector>> paths,
+						  std::vector<std::vector<int>> layer_indices,
+						  std::vector<AnElement> temp_elements,
+						  Ogre::SceneManager* scnMgr);
+
 	void JitterPosAndRotation(float pos_max_offset, A2DVector& pos_offset, float& rot_val);
 
 	void InitElementsAndCGrid(Ogre::SceneManager* scnMgr);
 	void InitElements_TwoMovingElements(Ogre::SceneManager* scnMgr); // SCENE
 	void InitElements_OneMovingElement(Ogre::SceneManager* scnMgr);
 	void InitAnimated_Elements(Ogre::SceneManager* scnMgr);
+	void InitChase_Elements(Ogre::SceneManager* scnMgr);
 	void InitStar_Elements(Ogre::SceneManager* scnMgr);
 	void InitDaichi_Elements(Ogre::SceneManager* scnMgr);
 

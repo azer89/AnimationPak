@@ -54,6 +54,63 @@ StuffWorker::~StuffWorker()
 	std::cout << "elements destroyed\n";
 }
 
+void StuffWorker::DockChaseElements(std::vector <std::vector<A3DVector>> paths,
+	std::vector<std::vector<int>> layer_indices,
+	std::vector<AnElement> temp_elements,
+	Ogre::SceneManager* scnMgr)
+{
+	int temp_elem_sz = temp_elements.size();
+	float initialScale = SystemParams::_element_initial_scale; // 0.05
+
+	for (int a = 0; a < paths.size(); a++)
+	{
+		int idx = a;
+
+		//AnElement elem = temp_elements[idx % temp_elem_sz];
+		AnElement elem = temp_elements[a];
+		elem.TriangularizationThatIsnt(idx);
+
+		elem.CreateHelix(-1);
+
+		float len = paths[a].size();
+
+		// TODO: from one dockpoint to the next one, not start to finish
+		//A2DVector move_dir = paths[a][0].GetA2DVector().DirectionTo(paths[a][len - 1].GetA2DVector());
+		//float radAngle = UtilityFunctions::Angle2D(0, 1, move_dir.x, move_dir.y);
+		//elem.RotateXY(radAngle);
+
+		elem.ScaleXY(initialScale);
+
+		// TODO: more than two dock points
+		//A2DVector startPt = paths[a][0].GetA2DVector();
+		//A2DVector endPt = paths[a][len - 1].GetA2DVector();
+
+		//elem.TranslateXY(startPt.x, startPt.y);
+
+		elem.UpdateLayerBoundaries(); // per_layer_boundary
+		elem.CalculateRestStructure(); // calculate rest, why???
+
+		//elem.DockEnds(startPt, endPt); // docking
+		elem.Docking(paths[a], layer_indices[a]);
+
+		elem.CalculateRestStructure(); // calculate rest, why???
+
+		Ogre::SceneNode* pNode = scnMgr->getRootSceneNode()->createChildSceneNode("TubeNode" + std::to_string(idx));
+		elem.InitMeshOgre3D(scnMgr, pNode, "Tube_" + std::to_string(idx), "Examples/TransparentTest2");
+		_element_list.push_back(elem);
+	}
+
+	// script for "chase bird"
+	int last_layer_idx = SystemParams::_num_layer - 1;
+	_element_list[0].AddConnector(0,               // other_elem_idx
+		                          0,               // ur_layer_idx
+		                          last_layer_idx); // their_layer_idx
+
+	_element_list[1].AddConnector(1,               // other_elem_idx
+		                          last_layer_idx,  // ur_layer_idx
+		                          0);              // their_layer_idx
+}
+
 void StuffWorker::DockElementsOnPaths(std::vector <std::vector<A3DVector>> paths,
 	                           std::vector<std::vector<int>> layer_indices,
 	                           std::vector<AnElement> temp_elements,
@@ -325,6 +382,85 @@ void  StuffWorker::InitStar_Elements(Ogre::SceneManager* scnMgr)
 	}
 
 	std::cout << "Elements done...\n";
+}
+
+void StuffWorker::InitChase_Elements(Ogre::SceneManager* scnMgr)
+{
+	// element files
+	PathIO pathIO;
+
+	// scene
+	std::vector <std::vector<A3DVector>> paths;
+	std::vector<std::vector<int>> layer_indices;
+	std::vector<A2DVector> positions;
+	pathIO.LoadScenes(paths, layer_indices, positions, SystemParams::_scene_file_name);
+
+	// elements
+	std::vector<std::string> some_files = pathIO.LoadFiles(SystemParams::_animated_element_folder); ////
+	std::vector<AnElement> temp_elements;
+	for (unsigned int a = 0; a < some_files.size(); a++)
+	{
+		// is path valid?
+		if (some_files[a] == "." || some_files[a] == "..") { continue; }
+		if (!UtilityFunctions::HasEnding(some_files[a], ".path")) { continue; }
+
+		temp_elements.push_back(pathIO.LoadAnimatedElement(SystemParams::_animated_element_folder + some_files[a]));
+	}
+
+	//int elem_iter = 0;
+	int temp_elem_sz = temp_elements.size();
+	float initialScale = SystemParams::_element_initial_scale; // 0.05
+
+	DockChaseElements(paths, layer_indices, temp_elements, scnMgr);
+
+
+
+	std::random_shuffle(positions.begin(), positions.end());
+
+	//for (int a = 0; a < SystemParams::_num_element_pos_limit; a++)
+	for (int a = 0; a < positions.size(); a++)
+	{
+		int idx = _element_list.size();
+
+		int temp_elem_idx = (a % (temp_elem_sz - 2)) + 2;
+		AnElement elem = temp_elements[temp_elem_idx];
+		//elem.SetIndex(idx);
+
+		elem.TriangularizationThatIsnt(idx);
+
+		//float radAngle = float(rand() % 628) / 100.0;
+		//elem.RotateXY(radAngle);
+		float radAngle;
+		A2DVector offset;
+		JitterPosAndRotation(3, offset, radAngle);
+		elem.RotateXY(radAngle);
+
+		elem.ScaleXY(initialScale);
+		//elem.TranslateXY(_containerWorker->_randomPositions[a].x, _containerWorker->_randomPositions[a].y);
+		//elem.TranslateXY(positions[a].x, positions[a].y);
+		elem.MoveXY(positions[a].x, positions[a].y);
+
+		elem.CalculateRestStructure();
+		Ogre::SceneNode* pNode = scnMgr->getRootSceneNode()->createChildSceneNode("TubeNode" + std::to_string(idx));
+		elem.InitMeshOgre3D(scnMgr, pNode, "Tube_" + std::to_string(idx), "Examples/TransparentTest2");
+
+		// other_elem_idx
+		// int ur_layer_idx 
+		// int their_layer_idx
+		elem.AddConnector(idx,
+			0,
+			SystemParams::_num_layer - 1);
+
+
+
+		_element_list.push_back(elem);
+
+
+
+		// dumb code
+		if (_element_list.size() == SystemParams::_num_element_pos_limit) { break; }
+	}
+
 }
 
 // USE THIS!!!!
@@ -618,7 +754,7 @@ void StuffWorker::InitElementsAndCGrid(Ogre::SceneManager* scnMgr)
 	// Your scene here!
 	//InitElements_TwoMovingElements(scnMgr);
 	//InitElements_OneMovingElement(scnMgr);
-	InitDaichi_Elements(scnMgr);
+	InitChase_Elements(scnMgr);
 	//InitSavedScenes(scnMgr);  <-- only for reloading finished simulation
 
 	// ----- Collision grid 3D -----
@@ -948,7 +1084,7 @@ void  StuffWorker::AlmostAllUrShit_SingleThread()
 		_element_list[a].SolveForSprings3D();
 		for (int b = 0; b < _element_list[a]._massList.size(); b++)
 		{
-			_element_list[a]._massList[b].Solve(_containerWorker->_2d_container, _element_list[a]);
+			_element_list[a]._massList[b].Solve(_containerWorker->_2d_container, _containerWorker->_hole, _element_list[a]);
 		}
 	}
 
@@ -1043,7 +1179,7 @@ void StuffWorker::AlmostAllUrShit_ThreadTask(int startIdx, int endIdx)
 		_element_list[iter].SolveTorsionalForce();
 		for (int b = 0; b < _element_list[iter]._massList.size(); b++)
 		{
-			_element_list[iter]._massList[b].Solve(_containerWorker->_2d_container, _element_list[iter]);
+			_element_list[iter]._massList[b].Solve(_containerWorker->_2d_container, _containerWorker->_hole, _element_list[iter]);
 		}
 
 		// SIMULATE
@@ -1110,7 +1246,7 @@ void StuffWorker::Solve_Thread(int startIdx, int endIdx)
 
 		for (int b = 0; b < _element_list[iter]._massList.size(); b++)
 		{
-			_element_list[iter]._massList[b].Solve(_containerWorker->_2d_container, _element_list[iter]);
+			_element_list[iter]._massList[b].Solve(_containerWorker->_2d_container, _containerWorker->_hole, _element_list[iter]);
 		}
 	}
 }

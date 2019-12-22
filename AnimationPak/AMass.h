@@ -88,7 +88,7 @@ public:
 	void Init(); // reset forces to zero
 	void Simulate(float dt);
 	void Interp_Simulate(float dt); // debug delete me...
-	void Solve(const std::vector<A2DVector>& container, const AnElement& parentElem);
+	void Solve(const std::vector<A2DVector>& container, const std::vector<A2DVector>& hole_container, const AnElement& parentElem);
 
 	void ImposeConstraints();
 

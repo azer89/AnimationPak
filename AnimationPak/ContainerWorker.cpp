@@ -28,7 +28,17 @@ ContainerWorker::~ContainerWorker()
 void ContainerWorker::LoadContainer()
 {
 	PathIO pathIO;
-	_2d_container = pathIO.LoadElement(SystemParams::_container_file_name)[0];
+	//_2d_container = pathIO.LoadElement(SystemParams::_container_file_name)[0];
+
+	std::vector<std::vector<A2DVector>>  temp_boundaries;
+	std::vector<std::vector<A2DVector>>  temp_holes;
+	pathIO.LoadContainerWithHole(SystemParams::_container_file_name, temp_boundaries, temp_holes);
+	_2d_container = temp_boundaries[0];
+
+	if (temp_holes.size() > 0)
+	{
+		_hole = temp_holes[0];
+	}
 
 	/*_2d_container.push_back(A2DVector(0,   0));
 	_2d_container.push_back(A2DVector(0,   500));
@@ -97,6 +107,19 @@ void ContainerWorker::UpdateOgre3D()
 			_layer_container_3d_lines->addPoint(Ogre::Vector3(_2d_container[_2d_container.size() - 1].x, _2d_container[_2d_container.size() - 1].y, z_pos));
 			_layer_container_3d_lines->addPoint(Ogre::Vector3(_2d_container[0].x, _2d_container[0].y, z_pos));
 
+			if (_hole.size() > 0)
+			{
+				for (int i = 0; i < _hole.size() - 1; i++)
+				{
+					_layer_container_3d_lines->addPoint(Ogre::Vector3(_hole[i].x, _hole[i].y, z_pos));
+					_layer_container_3d_lines->addPoint(Ogre::Vector3(_hole[i + 1].x, _hole[i + 1].y, z_pos));
+				}
+				_layer_container_3d_lines->addPoint(Ogre::Vector3(_hole[_hole.size() - 1].x, _hole[_hole.size() - 1].y, z_pos));
+				_layer_container_3d_lines->addPoint(Ogre::Vector3(_hole[0].x, _hole[0].y, z_pos));
+
+			}
+
+
 			_layer_container_3d_lines->update();
 		}
 	}
@@ -121,7 +144,7 @@ void ContainerWorker::CreateOgreContainer(Ogre::SceneManager* scnMgr)
 	{
 		cube_lines->addPoint(cubePoints[i]);
 	}*/
-	// ----- front ----- 
+	// ----- boundary front ----- 
 	for (int i = 0; i < _2d_container.size() - 1; i++)
 	{
 		_container_3d_lines->addPoint(Ogre::Vector3(_2d_container[i].x, _2d_container[i].y, 0.0f));
@@ -129,7 +152,7 @@ void ContainerWorker::CreateOgreContainer(Ogre::SceneManager* scnMgr)
 	}
 	_container_3d_lines->addPoint(Ogre::Vector3(_2d_container[_2d_container.size() - 1].x, _2d_container[_2d_container.size() - 1].y, 0.0f));
 	_container_3d_lines->addPoint(Ogre::Vector3(_2d_container[0].x, _2d_container[0].y, 0.0f));
-	// ----- back ----- 
+	// ----- boundary back ----- 
 	for (int i = 0; i < _2d_container.size() - 1; i++)
 	{
 		_container_3d_lines->addPoint(Ogre::Vector3(_2d_container[i].x, _2d_container[i].y, -len));
@@ -137,13 +160,38 @@ void ContainerWorker::CreateOgreContainer(Ogre::SceneManager* scnMgr)
 	}
 	_container_3d_lines->addPoint(Ogre::Vector3(_2d_container[_2d_container.size() - 1].x, _2d_container[_2d_container.size() - 1].y, -len));
 	_container_3d_lines->addPoint(Ogre::Vector3(_2d_container[0].x, _2d_container[0].y, -len));
-	// ----- in between ----- 
+	// ----- boundary in between ----- 
 	for (int i = 0; i < _2d_container.size(); i++)
 	{
 		_container_3d_lines->addPoint(Ogre::Vector3(_2d_container[i].x, _2d_container[i].y, 0.0f));
 		_container_3d_lines->addPoint(Ogre::Vector3(_2d_container[i].x, _2d_container[i].y, -len));
 	}
 
+	if (_hole.size() > 0)
+	{
+		// ----- hole front ----- 
+		for (int i = 0; i < _hole.size() - 1; i++)
+		{
+			_container_3d_lines->addPoint(Ogre::Vector3(_hole[i].x, _hole[i].y, 0.0f));
+			_container_3d_lines->addPoint(Ogre::Vector3(_hole[i + 1].x, _hole[i + 1].y, 0.0f));
+		}
+		_container_3d_lines->addPoint(Ogre::Vector3(_hole[_hole.size() - 1].x, _hole[_hole.size() - 1].y, 0.0f));
+		_container_3d_lines->addPoint(Ogre::Vector3(_hole[0].x, _hole[0].y, 0.0f));
+		// ----- hole back ----- 
+		for (int i = 0; i < _hole.size() - 1; i++)
+		{
+			_container_3d_lines->addPoint(Ogre::Vector3(_hole[i].x, _hole[i].y, -len));
+			_container_3d_lines->addPoint(Ogre::Vector3(_hole[i + 1].x, _hole[i + 1].y, -len));
+		}
+		_container_3d_lines->addPoint(Ogre::Vector3(_hole[_hole.size() - 1].x, _hole[_hole.size() - 1].y, -len));
+		_container_3d_lines->addPoint(Ogre::Vector3(_hole[0].x, _hole[0].y, -len));
+		// ----- hole in between ----- 
+		for (int i = 0; i < _hole.size(); i++)
+		{
+			_container_3d_lines->addPoint(Ogre::Vector3(_hole[i].x, _hole[i].y, 0.0f));
+			_container_3d_lines->addPoint(Ogre::Vector3(_hole[i].x, _hole[i].y, -len));
+		}
+	}
 	_container_3d_lines->update();
 	_container_3d_node = scnMgr->getRootSceneNode()->createChildSceneNode("Container_Node");
 	_container_3d_node->attachObject(_container_3d_lines);

@@ -24,6 +24,10 @@ public:
 	~PathIO();
 
 	std::vector<std::vector<A2DVector>> LoadElement(std::string filename);
+	
+	void LoadContainerWithHole(std::string filename,
+		                       std::vector<std::vector<A2DVector>>& boundaries,
+							   std::vector<std::vector<A2DVector>>& holes);
 
 	/*
 	file format:

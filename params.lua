@@ -4,11 +4,11 @@
 _window_title        = "1";
 --- A directory where we have to save output files
 _save_folder         = "C:\\Users\\azer\\OneDrive\\Images\\PhysicsPak_Snapshots_0" .. _window_title .. "\\";
-_animated_element_folder= "C:\\Users\\azer\\OneDrive\\Images\\_animation_pak_data\\daichi_ani\\"; 
+_animated_element_folder= "C:\\Users\\azer\\OneDrive\\Images\\_animation_pak_data\\lion_ani\\"; 
 _static_element_folder      = "C:\\Users\\azer\\OneDrive\\Images\\_animation_pak_data\\stars\\";
 --_element_file_name   = "C:\\Users\\azer\\OneDrive\\Images\\_animation_pak_data\\bear.path"; -- NOT USED ANYMORE
-_container_file_name = "C:\\Users\\azer\\OneDrive\\Images\\_animation_pak_data\\containers\\fireball.path";
-_scene_file_name = "C:\\Users\\azer\\OneDrive\\Images\\_animation_pak_data\\containers\\fireball.scene";
+_container_file_name = "C:\\Users\\azer\\OneDrive\\Images\\_animation_pak_data\\containers\\lion_container.path";
+_scene_file_name = "C:\\Users\\azer\\OneDrive\\Images\\_animation_pak_data\\containers\\lion_container.scene";
 
 --- artboard dimension (do not edit this)
 --- the parameter below means the artboard size is 500x500
@@ -40,8 +40,8 @@ _k_neg_space_edge      = 0.1;	--- 0.01 edge force for springs
 --_k_edge_small_factor = 12;
 _k_repulsion           = 10.0;	--- 10 repulsion force
 _k_overlap             = 5;	    --- overlap force
-_k_boundary            = 5;	--- 0.1 boundary force
-_k_rotate              = 0.1;		--- 1
+_k_boundary            = 10;	--- 0.1 boundary force
+_k_rotate              = 0.5;		--- 1
 _k_dock                = 0.1;
 
 
@@ -78,7 +78,7 @@ _max_m_c_pts_approx_len = 2000;
 
 --- for growing
 _growth_scale_iter     = 0.01; -- 0.01
-_element_initial_scale = 0.2; 
+_element_initial_scale = 0.07; 
 _element_max_scale     = 15.0;  -- 8.25
 
 --- epsilon for halting the growth

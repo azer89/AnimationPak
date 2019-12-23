@@ -1347,7 +1347,12 @@ void StuffWorker::SaveFrames4()
 		{
 			std::vector<std::vector<A2DVector>> triangles_in_a_layer = per_layer_triangle_drawing[l];
 			std::vector<std::vector<A2DVector>> arts = UtilityFunctions::FlipY(_element_list[i].GetBilinearInterpolatedArt(triangles_in_a_layer), yCenter);
+
+			
 			vCreator.DrawFilledArt(arts, _element_list[i]._art_b_colors, _element_list[i]._art_f_colors, l);
+
+			std::vector<std::vector<A2DVector>> arts_x = UtilityFunctions::FlipX(arts, 250);
+			vCreator.DrawFilledArt(arts_x, _element_list[i]._art_b_colors, _element_list[i]._art_f_colors, l);
 
 		}
 	}

@@ -3135,8 +3135,8 @@ void AnElement::SolveTorsionalForce()
 {
 	float eps_rot = 3.14 * 0.001;
 
-/*	std::vector<float> angleValAvg_array;
-	for (int a = 0; a < SystemParams::_num_layer; a++) { angleValAvg_array.push_back(0); }
+	A2DVector center_head(250, 432);
+	
 
 	for (unsigned int a = 0; a < _massList.size(); a++)
 	{
@@ -3145,26 +3145,11 @@ void AnElement::SolveTorsionalForce()
 
 		if (a < ptOffset + _numBoundaryPointPerLayer)
 		{
-			A2DVector targetVector = _normFromCenterArray[layer_idx]; 
-			A2DVector curNorm = (_massList[a]._pos.GetA2DVector() - _layer_center_array[layer_idx]).Norm();
-			float angleVal = UtilityFunctions::Angle2D(curNorm.x, curNorm.y, targetVector.x, targetVector.y);
-			angleValAvg_array[layer_idx] += angleVal;
-		}
-	}
-	for (int a = 0; a < SystemParams::_num_layer; a++)
-	{
-		angleValAvg_array[a] += ((float)_numBoundaryPointPerLayer);
-	}*/
+			A2DVector centroid_to_center = (center_head - _layer_center_array[layer_idx]).Norm();
+			float rotNeeded = UtilityFunctions::Angle2D(0, -1, centroid_to_center.x, centroid_to_center.y);
+			A2DVector targetVector = UtilityFunctions::Rotate(_normFromCenterArray[a], rotNeeded);
 
-	for (unsigned int a = 0; a < _massList.size(); a++)
-	{
-		int layer_idx = _massList[a]._layer_idx;
-		int ptOffset = layer_idx * _numPointPerLayer;
-
-		if (a < ptOffset + _numBoundaryPointPerLayer)
-		{
-			//float angleVal = angleValAvg_array[layer_idx];
-			A2DVector targetVector = _normFromCenterArray[a];
+			//A2DVector targetVector = _normFromCenterArray[a];
 			A2DVector curNorm = (_massList[a]._pos.GetA2DVector() - _layer_center_array[layer_idx]).Norm();
 			float angleVal = UtilityFunctions::Angle2D(curNorm.x, curNorm.y, targetVector.x, targetVector.y);
 

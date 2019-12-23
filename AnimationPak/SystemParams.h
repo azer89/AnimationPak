@@ -112,6 +112,7 @@ public:
 	static bool _show_surface_tri;
 	static bool _show_arts;
 	static bool _show_centers;
+	static bool _show_surface_mesh;
 
 	static bool _show_growing_elements;
 

@@ -273,9 +273,11 @@ public:
 
 	// ---------- Ogre 3D ----------
 	Ogre::SceneManager* _sceneMgr;
-	Ogre::SceneNode*    _sceneNode;
-	//Ogre::MaterialPtr   _material;
+
+
+	Ogre::MaterialPtr   _tubeMaterial;
 	Ogre::ManualObject* _tubeObject;
+	Ogre::SceneNode*    _tubeNode;
 
 	// ---------- Ogre 3D ----------
 	DynamicLines*    _spring_lines;

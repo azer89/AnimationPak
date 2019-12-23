@@ -618,7 +618,7 @@ void StuffWorker::InitElementsAndCGrid(Ogre::SceneManager* scnMgr)
 	// Your scene here!
 	//InitElements_TwoMovingElements(scnMgr);
 	//InitElements_OneMovingElement(scnMgr);
-	InitDaichi_Elements(scnMgr);
+	InitAnimated_Elements(scnMgr);
 	//InitSavedScenes(scnMgr);  <-- only for reloading finished simulation
 
 	// ----- Collision grid 3D -----
@@ -1293,7 +1293,7 @@ void StuffWorker::UpdateOgre3D()
 {
 	for (int a = 0; a < _element_list.size(); a++)
 	{
-		//_element_list[a].UpdateMeshOgre3D();
+		_element_list[a].UpdateMeshOgre3D();
 		//_element_list[a].UpdateSpringDisplayOgre3D();
 		_element_list[a].UpdateBoundaryDisplayOgre3D();
 		_element_list[a].UpdateDockLinesOgre3D();
@@ -1351,8 +1351,8 @@ void StuffWorker::SaveFrames4()
 			
 			vCreator.DrawFilledArt(arts, _element_list[i]._art_b_colors, _element_list[i]._art_f_colors, l);
 
-			std::vector<std::vector<A2DVector>> arts_x = UtilityFunctions::FlipX(arts, 250);
-			vCreator.DrawFilledArt(arts_x, _element_list[i]._art_b_colors, _element_list[i]._art_f_colors, l);
+			//std::vector<std::vector<A2DVector>> arts_x = UtilityFunctions::FlipX(arts, 250);
+			//vCreator.DrawFilledArt(arts_x, _element_list[i]._art_b_colors, _element_list[i]._art_f_colors, l);
 
 		}
 	}

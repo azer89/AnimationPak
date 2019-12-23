@@ -44,8 +44,8 @@ min_of(const T& a, const T& b, const Args& ...args)
 AnElement::AnElement()
 {
 	this->_center_mass_idx = 0;
-	this->_tubeObject          = 0;
-	this->_sceneNode           = 0;
+	this->_tubeObject = 0;
+	this->_tubeNode = 0;
 	this->_numPointPerLayer    = 0;
 	this->_numBoundaryPointPerLayer = 0;
 
@@ -83,8 +83,10 @@ AnElement::~AnElement()
 	// maybe they're automatically deleted???
 	
 	_tubeObject = 0;
-	_sceneNode = 0;
+	_tubeNode = 0;
+
 	_sceneMgr = 0;
+	_tubeMaterial.reset();
 	//std::cout << "_tubeObject _sceneNode _sceneMgr\n";
 
 	//_material.reset();
@@ -1499,15 +1501,24 @@ void AnElement::InitMeshOgre3D(Ogre::SceneManager* sceneMgr,
 								const Ogre::String& name,
 								const Ogre::String& materialName)
 {
-	this->_sceneMgr = sceneMgr;
-	this->_sceneNode = sceneNode;
-
-	if (_tubeObject) return;
-
 	float rVal = (float)(rand() % 255) / 255.0f;
 	float gVal = (float)(rand() % 255) / 255.0f;
 	float bVal = (float)(rand() % 255) / 255.0f;
 
+	this->_sceneMgr = sceneMgr;
+
+	this->_tubeNode = sceneNode;
+
+	_tubeObject = _sceneMgr->createManualObject(name);
+	_tubeObject->setDynamic(true);
+	_tubeMaterial = Ogre::MaterialManager::getSingleton().getByName(materialName)->clone("tube_material_" + std::to_string(_elem_idx));;
+	_tubeMaterial->getTechnique(0)->getPass(0)->setDiffuse(Ogre::ColourValue(rVal, gVal, bVal, 1));
+	//_tubeObject->begin(_tubeMaterial->getName());
+	//_tubeObject->end();
+	UpdateMeshOgre3D();
+	_tubeNode->attachObject(_tubeObject);
+
+	
 	// Color of this element, very important
 	this->_color = MyColor(rVal * 255, gVal * 255, bVal * 255);
 
@@ -2490,132 +2501,74 @@ void AnElement::UpdateSpringDisplayOgre3D()
 // visualization
 void AnElement::UpdateMeshOgre3D()
 {
-	/*if (_tubeObject->getDynamic() == true && _tubeObject->getNumSections() > 0)
-		_tubeObject->beginUpdate(0);
+	if (SystemParams::_show_surface_mesh)
+	{
+
+		if (_tubeObject->getDynamic() == true && _tubeObject->getNumSections() > 0)
+		{
+			_tubeObject->beginUpdate(0);
+		}
+		else
+		{
+			_tubeObject->begin(_tubeMaterial->getName());
+		}
+
+		for (int a = 0; a < _massList.size(); a++)
+		{
+			int remainderIdx = a % _numPointPerLayer;
+			if (remainderIdx < _numBoundaryPointPerLayer)
+			{
+				//if (a % 11 == 0) continue; // no inner
+
+				A3DVector pos = _massList[a]._pos;
+				_tubeObject->position(pos._x, pos._y, pos._z);
+
+
+				// normal doesn't work???
+				//A3DVector normVec = A3DVector(250, 250, pos._z).DirectionTo(pos).Norm();
+				//_tubeObject->normal(normVec._x, normVec._y, normVec._z);
+
+				// uv
+				int curLayer = a / 1;
+				int idx = a % _numBoundaryPointPerLayer;
+				float u = (float)idx / (float)_numBoundaryPointPerLayer;
+				float v = (float)curLayer / (float)(SystemParams::_num_layer);
+				_tubeObject->textureCoord(u, v);
+			}
+		}
+
+		//std::cout << "_massList size = " << _massList.size() << "\n";
+		//std::cout << "render vertex = " << _tubeObject->getCurrentVertexCount() << "\n";
+
+		int A, B, C, D;
+		for (int i = 0; i < SystemParams::_num_layer - 1; i++)
+		{
+			int startIdx = i * _numBoundaryPointPerLayer;
+
+			for (int a = 0; a < _numBoundaryPointPerLayer; a++)
+			{
+				A = startIdx + a;
+				B = A + 1;
+
+				if (a == _numBoundaryPointPerLayer - 1)
+				{
+					B = startIdx;
+				}
+
+				C = A + _numBoundaryPointPerLayer;
+				D = B + _numBoundaryPointPerLayer;
+				_tubeObject->quad(C, D, B, A);
+			}
+		}
+		_tubeObject->end();
+
+
+		_tubeNode->setVisible(true);
+	}
 	else
-		_tubeObject->begin(_material->getName());
-
-	for (int a = 0; a < _massList.size(); a++)
 	{
-		if (a % 11 == 0) continue;
-
-		A3DVector pos = _massList[a]._pos;
-		_tubeObject->position(pos._x, pos._y, pos._z);
-
-		// normal doesn't work???
-		//A3DVector normVec = A3DVector(250, 250, pos._z).DirectionTo(pos).Norm();
-		//_tubeObject->normal(normVec._x, normVec._y, normVec._z);
-
-		// uv
-		int curLayer = a / 1;
-		int idx = a % 10;
-		float u = (float)idx / 10.0;
-		float v = (float)curLayer / (float)(5);
-		_tubeObject->textureCoord(u, v);
+		_tubeNode->setVisible(false);
 	}
-
-	//std::cout << "_massList size = " << _massList.size() << "\n";
-	//std::cout << "render vertex = " << _tubeObject->getCurrentVertexCount() << "\n";
-
-	int indexOffset = 10;
-	int A, B, C, D;
-	int maxIdx = SystemParams::_num_layer - 1;
-	for (int i = 0; i < maxIdx; i++)
-	{
-		int startIdx = i * indexOffset;
-		// 0
-		{
-			A = startIdx;
-			B = A + 1;
-			C = A + indexOffset;
-			D = B + indexOffset;
-			_tubeObject->quad(C, D, B, A);
-		}
-
-		// 1
-		{
-			A = startIdx + 1;
-			B = A + 1;
-			C = A + indexOffset;
-			D = B + indexOffset;
-			_tubeObject->quad(C, D, B, A);
-		}
-
-		// 2
-		{
-			A = startIdx + 2;
-			B = A + 1;
-			C = A + indexOffset;
-			D = B + indexOffset;
-			_tubeObject->quad(C, D, B, A);
-		}
-
-		// 3
-		{
-			A = startIdx + 3;
-			B = A + 1;
-			C = A + indexOffset;
-			D = B + indexOffset;
-			_tubeObject->quad(C, D, B, A);
-		}
-
-		// 4
-		{
-			A = startIdx + 4;
-			B = A + 1;
-			C = A + indexOffset;
-			D = B + indexOffset;
-			_tubeObject->quad(C, D, B, A);
-		}
-
-		// 5
-		{
-			A = startIdx + 5;
-			B = A + 1;
-			C = A + indexOffset;
-			D = B + indexOffset;
-			_tubeObject->quad(C, D, B, A);
-		}
-
-		// 6
-		{
-			A = startIdx + 6;
-			B = A + 1;
-			C = A + indexOffset;
-			D = B + indexOffset;
-			_tubeObject->quad(C, D, B, A);
-		}
-
-		// 7
-		{
-			A = startIdx + 7;
-			B = A + 1;
-			C = A + indexOffset;
-			D = B + indexOffset;
-			_tubeObject->quad(C, D, B, A);
-		}
-
-		// 8
-		{
-			A = startIdx + 8;
-			B = A + 1;
-			C = A + indexOffset;
-			D = B + indexOffset;
-			_tubeObject->quad(C, D, B, A);
-		}
-
-		// 9
-		{
-			A = startIdx + 9;
-			B = startIdx;
-			C = A + indexOffset;
-			D = B + indexOffset;
-			_tubeObject->quad(C, D, B, A);
-		}
-	}
-
-	_tubeObject->end();
-	*/
 }
 
 
@@ -3135,7 +3088,7 @@ void AnElement::SolveTorsionalForce()
 {
 	float eps_rot = 3.14 * 0.001;
 
-	A2DVector center_head(250, 432);
+	//A2DVector center_head(250, 432);
 	
 
 	for (unsigned int a = 0; a < _massList.size(); a++)
@@ -3145,11 +3098,11 @@ void AnElement::SolveTorsionalForce()
 
 		if (a < ptOffset + _numBoundaryPointPerLayer)
 		{
-			A2DVector centroid_to_center = (center_head - _layer_center_array[layer_idx]).Norm();
-			float rotNeeded = UtilityFunctions::Angle2D(0, -1, centroid_to_center.x, centroid_to_center.y);
-			A2DVector targetVector = UtilityFunctions::Rotate(_normFromCenterArray[a], rotNeeded);
+			//A2DVector centroid_to_center = (center_head - _layer_center_array[layer_idx]).Norm();
+			//float rotNeeded = UtilityFunctions::Angle2D(0, -1, centroid_to_center.x, centroid_to_center.y);
+			//A2DVector targetVector = UtilityFunctions::Rotate(_normFromCenterArray[a], rotNeeded);
 
-			//A2DVector targetVector = _normFromCenterArray[a];
+			A2DVector targetVector = _normFromCenterArray[a];
 			A2DVector curNorm = (_massList[a]._pos.GetA2DVector() - _layer_center_array[layer_idx]).Norm();
 			float angleVal = UtilityFunctions::Angle2D(curNorm.x, curNorm.y, targetVector.x, targetVector.y);
 

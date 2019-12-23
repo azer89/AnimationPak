@@ -194,20 +194,20 @@ void Display::setup()
 	{
 		Ogre::Light* light = _scnMgr->createLight("Light1");
 		Ogre::SceneNode* lightNode = _scnMgr->getRootSceneNode()->createChildSceneNode();
-		lightNode->setPosition(0, 0, -500);
+		lightNode->setPosition(250, 250, -600);
 		lightNode->attachObject(light);
 	}
 
 	{
 		Ogre::Light* light = _scnMgr->createLight("Light2");
 		Ogre::SceneNode* lightNode = _scnMgr->getRootSceneNode()->createChildSceneNode();
-		lightNode->setPosition(500, 500, 900);
+		lightNode->setPosition(250, 250, 100);
 		lightNode->attachObject(light);
 	}
 
 	_cameraNode = _scnMgr->getRootSceneNode()->createChildSceneNode();
-	_cameraNode->setPosition(250, 250, 700);
-	_cameraNode->lookAt(Ogre::Vector3(250, 250, 0), Ogre::Node::TS_PARENT);
+	_cameraNode->setPosition(400, 400, 600);
+	_cameraNode->lookAt(Ogre::Vector3(250, 250, -250), Ogre::Node::TS_PARENT);
 
 	Ogre::Camera* cam = _scnMgr->createCamera("myCam");
 	cam->setNearClipDistance(0.1); // specific to this sample

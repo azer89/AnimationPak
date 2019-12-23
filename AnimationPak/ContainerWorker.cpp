@@ -116,6 +116,7 @@ void ContainerWorker::CreateOgreContainer(Ogre::SceneManager* scnMgr)
 	//In the initialization somewhere, create the initial lines object :
 	// "Examples/BlueMat"
 	Ogre::MaterialPtr container_mat = Ogre::MaterialManager::getSingleton().getByName("Examples/BlueMat");
+	container_mat->getTechnique(0)->getPass(0)->setDiffuse(Ogre::ColourValue(0, 0, 0, 0.1));
 	_container_3d_lines = new DynamicLines(container_mat, Ogre::RenderOperation::OT_LINE_LIST);
 	/*for (int i = 0; i<cubePoints.size(); i++) 
 	{

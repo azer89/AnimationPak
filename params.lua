@@ -1,14 +1,14 @@
 
 ---------- AnimationPak ----------
 --- Title of the window
-_window_title        = "1";
+_window_title        = "2";
 --- A directory where we have to save output files
 _save_folder         = "C:\\Users\\azer\\OneDrive\\Images\\PhysicsPak_Snapshots_0" .. _window_title .. "\\";
-_animated_element_folder= "C:\\Users\\azer\\OneDrive\\Images\\_animation_pak_data\\lion_ani\\"; 
+_animated_element_folder= "C:\\Users\\azer\\OneDrive\\Images\\_animation_pak_data\\penguin_giraffe_ani\\"; 
 _static_element_folder      = "C:\\Users\\azer\\OneDrive\\Images\\_animation_pak_data\\stars\\";
 --_element_file_name   = "C:\\Users\\azer\\OneDrive\\Images\\_animation_pak_data\\bear.path"; -- NOT USED ANYMORE
-_container_file_name = "C:\\Users\\azer\\OneDrive\\Images\\_animation_pak_data\\containers\\lion_container.path";
-_scene_file_name = "C:\\Users\\azer\\OneDrive\\Images\\_animation_pak_data\\containers\\lion_container.scene";
+_container_file_name = "C:\\Users\\azer\\OneDrive\\Images\\_animation_pak_data\\containers\\pp_rect_strip.path";
+_scene_file_name = "C:\\Users\\azer\\OneDrive\\Images\\_animation_pak_data\\containers\\pp_rect_strip.scene";
 
 --- artboard dimension (do not edit this)
 --- the parameter below means the artboard size is 500x500
@@ -41,7 +41,7 @@ _k_neg_space_edge      = 0.1;	--- 0.01 edge force for springs
 _k_repulsion           = 10.0;	--- 10 repulsion force
 _k_overlap             = 5;	    --- overlap force
 _k_boundary            = 10;	--- 0.1 boundary force
-_k_rotate              = 0.5;		--- 1
+_k_rotate              = 0.2;		--- 1
 _k_dock                = 0.1;
 
 

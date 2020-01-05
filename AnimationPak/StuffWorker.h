@@ -37,7 +37,7 @@ public:
 	void InitElements_OneMovingElement(Ogre::SceneManager* scnMgr);
 	void InitAnimated_Elements(Ogre::SceneManager* scnMgr);
 	void InitStar_Elements(Ogre::SceneManager* scnMgr);
-	void InitDaichi_Elements(Ogre::SceneManager* scnMgr);
+	void InitPenguinGiraffe_Elements(Ogre::SceneManager* scnMgr);
 
 	void InitSavedScenes(Ogre::SceneManager* scnMgr); // for testing purpose
 

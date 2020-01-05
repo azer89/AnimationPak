@@ -188,7 +188,7 @@ void StuffWorker::JitterPosAndRotation(float pos_max_offset, A2DVector& pos_offs
 	rot_val = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / PI));
 }
 
-void StuffWorker::InitDaichi_Elements(Ogre::SceneManager* scnMgr)
+void StuffWorker::InitPenguinGiraffe_Elements(Ogre::SceneManager* scnMgr)
 {
 	// element files
 	PathIO pathIO;
@@ -217,6 +217,8 @@ void StuffWorker::InitDaichi_Elements(Ogre::SceneManager* scnMgr)
 
 	std::random_shuffle(positions.begin(), positions.end());
 
+	float pi_val = 3.14159265359;
+
 	//for (int a = 0; a < SystemParams::_num_element_pos_limit; a++)
 	for (int a = 0; a < positions.size(); a++)
 	{
@@ -226,6 +228,10 @@ void StuffWorker::InitDaichi_Elements(Ogre::SceneManager* scnMgr)
 		AnElement elem = temp_elements[temp_elem_idx];
 
 		elem.TriangularizationThatIsnt(idx);
+
+		float radAngle = pi_val * -(positions[a].x / SystemParams::_upscaleFactor);
+
+		elem.RotateXY(radAngle);
 
 		elem.ScaleXY(initialScale);
 		elem.MoveXY(positions[a].x, positions[a].y);
@@ -618,7 +624,7 @@ void StuffWorker::InitElementsAndCGrid(Ogre::SceneManager* scnMgr)
 	// Your scene here!
 	//InitElements_TwoMovingElements(scnMgr);
 	//InitElements_OneMovingElement(scnMgr);
-	InitDaichi_Elements(scnMgr);
+	InitPenguinGiraffe_Elements(scnMgr);
 	//InitSavedScenes(scnMgr);  <-- only for reloading finished simulation
 
 	// ----- Collision grid 3D -----
@@ -1351,8 +1357,8 @@ void StuffWorker::SaveFrames4()
 			
 			vCreator.DrawFilledArt(arts, _element_list[i]._art_b_colors, _element_list[i]._art_f_colors, l);
 
-			std::vector<std::vector<A2DVector>> arts_x = UtilityFunctions::FlipX(arts, 250);
-			vCreator.DrawFilledArt(arts_x, _element_list[i]._art_b_colors, _element_list[i]._art_f_colors, l);
+			//std::vector<std::vector<A2DVector>> arts_x = UtilityFunctions::FlipX(arts, 250);
+			//vCreator.DrawFilledArt(arts_x, _element_list[i]._art_b_colors, _element_list[i]._art_f_colors, l);
 
 		}
 	}

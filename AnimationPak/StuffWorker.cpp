@@ -229,9 +229,9 @@ void StuffWorker::InitPenguinGiraffe_Elements(Ogre::SceneManager* scnMgr)
 
 		elem.TriangularizationThatIsnt(idx);
 
-		float radAngle = pi_val * -(positions[a].x / SystemParams::_upscaleFactor);
+		//float radAngle = pi_val * -(positions[a].x / SystemParams::_upscaleFactor);
 
-		elem.RotateXY(radAngle);
+		//elem.RotateXY(radAngle);
 
 		elem.ScaleXY(initialScale);
 		elem.MoveXY(positions[a].x, positions[a].y);

@@ -7,8 +7,8 @@ _save_folder         = "C:\\Users\\azer\\OneDrive\\Images\\PhysicsPak_Snapshots_
 _animated_element_folder= "C:\\Users\\azer\\OneDrive\\Images\\_animation_pak_data\\penguin_giraffe_ani\\"; 
 _static_element_folder      = "C:\\Users\\azer\\OneDrive\\Images\\_animation_pak_data\\stars\\";
 --_element_file_name   = "C:\\Users\\azer\\OneDrive\\Images\\_animation_pak_data\\bear.path"; -- NOT USED ANYMORE
-_container_file_name = "C:\\Users\\azer\\OneDrive\\Images\\_animation_pak_data\\containers\\pp_rect_strip.path";
-_scene_file_name = "C:\\Users\\azer\\OneDrive\\Images\\_animation_pak_data\\containers\\pp_rect_strip.scene";
+_container_file_name = "C:\\Users\\azer\\OneDrive\\Images\\_animation_pak_data\\containers\\rounded_square.path";
+_scene_file_name = "C:\\Users\\azer\\OneDrive\\Images\\_animation_pak_data\\containers\\rounded_square.scene";
 
 --- artboard dimension (do not edit this)
 --- the parameter below means the artboard size is 500x500
@@ -79,7 +79,7 @@ _max_m_c_pts_approx_len = 2000;
 --- for growing
 _growth_scale_iter     = 0.01; -- 0.01
 _element_initial_scale = 0.07; 
-_element_max_scale     = 15.0;  -- 8.25
+_element_max_scale     = 10.0;  -- 8.25
 
 --- epsilon for halting the growth
 _growth_min_dist       = 3; 

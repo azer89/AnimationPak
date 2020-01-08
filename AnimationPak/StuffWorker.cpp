@@ -217,6 +217,7 @@ void StuffWorker::InitDaichi_Elements(Ogre::SceneManager* scnMgr)
 
 	std::random_shuffle(positions.begin(), positions.end());
 
+	A2DVector center_head(250, 432);
 	//for (int a = 0; a < SystemParams::_num_element_pos_limit; a++)
 	for (int a = 0; a < positions.size(); a++)
 	{
@@ -226,6 +227,10 @@ void StuffWorker::InitDaichi_Elements(Ogre::SceneManager* scnMgr)
 		AnElement elem = temp_elements[temp_elem_idx];
 
 		elem.TriangularizationThatIsnt(idx);
+
+		A2DVector centroid_to_center = (center_head - positions[a]).Norm();
+		float rotNeeded = UtilityFunctions::Angle2D(0, -1, centroid_to_center.x, centroid_to_center.y);
+		elem.RotateXY(rotNeeded);
 
 		elem.ScaleXY(initialScale);
 		elem.MoveXY(positions[a].x, positions[a].y);

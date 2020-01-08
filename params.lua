@@ -4,7 +4,7 @@
 _window_title        = "1";
 --- A directory where we have to save output files
 _save_folder         = "C:\\Users\\azer\\OneDrive\\Images\\PhysicsPak_Snapshots_0" .. _window_title .. "\\";
-_animated_element_folder= "C:\\Users\\azer\\OneDrive\\Images\\_animation_pak_data\\lion_ani\\"; 
+_animated_element_folder= "C:\\Users\\azer\\OneDrive\\Images\\_animation_pak_data\\daichi_huge_ani\\"; 
 _static_element_folder      = "C:\\Users\\azer\\OneDrive\\Images\\_animation_pak_data\\stars\\";
 --_element_file_name   = "C:\\Users\\azer\\OneDrive\\Images\\_animation_pak_data\\bear.path"; -- NOT USED ANYMORE
 _container_file_name = "C:\\Users\\azer\\OneDrive\\Images\\_animation_pak_data\\containers\\lion_container.path";

@@ -217,7 +217,7 @@ void StuffWorker::InitDaichi_Elements(Ogre::SceneManager* scnMgr)
 
 	std::random_shuffle(positions.begin(), positions.end());
 
-	A2DVector center_head(250, 432);
+	A2DVector center_head(250, 400);
 	//for (int a = 0; a < SystemParams::_num_element_pos_limit; a++)
 	for (int a = 0; a < positions.size(); a++)
 	{

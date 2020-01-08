@@ -3152,7 +3152,7 @@ void AnElement::SolveTorsionalForce()
 			A2DVector targetVector = _normFromCenterArray[a];
 			A2DVector curNorm = (_massList[a]._pos.GetA2DVector() - _layer_center_array[layer_idx]).Norm();
 			float angleVal = UtilityFunctions::Angle2D(curNorm.x, curNorm.y, targetVector.x, targetVector.y);
-
+			
 			A2DVector rotationDIr;
 			if (std::abs(angleVal) > eps_rot)
 			{

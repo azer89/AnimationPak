@@ -616,9 +616,9 @@ void StuffWorker::InitElements_TwoMovingElements(Ogre::SceneManager* scnMgr)
 void StuffWorker::InitElementsAndCGrid(Ogre::SceneManager* scnMgr)
 {
 	// Your scene here!
-	//InitElements_TwoMovingElements(scnMgr);
+	InitAnimated_Elements(scnMgr);
 	//InitElements_OneMovingElement(scnMgr);
-	InitDaichi_Elements(scnMgr);
+	//InitDaichi_Elements(scnMgr);
 	//InitSavedScenes(scnMgr);  <-- only for reloading finished simulation
 
 	// ----- Collision grid 3D -----
@@ -1351,8 +1351,8 @@ void StuffWorker::SaveFrames4()
 			
 			vCreator.DrawFilledArt(arts, _element_list[i]._art_b_colors, _element_list[i]._art_f_colors, l);
 
-			std::vector<std::vector<A2DVector>> arts_x = UtilityFunctions::FlipX(arts, 250);
-			vCreator.DrawFilledArt(arts_x, _element_list[i]._art_b_colors, _element_list[i]._art_f_colors, l);
+			//std::vector<std::vector<A2DVector>> arts_x = UtilityFunctions::FlipX(arts, 250);
+			//vCreator.DrawFilledArt(arts_x, _element_list[i]._art_b_colors, _element_list[i]._art_f_colors, l);
 
 		}
 	}

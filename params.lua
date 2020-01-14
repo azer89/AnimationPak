@@ -35,12 +35,12 @@ _k_edge_start          = 10;   -- 5 edge force for filling elements
 _k_edge_end            = 10;     --- 5 edge force for filling elements
 --_k_edge              = 40;	--- 0.5 edge force for filling elements
 _k_z                   = 1;   --- preventing layers to stray away in z direction
-_k_time_edge           = 0.001;
-_k_neg_space_edge      = 40;	--- 0.01 edge force for springs
+_k_time_edge           = 0.00001;
+_k_neg_space_edge      = 10;	--- 0.01 edge force for springs
 --_k_edge_small_factor = 12;
 _k_repulsion           = 10.0;	--- 10 repulsion force
 
-_k_overlap             = 5;	    --- overlap force
+_k_overlap             = 1000;	    --- overlap force
 _k_boundary            = 5;	--- 0.1 boundary force
 --_k_rotate              = 0;		--- 1
 _k_dock                = 20;

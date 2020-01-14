@@ -67,8 +67,10 @@ void StuffWorker::DockElementsOnPaths(std::vector <std::vector<A3DVector>> paths
 		int idx = a;
 
 		//AnElement elem = temp_elements[idx % temp_elem_sz];
-		AnElement elem = temp_elements[a];
+		AnElement elem = temp_elements[0];
 		elem.TriangularizationThatIsnt(idx);
+
+		//elem._is_rotating_arms = true;
 
 		// for marine_life
 		//elem.CreateHelix(0.5);
@@ -80,11 +82,16 @@ void StuffWorker::DockElementsOnPaths(std::vector <std::vector<A3DVector>> paths
 		float radAngle = UtilityFunctions::Angle2D(0, 1, move_dir.x, move_dir.y);
 		elem.RotateXY(radAngle);
 
-		elem.ScaleXY(initialScale);
+		//elem.ScaleXY(initialScale);
+		elem._is_rotating_arms = true;
 
 		// TODO: more than two dock points
 		A2DVector startPt = paths[a][0].GetA2DVector();
 		A2DVector endPt = paths[a][len - 1].GetA2DVector();
+
+		std::cout << "DOCKINGDOCKINGDOCKINGDOCKINGDOCKING\n";
+		startPt.Print();
+		endPt.Print();
 
 		//elem.TranslateXY(startPt.x, startPt.y);
 
@@ -220,17 +227,20 @@ void StuffWorker::InitRotatingArms(Ogre::SceneManager* scnMgr)
 		temp_elements.push_back(pathIO.LoadAnimatedElement(SystemParams::_animated_element_folder + some_files[a]));
 	}
 
+
+	//DockElementsOnPaths(paths, layer_indices, temp_elements, scnMgr);
+
 	//int elem_iter = 0;
 	int temp_elem_sz = temp_elements.size();
 	float initialScale = SystemParams::_element_initial_scale; // 0.05
 
-	//DockElementsOnPaths(paths, layer_indices, temp_elements, scnMgr);
-	std::cout << "+++++++++++++ path size = " << paths.size() << "\n";
+	DockElementsOnPaths(paths, layer_indices, temp_elements, scnMgr);
+	/*std::cout << "+++++++++++++ path size = " << paths.size() << "\n";
 	for (int a = 0; a < paths.size(); a++)
 	{
 		int idx = a;
 
-		AnElement elem = temp_elements[a];
+		AnElement elem = temp_elements[1];
 		//elem.SetIndex(idx);
 
 		elem.TriangularizationThatIsnt(idx);
@@ -269,7 +279,7 @@ void StuffWorker::InitRotatingArms(Ogre::SceneManager* scnMgr)
 
 		// dumb code
 		//if (_element_list.size() == SystemParams::_num_element_pos_limit) { break; }
-	}
+	}*/
 
 
 	std::random_shuffle(positions.begin(), positions.end());
@@ -279,9 +289,10 @@ void StuffWorker::InitRotatingArms(Ogre::SceneManager* scnMgr)
 	{
 		int idx = _element_list.size();
 
-		int num_dock_elem = 2; // CHANGE THIS
-		int temp_elem_idx = (a % (temp_elem_sz - num_dock_elem)) + num_dock_elem;
-		AnElement elem = temp_elements[temp_elem_idx];
+		//int num_dock_elem = 2; // CHANGE THIS
+		//int temp_elem_idx = (a % (temp_elem_sz - num_dock_elem)) + num_dock_elem;
+		//AnElement elem = temp_elements[temp_elem_idx];
+		AnElement elem = temp_elements[1];
 		//elem.SetIndex(idx);
 
 		elem.TriangularizationThatIsnt(idx);
@@ -1061,7 +1072,11 @@ void StuffWorker::AlmostAllUrShit_ThreadTask(int startIdx, int endIdx)
 
 		// ----- grow -----
 		_element_list[iter].UpdatePerLayerInsideFlags();
-		_element_list[iter].Grow(SystemParams::_growth_scale_iter, SystemParams::_dt);
+
+		if(!_element_list[iter]._is_rotating_arms)
+		{
+			_element_list[iter].Grow(SystemParams::_growth_scale_iter, SystemParams::_dt);
+		}
 
 		// RESET
 		for (int b = 0; b < _element_list[iter]._massList.size(); b++)

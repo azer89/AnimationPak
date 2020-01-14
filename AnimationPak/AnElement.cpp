@@ -203,10 +203,19 @@ void  AnElement::RotateXY(float radAngle)
 
 void AnElement::ScaleXY(float scVal)
 {
+	UpdateLayerBoundaries(); // need to update _per_layer_boundary needed by line below
+	CalculateRestStructure(); // need to update _ori_layer_center_array
+
 	for (int a = 0; a < _massList.size(); a++)
 	{
+		int layer_idx = _massList[a]._layer_idx;
+		A2DVector ctr = _ori_layer_center_array[layer_idx];
 		A3DVector pos = _massList[a]._pos;
+		pos._x -= ctr.x;
+		pos._y -= ctr.y;
 		_massList[a]._pos = A3DVector(pos._x * scVal, pos._y * scVal, pos._z);
+		pos._x += ctr.x;
+		pos._y += ctr.y;
 	}
 
 	/*for (int a = 0; a < _interp_massList.size(); a++)
@@ -313,13 +322,15 @@ void AnElement::CreateDockPoint(A2DVector queryPos, A2DVector lockPos, int layer
 void AnElement::Docking(std::vector<A3DVector> aPath, std::vector<int> layer_indices)
 {
 	// 
-	float zGap = SystemParams::_upscaleFactor / (float)(SystemParams::_num_layer - 1);
+	/*float zGap = SystemParams::_upscaleFactor / (float)(SystemParams::_num_layer - 1);
 
 	// calculating offset based on bounding square
 	A2DRectangle bb = UtilityFunctions::GetBoundingBox(UtilityFunctions::Convert3Dto2D(_per_layer_boundary[0]));
 	float width_offset = bb.witdh;
-	if (bb.height > width_offset) width_offset = bb.height;
+	//if (bb.height > width_offset) width_offset = bb.height;
+	float height_offset = bb.height;
 	width_offset /= 2.0f;
+	height_offset /= 2.0f;
 
 	for (int a = 0; a < layer_indices.size() - 1; a++) // between two keyframes
 	{
@@ -355,12 +366,12 @@ void AnElement::Docking(std::vector<A3DVector> aPath, std::vector<int> layer_ind
 				A2DVector moveVector2D = dirVector * (xyGap * (which_layer - layer_idx_1));
 
 				_massList[c]._pos._x += (moveVector2D.x - width_offset);
-				_massList[c]._pos._y += (moveVector2D.y - width_offset);
+				_massList[c]._pos._y += (moveVector2D.y );
 				_massList[c]._pos._z = -(zGap * b);
 			}
 
 		}
-	}
+	}*/
 
 	// lock
 	for (int a = 0; a < layer_indices.size(); a++) // between two keyframes
@@ -3041,10 +3052,10 @@ void AnElement::SolveForSprings3D()
 	// ----- 00000 Layer Spring -----
 	int tr_sz = _layer_springs.size();
 	k = _k_edge; // original
-	if (_is_rotating_arms)
-	{
+	//if (_is_rotating_arms)
+	////{
 		k *= 3;
-	}
+	//}
 	for (unsigned int a = 0; a < tr_sz; a++)
 	{
 		idx0 = _layer_springs[a]._index0;
@@ -3077,10 +3088,10 @@ void AnElement::SolveForSprings3D()
 	// ----- 11111 Time Spring -----
 	tr_sz = _time_springs.size();
 	k = SystemParams::_k_time_edge;
-	if (_is_rotating_arms)
-	{
-		k *= 200000;
-	}
+	//if (_is_rotating_arms)
+	//{
+	//	k *= 200000;
+	//}
 	for (unsigned int a = 0; a < tr_sz; a++)
 	{
 		idx0 = _time_springs[a]._index0;
@@ -3107,10 +3118,10 @@ void AnElement::SolveForSprings3D()
 	// ----- 22222 Auxiliary Spring -----
 	int aux_sz = _auxiliary_springs.size();
 	k = _k_edge; // original
-	if (_is_rotating_arms)
-	{
-		k *= 3;
-	}
+	//if (_is_rotating_arms)
+	//{
+	//	k *= 3;
+	//}
 	for (unsigned int a = 0; a < aux_sz; a++)
 	{
 		idx0 = _auxiliary_springs[a]._index0;

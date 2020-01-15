@@ -341,6 +341,7 @@ void StuffWorker::InitAnimated_Elements(Ogre::SceneManager* scnMgr)
 
 	// elements
 	std::vector<std::string> some_files = pathIO.LoadFiles(SystemParams::_animated_element_folder); ////
+	std::vector<std::string> temp_element_names;
 	std::vector<AnElement> temp_elements;
 	for (unsigned int a = 0; a < some_files.size(); a++)
 	{
@@ -348,7 +349,10 @@ void StuffWorker::InitAnimated_Elements(Ogre::SceneManager* scnMgr)
 		if (some_files[a] == "." || some_files[a] == "..") { continue; }
 		if (!UtilityFunctions::HasEnding(some_files[a], ".path")) { continue; }
 
+		std::cout << some_files[a] << "\n";
+
 		temp_elements.push_back(pathIO.LoadAnimatedElement(SystemParams::_animated_element_folder + some_files[a]));
+		temp_element_names.push_back(some_files[a]);
 	}
 
 	//int elem_iter = 0;
@@ -357,9 +361,11 @@ void StuffWorker::InitAnimated_Elements(Ogre::SceneManager* scnMgr)
 	 
 	DockElementsOnPaths(paths, layer_indices, temp_elements, scnMgr);
 
-	
+	std::random_shuffle(temp_elements.begin()  + 1, temp_elements.begin() + 19);
+	std::random_shuffle(temp_elements.begin() + 19, temp_elements.end());
 
-	std::random_shuffle(positions.begin(), positions.end());
+	std::random_shuffle(positions.begin(), positions.begin() + 16);
+	std::random_shuffle(positions.begin() + 16, positions.end());
 
 	//for (int a = 0; a < SystemParams::_num_element_pos_limit; a++)
 	for (int a = 0; a < positions.size(); a++)
@@ -369,6 +375,8 @@ void StuffWorker::InitAnimated_Elements(Ogre::SceneManager* scnMgr)
 		int temp_elem_idx = (a % (temp_elem_sz - 1)) + 1;
 		AnElement elem = temp_elements[temp_elem_idx];
 		//elem.SetIndex(idx);
+
+		//std::cout << a << " - " << temp_elem_idx << " - " << temp_element_names[temp_elem_idx] << "\n";
 
 		elem.TriangularizationThatIsnt(idx);
 

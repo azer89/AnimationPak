@@ -328,7 +328,7 @@ void AnElement::Docking(std::vector<A3DVector> aPath, std::vector<int> layer_ind
 		int layer_idx_2 = layer_indices[a + 1];
 
 
-		A3DVector startPt = aPath[a];		
+		A3DVector startPt = aPath[a];
 		A3DVector endPt = aPath[a + 1];
 
 		A2DVector dirVector = startPt.GetA2DVector().DirectionTo(endPt.GetA2DVector());

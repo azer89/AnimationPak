@@ -114,6 +114,7 @@ bool Display::frameStarted(const Ogre::FrameEvent& evt)
 	ImGui::Checkbox("Velocity",                   &SystemParams::_show_force);
 	ImGui::Checkbox("Overlap",                    &SystemParams::_show_overlap);
 	ImGui::Checkbox("Docking",                    &SystemParams::_show_dock_points);
+	ImGui::Checkbox("Mesh", &SystemParams::_show_surface_mesh);
 	
 	
 	ImGui::Checkbox("Multithread test",           &SystemParams::_multithread_test);

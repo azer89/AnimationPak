@@ -8,7 +8,7 @@ _animated_element_folder= "C:\\Users\\azer\\OneDrive\\Images\\_animation_pak_dat
 _static_element_folder      = "C:\\Users\\azer\\OneDrive\\Images\\_animation_pak_data\\stars\\";
 --_element_file_name   = "C:\\Users\\azer\\OneDrive\\Images\\_animation_pak_data\\bear.path"; -- NOT USED ANYMORE
 _container_file_name = "C:\\Users\\azer\\OneDrive\\Images\\_animation_pak_data\\containers\\circle.path";
-_scene_file_name = "C:\\Users\\azer\\OneDrive\\Images\\_animation_pak_data\\containers\\circle_30.scene";
+_scene_file_name = "C:\\Users\\azer\\OneDrive\\Images\\_animation_pak_data\\containers\\circle_34.scene";
 
 --- artboard dimension (do not edit this)
 --- the parameter below means the artboard size is 500x500
@@ -19,7 +19,7 @@ _downscaleFactor = 1.0 / _upscaleFactor;
 _dt = 0.05; --- 0.05 for good result? (Do not set this higher than 0.1)
 
 --- random seed
-_seed = 424222; --- negative means random
+_seed = 178568; --- negative means random
 
 
 ---
@@ -31,18 +31,17 @@ _num_threads = 12;
 
 --- Force parameters
 _k_connector           = 5;
-_k_edge_start          = 20;   -- 5 edge force for filling elements
-_k_edge_end            = 5;     --- 5 edge force for filling elements
+_k_edge_start          = 30;   -- 5 edge force for filling elements
+_k_edge_end            = 1;     --- 5 edge force for filling elements
 --_k_edge              = 40;	--- 0.5 edge force for filling elements
 _k_z                   = 1;   --- preventing layers to stray away in z direction
 _k_time_edge           = 0.002;
 _k_neg_space_edge      = 0.1;	--- 0.01 edge force for springs
 --_k_edge_small_factor = 12;
 _k_repulsion           = 10.0;	--- 10 repulsion force
-
 _k_overlap             = 5;	    --- overlap force
-_k_boundary            = 5;	--- 0.1 boundary force
-_k_rotate              = 0.0;		--- 1
+_k_boundary            = 10;	--- 0.1 boundary force
+_k_rotate              = 0.2;		--- 1
 _k_dock                = 0.1;
 
 
@@ -79,8 +78,8 @@ _max_m_c_pts_approx_len = 2000;
 
 --- for growing
 _growth_scale_iter     = 0.01; -- 0.01
-_element_initial_scale = 0.08; 
-_element_max_scale     = 10.0;  -- 8.25
+_element_initial_scale = 0.08; -- 0.07
+_element_max_scale     = 15.0;  -- 8.25
 
 --- epsilon for halting the growth
 _growth_min_dist       = 3; 
@@ -112,5 +111,5 @@ _num_element_pos_limit = 1;
 _num_element_density   = 100;
 
 -- stopping criteria
-_num_layer_growing_threshold = 10; --100
+_num_layer_growing_threshold = 100; --100
 

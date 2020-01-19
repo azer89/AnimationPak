@@ -16,7 +16,7 @@ _upscaleFactor   = 500.0;
 _downscaleFactor = 1.0 / _upscaleFactor;
 
 --- Time step for numerical integration (euler method)
-_dt = 0.05; --- 0.05 for good result? (Do not set this higher than 0.1)
+_dt = 0.00; --- 0.05 for good result? (Do not set this higher than 0.1)
 
 --- random seed
 _seed = 178568; --- negative means random

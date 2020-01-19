@@ -43,6 +43,8 @@ min_of(const T& a, const T& b, const Args& ...args)
 
 AnElement::AnElement()
 {
+	_is_guided = false;
+
 	this->_center_mass_idx = 0;
 	this->_tubeObject = 0;
 	this->_tubeNode = 0;
@@ -1509,10 +1511,20 @@ void AnElement::InitMeshOgre3D(Ogre::SceneManager* sceneMgr,
 
 	this->_tubeNode = sceneNode;
 
+	if (_is_guided)
+	{
+		this->_color = MyColor(255, 112, 74);
+	}
+	else
+	{
+		this->_color = MyColor(40, 159, 224);
+		
+	}
+
 	_tubeObject = _sceneMgr->createManualObject(name);
 	_tubeObject->setDynamic(true);
 	_tubeMaterial = Ogre::MaterialManager::getSingleton().getByName(materialName)->clone("tube_material_" + std::to_string(_elem_idx));;
-	_tubeMaterial->getTechnique(0)->getPass(0)->setDiffuse(Ogre::ColourValue(rVal, gVal, bVal, 1));
+	_tubeMaterial->getTechnique(0)->getPass(0)->setDiffuse(Ogre::ColourValue(_color._r / 255.0, _color._g / 255.0, _color._b / 255.0, 1));
 	//_tubeObject->begin(_tubeMaterial->getName());
 	//_tubeObject->end();
 	UpdateMeshOgre3D();
@@ -1520,7 +1532,10 @@ void AnElement::InitMeshOgre3D(Ogre::SceneManager* sceneMgr,
 
 	
 	// Color of this element, very important
-	this->_color = MyColor(rVal * 255, gVal * 255, bVal * 255);
+	//this->_color = MyColor(rVal * 255, gVal * 255, bVal * 255);
+
+	
+
 
 	
 	// ---------- negative space space ----------

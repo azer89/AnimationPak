@@ -180,6 +180,7 @@ public:
 	std::string _name;
 
 	//bool _predefined_time_path; // time path isn't straight
+	bool _is_guided;
 
 	std::vector<std::vector<A3DVector>> _per_layer_boundary; // for closest point and Ogre3D
 	std::vector<A2DVector> _a_layer_boundary;// for closest point

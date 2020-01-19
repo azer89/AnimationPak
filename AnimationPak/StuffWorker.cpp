@@ -70,6 +70,8 @@ void StuffWorker::DockElementsOnPaths(std::vector <std::vector<A3DVector>> paths
 		AnElement elem = temp_elements[0];
 		elem.TriangularizationThatIsnt(idx);
 
+		elem._is_guided = true;
+
 		elem.CreateHelix(0.5);
 
 		float len = paths[a].size();

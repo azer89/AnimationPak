@@ -82,7 +82,7 @@ void StuffWorker::DockElementsOnPaths(std::vector <std::vector<A3DVector>> paths
 		float radAngle = UtilityFunctions::Angle2D(0, 1, move_dir.x, move_dir.y);
 		elem.RotateXY(radAngle);
 
-		//elem.ScaleXY(initialScale);
+		elem.ScaleXY(initialScale);
 		elem._is_rotating_arms = true;
 
 		// TODO: more than two dock points
@@ -234,6 +234,25 @@ void StuffWorker::InitRotatingArms(Ogre::SceneManager* scnMgr)
 	int temp_elem_sz = temp_elements.size();
 	float initialScale = SystemParams::_element_initial_scale; // 0.05
 
+	{
+		float zGap = -SystemParams::_upscaleFactor / (float)(SystemParams::_num_layer - 1);
+
+		paths.clear();
+		layer_indices.clear();
+
+		std::vector<A3DVector> aPath;
+		std::vector<int> anIndices;
+
+		for (int a = 0; a < SystemParams::_num_layer; a++)
+		{
+			aPath.push_back(A3DVector(250, 250, -zGap * a));
+			anIndices.push_back(a);
+		}
+
+		paths.push_back(aPath);
+		layer_indices.push_back(anIndices);
+	}
+
 	DockElementsOnPaths(paths, layer_indices, temp_elements, scnMgr);
 	/*std::cout << "+++++++++++++ path size = " << paths.size() << "\n";
 	for (int a = 0; a < paths.size(); a++)
@@ -360,6 +379,25 @@ void StuffWorker::InitAnimated_Elements(Ogre::SceneManager* scnMgr)
 	//int elem_iter = 0;
 	int temp_elem_sz = temp_elements.size();
 	float initialScale = SystemParams::_element_initial_scale; // 0.05
+
+	{
+		float zGap = -SystemParams::_upscaleFactor / (float)(SystemParams::_num_layer - 1);
+
+		paths.clear();
+		layer_indices.clear();
+
+		std::vector<A3DVector> aPath;
+		std::vector<int> anIndices;
+
+		for (int a = 0; a < SystemParams::_num_layer; a++)
+		{
+			aPath.push_back(A3DVector(250, 250, -zGap * a));
+			anIndices.push_back(a);
+		}
+
+		paths.push_back(aPath);
+		layer_indices.push_back(anIndices);
+	}
 	 
 	DockElementsOnPaths(paths, layer_indices, temp_elements, scnMgr);
 
@@ -1073,7 +1111,7 @@ void StuffWorker::AlmostAllUrShit_ThreadTask(int startIdx, int endIdx)
 		// ----- grow -----
 		_element_list[iter].UpdatePerLayerInsideFlags();
 
-		if(!_element_list[iter]._is_rotating_arms)
+		//if(!_element_list[iter]._is_rotating_arms)
 		{
 			_element_list[iter].Grow(SystemParams::_growth_scale_iter, SystemParams::_dt);
 		}
@@ -1393,6 +1431,10 @@ void StuffWorker::SaveFrames4()
 			std::vector<std::vector<A2DVector>> triangles_in_a_layer = per_layer_triangle_drawing[l];
 			std::vector<std::vector<A2DVector>> arts = UtilityFunctions::FlipY(_element_list[i].GetBilinearInterpolatedArt(triangles_in_a_layer), yCenter);
 			vCreator.DrawFilledArt(arts, _element_list[i]._art_b_colors, _element_list[i]._art_f_colors, l);
+
+			//std::vector<MyColor> art_f_colors;
+			//art_f_colors.push_back(_element_list[i]._color);
+			//vCreator.DrawFilledArt(arts, art_f_colors, _element_list[i]._art_f_colors, l);
 
 		}
 	}

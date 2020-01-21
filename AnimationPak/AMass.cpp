@@ -444,7 +444,7 @@ void AMass::Solve(const std::vector<A2DVector>& container, const AnElement& pare
 		{
 			// ---------- OVERLAP FORCE ----------
 			A3DVector sumO(0, 0, 0);
-			/*A3DVector ctrPt;
+			A3DVector ctrPt;
 			A3DVector dir;
 			for (unsigned int a = 0; a < _triangles.size(); a++)
 			{
@@ -459,9 +459,9 @@ void AMass::Solve(const std::vector<A2DVector>& container, const AnElement& pare
 			sumO *= SystemParams::_k_overlap;
 			
 			if (!sumO.IsBad())
-			{ this->_overlapForce += sumO; }*/
+			{ this->_overlapForce += sumO; }
 
-			A3DVector dir = (A3DVector(250, 250, _pos._z).DirectionTo(_pos)).Norm();
+			/*A3DVector dir = (A3DVector(250, 250, _pos._z).DirectionTo(_pos)).Norm();
 			A2DVector dRIght(-dir._y, dir._x); // this is left
 			A2DVector dLeft(dir._y, - dir._x);  // this is right
 
@@ -470,7 +470,7 @@ void AMass::Solve(const std::vector<A2DVector>& container, const AnElement& pare
 			if (!sumO.IsBad())
 			{
 				this->_overlapForce += sumO;
-			}
+			}*/
 		}
 		else
 		{

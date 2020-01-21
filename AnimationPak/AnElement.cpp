@@ -322,7 +322,7 @@ void AnElement::CreateDockPoint(A2DVector queryPos, A2DVector lockPos, int layer
 void AnElement::Docking(std::vector<A3DVector> aPath, std::vector<int> layer_indices)
 {
 	// 
-	/*float zGap = SystemParams::_upscaleFactor / (float)(SystemParams::_num_layer - 1);
+	float zGap = SystemParams::_upscaleFactor / (float)(SystemParams::_num_layer - 1);
 
 	// calculating offset based on bounding square
 	A2DRectangle bb = UtilityFunctions::GetBoundingBox(UtilityFunctions::Convert3Dto2D(_per_layer_boundary[0]));
@@ -371,7 +371,7 @@ void AnElement::Docking(std::vector<A3DVector> aPath, std::vector<int> layer_ind
 			}
 
 		}
-	}*/
+	}
 
 	// lock
 	for (int a = 0; a < layer_indices.size(); a++) // between two keyframes
@@ -1233,13 +1233,13 @@ void AnElement::Grow(float growth_scale_iter, float dt)
 	}
 
 	// update
-	for (int a = 0; a < _massList.size(); a++)
+	/*for (int a = 0; a < _massList.size(); a++)
 	{
 		if (_massList[a]._is_inside || _massList[a]._closest_dist < SystemParams::_growth_min_dist)
 		{
 			_insideFlags[_massList[a]._layer_idx] = true;
 		}
-	}
+	}*/
 
 	// update
 	for (int a = 0; a < SystemParams::_num_layer; a++)

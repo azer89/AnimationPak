@@ -30,6 +30,8 @@ StuffWorker::StuffWorker() : _containerWorker(0), _is_paused(false), _my_thread_
 	//_cg_single_t = 0;
 	_num_iteration = 0;
 
+	_obj_ctr = 0;
+
 	_max_c_pts = 0;
 	_max_c_pts_approx = 0;
 
@@ -1370,6 +1372,31 @@ void StuffWorker::SaveFrames4()
 	std::stringstream ss;
 	ss << SystemParams::_save_folder;
 	vCreator.Save(ss.str());
+}
+
+void StuffWorker::SaveToWavefrontOBJ()
+{
+	PathIO pIO;
+
+	// all elements
+	/*std::stringstream ss;
+	ss << SystemParams::_save_folder << "scene_" << _obj_ctr++ << ".obj";
+	pIO.SaveSceneToWavefrontOBJ(_element_list, ss.str().c_str());*/
+
+	// guided elements
+	std::stringstream ss;
+	ss << SystemParams::_save_folder << "guided_" << _obj_ctr << ".obj";
+	pIO.SaveSceneToWavefrontOBJ(_element_list, 0, 2, ss.str().c_str());
+
+	// unguided elements
+	std::stringstream ss3;
+	ss3 << SystemParams::_save_folder << "unguided_" << _obj_ctr++ << ".obj";
+	pIO.SaveSceneToWavefrontOBJ(_element_list, 2, _element_list.size(), ss3.str().c_str());
+
+	// container
+	std::stringstream ss2;
+	ss2 << SystemParams::_save_folder << "container.obj";
+	pIO.SaveContainerToWavefrontOBJ(_containerWorker->_2d_container, ss2.str().c_str());
 }
 
 void StuffWorker::SaveFrames3()

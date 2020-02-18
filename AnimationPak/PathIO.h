@@ -62,6 +62,11 @@ public:
 		           std::vector<A2DVector>& positions, 
 		           std::string filename);
 
+	void SaveContainerToWavefrontOBJ(std::vector<A2DVector>& container_poly, std::string filename);
+	void SaveSceneToWavefrontOBJ(std::vector<AnElement>& elems, std::string filename);
+
+	void SaveSceneToWavefrontOBJ(std::vector<AnElement>& elems, int first_idx, int last_idx, std::string filename);
+
 };
 
 #endif

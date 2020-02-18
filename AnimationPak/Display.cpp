@@ -92,6 +92,10 @@ bool Display::frameStarted(const Ogre::FrameEvent& evt)
 		_sWorker->SaveStatistics();
 		_sWorker->SaveScene();
 	}
+	if (ImGui::Button("Save To Wavefront OBJ"))
+	{
+		_sWorker->SaveToWavefrontOBJ();
+	}
 	if (ImGui::Button("Pause/Resume Simulation")) { _sWorker->_is_paused = !_sWorker->_is_paused; }
 		
 	ImGui::Text("Visualization");

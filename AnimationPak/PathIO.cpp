@@ -542,3 +542,175 @@ void PathIO::LoadScenes(std::vector <std::vector<A3DVector>>& paths,
 
 	myfile.close();
 }
+
+void  PathIO::SaveContainerToWavefrontOBJ(std::vector<A2DVector>& container_poly, std::string filename)
+{
+	std::ofstream* f = new std::ofstream();
+	f->open(filename);
+
+
+	std::stringstream v_str;
+	std::stringstream t_str;
+
+	float scale_obj = 0.1;
+
+	
+	for (int a = 0; a < container_poly.size(); a++)
+	{
+		v_str << "v " << container_poly[a].x * scale_obj << " " <<
+						0 << " " << // RHINO !!!
+						container_poly[a].y * scale_obj << "\n";
+	}
+	
+	for (int a = 0; a < container_poly.size(); a++)
+	{
+		v_str << "v " << container_poly[a].x * scale_obj << " " <<
+			SystemParams::_upscaleFactor *  scale_obj << " " << // RHINO !!!
+			container_poly[a].y * scale_obj << "\n";
+	}
+
+
+	int ctr_sz = container_poly.size();
+	for (int a = 0; a < container_poly.size(); a++)
+	{
+		int cur_1 = a;
+		int cur_2 = a + ctr_sz;
+
+		
+		int next_1 = cur_1 + 1;
+		int next_2 = cur_2 + 1;
+
+		if (a == container_poly.size() - 1)
+		{
+			next_1 = 0;
+			next_2 = ctr_sz;
+		}
+
+		// cur_1, next_1, cur_2
+		t_str << "f " << cur_1 + 1 << " "
+						<< next_1 + 1 << " "
+						<< cur_2 + 1 << "\n";
+
+		// next_1, next_2, cur_2
+			t_str << "f " << next_1 + 1 << " "
+						<< next_2 + 1 << " "
+						<< cur_2 + 1 << "\n";
+	}
+
+
+
+
+	*f << v_str.str().c_str();
+	*f << t_str.str().c_str();
+
+	f->close();
+	delete f;
+}
+
+void PathIO::SaveSceneToWavefrontOBJ(std::vector<AnElement>& elems, int first_idx, int last_idx, std::string filename)
+{
+	std::ofstream* f = new std::ofstream();
+	f->open(filename);
+
+	std::stringstream v_str;
+	std::stringstream t_str;
+
+	float scale_obj = 0.1;
+
+	int v_ctr = 1; // index starts at 1
+	for (int a = first_idx; a < last_idx; a++)
+	{
+		for (int b = 0; b < elems[a]._massList.size(); b++)
+		{
+			v_str << "v " << elems[a]._massList[b]._pos._x * scale_obj << " " <<
+				elems[a]._massList[b]._pos._z * scale_obj  * -1.0f << " " << // RHINO !!!
+				elems[a]._massList[b]._pos._y * scale_obj << "\n";
+		}
+
+		// first layer
+		for (int b = 0; b < elems[a]._numTrianglePerLayer; b++)
+		{
+			t_str << "f " << elems[a]._triangles[b].idx0 + v_ctr << " "
+				<< elems[a]._triangles[b].idx1 + v_ctr << " "
+				<< elems[a]._triangles[b].idx2 + v_ctr << "\n";
+		}
+
+		for (int b = 0; b < elems[a]._surfaceTriangles.size(); b++)
+		{
+			t_str << "f " << elems[a]._surfaceTriangles[b].idx0 + v_ctr << " "
+				<< elems[a]._surfaceTriangles[b].idx1 + v_ctr << " "
+				<< elems[a]._surfaceTriangles[b].idx2 + v_ctr << "\n";
+		}
+
+		// last layer
+		int triOffset = (SystemParams::_num_layer - 1) * elems[a]._numTrianglePerLayer;
+		for (int b = 0; b < elems[a]._numTrianglePerLayer; b++)
+		{
+			t_str << "f " << elems[a]._triangles[b + triOffset].idx0 + v_ctr << " "
+				<< elems[a]._triangles[b + triOffset].idx1 + v_ctr << " "
+				<< elems[a]._triangles[b + triOffset].idx2 + v_ctr << "\n";
+		}
+
+		v_ctr += elems[a]._massList.size();
+	}
+
+	*f << v_str.str().c_str();
+	*f << t_str.str().c_str();
+
+	f->close();
+	delete f;
+}
+
+void PathIO::SaveSceneToWavefrontOBJ(std::vector<AnElement>& elems, std::string filename)
+{
+	std::ofstream* f = new std::ofstream();
+	f->open(filename);
+
+	std::stringstream v_str;
+	std::stringstream t_str;
+
+	float scale_obj = 0.1;
+
+	int v_ctr = 1; // index starts at 1
+	for (int a = 0; a < elems.size(); a++)
+	{
+		for (int b = 0; b < elems[a]._massList.size(); b++)
+		{
+			v_str << "v " << elems[a]._massList[b]._pos._x * scale_obj << " " <<
+				             elems[a]._massList[b]._pos._z * scale_obj << " " << // RHINO !!!
+				             elems[a]._massList[b]._pos._y * scale_obj << "\n";
+		}
+
+		// first layer
+		for (int b = 0; b < elems[a]._numTrianglePerLayer; b++)
+		{
+			t_str << "f " << elems[a]._triangles[b].idx0 + v_ctr << " "
+						  << elems[a]._triangles[b].idx1 + v_ctr << " "
+						  << elems[a]._triangles[b].idx2 + v_ctr << "\n";
+		}
+
+		for (int b = 0; b < elems[a]._surfaceTriangles.size(); b++)
+		{
+			t_str << "f " << elems[a]._surfaceTriangles[b].idx0 + v_ctr  << " " 
+				          << elems[a]._surfaceTriangles[b].idx1 + v_ctr  << " " 
+				          << elems[a]._surfaceTriangles[b].idx2 + v_ctr << "\n";
+		}
+
+		// last layer
+		int triOffset = (SystemParams::_num_layer - 1) * elems[a]._numTrianglePerLayer;
+		for (int b = 0; b < elems[a]._numTrianglePerLayer; b++)
+		{
+			t_str << "f " << elems[a]._triangles[b + triOffset].idx0 + v_ctr << " "
+						<< elems[a]._triangles[b + triOffset].idx1 + v_ctr << " "
+						<< elems[a]._triangles[b + triOffset].idx2 + v_ctr << "\n";
+				}
+
+		v_ctr += elems[a]._massList.size();
+	}
+
+	*f << v_str.str().c_str();
+	*f << t_str.str().c_str();
+
+	f->close();
+	delete f;
+}

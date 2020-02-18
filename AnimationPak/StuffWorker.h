@@ -84,6 +84,9 @@ public:
 	void SaveFrames3();
 	void SaveFrames4();
 
+	int _obj_ctr;
+	void SaveToWavefrontOBJ();
+
 public:
 	bool _is_paused;
 

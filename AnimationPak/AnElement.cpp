@@ -1872,6 +1872,33 @@ void AnElement::InitMeshOgre3D(Ogre::SceneManager* sceneMgr,
 	_center_node->attachObject(_center_lines);
 }
 
+void AnElement::RecalculateArts(int layer_i)
+{
+	AnIdxTriangle tri(0, 0, 0);
+	ABary bary(0, 0, 0);
+
+	int idx_offset = 0;
+	if (layer_i > 0)
+	{
+		idx_offset = layer_i * _numTrianglePerLayer;
+	}
+
+	int art_sz = _arts.size();
+	for (unsigned int a = 0; a < art_sz; a++)
+	{
+		int art_sz_2 = _arts[a].size();
+		for (unsigned int b = 0; b < art_sz_2; b++)
+		{
+			tri = _triangles[_arts2Triangles[a][b] + idx_offset];
+
+			bary = _baryCoords[a][b];
+			_arts[a][b] = _massList[tri.idx0]._pos.GetA2DVector() * bary._u +
+						_massList[tri.idx1]._pos.GetA2DVector() * bary._v +
+						_massList[tri.idx2]._pos.GetA2DVector() * bary._w;
+		}
+	}
+}
+
 void AnElement::RecalculateArts()
 {
 	AnIdxTriangle tri(0, 0, 0);

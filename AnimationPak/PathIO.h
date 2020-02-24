@@ -63,10 +63,15 @@ public:
 		           std::string filename);
 
 	void SaveContainerToWavefrontOBJ(std::vector<A2DVector>& container_poly, std::string filename);
+
 	void SaveSceneToWavefrontOBJ(std::vector<AnElement>& elems, std::string filename);
 
 	void SaveSceneToWavefrontOBJ(std::vector<AnElement>& elems, int first_idx, int last_idx, std::string filename);
 
+	void SaveFrontBackFacesToWavefrontOBJ(std::vector<AnElement>& elems, int first_idx, int last_idx, std::string filename);
+
+
+	void SaveArtsToWavefrontOBJ(std::vector<std::vector<A3DVector>> _arts, std::string filename);
 };
 
 #endif

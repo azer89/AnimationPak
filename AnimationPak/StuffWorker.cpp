@@ -1374,6 +1374,25 @@ void StuffWorker::SaveFrames4()
 	vCreator.Save(ss.str());
 }
 
+std::vector<std::vector<A3DVector>> Arts_2D_to_3D(std::vector<std::vector<A2DVector>> arts, float zPos)
+{
+	std::vector<std::vector<A3DVector>> arts3d;
+
+	for (int a = 0; a < arts.size(); a++)
+	{
+		std::vector<A3DVector> a3d;
+
+		for (int b = 0; b < arts[a].size(); b++)
+		{
+			a3d.push_back(A3DVector(arts[a][b].x, arts[a][b].y, zPos));
+		}
+		arts3d.push_back(a3d);
+	}
+
+	return arts3d;
+}
+
+
 void StuffWorker::SaveToWavefrontOBJ()
 {
 	PathIO pIO;
@@ -1383,20 +1402,52 @@ void StuffWorker::SaveToWavefrontOBJ()
 	ss << SystemParams::_save_folder << "scene_" << _obj_ctr++ << ".obj";
 	pIO.SaveSceneToWavefrontOBJ(_element_list, ss.str().c_str());*/
 
+	{
+		for (int a = 0; a < _element_list.size(); a++)
+		{
+			_element_list[a].CalculateLayerTriangles_Drawing();
+		}
+		std::stringstream ss2;
+		ss2 << SystemParams::_save_folder << "arts_" << _obj_ctr++ << ".obj";
+		std::vector<std::vector<A3DVector>> all_arts;
+		float zGap = (float)SystemParams::_upscaleFactor / (float)(SystemParams::_num_layer - 1);
+		for (int i = 0; i < _element_list.size(); i++)
+		{
+				_element_list[i].RecalculateArts(0);
+				std::vector<std::vector<A3DVector>> arts = Arts_2D_to_3D(_element_list[i]._arts, 0);
+				all_arts.insert(all_arts.end(), arts.begin(), arts.end());
+		}
+		pIO.SaveArtsToWavefrontOBJ(all_arts, ss2.str().c_str());
+	}
+
 	// guided elements
-	std::stringstream ss;
-	ss << SystemParams::_save_folder << "guided_" << _obj_ctr << ".obj";
-	pIO.SaveSceneToWavefrontOBJ(_element_list, 0, 2, ss.str().c_str());
+	std::stringstream ss0;
+	ss0 << SystemParams::_save_folder << "guided_surface_" << _obj_ctr << ".obj";
+	pIO.SaveSceneToWavefrontOBJ(_element_list, 0, 2, ss0.str().c_str());
 
 	// unguided elements
 	std::stringstream ss3;
-	ss3 << SystemParams::_save_folder << "unguided_" << _obj_ctr++ << ".obj";
+	ss3 << SystemParams::_save_folder << "unguided_surface_" << _obj_ctr << ".obj";
 	pIO.SaveSceneToWavefrontOBJ(_element_list, 2, _element_list.size(), ss3.str().c_str());
 
+	// guided elements
+	std::stringstream ss;
+	ss << SystemParams::_save_folder << "guided_frontback_" << _obj_ctr << ".obj";
+	pIO.SaveFrontBackFacesToWavefrontOBJ(_element_list, 0, 2, ss.str().c_str());
+
+	// unguided elements
+	std::stringstream ss4;
+	ss4 << SystemParams::_save_folder << "unguided_frontback_" << _obj_ctr << ".obj";
+	pIO.SaveFrontBackFacesToWavefrontOBJ(_element_list, 2, _element_list.size(), ss4.str().c_str());
+
+
+
+	_obj_ctr++;
+
 	// container
-	std::stringstream ss2;
-	ss2 << SystemParams::_save_folder << "container.obj";
-	pIO.SaveContainerToWavefrontOBJ(_containerWorker->_2d_container, ss2.str().c_str());
+	std::stringstream ss5;
+	ss5 << SystemParams::_save_folder << "container.obj";
+	pIO.SaveContainerToWavefrontOBJ(_containerWorker->_2d_container, ss5.str().c_str());
 }
 
 void StuffWorker::SaveFrames3()

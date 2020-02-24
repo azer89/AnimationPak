@@ -149,6 +149,7 @@ public:
 	
 	
 	void RecalculateArts();
+	void RecalculateArts(int layer_i); // int layer_i
 	
 	// ----- interpolation ----- 
 	//A2DVector Interp_ClosestPtOnALayer(A2DVector pt, int layer_idx);

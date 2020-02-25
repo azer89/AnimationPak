@@ -1408,7 +1408,7 @@ void StuffWorker::SaveToWavefrontOBJ()
 			_element_list[a].CalculateLayerTriangles_Drawing();
 		}
 		std::stringstream ss2;
-		ss2 << SystemParams::_save_folder << "arts_" << _obj_ctr++ << ".obj";
+		ss2 << SystemParams::_save_folder << "arts_" << _obj_ctr << ".obj";
 		std::vector<std::vector<A3DVector>> all_arts;
 		float zGap = (float)SystemParams::_upscaleFactor / (float)(SystemParams::_num_layer - 1);
 		for (int i = 0; i < _element_list.size(); i++)

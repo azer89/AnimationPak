@@ -138,6 +138,8 @@ public:
 
 
 	static int _num_layer_growing_threshold;
+
+
 };
 
 #endif

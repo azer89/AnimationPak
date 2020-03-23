@@ -113,3 +113,7 @@ _num_element_density   = 100;
 -- stopping criteria
 _num_layer_growing_threshold = 100; --100
 
+
+-- for wafefront objs
+_obj_time_gap = 10;
+

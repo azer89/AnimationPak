@@ -179,6 +179,9 @@ bool Display::frameStarted(const Ogre::FrameEvent& evt)
 // setup OGRE
 void Display::setup()
 {
+	_obj_time_ctr = 0;
+	_obj_time_gap = 0;
+
 	OgreBites::ApplicationContext::setup();
 	this->getRenderWindow()->resize(1400, 900); // window size
 	this->getRenderWindow()->reposition(5, 5);

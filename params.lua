@@ -115,5 +115,5 @@ _num_layer_growing_threshold = 100; --100
 
 
 -- for wafefront objs
-_obj_time_gap = 10;
+_obj_time_gap = 5;
 

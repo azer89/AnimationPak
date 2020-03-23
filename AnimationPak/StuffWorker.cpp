@@ -1397,12 +1397,8 @@ void StuffWorker::SaveToWavefrontOBJ()
 {
 	PathIO pIO;
 
-	// all elements
-	/*std::stringstream ss;
-	ss << SystemParams::_save_folder << "scene_" << _obj_ctr++ << ".obj";
-	pIO.SaveSceneToWavefrontOBJ(_element_list, ss.str().c_str());*/
-
-	{
+	// UNCOMMENT MEEE
+	/*{
 		for (int a = 0; a < _element_list.size(); a++)
 		{
 			_element_list[a].CalculateLayerTriangles_Drawing();
@@ -1418,7 +1414,7 @@ void StuffWorker::SaveToWavefrontOBJ()
 				all_arts.insert(all_arts.end(), arts.begin(), arts.end());
 		}
 		pIO.SaveArtsToWavefrontOBJ(all_arts, ss2.str().c_str());
-	}
+	}*/
 
 	// guided elements
 	std::stringstream ss0;

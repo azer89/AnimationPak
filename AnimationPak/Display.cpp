@@ -50,6 +50,14 @@ bool Display::frameStarted(const Ogre::FrameEvent& evt)
 	Ogre::ImguiManager::getSingleton().newFrame(
 									evt.timeSinceLastFrame,
 									Ogre::Rect(0, 0, getRenderWindow()->getWidth(), getRenderWindow()->getHeight()));
+
+	_obj_time_ctr += evt.timeSinceLastFrame;
+	if (_obj_time_ctr > _obj_time_gap)
+	{
+		std::cout << "OBJ " << _sWorker->_obj_ctr << "\n";
+		_sWorker->SaveToWavefrontOBJ();
+		_obj_time_ctr = 0;
+	}
 	
 	if(_cameraActivated)
 	{
@@ -180,7 +188,7 @@ bool Display::frameStarted(const Ogre::FrameEvent& evt)
 void Display::setup()
 {
 	_obj_time_ctr = 0;
-	_obj_time_gap = 0;
+	_obj_time_gap = SystemParams::_obj_time_gap;
 
 	OgreBites::ApplicationContext::setup();
 	this->getRenderWindow()->resize(1400, 900); // window size

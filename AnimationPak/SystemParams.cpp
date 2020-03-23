@@ -111,6 +111,8 @@ void SystemParams::LoadParameters()
 
 	SystemParams::_num_layer_growing_threshold = script.get<int>("_num_layer_growing_threshold");
 
+	SystemParams::_obj_time_gap = script.get<float>("_obj_time_gap");
+
 	std::stringstream ss;
 	ss << "copy " << _lua_file << " " << SystemParams::_save_folder << "params.lua";
 	std::cout << ss.str() << "\n";
@@ -233,3 +235,5 @@ bool SystemParams::_show_container   = true;
 int SystemParams::_layer_slider_int  = -1;
 
 int SystemParams::_num_layer_growing_threshold = 0;
+
+float SystemParams::_obj_time_gap = 0;

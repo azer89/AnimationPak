@@ -139,7 +139,7 @@ public:
 
 	static int _num_layer_growing_threshold;
 
-
+	static float _obj_time_gap;
 };
 
 #endif

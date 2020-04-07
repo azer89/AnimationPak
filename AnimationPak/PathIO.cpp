@@ -607,6 +607,129 @@ void  PathIO::SaveContainerToWavefrontOBJ(std::vector<A2DVector>& container_poly
 	delete f;
 }
 
+void PathIO::SaveFrontBackFacesToWavefrontOBJBasedOnName(std::vector<AnElement>& elems, std::string containStr, std::string filename)
+{
+	std::ofstream* f = new std::ofstream();
+	f->open(filename);
+
+	std::stringstream v_str;
+	std::stringstream t_str;
+
+	float scale_obj = 0.1;
+
+	int v_ctr = 1; // index starts at 1
+	for (int a = 0; a < elems.size(); a++)
+	{
+		if (elems[a]._name.find(containStr) == std::string::npos)
+		{
+			continue;
+		}
+
+		for (int b = 0; b < elems[a]._massList.size(); b++)
+		{
+			v_str << "v " << elems[a]._massList[b]._pos._x * scale_obj << " " <<
+				elems[a]._massList[b]._pos._z * scale_obj  * -1.0f << " " << // RHINO !!!
+				elems[a]._massList[b]._pos._y * scale_obj << "\n";
+		}
+
+		// first layer
+		for (int b = 0; b < elems[a]._numTrianglePerLayer; b++)
+		{
+			t_str << "f " << elems[a]._triangles[b].idx0 + v_ctr << " "
+				<< elems[a]._triangles[b].idx1 + v_ctr << " "
+				<< elems[a]._triangles[b].idx2 + v_ctr << "\n";
+		}
+
+		/*for (int b = 0; b < elems[a]._surfaceTriangles.size(); b++)
+		{
+			t_str << "f " << elems[a]._surfaceTriangles[b].idx0 + v_ctr << " "
+				<< elems[a]._surfaceTriangles[b].idx1 + v_ctr << " "
+				<< elems[a]._surfaceTriangles[b].idx2 + v_ctr << "\n";
+		}*/
+
+		// last layer
+		int triOffset = (SystemParams::_num_layer - 1) * elems[a]._numTrianglePerLayer;
+		for (int b = 0; b < elems[a]._numTrianglePerLayer; b++)
+		{
+			t_str << "f " << elems[a]._triangles[b + triOffset].idx0 + v_ctr << " "
+				<< elems[a]._triangles[b + triOffset].idx1 + v_ctr << " "
+				<< elems[a]._triangles[b + triOffset].idx2 + v_ctr << "\n";
+		}
+
+		v_ctr += elems[a]._massList.size();
+	}
+
+	*f << v_str.str().c_str();
+	*f << t_str.str().c_str();
+
+	f->close();
+	delete f;
+}
+
+void PathIO::SaveSceneToWavefrontOBJBasedOnName(std::vector<AnElement>& elems, std::string containStr, std::string filename)
+{
+	std::ofstream* f = new std::ofstream();
+	f->open(filename);
+
+	std::stringstream v_str;
+	std::stringstream t_str;
+
+	float scale_obj = 0.1;
+
+	int v_ctr = 1; // index starts at 1
+	for (int a = 0; a < elems.size(); a++)
+	{
+		
+		if (elems[a]._name.find(containStr) == std::string::npos)
+		{
+			continue;
+		}
+
+		
+		A2DVector posFirst = elems[a]._layer_center_array[0];
+		std::cout << elems[a]._name << " ==> " << posFirst.x << ", " << posFirst.y << "\n";
+
+		for (int b = 0; b < elems[a]._massList.size(); b++)
+		{
+			v_str << "v " << elems[a]._massList[b]._pos._x * scale_obj << " " <<
+				elems[a]._massList[b]._pos._z * scale_obj  * -1.0f << " " << // RHINO !!!
+				elems[a]._massList[b]._pos._y * scale_obj << "\n";
+		}
+
+		// first layer
+		/*for (int b = 0; b < elems[a]._numTrianglePerLayer; b++)
+		{
+			t_str << "f " << elems[a]._layerTriangles[b].idx0 + v_ctr << " "
+				<< elems[a]._layerTriangles[b].idx1 + v_ctr << " "
+				<< elems[a]._layerTriangles[b].idx2 + v_ctr << "\n";
+		}*/
+
+		for (int b = 0; b < elems[a]._surfaceTriangles.size(); b++)
+		{
+			t_str << "f " << elems[a]._surfaceTriangles[b].idx0 + v_ctr << " "
+				<< elems[a]._surfaceTriangles[b].idx1 + v_ctr << " "
+				<< elems[a]._surfaceTriangles[b].idx2 + v_ctr << "\n";
+		}
+
+		// last layer
+		/*int triOffset = (SystemParams::_num_layer - 1) * elems[a]._numTrianglePerLayer;
+		for (int b = 0; b < elems[a]._numTrianglePerLayer; b++)
+		{
+			t_str << "f " << elems[a]._layerTriangles[b + triOffset].idx0 + v_ctr << " "
+				<< elems[a]._layerTriangles[b + triOffset].idx1 + v_ctr << " "
+				<< elems[a]._layerTriangles[b + triOffset].idx2 + v_ctr << "\n";
+		}*/
+
+		v_ctr += elems[a]._massList.size();
+	}
+
+	*f << v_str.str().c_str();
+	*f << t_str.str().c_str();
+
+	f->close();
+	delete f;
+}
+
 void PathIO::SaveFrontBackFacesToWavefrontOBJ(std::vector<AnElement>& elems, int first_idx, int last_idx, std::string filename)
 {
 	std::ofstream* f = new std::ofstream();

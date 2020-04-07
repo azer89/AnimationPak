@@ -54,9 +54,9 @@ bool Display::frameStarted(const Ogre::FrameEvent& evt)
 	_obj_time_ctr += evt.timeSinceLastFrame;
 	if (_obj_time_ctr > _obj_time_gap)
 	{
-		std::cout << "OBJ " << _sWorker->_obj_ctr << "\n";
-		_sWorker->SaveToWavefrontOBJ();
-		_obj_time_ctr = 0;
+		//std::cout << "OBJ " << _sWorker->_obj_ctr << "\n";
+		//_sWorker->SaveToWavefrontOBJ();
+		//_obj_time_ctr = 0;
 	}
 	
 	if(_cameraActivated)

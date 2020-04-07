@@ -1417,26 +1417,45 @@ void StuffWorker::SaveToWavefrontOBJ()
 	}*/
 
 	// guided elements
-	std::stringstream ss0;
+	/*std::stringstream ss0;
 	ss0 << SystemParams::_save_folder << "guided_surface_" << _obj_ctr << ".obj";
-	pIO.SaveSceneToWavefrontOBJ(_element_list, 0, 2, ss0.str().c_str());
+	//pIO.SaveSceneToWavefrontOBJ(_element_list, 0, 2, ss0.str().c_str());
+	pIO.SaveSceneToWavefrontOBJBasedOnName(_element_list, "4_fish_animated_3_18", ss0.str().c_str());
 
 	// unguided elements
 	std::stringstream ss3;
 	ss3 << SystemParams::_save_folder << "unguided_surface_" << _obj_ctr << ".obj";
-	pIO.SaveSceneToWavefrontOBJ(_element_list, 2, _element_list.size(), ss3.str().c_str());
+	//pIO.SaveSceneToWavefrontOBJ(_element_list, 2, _element_list.size(), ss3.str().c_str());
+	pIO.SaveSceneToWavefrontOBJBasedOnName(_element_list, "4_fish_animated_3_18", ss3.str().c_str());
 
 	// guided elements
 	std::stringstream ss;
 	ss << SystemParams::_save_folder << "guided_frontback_" << _obj_ctr << ".obj";
-	pIO.SaveFrontBackFacesToWavefrontOBJ(_element_list, 0, 2, ss.str().c_str());
+	//pIO.SaveFrontBackFacesToWavefrontOBJ(_element_list, 0, 2, ss.str().c_str());
+	pIO.SaveFrontBackFacesToWavefrontOBJBasedOnName(_element_list, "4_fish_animated_3_18", ss.str().c_str());
 
 	// unguided elements
 	std::stringstream ss4;
 	ss4 << SystemParams::_save_folder << "unguided_frontback_" << _obj_ctr << ".obj";
-	pIO.SaveFrontBackFacesToWavefrontOBJ(_element_list, 2, _element_list.size(), ss4.str().c_str());
+	//pIO.SaveFrontBackFacesToWavefrontOBJ(_element_list, 2, _element_list.size(), ss4.str().c_str());
+	pIO.SaveFrontBackFacesToWavefrontOBJBasedOnName(_element_list, "4_fish_animated_3_18", ss4.str().c_str());
+	*/
 
+	for (int a = 2; a < _element_list.size(); a++)
+	{
+		//std::cout << _element_list[a]._name << "\n";
+		if (_element_list[a]._name.find("4_fish_animated") != std::string::npos)
+		{
+			std::stringstream ss;
+			ss << SystemParams::_save_folder << "frontback_" << _obj_ctr << "_" << a << ".obj";
+			pIO.SaveFrontBackFacesToWavefrontOBJ(_element_list, a, a + 1, ss.str().c_str());
 
+			std::stringstream ss2;
+			ss2 << SystemParams::_save_folder << "surface_" << _obj_ctr << "_" << a << ".obj";
+			pIO.SaveSceneToWavefrontOBJ(_element_list, a, a + 1, ss2.str().c_str());
+		}
+			
+	}
 
 	_obj_ctr++;
 

@@ -77,6 +77,7 @@ AnElement::AnElement()
 	//_is_growing = true;
 
 	_name = "";
+	
 }
 
 AnElement::~AnElement()

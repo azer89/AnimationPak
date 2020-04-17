@@ -41,6 +41,36 @@ void AVideoCreator::DrawFilledArt(std::vector<std::vector<A2DVector>> arts, MyCo
 	}
 }
 
+void AVideoCreator::DrawFilledArtOffset(std::vector<std::vector<A2DVector>> arts,
+							std::vector <MyColor> b_colors,
+							std::vector <MyColor> f_colors,
+							int frameIdx,
+		                    A2DVector offsetPos)
+{
+	for (int a = 0; a < arts.size(); a++)
+	{
+		for (int b = 0; b < arts[a].size(); b++)
+		{
+			arts[a][b] += offsetPos;
+		}
+	}
+
+	for (int a = arts.size() - 1; a >= 0; a--) // backward
+	{
+		// fill
+		if (b_colors[a].IsValid())
+		{
+			_cvWrapper.DrawFilledPoly(_frames[frameIdx], arts[a], b_colors[a], _img_scale);
+		}
+
+		// stroke
+		if (f_colors[a].IsValid())
+		{
+			_cvWrapper.DrawPolyOnCVImage(_frames[frameIdx]._img, arts[a], f_colors[a], true, 3.0f, _img_scale);
+		}
+	}
+}
+
 void  AVideoCreator::DrawFilledArt(std::vector<std::vector<A2DVector>> arts,
 									std::vector <MyColor> b_colors,
 									std::vector <MyColor> f_colors,

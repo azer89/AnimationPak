@@ -4,11 +4,11 @@
 _window_title        = "1";
 --- A directory where we have to save output files
 _save_folder         = "C:\\Users\\azer\\OneDrive\\Images\\PhysicsPak_Snapshots_0" .. _window_title .. "\\";
-_animated_element_folder= "C:\\Users\\azer\\OneDrive\\Images\\_animation_pak_data\\marine_life_ani\\"; 
+_animated_element_folder    = "C:\\Users\\azer\\OneDrive\\Images\\_animation_pak_data\\birbs_in_star_ani\\"; 
 _static_element_folder      = "C:\\Users\\azer\\OneDrive\\Images\\_animation_pak_data\\stars\\";
 --_element_file_name   = "C:\\Users\\azer\\OneDrive\\Images\\_animation_pak_data\\bear.path"; -- NOT USED ANYMORE
-_container_file_name = "C:\\Users\\azer\\OneDrive\\Images\\_animation_pak_data\\containers\\circle.path";
-_scene_file_name = "C:\\Users\\azer\\OneDrive\\Images\\_animation_pak_data\\containers\\circle_33.scene";
+_container_file_name = "C:\\Users\\azer\\OneDrive\\Images\\_animation_pak_data\\containers\\star.path";
+_scene_file_name = "C:\\Users\\azer\\OneDrive\\Images\\_animation_pak_data\\containers\\star.scene";
 
 --- artboard dimension (do not edit this)
 --- the parameter below means the artboard size is 500x500
@@ -42,7 +42,7 @@ _k_repulsion           = 10.0;	--- 10 repulsion force
 _k_overlap             = 5;	    --- overlap force
 _k_boundary            = 10;	--- 0.1 boundary force
 _k_rotate              = 0.2;		--- 1
-_k_dock                = 0.1;
+_k_dock                = 0.5;
 
 
 _k_aux_threshold = 0.7;
@@ -58,7 +58,7 @@ _velocity_cap   = 10; -- [Do not edit]
 
 --- Grid for collision detection
 --- size of a cell
-_bin_square_size         = 20; -- 25
+_bin_square_size         = 25; -- 25
 --- cell gap for detection, 
 --- 1 means considering all cells that are 1 block away from the query (3x3)
 --- 2 means considering all cells that are 2 block away from the query (5x5)

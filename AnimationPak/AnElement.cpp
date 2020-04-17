@@ -2703,6 +2703,9 @@ void AnElement::AddConnector(int other_elem_idx, int ur_layer_idx, int their_lay
 	tc._elem_1 = this->_elem_idx;
 	tc._elem_2 = other_elem_idx;
 
+	tc._layer_1 = ur_layer_idx;
+	tc._layer_2 = their_layer_idx;
+
 	int start_mass_idx = ur_layer_idx * _numPointPerLayer;
 	int end_mass_idx = start_mass_idx + _numPointPerLayer;
 	for (int a = start_mass_idx; a < end_mass_idx; a++)
@@ -3346,33 +3349,47 @@ void AnElement::SolveForSprings3D()
 	k = SystemParams::_k_connector;
 	for (int a = 0; a < _t_connectors.size(); a++)
 	{
+		int layer0 = _t_connectors[a]._layer_1;
+		int layer1 = _t_connectors[a]._layer_2;
+
+		//A2DVector pos1_offset(0, 0);
+		A2DVector pos2_offset(0, 0);
+
+		if(_elem_idx == 0)
+		{
+			if (layer0 == 0)
+			{
+				pos2_offset.x = -SystemParams::_upscaleFactor;
+			}
+			else
+			{
+				pos2_offset.x = SystemParams::_upscaleFactor;
+			}
+		}
+
 		for (int b = 0; b < _t_connectors[a]._elem_1_indices.size(); b++)
 		{
 			int other_elem_idx = _t_connectors[a]._elem_2;
 			int idx0 = _t_connectors[a]._elem_1_indices[b];
 			int idx1 = _t_connectors[a]._elem_2_indices[b];
-
+			
 			A2DVector pos1 = _massList[idx0].GetPos().GetA2DVector();
-			A2DVector pos2 = StuffWorker::_element_list[other_elem_idx]._massList[idx1].GetPos().GetA2DVector();
+			A2DVector pos2 = StuffWorker::_element_list[other_elem_idx]._massList[idx1].GetPos().GetA2DVector() + pos2_offset;
 
 			dir_not_unit2d = pos1.DirectionTo(pos2);
-			dir_not_unit2d.GetUnitAndDist(dir2d, dist);
-
-			//diff = dist;
+			dir_not_unit2d.GetUnitAndDist(dir2d, dist); 
 
 			if (dist <  std::numeric_limits<double>::epsilon() &&
 				dist > -std::numeric_limits<double>::epsilon()) 
 			{
 				continue;
 			}
-			// for neg space springs
-			//avg_l += dist;
 
 			// squared version
 			signVal = 1;
 			if (dist < 0) { signVal = -1; }
 			eForce2d = dir2d * k *  dist * dist * signVal;
-			//eForce = dir * k *  diff;
+
 
 			if(!eForce2d.IsBad())
 			{

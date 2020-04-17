@@ -74,9 +74,7 @@ bool Display::frameStarted(const Ogre::FrameEvent& evt)
 	ImGui::SetNextWindowSize(ImVec2(340, 850), ImGuiCond_Always);
 	bool* p_open = NULL;
 	ImGuiWindowFlags window_flags = 0;
-	ImGui::Begin("AnimationPak", p_open, window_flags);
-
-	
+	ImGui::Begin("AnimationPak", p_open, window_flags); 
 
 	if (ImGui::Button("Reload parameters")) { SystemParams::LoadParameters(); }
 	if (ImGui::Button("Save Triangles to PNGs")) { _sWorker->SaveFrames3(); }

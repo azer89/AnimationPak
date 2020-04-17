@@ -15,6 +15,9 @@ public:
 	int _elem_1;
 	int _elem_2;
 
+	int _layer_1;
+	int _layer_2;
+
 	std::vector<int> _elem_1_indices;
 	std::vector<int> _elem_2_indices;
 

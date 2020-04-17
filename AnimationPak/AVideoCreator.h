@@ -20,6 +20,11 @@ public:
 		               std::vector <MyColor> b_colors, 
 		               std::vector <MyColor> f_colors, 
 		               int frameIdx);
+	void DrawFilledArtOffset(std::vector<std::vector<A2DVector>> arts,
+							std::vector <MyColor> b_colors,
+							std::vector <MyColor> f_colors,
+							int frameIdx,
+		                    A2DVector offsetPos);
 	void DrawRedCircle(int frameIdx);
 	void Save(std::string folderName);
 

@@ -496,7 +496,7 @@ void AMass::Solve(const std::vector<A2DVector>& container, const AnElement& pare
 
 	// ---------- BOUNDARY FORCE ----------
 	float k_boundary = SystemParams::_k_boundary;
-	if (!UtilityFunctions::InsidePolygon(container, _pos._x, _pos._y))
+	if (!UtilityFunctions::InsidePolygon(container, _pos._x, _pos._y) && _parent_idx != 0)
 	{
 		A2DVector pos2D = _pos.GetA2DVector();
 		A2DVector cPt = UtilityFunctions::GetClosestPtOnClosedCurve(container, pos2D);

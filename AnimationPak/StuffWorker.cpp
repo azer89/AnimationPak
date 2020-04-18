@@ -76,8 +76,9 @@ void StuffWorker::DockElementsOnPaths(std::vector <std::vector<A3DVector>> paths
 
 		// TODO: from one dockpoint to the next one, not start to finish
 		A2DVector move_dir = paths[a][0].GetA2DVector().DirectionTo(paths[a][len - 1].GetA2DVector());
-		//float radAngle = UtilityFunctions::Angle2D(0, -1, move_dir.x, move_dir.y);
-		elem.RotateXY(3.14159);
+		float radAngle = UtilityFunctions::Angle2D(0, 1, move_dir.x, move_dir.y);
+		elem.RotateXY(radAngle);
+		//elem.RotateXY(-3.14159);
 
 		elem.ScaleXY(initialScale);
 
@@ -364,6 +365,8 @@ void StuffWorker::InitAnimated_Elements(Ogre::SceneManager* scnMgr)
 	int temp_elem_sz = temp_elements.size();
 	float initialScale = SystemParams::_element_initial_scale; // 0.05
 	 
+	paths[0][0] = A3DVector(0, SystemParams::_upscaleFactor / 2, 0);
+	paths[0][1] = A3DVector(SystemParams::_upscaleFactor, SystemParams::_upscaleFactor / 2, SystemParams::_upscaleFactor);
 	DockElementsOnPaths(paths, layer_indices, temp_elements, scnMgr);
 
 	

@@ -3210,6 +3210,10 @@ void AnElement::SolveForSprings3D()
 	// ----- 00000 Layer Spring -----
 	int tr_sz = _layer_springs.size();
 	k = _k_edge; // original
+	if (_elem_idx == 0)
+	{
+		k *= 5;
+	}
 	for (unsigned int a = 0; a < tr_sz; a++)
 	{
 		idx0 = _layer_springs[a]._index0;
@@ -3242,6 +3246,10 @@ void AnElement::SolveForSprings3D()
 	// ----- 11111 Time Spring -----
 	tr_sz = _time_springs.size();
 	k = SystemParams::_k_time_edge;
+	if (_elem_idx == 0)
+	{
+		k *= 20;
+	}
 	for (unsigned int a = 0; a < tr_sz; a++)
 	{
 		idx0 = _time_springs[a]._index0;

@@ -32,7 +32,7 @@ _num_threads = 12;
 --- Force parameters
 _k_connector           = 5;
 _k_edge_start          = 20;   -- 5 edge force for filling elements
-_k_edge_end            = 5;     --- 5 edge force for filling elements
+_k_edge_end            = 10;     --- 5 edge force for filling elements
 --_k_edge              = 40;	--- 0.5 edge force for filling elements
 _k_z                   = 1;   --- preventing layers to stray away in z direction
 _k_time_edge           = 0.002;
@@ -58,7 +58,7 @@ _velocity_cap   = 10; -- [Do not edit]
 
 --- Grid for collision detection
 --- size of a cell
-_bin_square_size         = 25; -- 25
+_bin_square_size         = 20; -- 25
 --- cell gap for detection, 
 --- 1 means considering all cells that are 1 block away from the query (3x3)
 --- 2 means considering all cells that are 2 block away from the query (5x5)
@@ -78,7 +78,7 @@ _max_m_c_pts_approx_len = 2000;
 
 --- for growing
 _growth_scale_iter     = 0.01; -- 0.01
-_element_initial_scale = 0.07; 
+_element_initial_scale = 0.1; 
 _element_max_scale     = 15.0;  -- 8.25
 
 --- epsilon for halting the growth

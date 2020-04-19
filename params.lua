@@ -30,7 +30,7 @@ _num_threads = 12;
 --_num_thread_solve   = 12;
 
 --- Force parameters
-_k_connector           = 5;
+_k_connector           = 10;
 _k_edge_start          = 20;   -- 5 edge force for filling elements
 _k_edge_end            = 10;     --- 5 edge force for filling elements
 --_k_edge              = 40;	--- 0.5 edge force for filling elements
@@ -42,7 +42,7 @@ _k_repulsion           = 10.0;	--- 10 repulsion force
 _k_overlap             = 5;	    --- overlap force
 _k_boundary            = 10;	--- 0.1 boundary force
 _k_rotate              = 0.2;		--- 1
-_k_dock                = 0.1;
+_k_dock                = 0.8;
 
 
 _k_aux_threshold = 0.7;
@@ -82,7 +82,7 @@ _element_initial_scale = 0.1;
 _element_max_scale     = 10.0;  -- 8.25
 
 --- epsilon for halting the growth
-_growth_min_dist       = 3; 
+_growth_min_dist       = 5; 
 
 -- num layer in the simulation, not the png layers
 _num_layer = 100;
@@ -111,5 +111,5 @@ _num_element_pos_limit = 1;
 _num_element_density   = 100;
 
 -- stopping criteria
-_num_layer_growing_threshold = 100; --100
+_num_layer_growing_threshold = 500; --100
 

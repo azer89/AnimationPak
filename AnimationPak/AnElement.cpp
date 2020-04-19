@@ -3265,6 +3265,10 @@ void AnElement::SolveForSprings3D()
 	//{
 	//	k *= 5;
 	//}
+	if (_elem_idx == 0)
+	{
+			k *= 5;
+	}
 	for (unsigned int a = 0; a < tr_sz; a++)
 	{
 		idx0 = _layer_springs[a]._index0;
@@ -3327,6 +3331,10 @@ void AnElement::SolveForSprings3D()
 	// ----- 22222 Auxiliary Spring -----
 	int aux_sz = _auxiliary_springs.size();
 	k = _k_edge; // original
+	if (_elem_idx == 0)
+	{
+		k *= 5;
+	}
 	for (unsigned int a = 0; a < aux_sz; a++)
 	{
 		idx0 = _auxiliary_springs[a]._index0;
@@ -3416,7 +3424,7 @@ void AnElement::SolveForSprings3D()
 
 		if(_elem_idx == 0)
 		{
-			k *= 10;
+			//k *= 10;
 
 			if (layer0 == 0)
 			{

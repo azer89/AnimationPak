@@ -522,7 +522,18 @@ bool AnElement::IsInside_Const(int layer_idx, A3DVector pos, std::vector<A3DVect
 	}
 
 	boundary_slice = a_layer_boundary_3d;
-	return UtilityFunctions::InsidePolygon(a_layer_boundary, pos._x, pos._y);
+
+	std::vector<A2DVector> a_layer_boundary2;
+	std::vector<A2DVector> a_layer_boundary3;
+	for (int a = 0; a < a_layer_boundary.size(); a++)
+	{
+		a_layer_boundary2.push_back(a_layer_boundary[a] + A2DVector(-500, 0));
+		a_layer_boundary3.push_back(a_layer_boundary[a] + A2DVector(500, 0));
+	}
+
+	return UtilityFunctions::InsidePolygon(a_layer_boundary, pos._x, pos._y) ||
+		   UtilityFunctions::InsidePolygon(a_layer_boundary2, pos._x, pos._y) ||
+		   UtilityFunctions::InsidePolygon(a_layer_boundary3, pos._x, pos._y);
 }
 
 //#pragma optimize("", off)
@@ -3094,6 +3105,46 @@ A3DVector AnElement::ClosestPtOnATriSurface_Const(int triIdx, A3DVector pos) con
 	A3DVector t2 = _massList[_surfaceTriangles[triIdx].idx1].GetPos();
 	A3DVector t3 = _massList[_surfaceTriangles[triIdx].idx2].GetPos();
 	A3DVector cPt = UtilityFunctions::ClosestPointOnTriangle2(pos, t1, t2, t3);
+
+	if (_elem_idx == 0)
+	{
+		float d1 = pos.Distance(cPt);
+
+		A3DVector offVec2(-500, 0, 0);
+		A3DVector cPt2;
+		float d2;
+		{
+			A3DVector tp1 = _massList[_surfaceTriangles[triIdx].idx0].GetPos() + offVec2;
+			A3DVector tp2 = _massList[_surfaceTriangles[triIdx].idx1].GetPos() + offVec2;
+			A3DVector tp3 = _massList[_surfaceTriangles[triIdx].idx2].GetPos() + offVec2;
+			cPt2 = UtilityFunctions::ClosestPointOnTriangle2(pos, tp1, tp2, tp3);
+			d2 = pos.Distance(cPt2);
+
+			if (d2 < d1)
+			{
+				d1 = d2;
+				cPt = cPt2;
+			}
+		}
+
+		A3DVector offVec3(500, 0, 0);
+		A3DVector cPt3;
+		float d3;
+		{
+			A3DVector tp1 = _massList[_surfaceTriangles[triIdx].idx0].GetPos() + offVec3;
+			A3DVector tp2 = _massList[_surfaceTriangles[triIdx].idx1].GetPos() + offVec3;
+			A3DVector tp3 = _massList[_surfaceTriangles[triIdx].idx2].GetPos() + offVec3;
+			cPt3 = UtilityFunctions::ClosestPointOnTriangle2(pos, tp1, tp2, tp3);
+			d3 = pos.Distance(cPt3);
+
+			if (d3 < d1)
+			{
+				d1 = d3;
+				cPt = cPt3;
+			}
+		}
+	}
+
 	return cPt;
 }
 
@@ -3210,10 +3261,10 @@ void AnElement::SolveForSprings3D()
 	// ----- 00000 Layer Spring -----
 	int tr_sz = _layer_springs.size();
 	k = _k_edge; // original
-	if (_elem_idx == 0)
-	{
-		k *= 5;
-	}
+	//if (_elem_idx == 0)
+	//{
+	//	k *= 5;
+	//}
 	for (unsigned int a = 0; a < tr_sz; a++)
 	{
 		idx0 = _layer_springs[a]._index0;
@@ -3246,10 +3297,10 @@ void AnElement::SolveForSprings3D()
 	// ----- 11111 Time Spring -----
 	tr_sz = _time_springs.size();
 	k = SystemParams::_k_time_edge;
-	if (_elem_idx == 0)
-	{
-		k *= 20;
-	}
+	//if (_elem_idx == 0)
+	//{
+	//	k *= 20;
+	//}
 	for (unsigned int a = 0; a < tr_sz; a++)
 	{
 		idx0 = _time_springs[a]._index0;
@@ -3365,6 +3416,8 @@ void AnElement::SolveForSprings3D()
 
 		if(_elem_idx == 0)
 		{
+			k *= 10;
+
 			if (layer0 == 0)
 			{
 				pos2_offset.x = -SystemParams::_upscaleFactor;

@@ -42,7 +42,7 @@ _k_repulsion           = 10.0;	--- 10 repulsion force
 _k_overlap             = 5;	    --- overlap force
 _k_boundary            = 10;	--- 0.1 boundary force
 _k_rotate              = 0.2;		--- 1
-_k_dock                = 0.5;
+_k_dock                = 0.1;
 
 
 _k_aux_threshold = 0.7;
@@ -79,7 +79,7 @@ _max_m_c_pts_approx_len = 2000;
 --- for growing
 _growth_scale_iter     = 0.01; -- 0.01
 _element_initial_scale = 0.1; 
-_element_max_scale     = 15.0;  -- 8.25
+_element_max_scale     = 10.0;  -- 8.25
 
 --- epsilon for halting the growth
 _growth_min_dist       = 3; 

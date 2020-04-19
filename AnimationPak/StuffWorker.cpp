@@ -652,6 +652,40 @@ void StuffWorker::InitElementsAndCGrid(Ogre::SceneManager* scnMgr)
 				a,  // which element
 				b); // which triangle
 		}
+
+		if (a == 0)
+		{
+			// - 500
+			// time triangle
+			for (unsigned int b = 0; b < _element_list[a]._surfaceTriangles.size(); b++)
+			{
+				_element_list[a].InitSurfaceTriangleMidPts();
+
+				AnIdxTriangle tri = _element_list[a]._surfaceTriangles[b];
+
+				_c_grid_3d->InsertAPoint(tri._temp_center_3d._x - 500,
+					tri._temp_center_3d._y,
+					tri._temp_center_3d._z,
+					a,  // which element
+					b); // which triangle
+			}
+
+
+			// + 500
+			// time triangle
+			for (unsigned int b = 0; b < _element_list[a]._surfaceTriangles.size(); b++)
+			{
+				_element_list[a].InitSurfaceTriangleMidPts();
+
+				AnIdxTriangle tri = _element_list[a]._surfaceTriangles[b];
+
+				_c_grid_3d->InsertAPoint(tri._temp_center_3d._x + 500,
+					tri._temp_center_3d._y,
+					tri._temp_center_3d._z,
+					a,  // which element
+					b); // which triangle
+			}
+		}
 	}
 	std::cout << "Collision grid done...\n";
 
@@ -774,9 +808,25 @@ void StuffWorker::Update()
 	float iter = 0;
 	for (int a = 0; a < _element_list.size(); a++)
 	{
+		// THIS ROFLMAO !!!
 		for (int b = 0; b < _element_list[a]._surfaceTriangles.size(); b++)
 		{
 			_c_grid_3d->SetPoint(iter++, _element_list[a]._surfaceTriangles[b]._temp_center_3d);
+		}
+
+		if(a == 0)
+		{
+			// - 500
+			for (int b = 0; b < _element_list[a]._surfaceTriangles.size(); b++)
+			{
+				_c_grid_3d->SetPoint(iter++, _element_list[a]._surfaceTriangles[b]._temp_center_3d + A3DVector(-500, 0, 0));
+			}
+
+			// + 500
+			for (int b = 0; b < _element_list[a]._surfaceTriangles.size(); b++)
+			{
+				_c_grid_3d->SetPoint(iter++, _element_list[a]._surfaceTriangles[b]._temp_center_3d + A3DVector(500, 0, 0));
+			}
 		}
 	}	
 	_c_grid_3d->MovePoints();

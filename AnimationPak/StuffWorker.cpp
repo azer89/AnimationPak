@@ -76,8 +76,8 @@ void StuffWorker::DockElementsOnPaths(std::vector <std::vector<A3DVector>> paths
 
 		// TODO: from one dockpoint to the next one, not start to finish
 		A2DVector move_dir = paths[a][0].GetA2DVector().DirectionTo(paths[a][len - 1].GetA2DVector());
-		float radAngle = UtilityFunctions::Angle2D(0, 1, move_dir.x, move_dir.y);
-		elem.RotateXY(radAngle);
+		//float radAngle = UtilityFunctions::Angle2D(0, 1, move_dir.x, move_dir.y);
+		//elem.RotateXY(radAngle);
 		//elem.RotateXY(-3.14159);
 
 		elem.ScaleXY(initialScale);
@@ -1396,8 +1396,6 @@ void StuffWorker::SaveFrames4()
 	AVideoCreator vCreator;
 	vCreator.Init(SystemParams::_num_png_frame);
 
-	//for (int l = 0; l < SystemParams::_num_png_frame; l++)
-	//{
 
 	float yCenter = SystemParams::_upscaleFactor / 2;
 	
@@ -1412,15 +1410,16 @@ void StuffWorker::SaveFrames4()
 
 			
 			vCreator.DrawFilledArt(arts, _element_list[i]._art_b_colors, _element_list[i]._art_f_colors, l);
+			//vCreator.DrawFilledArtOffset(arts, _element_list[i]._art_b_colors, _element_list[i]._art_f_colors, l, A2DVector(250, 250));
 
 			if (i == 0)
 			{
+				//vCreator.DrawFilledArtOffset(arts, _element_list[i]._art_b_colors, _element_list[i]._art_f_colors, l, A2DVector(SystemParams::_upscaleFactor + 250, 250));
+				//vCreator.DrawFilledArtOffset(arts, _element_list[i]._art_b_colors, _element_list[i]._art_f_colors, l, A2DVector(-250, 250));
+
 				vCreator.DrawFilledArtOffset(arts, _element_list[i]._art_b_colors, _element_list[i]._art_f_colors, l, A2DVector(SystemParams::_upscaleFactor, 0));
 				vCreator.DrawFilledArtOffset(arts, _element_list[i]._art_b_colors, _element_list[i]._art_f_colors, l, A2DVector(-SystemParams::_upscaleFactor, 0));
 			}
-
-			//std::vector<std::vector<A2DVector>> arts_x = UtilityFunctions::FlipX(arts, 250);
-			//vCreator.DrawFilledArt(arts_x, _element_list[i]._art_b_colors, _element_list[i]._art_f_colors, l);
 
 		}
 	}

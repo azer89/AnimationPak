@@ -1346,10 +1346,16 @@ void AnElement::Grow(float growth_scale_iter, float dt)
 		}
 	}
 
+	float element_max_scale = SystemParams::_element_max_scale;
+	if (_elem_idx == 0)
+	{
+		element_max_scale -= 3.0f;
+	}
+
 	// update
 	for (int a = 0; a < SystemParams::_num_layer; a++)
 	{
-		if (_layer_scale_array[a] >= SystemParams::_element_max_scale)
+		if (_layer_scale_array[a] >= element_max_scale)
 		{
 			// kinda stupid but for visualization and reduce unnecessary computation
 			_insideFlags[a] = true;
@@ -1359,7 +1365,7 @@ void AnElement::Grow(float growth_scale_iter, float dt)
 	// scale values
 	for (int a = 0; a < SystemParams::_num_layer; a++)
 	{
-		if (_layer_scale_array[a] > SystemParams::_element_max_scale)
+		if (_layer_scale_array[a] > element_max_scale)
 		{
 			continue;
 		}
@@ -1373,16 +1379,16 @@ void AnElement::Grow(float growth_scale_iter, float dt)
 	// k_edge values
 	for (int a = 0; a < SystemParams::_num_layer; a++)
 	{
-		float ratio_val = (_layer_scale_array[a] - 1.0f) / (SystemParams::_element_max_scale - 1.0f);
+		float ratio_val = (_layer_scale_array[a] - 1.0f) / (element_max_scale - 1.0f);
 		_layer_k_edge_array[a] = ((1.0f - ratio_val) *  SystemParams::_k_edge_start) + (ratio_val * SystemParams::_k_edge_end);
 	}
 
-	if (_scale < SystemParams::_element_max_scale)
+	if (_scale < element_max_scale)
 	{
 
 		_scale += growth_scale_iter * dt;
 
-		float ratio_val = (_scale - 1.0f) / (SystemParams::_element_max_scale - 1.0f);
+		float ratio_val = (_scale - 1.0f) / (element_max_scale - 1.0f);
 		_k_edge = ((1.0f - ratio_val) *  SystemParams::_k_edge_start) + (ratio_val * SystemParams::_k_edge_end);
 
 	}
@@ -3301,10 +3307,10 @@ void AnElement::SolveForSprings3D()
 	// ----- 11111 Time Spring -----
 	tr_sz = _time_springs.size();
 	k = SystemParams::_k_time_edge;
-	//if (_elem_idx == 0)
-	//{
-	//	k *= 20;
-	//}
+	if (_elem_idx == 0)
+	{
+		k *= 10;
+	}
 	for (unsigned int a = 0; a < tr_sz; a++)
 	{
 		idx0 = _time_springs[a]._index0;

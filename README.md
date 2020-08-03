@@ -1,4 +1,4 @@
-# AnimationPak: Packing Elements with Scripted Animationss (Graphics Interface 2020)
+# AnimationPak: Packing Elements with Scripted Animations (Graphics Interface 2020)
 
 https://openreview.net/forum?id=sr89orrDo-o
 

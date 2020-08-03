@@ -1,3 +1,7 @@
+# AnimationPak: Packing Elements with Scripted Animationss (Graphics Interface 2020)
+
+https://openreview.net/forum?id=sr89orrDo-o
+
 How to run this:
 
 * Download OGRE3D
